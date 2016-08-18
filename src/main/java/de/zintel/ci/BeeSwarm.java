@@ -11,8 +11,8 @@ import de.zintel.gfx.g2d.Vector2D;
  */
 public class BeeSwarm extends Swarm {
 
-	public BeeSwarm(Vector2D leaderAttractor) {
-		super(leaderAttractor);
+	public BeeSwarm(Vector2D center) {
+		super(center);
 		setUseAlignment(false);
 	}
 }

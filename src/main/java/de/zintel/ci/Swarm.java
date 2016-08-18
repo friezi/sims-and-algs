@@ -17,7 +17,9 @@ import de.zintel.math.Utils;
  */
 public class Swarm {
 
-	private final Vector2D leaderAttractor;
+	private final Vector2D center;
+
+	private final double centerLength;
 
 	private int boidSpeed = 8;
 
@@ -47,8 +49,9 @@ public class Swarm {
 
 	private final Object boidsMonitor = new Object();
 
-	public Swarm(Vector2D leaderAttractor) {
-		this.leaderAttractor = leaderAttractor;
+	public Swarm(Vector2D center) {
+		this.center = center;
+		this.centerLength = center.length();
 	}
 
 	public void addBoid(final Boid boid) {
@@ -67,6 +70,9 @@ public class Swarm {
 		return boids;
 	}
 
+	/**
+	 * 
+	 */
 	public void swarm() {
 
 		synchronized (boidsMonitor) {
@@ -83,6 +89,11 @@ public class Swarm {
 
 	}
 
+	/**
+	 * @param boid
+	 * @param attractionVector
+	 * @return
+	 */
 	private Boid approachPoint(final Boid boid, final Vector2D attractionVector) {
 
 		final Vector2D position = boid.getPosition();
@@ -125,6 +136,10 @@ public class Swarm {
 
 	}
 
+	/**
+	 * @param boid
+	 * @return
+	 */
 	private Vector2D calculateAttractor(final Boid boid) {
 
 		if (usePredator && boid.isPredator()) {
@@ -145,7 +160,7 @@ public class Swarm {
 
 			double distance = Vector2D.distance(boid.getPosition(), neighbour.getPosition());
 
-			if (useCohesion) {
+			if (useCohesion && !(useLeader && boid.isLeader())) {
 				vectors.add(calculateCohesionVector(boid, neighbour, distance));
 			}
 			if (useSeparation) {
@@ -154,6 +169,8 @@ public class Swarm {
 			if (useAlignment && !(useLeader && boid.isLeader())) {
 				vectors.add(calculateAlignmentVector(boid, neighbour, distance));
 			}
+
+			vectors.add(calculateCenterVector(boid, neighbour, distance));
 
 			for (final Vector2D vector : vectors) {
 				tVector.add(vector);
@@ -164,25 +181,21 @@ public class Swarm {
 
 	}
 
+	/**
+	 * @param boid
+	 * @param neighbour
+	 * @param distance
+	 * @return
+	 */
 	private Vector2D calculateCohesionVector(final Boid boid, final Boid neighbour, final double distance) {
-
-		final Vector2D centerAttractorVector = Vector2D.substract(leaderAttractor, boid.getPosition());
-
-		if (useLeader && boid.isLeader()) {
-			// leaders werden zur Mitte streben
-			return centerAttractorVector;
-		}
 
 		if (distance < 1) {
 			return new Vector2D();
 		}
 
 		double factor = publicDistance - distance;
-		double centerFactor = 0;
 		if (factor < 0) {
 			factor = 0;
-			// boids ohne Anführer sollen zur Mitte streben
-			centerFactor = distance;
 		}
 
 		if (neighbour.isLeader()) {
@@ -191,13 +204,17 @@ public class Swarm {
 
 		double dX = neighbour.getPosition().x - boid.getPosition().x;
 		double dY = neighbour.getPosition().y - boid.getPosition().y;
-		final Vector2D normalizedCenterAttractor = Vector2D.normalize(centerAttractorVector);
 
-		return new Vector2D((factor * dX) / distance + centerFactor * normalizedCenterAttractor.x,
-				(factor * dY) / distance + centerFactor * normalizedCenterAttractor.y);
+		return new Vector2D((factor * dX) / distance, (factor * dY) / distance);
 
 	}
 
+	/**
+	 * @param boid
+	 * @param neighbour
+	 * @param distance
+	 * @return
+	 */
 	private Vector2D calculateSeparationVector(final Boid boid, final Boid neighbour, double distance) {
 
 		int individualDist = usePredator && neighbour.isPredator() ? predatorDistance : personalDistance;
@@ -223,6 +240,12 @@ public class Swarm {
 
 	}
 
+	/**
+	 * @param boid
+	 * @param neighbour
+	 * @param distance
+	 * @return
+	 */
 	private Vector2D calculateAlignmentVector(final Boid boid, final Boid neighbour, final double distance) {
 
 		if (distance > 2 * personalDistance) {
@@ -239,6 +262,34 @@ public class Swarm {
 			return new Vector2D(coeff * neighbour.getDirection().x, coeff * neighbour.getDirection().y);
 
 		}
+
+	}
+
+	/**
+	 * @param boid
+	 * @param neighbour
+	 * @param distance
+	 * @return
+	 */
+	private Vector2D calculateCenterVector(final Boid boid, final Boid neighbour, double distance) {
+
+		final Vector2D centerAttractorVector = Vector2D.substract(center, boid.getPosition());
+
+		if (useLeader && boid.isLeader()) {
+			// leaders werden zur Mitte streben
+			return centerAttractorVector;
+		}
+
+		double centerFactor = 0;
+		if (neighbour.isLeader() && publicDistance - distance < 0) {
+			// boids ohne Anführer sollen zur Mitte streben
+			double power = 2 * distance / centerLength;
+			centerFactor = Math.pow(distance, power);
+		}
+
+		final Vector2D normalizedCenterAttractor = Vector2D.normalize(centerAttractorVector);
+
+		return new Vector2D(centerFactor * normalizedCenterAttractor.x, centerFactor * normalizedCenterAttractor.y);
 
 	}
 
