@@ -176,7 +176,7 @@ public class DefaultRenderer implements IRenderer {
 						float divisor;
 
 						if (i == -1) {
-							divisor = 1.2f;
+							divisor = 2f;
 						} else if (i % rateRays == 0)
 							if (i % (4 * rateRays) == 0) {
 								divisor = axisRayDiv;
@@ -186,7 +186,7 @@ public class DefaultRenderer implements IRenderer {
 								divisor = 5f;
 							}
 						else {
-							divisor = 8f;
+							divisor = 10f;
 						}
 
 						final Color color = new Color((int) (basecolor.getRed() / divisor), (int) (basecolor.getGreen() / divisor),
