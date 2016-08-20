@@ -46,7 +46,7 @@ import de.zintel.math.Utils;
 @SuppressWarnings("serial")
 public class CollectiveIntelligence implements MouseListener, ActionListener, KeyListener, IRendererListener {
 
-	private static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.SWING;
+	private static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
 
 	private static Koordination koordination = new Koordination();
 
@@ -76,7 +76,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static final int PREDATOR_SPEED = 5;
 
-	private static final boolean SHIVERING = false;
+	private static final boolean SHIVERING = true;
 
 	private static final long TEXT_TIMEOUT = 1500;
 
@@ -750,7 +750,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 			if (SHIVERING) {
 				graphicsSubsystem.drawFilledCircle((int) boid.getPosition().x, (int) boid.getPosition().y, BOID_SIZE,
-						() -> new Color(color.getRed(), color.getGreen(), color.getBlue(), 100));
+						() -> new Color(effectiveColor.getRed(), effectiveColor.getGreen(), effectiveColor.getBlue(), 100));
 			}
 		}
 
