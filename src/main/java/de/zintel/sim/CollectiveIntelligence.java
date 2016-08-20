@@ -76,7 +76,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static final int PREDATOR_SPEED = 5;
 
-	private static final boolean SHIVERING = true;
+	private static final boolean SHIVERING = (GFX_SSYSTEM == GfxUtils.EGraphicsSubsystem.GL);
 
 	private static final long TEXT_TIMEOUT = 1500;
 
