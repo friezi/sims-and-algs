@@ -33,6 +33,7 @@ import de.zintel.gfx.component.FadingText;
 import de.zintel.gfx.component.GfxState;
 import de.zintel.gfx.component.IGfxComponent;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
+import de.zintel.gfx.g2d.Polar;
 import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystemFactory;
@@ -65,13 +66,14 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static final long DELAY = 1;
 
-	private static final Color[] COLOR_BOID = new Color[] { new Color(192, 192, 192), new Color(80, 80, 80), new Color(220, 220, 220),
-			new Color(140, 140, 140), new Color(100, 100, 100), new Color(90, 90, 90), new Color(50, 50, 50), new Color(40, 40, 40),
-			new Color(70, 70, 220) };
+	private static final Color[] COLOR_BOID = new Color[] { Color.BLUE, Color.BLUE.brighter(), Color.BLUE.darker(),
+			Color.BLUE.brighter().brighter(), Color.BLUE.darker().darker() };
 
 	private static final Color[] COLOR_LEADER = COLOR_BOID;
 
 	private static final Color[] COLOR_PREDATOR = new Color[] { Color.RED, new Color(200, 0, 0) };
+
+	private static final Color SHINE = Color.WHITE;
 
 	private static final int LEADER_SPEED = 3;
 
@@ -732,17 +734,22 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 	public void render() {
 
 		int i = 0;
-		Color color;
+		Color color = null;
 		for (final Boid boid : swarm.getBoids()) {
 
 			i++;
 
-			if (boid.isLeader()) {
-				color = COLOR_LEADER[cIdx % COLOR_LEADER.length];
-			} else if (boid.isPredator()) {
-				color = COLOR_PREDATOR[cIdx % COLOR_PREDATOR.length];
+			if (boid.isLeader() || boid.isPredator()) {
+
+				if (boid.isLeader()) {
+					color = calculateMovementDependentColor(SHINE, COLOR_LEADER[cIdx % COLOR_LEADER.length], boid);
+
+				} else if (boid.isPredator()) {
+					color = COLOR_PREDATOR[cIdx % COLOR_PREDATOR.length];
+				}
+
 			} else {
-				color = COLOR_BOID[(cIdx + i) % COLOR_BOID.length];
+				color = calculateMovementDependentColor(SHINE, COLOR_BOID[(cIdx + i) % COLOR_BOID.length], boid);
 			}
 
 			final Color effectiveColor = color;
@@ -753,7 +760,6 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 				@Override
 				public Color generateColor() {
-					// TODO Auto-generated method stub
 
 					if (center == true) {
 
@@ -787,6 +793,32 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 		}
 
+	}
+
+	private Color calculateMovementDependentColor(final Color shine, Color color, final Boid boid) {
+
+		Polar polarDirection = boid.getDirection().toPolar();
+		if (Double.isNaN(polarDirection.getAngle())) {
+			polarDirection = new Polar(1, 0);
+		}
+		Polar polarPreviousDirection = boid.getPreviousDirection().toPolar();
+		if (Double.isNaN(polarPreviousDirection.getAngle())) {
+			polarPreviousDirection = new Polar(1, 0);
+		}
+		double deltaAngle = Math.abs(polarDirection.getAngle() - polarPreviousDirection.getAngle());
+		if (deltaAngle > Math.PI) {
+			deltaAngle = 2 * Math.PI - deltaAngle;
+		}
+
+		int deltaRed = calculateDeltaColorValue(shine.getRed(), color.getRed(), deltaAngle);
+		int deltaGreen = calculateDeltaColorValue(shine.getGreen(), color.getGreen(), deltaAngle);
+		int deltaBlue = calculateDeltaColorValue(shine.getBlue(), color.getBlue(), deltaAngle);
+
+		return new Color(color.getRed() + deltaRed, color.getGreen() + deltaGreen, color.getBlue() + deltaBlue);
+	}
+
+	private int calculateDeltaColorValue(int targetColorValue, int currentColorValue, double angle) {
+		return (int) (angle * (targetColorValue - currentColorValue) / Math.PI);
 	}
 
 	@Override

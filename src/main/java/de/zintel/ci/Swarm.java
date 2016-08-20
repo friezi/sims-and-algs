@@ -130,6 +130,7 @@ public class Swarm {
 		newPosition = new Vector2D(position).add(resultVector);
 		Boid nextBoid = new Boid(newPosition, boid.getId()).setLeader(boid.isLeader()).setPredator(boid.isPredator())
 				.setMotioner(boid.getMotioner());
+		nextBoid.setPreviousDirection(boid.getDirection());
 		nextBoid.setDirection(resultVector);
 
 		return nextBoid;

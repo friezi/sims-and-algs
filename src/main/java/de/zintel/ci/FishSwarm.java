@@ -6,6 +6,7 @@ public class FishSwarm extends Swarm {
 
 	public FishSwarm(Vector2D center) {
 		super(center);
+		setInfluenceOfAlignment(22);
 	}
 
 }

@@ -17,6 +17,8 @@ public class Boid {
 
 	private Vector2D direction = new Vector2D();
 
+	private Vector2D previousDirection = new Vector2D();
+
 	private boolean leader = false;
 
 	private boolean predator = false;
@@ -99,6 +101,14 @@ public class Boid {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+
+	public Vector2D getPreviousDirection() {
+		return previousDirection;
+	}
+
+	public void setPreviousDirection(Vector2D previousDirection) {
+		this.previousDirection = previousDirection;
 	}
 
 }
