@@ -472,4 +472,9 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 
 	}
 
+	@Override
+	public boolean supportsColorChange() {
+		return true;
+	}
+
 }

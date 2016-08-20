@@ -226,4 +226,9 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 		mainFrame.removeKeyListener(listener);
 	}
 
+	@Override
+	public boolean supportsColorChange() {
+		return false;
+	}
+
 }

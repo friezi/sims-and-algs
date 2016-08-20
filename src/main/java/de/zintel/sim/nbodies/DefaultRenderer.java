@@ -145,20 +145,18 @@ public class DefaultRenderer implements IRenderer {
 		final int rateRays = rateCoronaRays;
 
 		final Boolean spinned = property.isSpinned();
-		float axisRayDiv = (spinned ? 1.5f : 1f);
-		float diagonalRayDiv = (spinned ? 1f : 1.5f);
-
-		Color color = makeChangedColor(property.getBodyColor(), property.getCurrentCoronaColor());
+		float axisRayDiv = (spinned ? 3f : 1f);
+		float diagonalRayDiv = (spinned ? 1f : 3f);
 
 		double size = Math.ceil(body.getSize());
 		if (body.getSize() > 5) {
+
 			int rings = Math.max(3, (int) (body.getSize() / 10));
 			double coeff = 7.0 / rings;
-			for (int i = 1; i <= rings; i++) {
 
-				// Faktor für die Corona
-				double factor = i * coeff;
-				final int alphacnt = i;
+			if (graphicsSubsystem.supportsColorChange()) {
+
+				double factor = rings * coeff;
 				final double scaledSize = scale(size + size * factor);
 
 				// sorgt bei entsprechender Hardwareunterstützung für Strahlen
@@ -174,30 +172,77 @@ public class DefaultRenderer implements IRenderer {
 						float divisor;
 
 						if (i == -1) {
-							divisor = 1f;
+							divisor = 1.2f;
 						} else if (i % rateRays == 0)
 							if (i % (4 * rateRays) == 0) {
 								divisor = axisRayDiv;
 							} else if (i % (2 * rateRays) == 0) {
 								divisor = diagonalRayDiv;
 							} else {
-								divisor = 1.8f;
+								divisor = 5f;
 							}
 						else {
-							divisor = 2f;
+							divisor = 8f;
 						}
 
+						final Color color = new Color((int) (basecolor.getRed() / divisor), (int) (basecolor.getGreen() / divisor),
+								(int) (basecolor.getBlue() / divisor), (i == -1 ? 200 : 1));
 						i++;
-						return new Color((int) (basecolor.getRed() / divisor), (int) (basecolor.getGreen() / divisor),
-								(int) (basecolor.getBlue() / divisor), 100 / alphacnt);
+						return color;
 					}
 				};
+
 				graphicsSubsystem.drawFilledCircle((int) project(body.getPosition().x, graphicsSubsystem.getWidth()),
 						(int) project(body.getPosition().y, graphicsSubsystem.getHeight()), (int) scaledSize, colorGenerator);
+
+			} else {
+
+				for (int i = 1; i <= rings; i++) {
+
+					// Faktor für die Corona
+					double factor = i * coeff;
+					final int alphacnt = i;
+					final double scaledSize = scale(size + size * factor);
+
+					// sorgt bei entsprechender Hardwareunterstützung für
+					// Strahlen
+					final ColorGenerator colorGenerator = new ColorGenerator() {
+
+						private int i = -1;
+
+						private Color basecolor = makeChangedColor(property.getBodyColor(), property.getCurrentCoronaColor());
+
+						@Override
+						public Color generateColor() {
+
+							float divisor;
+
+							if (i == -1) {
+								divisor = 1f;
+							} else if (i % rateRays == 0)
+								if (i % (4 * rateRays) == 0) {
+									divisor = axisRayDiv;
+								} else if (i % (2 * rateRays) == 0) {
+									divisor = diagonalRayDiv;
+								} else {
+									divisor = 1.8f;
+								}
+							else {
+								divisor = 2f;
+							}
+
+							i++;
+							return new Color((int) (basecolor.getRed() / divisor), (int) (basecolor.getGreen() / divisor),
+									(int) (basecolor.getBlue() / divisor), 100 / alphacnt);
+						}
+					};
+					graphicsSubsystem.drawFilledCircle((int) project(body.getPosition().x, graphicsSubsystem.getWidth()),
+							(int) project(body.getPosition().y, graphicsSubsystem.getHeight()), (int) scaledSize, colorGenerator);
+				}
 			}
 		}
 
-		property.setCurrentCoronaColor(color);
+		property.setCurrentCoronaColor(makeChangedColor(property.getBodyColor(), property.getCurrentCoronaColor()));
 	}
 
 	/**
