@@ -22,7 +22,7 @@ public class FadingText implements IGfxComponent {
 
 	private static final int MAX_ALPHA = 255;
 
-	private static final int MAX_ITERATIONS = 40;
+	private static final int MAX_ITERATIONS = 20;
 
 	private static final int MAX_FONT_SIZE = 50;
 

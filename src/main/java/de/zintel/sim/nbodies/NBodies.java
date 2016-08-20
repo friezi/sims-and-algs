@@ -59,14 +59,14 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 
 	private GravitationSystem gravitationSystem;
 
-	// private Scenery scenery = new CommonScenery(width, height, new
-	// StarfieldSceneryConfig());
+//	 private Scenery scenery = new CommonScenery(width, height, new
+//	 StarfieldSceneryConfig());
 	//
 	// private Scenery scenery = new CommonScenery(width, height, new
 	// ExplosionSceneryConfig());
 
 	private Scenery scenery = new BlackholeScenery(width, height, new BlackholeSceneryConfig());
-	//
+	
 	// private Scenery scenery = new BlackholeOnlyScenery(width, height, new
 	// BlackholeOnlySceneryConfig());
 

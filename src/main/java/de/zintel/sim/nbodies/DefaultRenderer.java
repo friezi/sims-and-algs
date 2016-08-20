@@ -60,9 +60,11 @@ public class DefaultRenderer implements IRenderer {
 
 		final SwingBodyProperty property = getProperty(body);
 
-		final Color color = (scenery.getSceneryConfig().isStarfield()
-				? makeChangedColor(property.getBodyColor(), property.getCurrentBodyColor()) : property.getBodyColor());
-		property.setCurrentBodyColor(color);
+		final Color newColor = CUtils.makeRandomStarColor();
+		final Color innercolor = (scenery.getSceneryConfig().isStarfield() ? makeChangedColor(newColor, newColor)
+				: property.getBodyColor());
+		final Color outercolor = property.getBodyColor();
+		property.setCurrentBodyColor(innercolor);
 
 		// sorgt bei entsprechender Hardwareunterstützung für changierenden
 		// Körper
@@ -70,14 +72,16 @@ public class DefaultRenderer implements IRenderer {
 
 			private boolean center = true;
 
+			private final Color rimColor = new Color(outercolor.getRed(), outercolor.getGreen(), outercolor.getBlue(), 50);
+
 			@Override
 			public Color generateColor() {
 
 				if (center) {
 					center = false;
-					return CUtils.makeRandomStarColor();
+					return innercolor;
 				} else {
-					return color;
+					return rimColor;
 				}
 
 			}

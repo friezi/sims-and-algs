@@ -28,6 +28,7 @@ import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.Koordination;
+import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.gfx.component.FadingText;
 import de.zintel.gfx.component.GfxState;
 import de.zintel.gfx.component.IGfxComponent;
@@ -746,9 +747,29 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 			final Color effectiveColor = color;
 
-			graphicsSubsystem.drawFilledCircle((int) boid.getPosition().x, (int) boid.getPosition().y, BOID_SIZE / 2, () -> effectiveColor);
+			ColorGenerator colorGenerator = new ColorGenerator() {
 
-			if (SHIVERING) {
+				boolean center = true;
+
+				@Override
+				public Color generateColor() {
+					// TODO Auto-generated method stub
+
+					if (center == true) {
+
+						center = false;
+						return effectiveColor;
+
+					} else {
+						return new Color(effectiveColor.getRed(), effectiveColor.getGreen(), effectiveColor.getBlue(), 50);
+					}
+				}
+			};
+
+			graphicsSubsystem.drawFilledCircle((int) boid.getPosition().x, (int) boid.getPosition().y,
+					graphicsSubsystem.supportsColorChange() ? BOID_SIZE : BOID_SIZE / 2, colorGenerator);
+
+			if (SHIVERING && !graphicsSubsystem.supportsColorChange()) {
 				graphicsSubsystem.drawFilledCircle((int) boid.getPosition().x, (int) boid.getPosition().y, BOID_SIZE,
 						() -> new Color(effectiveColor.getRed(), effectiveColor.getGreen(), effectiveColor.getBlue(), 100));
 			}
