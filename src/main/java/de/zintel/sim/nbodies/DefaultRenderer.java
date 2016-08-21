@@ -175,7 +175,7 @@ public class DefaultRenderer implements IRenderer {
 						float divisor;
 
 						if (i == -1) {
-							divisor = 2f;
+							divisor = 1f;
 						} else if (i % rateRays == 0)
 							if (i % (4 * rateRays) == 0) {
 								divisor = axisRayDiv;
