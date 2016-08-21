@@ -66,8 +66,10 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static final long DELAY = 1;
 
-	private static final Color[] COLOR_BOID = new Color[] { Color.BLUE, Color.BLUE.brighter(), Color.BLUE.darker(),
-			Color.BLUE.brighter().brighter(), Color.BLUE.darker().darker() };
+	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
+
+	private static final Color[] COLOR_BOID = new Color[] { Color.BLUE, new Color(0, 0, 180), new Color(0, 0, 120), new Color(0, 0, 80),
+			new Color(0, 0, 60), new Color(0, 0, 80), new Color(0, 0, 120), new Color(0, 0, 180) };
 
 	private static final Color[] COLOR_LEADER = COLOR_BOID;
 
@@ -107,7 +109,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static final String ID_STATUS = "status";
 
-	private int cIdx = 255;
+	private int cIdx = 0;
 
 	private static class BezierMotioner implements BoidMotioner {
 
@@ -235,7 +237,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 		graphicsSubsystem = graphicsSubsystemFactory.newGraphicsSubsystem("Collective Intelligence", koordination.WIDTH,
 				koordination.HEIGHT);
 		graphicsSubsystem.init();
-		graphicsSubsystem.setBackground(new Color(0, 0, 50));
+		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		graphicsSubsystem.setFullScreen();
 		graphicsSubsystem.addMouseListener(this);
 		graphicsSubsystem.addKeyListener(this);
@@ -252,8 +254,6 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 		while (true) {
 
-			cIdx--;
-
 			long startTs = System.currentTimeMillis();
 
 			swarm.swarm();
@@ -266,8 +266,10 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 				Thread.sleep(DELAY - diffTs);
 			}
 
-			if (cIdx == 0) {
-				cIdx = 256;
+			if (cIdx == Integer.MAX_VALUE - NMB_BOIDS) {
+				cIdx = 0;
+			} else {
+				cIdx++;
 			}
 
 			if (USE_DYNAMIC_PROVIDERS) {
