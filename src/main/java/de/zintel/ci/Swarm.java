@@ -165,10 +165,11 @@ public class Swarm {
 			if (useCohesion && !(useLeader && boid.getType() == BoidType.LEADER)) {
 				vectors.add(calculateCohesionVector(boid, neighbour, distance));
 			}
-			if (useSeparation) {
+			if (useSeparation && !(usePredator && boid.getType() == BoidType.PREDATOR)) {
 				vectors.add(calculateSeparationVector(boid, neighbour, distance));
 			}
-			if (useAlignment && !(useLeader && boid.getType() == BoidType.LEADER)) {
+			if (useAlignment && !(useLeader && boid.getType() == BoidType.LEADER)
+					&& !(usePredator && boid.getType() == BoidType.PREDATOR)) {
 				vectors.add(calculateAlignmentVector(boid, neighbour, distance));
 			}
 
@@ -274,7 +275,7 @@ public class Swarm {
 	 * @return
 	 */
 	private Vector2D calculateCenterVector(final Boid boid) {
-		return Vector2D.mult(Vector2D.substract(center, boid.getPosition()), 4);
+		return Vector2D.mult(Vector2D.substract(center, boid.getPosition()), 10);
 	}
 
 	private Point calculateInertnessVector(Point direction) {
