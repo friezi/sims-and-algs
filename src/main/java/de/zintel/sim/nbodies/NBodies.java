@@ -11,7 +11,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.Koordination;
@@ -59,16 +61,19 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 
 	private GravitationSystem gravitationSystem;
 
-//	 private Scenery scenery = new CommonScenery(width, height, new
-//	 StarfieldSceneryConfig());
-	//
-	// private Scenery scenery = new CommonScenery(width, height, new
-	// ExplosionSceneryConfig());
+	private static final int IDX_SCENERY = 2;
 
-	private Scenery scenery = new BlackholeScenery(width, height, new BlackholeSceneryConfig());
-	
-	// private Scenery scenery = new BlackholeOnlyScenery(width, height, new
-	// BlackholeOnlySceneryConfig());
+	@SuppressWarnings("serial")
+	private List<Scenery> sceneries = new ArrayList<Scenery>() {
+		{
+			add(new CommonScenery(width, height, new StarfieldSceneryConfig()));
+			add(new CommonScenery(width, height, new ExplosionSceneryConfig()));
+			add(new BlackholeScenery(width, height, new BlackholeSceneryConfig()));
+			add(new BlackholeOnlyScenery(width, height, new BlackholeOnlySceneryConfig()));
+		}
+	};
+
+	private Scenery scenery = sceneries.get(IDX_SCENERY);
 
 	private volatile boolean stopped = false;
 
