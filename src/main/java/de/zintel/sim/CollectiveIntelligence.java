@@ -74,7 +74,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static final Color[] COLOR_LEADER = COLOR_BOID;
 
-	private static final Color[] COLOR_PREDATOR = new Color[] { Color.RED, new Color(200, 0, 0), new Color(100, 0, 0) };
+	private static final Color[] COLOR_PREDATOR = new Color[] { Color.RED, new Color(200, 0, 0) };
 
 	private static final Color SHINE = Color.WHITE;
 

@@ -64,6 +64,10 @@ public class Vector2D {
 		this.y += y;
 	}
 
+	public static Vector2D mult(Vector2D vector, double val) {
+		return new Vector2D(val * vector.x, val * vector.y);
+	}
+
 	public static Vector2D add(Vector2D a, Vector2D b) {
 		return new Vector2D(a.x + b.x, a.y + b.y);
 	}

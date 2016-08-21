@@ -19,8 +19,6 @@ public class Swarm {
 
 	private final Vector2D center;
 
-	private final double centerLength;
-
 	private int boidSpeed = 8;
 
 	private int influenceOfSeparation = 6;
@@ -51,7 +49,6 @@ public class Swarm {
 
 	public Swarm(Vector2D center) {
 		this.center = center;
-		this.centerLength = center.length();
 	}
 
 	public void addBoid(final Boid boid) {
@@ -175,7 +172,7 @@ public class Swarm {
 				vectors.add(calculateAlignmentVector(boid, neighbour, distance));
 			}
 
-			vectors.add(calculateCenterVector(boid, neighbour, distance));
+			vectors.add(calculateCenterVector(boid));
 
 			for (final Vector2D vector : vectors) {
 				tVector.add(vector);
@@ -276,26 +273,8 @@ public class Swarm {
 	 * @param distance
 	 * @return
 	 */
-	private Vector2D calculateCenterVector(final Boid boid, final Boid neighbour, double distance) {
-
-		final Vector2D centerAttractorVector = Vector2D.substract(center, boid.getPosition());
-
-		if (useLeader && boid.getType() == BoidType.LEADER) {
-			// leaders werden zur Mitte streben
-			return centerAttractorVector;
-		}
-
-		double centerFactor = 0;
-		if (neighbour.getType() == BoidType.LEADER && publicDistance - distance < 0) {
-			// boids ohne Anführer sollen zur Mitte streben
-			double power = 2 * distance / centerLength;
-			centerFactor = Math.pow(distance, power);
-		}
-
-		final Vector2D normalizedCenterAttractor = Vector2D.normalize(centerAttractorVector);
-
-		return new Vector2D(centerFactor * normalizedCenterAttractor.x, centerFactor * normalizedCenterAttractor.y);
-
+	private Vector2D calculateCenterVector(final Boid boid) {
+		return Vector2D.mult(Vector2D.substract(center, boid.getPosition()), 4);
 	}
 
 	private Point calculateInertnessVector(Point direction) {
