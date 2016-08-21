@@ -63,7 +63,6 @@ public class DefaultRenderer implements IRenderer {
 		final Color newColor = CUtils.makeRandomStarColor();
 		final Color innercolor = (scenery.getSceneryConfig().isStarfield() ? makeChangedColor(newColor, newColor)
 				: property.getBodyColor());
-		final Color outercolor = property.getBodyColor();
 		property.setCurrentBodyColor(innercolor);
 
 		// sorgt bei entsprechender Hardwareunterstützung für changierenden
@@ -72,7 +71,7 @@ public class DefaultRenderer implements IRenderer {
 
 			private boolean center = true;
 
-			private final Color rimColor = new Color(outercolor.getRed(), outercolor.getGreen(), outercolor.getBlue(), 50);
+			private final Color rimColor = new Color(Color.WHITE.getRed(), Color.WHITE.getGreen(), Color.WHITE.getBlue(), 200);
 
 			@Override
 			public Color generateColor() {
