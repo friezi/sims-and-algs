@@ -22,6 +22,7 @@ import java.util.Random;
 
 import de.zintel.ci.Boid;
 import de.zintel.ci.BoidMotioner;
+import de.zintel.ci.BoidType;
 import de.zintel.ci.FishSwarm;
 import de.zintel.ci.Swarm;
 import de.zintel.control.IKeyAction;
@@ -68,12 +69,12 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
 
-	private static final Color[] COLOR_BOID = new Color[] { Color.BLUE, new Color(0, 0, 180), new Color(0, 0, 120), new Color(0, 0, 80),
-			new Color(0, 0, 60), new Color(0, 0, 80), new Color(0, 0, 120), new Color(0, 0, 180) };
+	private static final Color[] COLOR_BOID = new Color[] { Color.BLUE, new Color(0, 0, 180), new Color(0, 0, 130), new Color(0, 0, 90),
+			new Color(0, 0, 70), new Color(0, 0, 90), new Color(0, 0, 130), new Color(0, 0, 180) };
 
 	private static final Color[] COLOR_LEADER = COLOR_BOID;
 
-	private static final Color[] COLOR_PREDATOR = new Color[] { Color.RED, new Color(200, 0, 0) };
+	private static final Color[] COLOR_PREDATOR = new Color[] { Color.RED, new Color(200, 0, 0), new Color(100, 0, 0) };
 
 	private static final Color SHINE = Color.WHITE;
 
@@ -82,6 +83,8 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 	private static final int PREDATOR_SPEED = 5;
 
 	private static final boolean SHIVERING = (GFX_SSYSTEM == GfxUtils.EGraphicsSubsystem.GL);
+
+	private static final int FADING_TEXT_ITERATIONS = (GFX_SSYSTEM == GfxUtils.EGraphicsSubsystem.GL ? 20 : 40);
 
 	private static final long TEXT_TIMEOUT = 1500;
 
@@ -177,7 +180,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 		@Override
 		public Vector2D nextMotionVector() {
-			Vector2D motionVector = new Vector2D(currentPosition.x - previousPosition.x, currentPosition.y - previousPosition.y);
+			Vector2D motionVector = Vector2D.substract(currentPosition, previousPosition);
 			previousPosition = currentPosition;
 			return motionVector;
 		}
@@ -194,7 +197,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 	private final Collection<Boid> leaders = new ArrayList<Boid>() {
 		{
 			for (int i = 0; i < NMB_LEADERS; i++) {
-				Boid leader = makeRandomBoid("leader_" + i).setLeader(true);
+				Boid leader = makeRandomBoid("leader_" + i).setType(BoidType.LEADER);
 				leader.setMotioner(new BezierMotioner(leader, LEADER_SPEED));
 				add(leader);
 			}
@@ -203,14 +206,14 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 	private final Collection<Boid> predators = new ArrayList<Boid>() {
 		{
 			for (int i = 0; i < NMB_PREDATORS; i++) {
-				Boid predator = makeRandomBoid("predator_" + i).setPredator(true);
+				Boid predator = makeRandomBoid("predator_" + i).setType(BoidType.PREDATOR);
 				predator.setMotioner(new BezierMotioner(predator, PREDATOR_SPEED));
 				add(predator);
 			}
 		}
 	};
 
-	private final Boid mouseBoid = makeRandomBoid("mouseBoid").setLeader(true);
+	private final Boid mouseBoid = makeRandomBoid("mouseBoid").setType(BoidType.LEADER).setConvergeAttractor(false);
 
 	private boolean mouseIsLeader = true;
 
@@ -741,17 +744,17 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 			i++;
 
-			if (boid.isLeader() || boid.isPredator()) {
+			if (boid.getType() == BoidType.LEADER || boid.getType() == BoidType.PREDATOR) {
 
-				if (boid.isLeader()) {
-					color = calculateMovementDependentColor(SHINE, COLOR_LEADER[cIdx % COLOR_LEADER.length], boid);
+				if (boid.getType() == BoidType.LEADER) {
+					color = calculateMovementDependentDeltaColor(SHINE, COLOR_LEADER[cIdx % COLOR_LEADER.length], boid);
 
-				} else if (boid.isPredator()) {
+				} else if (boid.getType() == BoidType.PREDATOR) {
 					color = COLOR_PREDATOR[cIdx % COLOR_PREDATOR.length];
 				}
 
 			} else {
-				color = calculateMovementDependentColor(SHINE, COLOR_BOID[(cIdx + i) % COLOR_BOID.length], boid);
+				color = calculateMovementDependentDeltaColor(SHINE, COLOR_BOID[(cIdx + i) % COLOR_BOID.length], boid);
 			}
 
 			final Color effectiveColor = color;
@@ -797,17 +800,21 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	}
 
-	private Color calculateMovementDependentColor(final Color shine, Color color, final Boid boid) {
+	/**
+	 * calculates color-change dependent on the angle-change of movement.
+	 * 
+	 * @param shine
+	 * @param color
+	 * @param boid
+	 * @return
+	 */
+	private Color calculateMovementDependentDeltaColor(final Color shine, Color color, final Boid boid) {
 
 		Polar polarDirection = boid.getDirection().toPolar();
-		if (Double.isNaN(polarDirection.getAngle())) {
-			polarDirection = new Polar(1, 0);
-		}
 		Polar polarPreviousDirection = boid.getPreviousDirection().toPolar();
-		if (Double.isNaN(polarPreviousDirection.getAngle())) {
-			polarPreviousDirection = new Polar(1, 0);
-		}
-		double deltaAngle = Math.abs(polarDirection.getAngle() - polarPreviousDirection.getAngle());
+
+		double deltaAngle = (Double.isNaN(polarDirection.getAngle()) || Double.isNaN(polarPreviousDirection.getAngle())) ? 0
+				: Math.abs(polarDirection.getAngle() - polarPreviousDirection.getAngle());
 		if (deltaAngle > Math.PI) {
 			deltaAngle = 2 * Math.PI - deltaAngle;
 		}
@@ -832,8 +839,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 			mouseIsLeader ^= true;
 
-			mouseBoid.setLeader(mouseIsLeader);
-			mouseBoid.setPredator(!mouseIsLeader);
+			mouseBoid.setType(mouseIsLeader ? BoidType.LEADER : BoidType.PREDATOR);
 			mouseBoid.setPosition(new Vector2D(event.getX(), event.getY()));
 
 			MouseBasedMotioner motioner = new MouseBasedMotioner(mouseBoid);
@@ -937,9 +943,9 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 			}
 
 			if (toggleComponent) {
-				fadingText = new FadingText(text, position, color);
+				fadingText = new FadingText(text, position, color).setMaxIterations(FADING_TEXT_ITERATIONS);
 			} else {
-				fadingText = new FadingText(text, position, color, timeout);
+				fadingText = new FadingText(text, position, color, timeout).setMaxIterations(FADING_TEXT_ITERATIONS);
 			}
 			gfxComponents.put(id, fadingText);
 

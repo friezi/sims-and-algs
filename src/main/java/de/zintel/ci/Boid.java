@@ -19,9 +19,9 @@ public class Boid {
 
 	private Vector2D previousDirection = new Vector2D();
 
-	private boolean leader = false;
+	private BoidType type = BoidType.MEMBER;
 
-	private boolean predator = false;
+	private boolean convergeAttractor = true;
 
 	private BoidMotioner motioner = null;
 
@@ -45,24 +45,6 @@ public class Boid {
 
 	public void setDirection(Vector2D direction) {
 		this.direction = direction;
-	}
-
-	public boolean isLeader() {
-		return leader;
-	}
-
-	public Boid setLeader(boolean leader) {
-		this.leader = leader;
-		return this;
-	}
-
-	public boolean isPredator() {
-		return predator;
-	}
-
-	public Boid setPredator(boolean predator) {
-		this.predator = predator;
-		return this;
 	}
 
 	public BoidMotioner getMotioner() {
@@ -107,8 +89,27 @@ public class Boid {
 		return previousDirection;
 	}
 
-	public void setPreviousDirection(Vector2D previousDirection) {
+	public Boid setPreviousDirection(Vector2D previousDirection) {
 		this.previousDirection = previousDirection;
+		return this;
+	}
+
+	public boolean isConvergeAttractor() {
+		return convergeAttractor;
+	}
+
+	public Boid setConvergeAttractor(boolean convergeAttractor) {
+		this.convergeAttractor = convergeAttractor;
+		return this;
+	}
+
+	public BoidType getType() {
+		return type;
+	}
+
+	public Boid setType(BoidType type) {
+		this.type = type;
+		return this;
 	}
 
 }

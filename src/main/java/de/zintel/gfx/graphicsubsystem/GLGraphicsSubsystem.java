@@ -223,7 +223,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	 */
 	@Override
 	public void addMouseWheelListener(MouseWheelListener listener) {
-		mainFrame.addMouseWheelListener(listener);
+		canvas.addMouseWheelListener(listener);
 	}
 
 	/*
@@ -235,7 +235,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	 */
 	@Override
 	public void addMouseListener(MouseListener listener) {
-		mainFrame.addMouseListener(listener);
+		canvas.addMouseListener(listener);
 	}
 
 	/*
@@ -247,32 +247,32 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	 */
 	@Override
 	public void addKeyListener(KeyListener listener) {
-		mainFrame.addKeyListener(listener);
+		canvas.addKeyListener(listener);
 	}
 
 	@Override
 	public void addMouseMotionListener(MouseMotionListener listener) {
-		mainFrame.addMouseMotionListener(listener);
+		canvas.addMouseMotionListener(listener);
 	}
 
 	@Override
 	public void removeMouseWheelListener(MouseWheelListener listener) {
-		mainFrame.removeMouseWheelListener(listener);
+		canvas.removeMouseWheelListener(listener);
 	}
 
 	@Override
 	public void removeMouseMotionListener(MouseMotionListener listener) {
-		mainFrame.removeMouseMotionListener(listener);
+		canvas.removeMouseMotionListener(listener);
 	}
 
 	@Override
 	public void removeMouseListener(MouseListener listener) {
-		mainFrame.removeMouseListener(listener);
+		canvas.removeMouseListener(listener);
 	}
 
 	@Override
 	public void removeKeyListener(KeyListener listener) {
-		mainFrame.removeKeyListener(listener);
+		canvas.removeKeyListener(listener);
 	}
 
 	/*
@@ -295,6 +295,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	@Override
 	public void display() {
 		mainFrame.setVisible(true);
+		canvas.requestFocus();
 		dimension.width = mainFrame.getWidth();
 		dimension.height = mainFrame.getHeight();
 	}

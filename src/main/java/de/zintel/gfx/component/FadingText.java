@@ -22,7 +22,7 @@ public class FadingText implements IGfxComponent {
 
 	private static final int MAX_ALPHA = 255;
 
-	private static final int MAX_ITERATIONS = 20;
+	private static final int DFLT_MAX_ITERATIONS = 20;
 
 	private static final int MAX_FONT_SIZE = 50;
 
@@ -45,6 +45,8 @@ public class FadingText implements IGfxComponent {
 	private Color color;
 
 	private long timeout;
+
+	private int maxIterations = DFLT_MAX_ITERATIONS;
 
 	private long startTs = 0;
 
@@ -81,22 +83,22 @@ public class FadingText implements IGfxComponent {
 		if (state == GfxState.STARTUP) {
 
 			iteration++;
-			if (iteration > MAX_ITERATIONS) {
+			if (iteration > maxIterations) {
 
 				alpha = MAX_ALPHA;
 				fontSize = MIN_FONT_SIZE;
 				x = position.x;
 				y = position.y;
-				iteration = MAX_ITERATIONS;
+				iteration = maxIterations;
 				state = GfxState.COMPLETE;
 				startTs = System.currentTimeMillis();
 
 			} else {
 
-				alpha = interpolate(0, MAX_ALPHA, iteration, MAX_ITERATIONS);
-				fontSize = interpolate(MAX_FONT_SIZE, MIN_FONT_SIZE, iteration, MAX_ITERATIONS);
-				x = interpolate(position.x + MAX_X, position.x, iteration, MAX_ITERATIONS);
-				y = interpolate(position.y + MAX_Y, position.y, iteration, MAX_ITERATIONS);
+				alpha = interpolate(0, MAX_ALPHA, iteration, maxIterations);
+				fontSize = interpolate(MAX_FONT_SIZE, MIN_FONT_SIZE, iteration, maxIterations);
+				x = interpolate(position.x + MAX_X, position.x, iteration, maxIterations);
+				y = interpolate(position.y + MAX_Y, position.y, iteration, maxIterations);
 
 			}
 
@@ -120,10 +122,10 @@ public class FadingText implements IGfxComponent {
 
 			} else {
 
-				alpha = interpolate(MAX_ALPHA, 0, MAX_ITERATIONS - iteration, MAX_ITERATIONS);
-				fontSize = interpolate(MIN_FONT_SIZE, MAX_FONT_SIZE, MAX_ITERATIONS - iteration, MAX_ITERATIONS);
-				x = interpolate(position.x, position.x + MAX_X, MAX_ITERATIONS - iteration, MAX_ITERATIONS);
-				y = interpolate(position.y, position.y + MAX_Y, MAX_ITERATIONS - iteration, MAX_ITERATIONS);
+				alpha = interpolate(MAX_ALPHA, 0, maxIterations - iteration, maxIterations);
+				fontSize = interpolate(MIN_FONT_SIZE, MAX_FONT_SIZE, maxIterations - iteration, maxIterations);
+				x = interpolate(position.x, position.x + MAX_X, maxIterations - iteration, maxIterations);
+				y = interpolate(position.y, position.y + MAX_Y, maxIterations - iteration, maxIterations);
 
 			}
 
@@ -166,19 +168,21 @@ public class FadingText implements IGfxComponent {
 		return text;
 	}
 
-	public void setText(String text) {
+	public FadingText setText(String text) {
 		this.text = text;
 		setLines(text);
 		state = GfxState.STARTUP;
+		return this;
 	}
 
 	public Point getPosition() {
 		return position;
 	}
 
-	public void setPosition(Point position) {
+	public FadingText setPosition(Point position) {
 		this.position = position;
 		state = GfxState.STARTUP;
+		return this;
 	}
 
 	private void setLines(String text) {
@@ -188,6 +192,15 @@ public class FadingText implements IGfxComponent {
 			lines.add(line);
 		}
 
+	}
+
+	public int getMaxIterations() {
+		return maxIterations;
+	}
+
+	public FadingText setMaxIterations(int maxIterations) {
+		this.maxIterations = maxIterations;
+		return this;
 	}
 
 }

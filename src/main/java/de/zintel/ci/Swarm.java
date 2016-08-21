@@ -99,41 +99,45 @@ public class Swarm {
 		final Vector2D position = boid.getPosition();
 
 		Vector2D newPosition;
-		Vector2D resultVector;
+		Vector2D newDirection;
 
-		if (!(usePredator && boid.isPredator())) {
+		if (boid.isConvergeAttractor()) {
+			if (!(usePredator && boid.getType() == BoidType.PREDATOR)) {
 
-			double length = attractionVector.length();
+				double length = attractionVector.length();
 
-			if (length > 0) {
+				if (length > 0) {
 
-				Vector2D normVector = Vector2D.normalize(attractionVector);
-				double vFactor = Math.min(length, boidSpeed);
-				Vector2D scaledAttractionVector = new Vector2D(normVector.x * vFactor, normVector.y * vFactor);
+					Vector2D normVector = Vector2D.normalize(attractionVector);
+					double vFactor = Math.min(length, boidSpeed);
+					Vector2D scaledAttractionVector = new Vector2D(normVector.x * vFactor, normVector.y * vFactor);
 
-				resultVector = scaledAttractionVector;
+					newDirection = scaledAttractionVector;
+
+				} else {
+
+					newDirection = attractionVector;
+
+				}
 
 			} else {
-
-				resultVector = attractionVector;
-
+				newDirection = attractionVector;
 			}
-
 		} else {
-			resultVector = attractionVector;
+			newDirection = new Vector2D();
 		}
 
 		if (boid.getMotioner() != null) {
-			resultVector.add(boid.getMotioner().nextMotionVector());
+			newDirection.add(boid.getMotioner().nextMotionVector());
 		}
 
-		newPosition = new Vector2D(position).add(resultVector);
-		Boid nextBoid = new Boid(newPosition, boid.getId()).setLeader(boid.isLeader()).setPredator(boid.isPredator())
-				.setMotioner(boid.getMotioner());
-		nextBoid.setPreviousDirection(boid.getDirection());
-		nextBoid.setDirection(resultVector);
+		newPosition = new Vector2D(position).add(newDirection);
+		Boid newBoid = new Boid(newPosition, boid.getId()).setType(boid.getType()).setMotioner(boid.getMotioner())
+				.setConvergeAttractor(boid.isConvergeAttractor());
+		newBoid.setPreviousDirection(boid.getDirection());
+		newBoid.setDirection(newDirection);
 
-		return nextBoid;
+		return newBoid;
 
 	}
 
@@ -143,7 +147,7 @@ public class Swarm {
 	 */
 	private Vector2D calculateAttractor(final Boid boid) {
 
-		if (usePredator && boid.isPredator()) {
+		if (usePredator && boid.getType() == BoidType.PREDATOR) {
 			return new Vector2D();
 		}
 
@@ -161,13 +165,13 @@ public class Swarm {
 
 			double distance = Vector2D.distance(boid.getPosition(), neighbour.getPosition());
 
-			if (useCohesion && !(useLeader && boid.isLeader())) {
+			if (useCohesion && !(useLeader && boid.getType() == BoidType.LEADER)) {
 				vectors.add(calculateCohesionVector(boid, neighbour, distance));
 			}
 			if (useSeparation) {
 				vectors.add(calculateSeparationVector(boid, neighbour, distance));
 			}
-			if (useAlignment && !(useLeader && boid.isLeader())) {
+			if (useAlignment && !(useLeader && boid.getType() == BoidType.LEADER)) {
 				vectors.add(calculateAlignmentVector(boid, neighbour, distance));
 			}
 
@@ -199,7 +203,7 @@ public class Swarm {
 			factor = 0;
 		}
 
-		if (neighbour.isLeader()) {
+		if (neighbour.getType() == BoidType.LEADER) {
 			factor *= leaderAttraction;
 		}
 
@@ -218,7 +222,7 @@ public class Swarm {
 	 */
 	private Vector2D calculateSeparationVector(final Boid boid, final Boid neighbour, double distance) {
 
-		int individualDist = usePredator && neighbour.isPredator() ? predatorDistance : personalDistance;
+		int individualDist = usePredator && neighbour.getType() == BoidType.PREDATOR ? predatorDistance : personalDistance;
 
 		if (distance > individualDist) {
 
@@ -255,7 +259,7 @@ public class Swarm {
 
 		} else {
 
-			if (usePredator && neighbour.isPredator()) {
+			if (usePredator && neighbour.getType() == BoidType.PREDATOR) {
 				return new Vector2D();
 			}
 
@@ -276,13 +280,13 @@ public class Swarm {
 
 		final Vector2D centerAttractorVector = Vector2D.substract(center, boid.getPosition());
 
-		if (useLeader && boid.isLeader()) {
+		if (useLeader && boid.getType() == BoidType.LEADER) {
 			// leaders werden zur Mitte streben
 			return centerAttractorVector;
 		}
 
 		double centerFactor = 0;
-		if (neighbour.isLeader() && publicDistance - distance < 0) {
+		if (neighbour.getType() == BoidType.LEADER && publicDistance - distance < 0) {
 			// boids ohne Anführer sollen zur Mitte streben
 			double power = 2 * distance / centerLength;
 			centerFactor = Math.pow(distance, power);
