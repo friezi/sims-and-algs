@@ -275,7 +275,7 @@ public class Swarm {
 	 * @return
 	 */
 	private Vector2D calculateCenterVector(final Boid boid) {
-		return Vector2D.mult(Vector2D.substract(center, boid.getPosition()), 10);
+		return Vector2D.mult(Vector2D.substract(center, boid.getPosition()), (boid.getType() == BoidType.LEADER ? 3 : 10));
 	}
 
 	private Point calculateInertnessVector(Point direction) {

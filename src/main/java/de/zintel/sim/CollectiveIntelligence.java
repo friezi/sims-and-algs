@@ -65,7 +65,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static final int BOID_SIZE = 4;
 
-	private static final long DELAY = 1;
+	private static final long DELAY = 10;
 
 	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
 
