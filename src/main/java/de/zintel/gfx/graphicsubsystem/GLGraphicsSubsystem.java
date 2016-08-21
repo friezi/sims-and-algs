@@ -295,6 +295,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	@Override
 	public void display() {
 		mainFrame.setVisible(true);
+		mainFrame.requestFocus();
 		canvas.requestFocus();
 		dimension.width = mainFrame.getWidth();
 		dimension.height = mainFrame.getHeight();
