@@ -43,6 +43,8 @@ public class Swarm {
 
 	private boolean usePredator = false;
 
+	private boolean usePanic = true;
+
 	private Collection<Boid> boids = new ArrayList<>();
 
 	private final Object boidsMonitor = new Object();
@@ -130,7 +132,7 @@ public class Swarm {
 
 		newPosition = new Vector2D(position).add(newDirection);
 		Boid newBoid = new Boid(newPosition, boid.getId()).setType(boid.getType()).setMotioner(boid.getMotioner())
-				.setConvergeAttractor(boid.isConvergeAttractor());
+				.setConvergeAttractor(boid.isConvergeAttractor()).setPanic(boid.getPanic());
 		newBoid.setPreviousDirection(boid.getDirection());
 		newBoid.setDirection(newDirection);
 
@@ -150,7 +152,12 @@ public class Swarm {
 
 		Vector2D tVector = new Vector2D();
 
-		final Collection<Vector2D> vectors = new ArrayList<>(3);
+		final Vector2D panic = boid.getPanic();
+		if (panic.length() > 1) {
+			panic.mult(9 / 10);
+		} else {
+			boid.setPanic(new Vector2D());
+		}
 
 		for (final Boid neighbour : boids) {
 
@@ -158,27 +165,24 @@ public class Swarm {
 				continue;
 			}
 
-			vectors.clear();
-
 			double distance = Vector2D.distance(boid.getPosition(), neighbour.getPosition());
 
 			if (useCohesion && !(useLeader && boid.getType() == BoidType.LEADER)) {
-				vectors.add(calculateCohesionVector(boid, neighbour, distance));
+				tVector.add(calculateCohesionVector(boid, neighbour, distance));
 			}
 			if (useSeparation && !(usePredator && boid.getType() == BoidType.PREDATOR)) {
-				vectors.add(calculateSeparationVector(boid, neighbour, distance));
+				tVector.add(calculateSeparationVector(boid, neighbour, distance));
 			}
 			if (useAlignment && !(useLeader && boid.getType() == BoidType.LEADER)
 					&& !(usePredator && boid.getType() == BoidType.PREDATOR)) {
-				vectors.add(calculateAlignmentVector(boid, neighbour, distance));
+				tVector.add(calculateAlignmentVector(boid, neighbour, distance));
 			}
 
-			vectors.add(calculateCenterVector(boid));
+			tVector.add(calculateCenterVector(boid));
 
-			for (final Vector2D vector : vectors) {
-				tVector.add(vector);
-			}
 		}
+
+		tVector.add(boid.getPanic());
 
 		return tVector;
 
@@ -237,7 +241,26 @@ public class Swarm {
 				distance = 1;
 			}
 
-			return new Vector2D((factor * fX) / distance, (factor * fY) / distance);
+			Vector2D separationVector = new Vector2D((factor * fX) / distance, (factor * fY) / distance);
+
+			if (usePanic) {
+				if (usePredator && neighbour.getType() == BoidType.PREDATOR) {
+
+					boid.setPanic(Vector2D.add(boid.getPanic(), separationVector));
+
+				} else {
+
+					final Vector2D panic = neighbour.getPanic();
+					final double intensity = panic.length();
+					if (intensity > 0) {
+						boid.setPanic(Vector2D.mult(Vector2D.normalize(Vector2D.substract(boid.getPosition(), neighbour.getPosition())),
+								intensity));
+					}
+
+				}
+			}
+
+			return separationVector;
 
 		}
 
@@ -393,6 +416,15 @@ public class Swarm {
 
 	public Swarm setInfluenceOfAlignment(int influenceOfAlignment) {
 		this.influenceOfAlignment = influenceOfAlignment;
+		return this;
+	}
+
+	public boolean isUsePanic() {
+		return usePanic;
+	}
+
+	public Swarm setUsePanic(boolean usePanic) {
+		this.usePanic = usePanic;
 		return this;
 	}
 

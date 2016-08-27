@@ -108,7 +108,9 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static final String ID_PREDATOR_DISTANCE = "prd";
 
-	private static final String ID_LEADER_ATTRACTION = "l_a";
+	private static final String ID_LEADER_ATTRACTION = "pan";
+
+	private static final String ID_PANIC = "l_a";
 
 	private static final String ID_STATUS = "status";
 
@@ -510,6 +512,43 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 				return false;
 			}
 		});
+		keyActions.put(KeyEvent.VK_N, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public String textID() {
+				return ID_PANIC;
+			}
+
+			@Override
+			public String text() {
+				return "panic";
+			}
+
+			@Override
+			public void plus() {
+				swarm.setUsePanic(true);
+			}
+
+			@Override
+			public void minus() {
+				swarm.setUsePanic(false);
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(swarm.isUsePanic());
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+		});
 		keyActions.put(KeyEvent.VK_A, new IKeyAction() {
 
 			@Override
@@ -690,9 +729,9 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 				return "leader attraction: " + swarm.getLeaderAttraction() + "\n" + "boid speed: " + swarm.getBoidSpeed() + "\n"
 						+ "influence of separation: " + swarm.getInfluenceOfSeparation() + "\n" + "influence of alignment: "
 						+ swarm.getInfluenceOfAlignment() + "\n" + "cohesion: " + swarm.isUseCohesion() + "\n" + "separation: "
-						+ swarm.isUseSeparation() + "\n" + "alignment: " + swarm.isUseAlignment() + "\n" + "public distance: "
-						+ swarm.getPublicDistance() + "\n" + "personal distance: " + swarm.getPersonalDistance() + "\n"
-						+ "predator distance: " + swarm.getPredatorDistance();
+						+ swarm.isUseSeparation() + "\n" + "panic: " + swarm.isUsePanic() + "\n" + "alignment: " + swarm.isUseAlignment()
+						+ "\n" + "public distance: " + swarm.getPublicDistance() + "\n" + "personal distance: "
+						+ swarm.getPersonalDistance() + "\n" + "predator distance: " + swarm.getPredatorDistance();
 			}
 
 			@Override

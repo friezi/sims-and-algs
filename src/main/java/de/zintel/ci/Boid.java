@@ -19,6 +19,8 @@ public class Boid {
 
 	private Vector2D previousDirection = new Vector2D();
 
+	private Vector2D panic = new Vector2D();
+
 	private BoidType type = BoidType.MEMBER;
 
 	private boolean convergeAttractor = true;
@@ -109,6 +111,15 @@ public class Boid {
 
 	public Boid setType(BoidType type) {
 		this.type = type;
+		return this;
+	}
+
+	public Vector2D getPanic() {
+		return panic;
+	}
+
+	public Boid setPanic(Vector2D panic) {
+		this.panic = panic;
 		return this;
 	}
 
