@@ -1,31 +1,162 @@
-\documentclass[fleqn,a4paper]{scrbook}
-\usepackage[latin1]{inputenc}
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
 \usepackage{latexsym}
-\usepackage[german]{babel}
+\usepackage[english]{babel}
 \usepackage[a4paper]{geometry}
 \usepackage[sumlimits]{amsmath}
-\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage[nomessages]{fp}
 \usepackage{pst-all}
+\usepackage[labelformat=simple]{caption}
 \usepackage{multido}
 
+\parindent0pt
+
+\title{Calculation of momentum velocity on collision of two masses}
+\author{Friedemann Zintel}
+\date{\today}
+
+\newcommand{\spc}{\hspace{0.2cm}}
+
 \begin{document}
-Hallo
+\maketitle
+
+In order to be able to calculate the momentum between two colliding masses it is necessary to determine the partial velocity vector of a mass in direction of the other mass.
+Let's assume a mass $m_1$ moves with velocity $\vec{v}$ and would hit mass $m_2$. For simplicity $m_2$ remains stationary and the shapes of both masses are spherical.
+Even when the direction of $\vec{v}$ does not point directly to $m_2$, from the viewpoint
+of $m_2$ it looks as if $m_1$ hits $m_2$ with a (partial) velocity $\vec{v_{m_2}}$ which points in the direction to $m_2$. We keep the calculation in two dimensional space.
+It should be easy to extend it to three dimensions.
+
+\begin{center}
 \psset{xunit=1pt,yunit=1pt,runit=1pt}
-\begin{pspicture}(0,50)(600,200)
-\newcommand{\sx}{150}
-\newcommand{\sy}{204}
-\newcommand{\bradius}{30}
-\newcommand{\cradius}{2}
-\newcommand{\tx}{199}
-\newcommand{\ty}{170}
-\pscircle(\sx,\sy){\bradius}
-\pscircle*(\sx,\sy){\cradius}
-\psline{->}(\sx,\sy)(270,\sy)
-\pscircle(\tx,\ty){\bradius}
-\pscircle*(\tx,\ty){\cradius}
-\psline{->}(\sx,\sy)(\tx,\ty)
-\uput[1](\sx,\sy){m1}
+\begin{pspicture}(0,150)(600,350)
+  \newcommand{\msx}{150}
+  \newcommand{\msy}{254}
+  \newcommand{\bradius}{30}
+  \newcommand{\cradius}{2}
+  \newcommand{\mtx}{199}
+  \newcommand{\mty}{220}
+  \newcommand{\vlen}{273}
+  \FPeval{\rsy}{clip(\msy+\bradius)}
+  \FPeval{\rty}{clip(\mty+\bradius)}
+  \FPeval{\lrsy}{clip(\msy+\bradius/2)}
+  \FPeval{\lrty}{clip(\mty+\bradius/2)}
+  \FPeval{\mvlsx}{clip(\msx-75)}
+  \FPeval{\mvlsy}{clip(\msy)}
+  \FPeval{\mvltx}{clip(\mtx+140)}
+  \FPeval{\mvlty}{clip(\msy)}
+  \FPeval{\mmlsx}{clip(\msx-75)}
+  \FPeval{\mmlsy}{clip(\msy+51)}
+  \FPeval{\mmltx}{clip(\mtx+75)}
+  \FPeval{\mmlty}{clip(\mty-51)}
+  \FPeval{\vx}{clip(\msx+(\vlen-\msx)/2)}
+  \FPeval{\vmsy}{clip(\msy+3)}
+  \FPeval{\vmty}{clip(\mty-25+3)}
+  \FPeval{\vmtx}{clip(\mtx+35+3)}
+  \FPeval{\mxra}{clip(\vmtx-2)}
+  \FPeval{\myra}{clip(\vmty+7)}
+  \FPeval{\dx}{clip(\msx+(\mtx-\msx)/2)}
+  \FPeval{\dy}{clip(\mty+(\msy-\mty)/2)}
+  \FPeval{\sx}{clip(\vmtx+(\vlen-\vmtx)/2)}
+  \FPeval{\sy}{clip(\vmty+(\msy-\vmty)/2)}
+
+  % m1
+  \pscircle(\msx,\msy){\bradius}
+  \pscircle*(\msx,\msy){\cradius}
+  \uput[dl](\msx,\msy){$m_1$}
+  \psline[]{-}(\msx,\msy)(\msx,\rsy)
+  \uput[r](\msx,\lrsy){$r_1$}
+
+  %m2
+  \pscircle(\mtx,\mty){\bradius}
+  \pscircle*(\mtx,\mty){\cradius}
+  \uput[dl](\mtx,\mty){$m_2$}
+  \psline[]{-}(\mtx,\mty)(\mtx,\rty)
+  \uput[r](\mtx,\lrty){$r_2$}
+
+  % movement line
+  \psline[linestyle=dashed]{-}(\mvlsx,\mvlsy)(\mvltx,\mvlty)
+  \uput[u](\mvltx,\mvlty){movement line}
+
+  % vector v
+  \psline[arrowscale=2]{->}(\msx,\msy)(\vlen,\msy)
+  \uput[u](\vx,\msy){$\vec{v}$}
+
+  % momentum line
+  \psline[linestyle=dashed]{-}(\mmlsx,\mmlsy)(\mmltx,\mmlty)
+  \uput[ur](\mmltx,\mmlty){momentum line}
+
+  % vector d
+  \psline[arrowscale=2,linecolor=blue]{->}(\msx,\msy)(\mtx,\mty)
+  \uput[d](\dx,\dy){\textcolor{blue}{$\vec{d}$}}
+
+  % vector vm2
+  \psline[arrowscale=2,linecolor=red]{->}(\msx,\vmsy)(\vmtx,\vmty)
+  \uput[dl](\vmtx,\vmty){\textcolor{red}{$\vec{v_{m_2}}$}}
+
+  % vector s
+  \psline[arrowscale=2,linecolor=olive]{->}(\vlen,\msy)(\vmtx,\vmty)
+  \uput[dr](\sx,\sy){\textcolor{olive}{$\vec{s}$}}
+
+  % right angle
+  \psarc{-}(\vmtx,\vmty){15}{60}{140}
+  \pscircle*(\mxra,\myra){1}
+
 \end{pspicture}
-duhwdvhhwo
-iewxs
+\captionof{figure}{collision}
+\label{fig:coll}
+\end{center}
+
+We need to calculate $\vec{v_{m_2}}$. We define $\vec{d}=\vec{m_2}-\vec{m_1}$, where $\vec{m_1}$ and $\vec{m_2}$ are the positional vectors for $m_1$ resp. $m_2$.
+We require that the masses have a positive expansion ($r_1>0$, $r_2>0$), thus $\vec{d} \neq \vec{0}$ and $d_x \neq 0 \vee d_y \neq 0$ (collision takes place if
+$|\vec{d}|=r_1+r_2$). Let $\vec{s}$ be a (the) vector with
+$\vec{v_{m_2}}=\vec{v}+\vec{s}$. Then $\vec{s}$ must be orthogonal to $\vec{v_{m_2}}$ and thus to $\vec{d}$. That is because $\vec{v_{m_2}}$ is a partial vector of $\vec{v}$
+and points in the same direction as $\vec{d}$ which resides on the momentum line. See figure \ref{fig:coll}.\\
+Be $\lambda \in \mathbb{R}$, then the following equations hold:
+
+\begin{displaymath}
+  \vec{v_{m_2}}=\vec{v}+\vec{s}=\lambda \vec{d}
+\end{displaymath}
+\begin{displaymath}
+  \vec{s}\cdot\vec{d}=0
+\end{displaymath}
+
+We end up with three equations and three unkown variables ($s_x,s_y,\lambda$), which can easily be solved:
+
+\begin{equation}
+  v_x+s_x=\lambda d_x
+  \label{eq:vx}
+\end{equation}
+\begin{equation}
+  v_y+s_y=\lambda d_y
+  \label{eq:vy}
+\end{equation}
+\begin{equation}
+  s_xd_x+s_yd_y=0
+  \label{eq:nvec}
+\end{equation}
+
+case: \boxed{d_x \neq 0}
+\begin{align}
+  (\ref{eq:nvec}) <=> s_x=-\frac{s_y d_y}{d_x}\\
+  (\ref{eq:vy}) <=> s_y=\lambda d_y-v_y\\
+  => s_x=-\frac{(\lambda d_y-v_y)d_y}{d_x}\\
+  in \spc (\ref{eq:vx}) : v_x-\frac{(\lambda d_y-v_y)d_y}{d_x}=\lambda d_x\\
+  <=> v_x-\frac{\lambda d_y^2}{d_x}+\frac{v_yd_y}{d_x}=\lambda d_x\\
+  <=> v_x+\frac{v_yd_y}{d_x}=\lambda (d_x+\frac{d_y^2}{d_x})\\
+  <=>\frac{v_xd_x}{d_x}+\frac{v_yd_y}{d_x}=\lambda (\frac{d_x^2+d_y^2}{d_x})\\
+  <=>\frac{(v_xd_x+v_yd_y)d_x}{d_x(d_x^2+d_y^2)}=\lambda\\
+  <=>\lambda=\frac{v_xd_x+v_yd_y}{d_x^2+d_y^2}=\frac{\vec{v}\vec{d}}{\vec{d}^2}
+\end{align}
+
+case: \boxed{d_y \neq 0}\\\\
+Calculation is analogue. We end up with the same result for $\lambda$.\\\\
+
+As a result we get:
+
+\begin{displaymath}
+  \vec{v_{m_2}}=\frac{\vec{v}\vec{d}}{\vec{d}^2}\vec{d}
+\end{displaymath}
+\\
+$\square$
 \end{document}
