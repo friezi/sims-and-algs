@@ -11,3 +11,6 @@ clean:
 
 show: all
 	gv collision.ps
+
+ed:
+	emacs *.tex Makefile &
