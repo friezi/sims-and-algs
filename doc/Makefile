@@ -1,15 +1,19 @@
-.PHONY: all show clean
+.PHONY: all show clean ps
 
-all: clean
+ps:
 	latex collision.tex
 	latex collision.tex
 	dvips collision.dvi
+
+pdf: ps
 	ps2pdf collision.ps
+
+all: pdf clean
 
 clean:
 	rm -f *.aux *.dvi *.log *.ps
 
-show: all
+show: ps
 	gv collision.ps
 
 ed:
