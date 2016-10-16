@@ -536,9 +536,7 @@ public class GravitationSystem {
 			return new Vector2D();
 		}
 
-		Vector2D vectorAtoB = calculatePartialVectorAtoB(a, b, vector);
-
-		return new Vector2D(-vectorAtoB.x, -vectorAtoB.y);
+		return Vector2D.mult(-1, calculatePartialVectorAtoB(a, b, vector));
 
 	}
 
