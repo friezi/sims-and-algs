@@ -24,7 +24,7 @@
 In order to calculate the momentum between two colliding masses it is necessary to determine the partial velocity vector of a moving mass in direction to the second mass.
 Let's assume a mass $m_1$ moves with velocity $\vec{v}$ and would hit mass $m_2$. For simplicity $m_2$ remains stationary and the shapes of both masses are spherical.
 Even when the direction of $\vec{v}$ does not point directly to $m_2$, it behaves as if $m_1$ hits $m_2$ with a (partial) velocity $\vec{v_{m_2}}$ which points to the
-direction of $m_2$. We keep the calculation in two dimensional space. It should be easy to extend it to three dimensions.
+direction of $m_2$. The calculation holds for any dimension.
 
 \begin{center}
 \psset{xunit=1pt,yunit=1pt,runit=1pt}
@@ -107,49 +107,30 @@ direction of $m_2$. We keep the calculation in two dimensional space. It should 
 \end{center}
 
 We need to calculate $\vec{v_{m_2}}$. We define $\vec{d}=\vec{m_2}-\vec{m_1}$, where $\vec{m_1}$ and $\vec{m_2}$ are the positional vectors for $m_1$ resp. $m_2$.
-We require that the masses have a positive expansion ($r_1>0$, $r_2>0$), thus $\vec{d} \neq \vec{0}$ and $d_x \neq 0 \vee d_y \neq 0$ (collision takes place if
+We require that the masses have a positive expansion ($r_1>0$, $r_2>0$), thus $\vec{d} \neq \vec{0}$ (collision takes place if
 $|\vec{d}|=r_1+r_2$). Let $\vec{s}$ be a (the) vector with
 $\vec{v_{m_2}}=\vec{v}+\vec{s}$. Then $\vec{s}$ must be orthogonal to $\vec{v_{m_2}}$ and thus to $\vec{d}$. That is because $\vec{v_{m_2}}$ is a partial vector of $\vec{v}$
 and points in the same direction as $\vec{d}$ which resides on the momentum line. See figure \ref{fig:coll}.\\
+
+\pagebreak
 Be $\lambda \in \mathbb{R}$, then the following equations hold:
 
-\begin{displaymath}
+\begin{equation}
   \vec{v_{m_2}}=\vec{v}+\vec{s}=\lambda \vec{d}
-\end{displaymath}
-\begin{displaymath}
+\label{eq:vs}
+\end{equation}
+\begin{equation}
   \vec{s}\cdot\vec{d}=0
-\end{displaymath}
-
-We end up with three equations and three unkown variables ($s_x,s_y,\lambda$), which can easily be solved:
-
-\begin{equation}
-  v_x+s_x=\lambda d_x
-  \label{eq:vx}
-\end{equation}
-\begin{equation}
-  v_y+s_y=\lambda d_y
-  \label{eq:vy}
-\end{equation}
-\begin{equation}
-  s_xd_x+s_yd_y=0
-  \label{eq:nvec}
+  \label{eq:sd}
 \end{equation}
 
-case: \boxed{d_x \neq 0}
+This can easily be solved:
+
 \begin{align}
-  (\ref{eq:nvec}) <=> s_x=-\frac{s_y d_y}{d_x}\\
-  (\ref{eq:vy}) <=> s_y=\lambda d_y-v_y\\
-  => s_x=-\frac{(\lambda d_y-v_y)d_y}{d_x}\\
-  in \spc (\ref{eq:vx}) : v_x-\frac{(\lambda d_y-v_y)d_y}{d_x}=\lambda d_x\\
-  <=> v_x-\frac{\lambda d_y^2}{d_x}+\frac{v_yd_y}{d_x}=\lambda d_x\\
-  <=> v_x+\frac{v_yd_y}{d_x}=\lambda (d_x+\frac{d_y^2}{d_x})\\
-  <=>\frac{v_xd_x}{d_x}+\frac{v_yd_y}{d_x}=\lambda (\frac{d_x^2+d_y^2}{d_x})\\
-  <=>\frac{(v_xd_x+v_yd_y)d_x}{d_x(d_x^2+d_y^2)}=\lambda\\
-  <=>\lambda=\frac{v_xd_x+v_yd_y}{d_x^2+d_y^2}=\frac{\vec{v}\vec{d}}{\vec{d}^2}
+(\ref{eq:vs}),(\ref{eq:sd})=> (\lambda \vec{d}-\vec{v})\vec{d}=0\\
+<=> \lambda\vec{d}^2-\vec{v}\vec{d}=0\\
+<=> \lambda=\frac{\vec{v}\vec{d}}{\vec{d}^2}
 \end{align}
-
-case: \boxed{d_y \neq 0}\\\\
-Calculation is analogue. We end up with the same result for $\lambda$.\\\\
 
 As a result we get:
 
