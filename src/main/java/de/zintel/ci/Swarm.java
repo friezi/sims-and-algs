@@ -253,8 +253,8 @@ public class Swarm {
 					final Vector2D panic = neighbour.getPanic();
 					final double intensity = panic.length();
 					if (intensity > 0) {
-						boid.setPanic(Vector2D.mult(Vector2D.normalize(Vector2D.substract(boid.getPosition(), neighbour.getPosition())),
-								intensity));
+						boid.setPanic(Vector2D.mult(intensity,
+								Vector2D.normalize(Vector2D.substract(boid.getPosition(), neighbour.getPosition()))));
 					}
 
 				}
@@ -298,7 +298,7 @@ public class Swarm {
 	 * @return
 	 */
 	private Vector2D calculateCenterVector(final Boid boid) {
-		return Vector2D.mult(Vector2D.substract(center, boid.getPosition()), (boid.getType() == BoidType.LEADER ? 3 : 10));
+		return Vector2D.mult((boid.getType() == BoidType.LEADER ? 3 : 10), Vector2D.substract(center, boid.getPosition()));
 	}
 
 	private Point calculateInertnessVector(Point direction) {

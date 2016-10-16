@@ -366,11 +366,10 @@ public class GravitationSystem {
 		if (gForce < 0) {
 			System.out.println("antigravitation between " + a.getId() + " and " + b.getId());
 		}
-		Vector2D distanceVector = calculateDistanceVector(a, b);
+		Vector2D distanceVector = Vector2D.substract(b.getPosition(), a.getPosition());
 
 		// der Distanzvektor wird auf die richtige Länge gebracht
-		return new Vector2D(Math.signum(gForce) * (gForce * distanceVector.x) / distance,
-				Math.signum(gForce) * (gForce * distanceVector.y) / distance);
+		return Vector2D.mult(Math.signum(gForce) * gForce / distance, distanceVector);
 
 	}
 
@@ -412,7 +411,7 @@ public class GravitationSystem {
 		}
 		double acceleration = forceAmount / body.getMass();
 
-		return new Vector2D((force.x * acceleration) / forceAmount, (force.y * acceleration) / forceAmount);
+		return Vector2D.mult(acceleration / forceAmount, force);
 	}
 
 	/**
@@ -466,13 +465,13 @@ public class GravitationSystem {
 		/*
 		 * body -> neighbour
 		 */
-		Vector2D atobVelocity = calculatePartialVectorAtoB(body, neighbour, body.getVelocity(), distance);
-		Vector2D btoaVelocity = calculatePartialVectorAtoB(neighbour, body, neighbour.getVelocity(), distance);
+		Vector2D atobVelocity = calculatePartialVectorAtoB(body, neighbour, body.getVelocity());
+		Vector2D btoaVelocity = calculatePartialVectorAtoB(neighbour, body, neighbour.getVelocity());
 
 		Vector2D resultAtobVelocity = new Vector2D(calculateCollisionAmount(body, neighbour, atobVelocity.x, btoaVelocity.x),
 				calculateCollisionAmount(body, neighbour, atobVelocity.y, btoaVelocity.y));
 
-		Vector2D deltaVelocityVector = new Vector2D(resultAtobVelocity.x - atobVelocity.x, resultAtobVelocity.y - atobVelocity.y);
+		Vector2D deltaVelocityVector = Vector2D.substract(resultAtobVelocity, atobVelocity);
 		if (deltaVelocityVector.length() < physics.getThresholdCollision()) {
 			return new Vector2D();
 		}
@@ -502,36 +501,26 @@ public class GravitationSystem {
 	 * @param b
 	 * @return
 	 */
-	private Vector2D calculatePartialVectorAtoB(Body a, Body b, Vector2D vector, double distance) {
+	private Vector2D calculatePartialVectorAtoB(Body a, Body b, Vector2D vector) {
 
-		Vector2D dVector = calculateDistanceVector(a, b);
-		if (dVector.x == 0.0 && dVector.y == 0.0) {
+		if (vector.isNullVector()) {
 			return new Vector2D();
 		}
 
-		if (vector.x == 0.0 && vector.y == 0.0) {
+		Vector2D dVector = Vector2D.substract(b.getPosition(), a.getPosition());
+		if (dVector.isNullVector()) {
 			return new Vector2D();
 		}
 
-		double dV2 = dVector.x * dVector.x + dVector.y * dVector.y;
-		double skalarVDv = vector.x * dVector.x + vector.y * dVector.y;
-		Vector2D vectorToB = new Vector2D((dVector.x * skalarVDv) / dV2, (dVector.y * skalarVDv) / dV2);
-
-		if (Vector2D.add(dVector, vectorToB).length() <= distance) {
+		final double lambda = Vector2D.mult(vector, dVector) / Vector2D.mult(dVector, dVector);
+		if (lambda < 0) {
+			// a bewegt sich nicht hin zu sondern weg von b
 			return new Vector2D();
 		}
+		Vector2D vectorToB = Vector2D.mult(lambda, dVector);
 
 		return vectorToB;
 
-	}
-
-	/**
-	 * @param a
-	 * @param b
-	 * @return
-	 */
-	private Vector2D calculateDistanceVector(Body a, Body b) {
-		return new Vector2D(b.getPosition().x - a.getPosition().x, b.getPosition().y - a.getPosition().y);
 	}
 
 	/**
@@ -543,17 +532,11 @@ public class GravitationSystem {
 	 */
 	private Vector2D calculateMassCounterVector(Body a, Body b, Vector2D vector) {
 
-		Vector2D dVector = calculateDistanceVector(a, b);
-		double distance = dVector.length();
-
-		if (distance > a.getSize() + b.getSize()) {
+		if (Vector2D.substract(b.getPosition(), a.getPosition()).length() > a.getSize() + b.getSize()) {
 			return new Vector2D();
 		}
-		Vector2D vectorAtoB = calculatePartialVectorAtoB(a, b, vector, distance);
 
-		if (Vector2D.add(dVector, vectorAtoB).length() <= distance) {
-			return new Vector2D();
-		}
+		Vector2D vectorAtoB = calculatePartialVectorAtoB(a, b, vector);
 
 		return new Vector2D(-vectorAtoB.x, -vectorAtoB.y);
 

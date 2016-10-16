@@ -38,7 +38,7 @@ public class Vector2D {
 	public double length() {
 
 		if (length == -1) {
-			length = Math.sqrt(x * x + y * y);
+			length = Math.sqrt(mult(this, this));
 		}
 
 		return length;
@@ -64,7 +64,7 @@ public class Vector2D {
 		this.y += y;
 	}
 
-	public static Vector2D mult(Vector2D vector, double val) {
+	public static Vector2D mult(double val, Vector2D vector) {
 		return new Vector2D(val * vector.x, val * vector.y);
 	}
 
@@ -72,15 +72,20 @@ public class Vector2D {
 		return new Vector2D(a.x + b.x, a.y + b.y);
 	}
 
+	public boolean isNullVector() {
+		return x == 0.0 && y == 0.0;
+	}
+
+	public static double mult(Vector2D a, Vector2D b) {
+		return a.x * b.x + a.y * b.y;
+	}
+
 	public static Vector2D substract(Vector2D a, Vector2D b) {
 		return new Vector2D(a.x - b.x, a.y - b.y);
 	}
 
 	public static Vector2D normalize(Vector2D vector) {
-
-		final double vLength = vector.length();
-		return new Vector2D(vector.x / vLength, vector.y / vLength);
-
+		return mult(1 / vector.length(), vector);
 	}
 
 	public Polar toPolar() {
@@ -93,9 +98,7 @@ public class Vector2D {
 	}
 
 	public static double distance(Vector2D p1, Vector2D p2) {
-		double dX = p2.x - p1.x;
-		double dY = p2.y - p1.y;
-		return Math.sqrt(dX * dX + dY * dY);
+		return substract(p2, p1).length();
 	}
 
 }
