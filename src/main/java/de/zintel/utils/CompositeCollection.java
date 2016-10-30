@@ -3,6 +3,7 @@
  */
 package de.zintel.utils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -12,9 +13,19 @@ import java.util.LinkedList;
  * @author Friedemann
  *
  */
-public class SequenceCollection<E> implements Collection<E> {
+public class CompositeCollection<E> implements Collection<E>, Serializable {
 
-	private class SIterator implements Iterator<E> {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8101642153374460051L;
+
+	private class SIterator implements Iterator<E>, Serializable {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -2405540299506219876L;
 
 		private final Iterator<Collection<? extends E>> cIterator = collections.iterator();
 
@@ -60,11 +71,11 @@ public class SequenceCollection<E> implements Collection<E> {
 	/**
 	 * 
 	 */
-	public SequenceCollection() {
+	public CompositeCollection() {
 		collections.add(baseCollection);
 	}
 
-	public SequenceCollection<E> cat(Collection<? extends E> c) {
+	public CompositeCollection<E> cat(Collection<? extends E> c) {
 		collections.add(c);
 		return this;
 	}
@@ -260,7 +271,6 @@ public class SequenceCollection<E> implements Collection<E> {
 	 */
 	@Override
 	public <T> T[] toArray(T[] a) {
-		// TODO Auto-generated method stub
 		throw new RuntimeException("not yet supported!");
 	}
 

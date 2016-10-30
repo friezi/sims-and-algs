@@ -11,6 +11,7 @@ import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.physics.Body;
+import de.zintel.physics.gravitation.Physics;
 import de.zintel.sim.nbodies.sceneries.Scenery;
 
 /**

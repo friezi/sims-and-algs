@@ -3,6 +3,7 @@
  */
 package de.zintel.physics;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +14,12 @@ import de.zintel.sim.nbodies.BodyProperty;
  * @author Friedemann
  *
  */
-public class Body implements Comparable<Body> {
+public class Body implements Comparable<Body>, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4862332522510864345L;
 
 	private final String id;
 

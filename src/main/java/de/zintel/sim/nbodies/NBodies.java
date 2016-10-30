@@ -11,9 +11,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.Koordination;
@@ -22,12 +24,10 @@ import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystemFactory;
 import de.zintel.gfx.graphicsubsystem.IRendererListener;
 import de.zintel.physics.Body;
-import de.zintel.physics.GravitationSystem;
-import de.zintel.sim.nbodies.sceneries.BlackholeOnlyScenery;
+import de.zintel.physics.gravitation.IBodyProducer;
 import de.zintel.sim.nbodies.sceneries.BlackholeOnlySceneryConfig;
-import de.zintel.sim.nbodies.sceneries.BlackholeScenery;
 import de.zintel.sim.nbodies.sceneries.BlackholeSceneryConfig;
-import de.zintel.sim.nbodies.sceneries.CommonScenery;
+import de.zintel.sim.nbodies.sceneries.DataSceneryConfig;
 import de.zintel.sim.nbodies.sceneries.ExplosionSceneryConfig;
 import de.zintel.sim.nbodies.sceneries.Scenery;
 import de.zintel.sim.nbodies.sceneries.SceneryConfig;
@@ -59,21 +59,28 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 
 	private IRenderer renderer;
 
-	private GravitationSystem gravitationSystem;
+	private IBodyProducer bodyProducer;
+
+	private final BodySerializer bodySerializer;
+
+	private final Collection<Consumer<Collection<Body>>> bodyConsumers = new ArrayList<>();
 
 	private static final int IDX_SCENERY = 2;
 
 	@SuppressWarnings("serial")
 	private List<Scenery> sceneries = new ArrayList<Scenery>() {
 		{
-			add(new CommonScenery(width, height, new StarfieldSceneryConfig()));
-			add(new CommonScenery(width, height, new ExplosionSceneryConfig()));
-			add(new BlackholeScenery(width, height, new BlackholeSceneryConfig()));
-			add(new BlackholeOnlyScenery(width, height, new BlackholeOnlySceneryConfig()));
+			add(new Scenery(new StarfieldSceneryConfig(width, height)));
+			add(new Scenery(new ExplosionSceneryConfig(width, height)));
+			add(new Scenery(new BlackholeSceneryConfig(width, height)));
+			add(new Scenery(new BlackholeOnlySceneryConfig(width, height)));
+			add(new Scenery(new DataSceneryConfig(width, height, "c:/tmp/grav.dat")));
 		}
 	};
 
 	private Scenery scenery = sceneries.get(IDX_SCENERY);
+
+	private volatile boolean paused = false;
 
 	private volatile boolean stopped = false;
 
@@ -96,9 +103,17 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 
 	}
 
+	public NBodies() throws IOException {
+		this.bodySerializer = null;//new BodySerializer("c:/tmp/grav.dat");
+	}
+
 	public void start() throws Exception {
 
-		gravitationSystem = scenery.createGravitationSystem();
+		if (bodySerializer != null) {
+			bodyConsumers.add(bodySerializer);
+		}
+
+		bodyProducer = scenery.createGravitationSystem();
 
 		final IGraphicsSubsystemFactory graphicsSubsystemFactory = GfxUtils.graphicsSubsystemFactories.get(eGrapicsSubsystem);
 		if (graphicsSubsystemFactory == null) {
@@ -118,28 +133,33 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 
 		renderer.display();
 
-		renderer.initBodyProperties(gravitationSystem.getBodies());
+		Collection<Body> bodies = bodyProducer.getBodies();
+		renderer.initBodyProperties(bodies);
 
 		long rIter = 0;
-		while (!doRecord || rIter < maxFrames) {
+		while (!stopped && (!doRecord || rIter < maxFrames)) {
 
 			calculations++;
 
 			long startTs = System.currentTimeMillis();
 
-			if (!stopped) {
+			if (!paused) {
 
 				if (crStartTs == 0) {
 					crStartTs = System.currentTimeMillis();
 				}
-				gravitationSystem.gravitate();
+				bodyProducer.calculate();
+
+				bodies = bodyProducer.getBodies();
+				for (final Consumer<Collection<Body>> bodyConsumer : bodyConsumers) {
+					bodyConsumer.accept(bodies);
+				}
 
 				long crStopTs = System.currentTimeMillis();
 				if (crStopTs - crStartTs >= 1000) {
 
 					double calculationrate = calculations / ((crStopTs - crStartTs) / (double) 1000);
-					System.out
-							.println("calculationrate: " + calculationrate + " cps" + " objects: " + gravitationSystem.getBodies().size());
+					System.out.println("calculationrate: " + calculationrate + " cps" + " objects: " + bodies.size());
 
 					crStartTs = System.currentTimeMillis();
 					calculations = 0;
@@ -166,6 +186,10 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 		}
 
 		graphicsSubsystem.shutdown();
+		bodyProducer.shutdown();
+		if (bodySerializer != null) {
+			bodySerializer.close();
+		}
 		System.exit(0);
 
 	}
@@ -226,10 +250,14 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 			rStartTs = System.currentTimeMillis();
 		}
 
-		Collection<Body> bodies = gravitationSystem.getBodies();
+		Collection<Body> bodies = bodyProducer.getBodies();
 		final SceneryConfig sceneryConfig = scenery.getSceneryConfig();
 
 		for (final Body body : bodies) {
+
+			if (stopped) {
+				return;
+			}
 
 			if (sceneryConfig.isStarfield()) {
 
@@ -264,13 +292,12 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 			renderings = 0;
 
 		}
-
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON3) {
-			stopped ^= true;
+			paused ^= true;
 		}
 	}
 
@@ -307,8 +334,8 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 
 		int notches = event.getWheelRotation();
 		scenery.getSceneryConfig().setDistance(scenery.getSceneryConfig().getDistance() - notches * 0.1);
-		gravitationSystem
-				.setField(new Field(scenery.spaceMin(width), scenery.spaceMin(height), scenery.spaceMax(width), scenery.spaceMax(height)));
+		bodyProducer.setField(new Field(scenery.getSceneryConfig().spaceMin(width), scenery.getSceneryConfig().spaceMin(height),
+				scenery.getSceneryConfig().spaceMax(width), scenery.getSceneryConfig().spaceMax(height)));
 	}
 
 	@Override
@@ -321,8 +348,7 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 	public void keyReleased(KeyEvent ke) {
 
 		if (ke.getExtendedKeyCode() == KeyEvent.VK_ESCAPE) {
-			graphicsSubsystem.shutdown();
-			System.exit(0);
+			stopped = true;
 		}
 
 	}
