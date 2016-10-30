@@ -1,13 +1,14 @@
 package de.zintel.sim.nbodies.sceneries;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import de.zintel.physics.Body;
 import de.zintel.physics.gravitation.Physics;
 import de.zintel.sim.nbodies.SwingBodyProperty;
 
-public class BlackholeOnlySceneryConfig extends CommonSceneryConfig {
+public class BlackholeOnlySceneryConfig extends SceneryConfig {
 
 	public BlackholeOnlySceneryConfig(int width, int height) {
 		super(width, height, 0, 100, 20000, 100000, 100, 10, false, true, 30,
@@ -20,7 +21,7 @@ public class BlackholeOnlySceneryConfig extends CommonSceneryConfig {
 	@Override
 	public Collection<Body> getInitialBodies() {
 
-		final Collection<Body> initialBodies = super.getInitialBodies();
+		final Collection<Body> initialBodies = new ArrayList<>();
 
 		final Body blackhole1 = new Body("blackhole1", Physics.calculateSize(1000000) / 10, 140000000,
 				makeRandomPoint((int) spaceMin(width / 3), (int) spaceMin(height / 3), (int) spaceMax(width / 3),

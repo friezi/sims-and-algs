@@ -4,7 +4,9 @@
 package de.zintel.sim.nbodies.sceneries;
 
 import java.util.Collection;
+import java.util.Random;
 
+import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.physics.Body;
 import de.zintel.physics.gravitation.Physics;
 
@@ -13,6 +15,8 @@ import de.zintel.physics.gravitation.Physics;
  *
  */
 public abstract class SceneryConfig {
+
+	protected static final Random RANDOM = new Random();
 
 	protected final int width;
 
@@ -114,6 +118,29 @@ public abstract class SceneryConfig {
 
 	public int getHeight() {
 		return height;
+	}
+
+	protected Body makeRandomBody(String id) {
+
+		int mass = RANDOM.nextInt((getMaxMass() - getMinMass()) + 1) + getMinMass();
+		// int size = (mass * MAX_BODY_SIZE - MIN_BODY_SIZE) / MAX_MASS +
+		// MIN_BODY_SIZE;
+		double size = Physics.calculateSize(mass);
+		return new Body(id, size, mass,
+				makeRandomPoint((int) spaceMin(width), (int) spaceMin(height), (int) spaceMax(width), (int) spaceMax(height)),
+				makeRandomVector(1, 1));
+	}
+
+	protected static Vector2D makeRandomPoint(int minX, int minY, int maxX, int maxY) {
+		return new Vector2D(RANDOM.nextInt(maxX - minX - 1) + minX, RANDOM.nextInt(maxY - minY - 1) + minY);
+	}
+
+	protected static Vector2D makeRandomVector(int width, int height) {
+
+		int dX = (RANDOM.nextInt(2) == 1 ? 1 : -1);
+		int dY = (RANDOM.nextInt(2) == 1 ? 1 : -1);
+
+		return new Vector2D(dX * RANDOM.nextInt(width), dY * RANDOM.nextInt(height));
 	}
 
 }

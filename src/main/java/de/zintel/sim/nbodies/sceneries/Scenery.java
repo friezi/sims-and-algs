@@ -8,6 +8,7 @@ import java.io.IOException;
 import de.zintel.gfx.g2d.Field;
 import de.zintel.physics.Body;
 import de.zintel.physics.gravitation.BodyDeserializingProducer;
+import de.zintel.physics.gravitation.BodyParameterDeserializingProducer;
 import de.zintel.physics.gravitation.GravitationSystem;
 import de.zintel.physics.gravitation.IBodyProducer;
 
@@ -25,13 +26,24 @@ public final class Scenery {
 
 	public IBodyProducer createGravitationSystem() {
 
-		if (sceneryConfig instanceof DataSceneryConfig) {
+		if (sceneryConfig instanceof BodyDeserializerSceneryConfig) {
+
 			try {
-				return new BodyDeserializingProducer(((DataSceneryConfig) sceneryConfig).getFilename());
+				return new BodyDeserializingProducer(((BodyDeserializerSceneryConfig) sceneryConfig).getFilename());
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new RuntimeException(e);
 			}
+
+		} else if (sceneryConfig instanceof BodyParameterDeserializerSceneryConfig) {
+
+			try {
+				return new BodyParameterDeserializingProducer(((BodyParameterDeserializerSceneryConfig) sceneryConfig).getFilename());
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new RuntimeException(e);
+			}
+
 		} else {
 
 			final GravitationSystem gravitationSystem = new GravitationSystem(

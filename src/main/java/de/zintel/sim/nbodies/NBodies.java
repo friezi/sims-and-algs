@@ -27,7 +27,8 @@ import de.zintel.physics.Body;
 import de.zintel.physics.gravitation.IBodyProducer;
 import de.zintel.sim.nbodies.sceneries.BlackholeOnlySceneryConfig;
 import de.zintel.sim.nbodies.sceneries.BlackholeSceneryConfig;
-import de.zintel.sim.nbodies.sceneries.DataSceneryConfig;
+import de.zintel.sim.nbodies.sceneries.BodyDeserializerSceneryConfig;
+import de.zintel.sim.nbodies.sceneries.BodyParameterDeserializerSceneryConfig;
 import de.zintel.sim.nbodies.sceneries.ExplosionSceneryConfig;
 import de.zintel.sim.nbodies.sceneries.Scenery;
 import de.zintel.sim.nbodies.sceneries.SceneryConfig;
@@ -61,9 +62,7 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 
 	private IBodyProducer bodyProducer;
 
-	private final BodySerializer bodySerializer;
-
-	private final Collection<Consumer<Collection<Body>>> bodyConsumers = new ArrayList<>();
+	private final Collection<BodyConsumer> bodyConsumers = new ArrayList<>();
 
 	private static final int IDX_SCENERY = 2;
 
@@ -74,7 +73,8 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 			add(new Scenery(new ExplosionSceneryConfig(width, height)));
 			add(new Scenery(new BlackholeSceneryConfig(width, height)));
 			add(new Scenery(new BlackholeOnlySceneryConfig(width, height)));
-			add(new Scenery(new DataSceneryConfig(width, height, "c:/tmp/grav.dat")));
+			add(new Scenery(new BodyDeserializerSceneryConfig(width, height, "c:/tmp/grav.dat")));
+			add(new Scenery(new BodyParameterDeserializerSceneryConfig(width, height, "c:/tmp/grav.par")));
 		}
 	};
 
@@ -104,14 +104,12 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 	}
 
 	public NBodies() throws IOException {
-		this.bodySerializer = null;//new BodySerializer("c:/tmp/grav.dat");
 	}
 
 	public void start() throws Exception {
 
-		if (bodySerializer != null) {
-			bodyConsumers.add(bodySerializer);
-		}
+//		 bodyConsumers.add(new BodySerializer("c:/tmp/grav.dat"));
+//		 bodyConsumers.add(new ParameterSerializer("c:/tmp/grav.par"));
 
 		bodyProducer = scenery.createGravitationSystem();
 
@@ -187,9 +185,11 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 
 		graphicsSubsystem.shutdown();
 		bodyProducer.shutdown();
-		if (bodySerializer != null) {
-			bodySerializer.close();
+
+		for (BodyConsumer bodyConsumer : bodyConsumers) {
+			bodyConsumer.close();
 		}
+
 		System.exit(0);
 
 	}

@@ -41,6 +41,18 @@ public class Vector2D implements Serializable {
 		this.y = y;
 	}
 
+	/**
+	 * only for deserialization purpose!
+	 * 
+	 * @param x
+	 * @param y
+	 * @param length
+	 */
+	public Vector2D(double x, double y, double length) {
+		this(x, y);
+		this.length = length;
+	}
+
 	public double length() {
 
 		if (length == -1) {
