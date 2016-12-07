@@ -73,7 +73,7 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 			add(new Scenery(new ExplosionSceneryConfig(width, height)));
 			add(new Scenery(new BlackholeSceneryConfig(width, height)));
 			add(new Scenery(new BlackholeOnlySceneryConfig(width, height)));
-			add(new Scenery(new BodyDeserializerSceneryConfig(width, height, "c:/tmp/grav.dat")));
+			add(new Scenery(new BodyDeserializerSceneryConfig(width, height, "c:/tmp/grav1.dat")));
 			add(new Scenery(new BodyParameterDeserializerSceneryConfig(width, height, "c:/tmp/grav.par")));
 		}
 	};
@@ -108,7 +108,7 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 
 	public void start() throws Exception {
 
-//		 bodyConsumers.add(new BodySerializer("c:/tmp/grav.dat"));
+//		 bodyConsumers.add(new BodySerializer("c:/tmp/grav1.dat"));
 //		 bodyConsumers.add(new ParameterSerializer("c:/tmp/grav.par"));
 
 		bodyProducer = scenery.createGravitationSystem();

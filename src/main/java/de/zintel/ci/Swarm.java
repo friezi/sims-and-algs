@@ -109,7 +109,7 @@ public class Swarm {
 
 					Vector2D normVector = Vector2D.normalize(attractionVector);
 					double vFactor = Math.min(length, boidSpeed);
-					Vector2D scaledAttractionVector = new Vector2D(normVector.x * vFactor, normVector.y * vFactor);
+					Vector2D scaledAttractionVector = Vector2D.mult(vFactor, normVector);
 
 					newDirection = scaledAttractionVector;
 
@@ -209,10 +209,7 @@ public class Swarm {
 			factor *= leaderAttraction;
 		}
 
-		double dX = neighbour.getPosition().x - boid.getPosition().x;
-		double dY = neighbour.getPosition().y - boid.getPosition().y;
-
-		return new Vector2D((factor * dX) / distance, (factor * dY) / distance);
+		return Vector2D.mult(factor / distance, Vector2D.substract(neighbour.getPosition(), boid.getPosition()));
 
 	}
 
@@ -234,14 +231,12 @@ public class Swarm {
 
 			double factor = Math.pow(individualDist - distance, influenceOfSeparation);
 
-			double fX = boid.getPosition().x - neighbour.getPosition().x;
-			double fY = boid.getPosition().y - neighbour.getPosition().y;
-
 			if (distance < 1) {
 				distance = 1;
 			}
 
-			Vector2D separationVector = new Vector2D((factor * fX) / distance, (factor * fY) / distance);
+			final Vector2D diffVector = Vector2D.substract(boid.getPosition(), neighbour.getPosition());
+			final Vector2D separationVector = Vector2D.mult(factor / distance, diffVector);
 
 			if (usePanic) {
 				if (usePredator && neighbour.getType() == BoidType.PREDATOR) {
@@ -253,10 +248,8 @@ public class Swarm {
 					final Vector2D panic = neighbour.getPanic();
 					final double intensity = panic.length();
 					if (intensity > 0) {
-						boid.setPanic(Vector2D.mult(intensity,
-								Vector2D.normalize(Vector2D.substract(boid.getPosition(), neighbour.getPosition()))));
+						boid.setPanic(Vector2D.mult(intensity, Vector2D.normalize(diffVector)));
 					}
-
 				}
 			}
 
@@ -285,7 +278,7 @@ public class Swarm {
 			}
 
 			double coeff = Math.pow(2, influenceOfAlignment) / Math.max(distance, 1.0);
-			return new Vector2D(coeff * neighbour.getDirection().x, coeff * neighbour.getDirection().y);
+			return Vector2D.mult(coeff, neighbour.getDirection());
 
 		}
 
