@@ -127,25 +127,19 @@ public class GravitationSystem implements IBodyProducer {
 		position.add(velocity);
 
 		// Reflexion vom Rand
-		if (position.x - offset < field.minX || position.x + offset > field.maxX || position.y - offset < field.minY
-				|| position.y + offset > field.maxY) {
-			if (position.x - offset < field.minX) {
-				velocity = new Vector2D(-velocity.x / decay, velocity.y);
-				position.x = 2 * offset - (position.x - field.minX) - (decay - 1) * (offset - (position.x - field.minX)) / decay
-						+ field.minX;
-			} else if (position.x + offset > field.maxX) {
-				velocity = new Vector2D(-velocity.x / decay, velocity.y);
-				position.x = 2 * (field.maxX - offset) - position.x + (decay - 1) * (offset + position.x - field.maxX) / decay;
-			}
-			if (position.y - offset < field.minY) {
-				velocity = new Vector2D(velocity.x, -velocity.y / decay);
-				position.y = 2 * offset - (position.y - field.minY) - (decay - 1) * (offset - (position.y - field.minY)) / decay
-						+ field.minY;
-			} else if (position.y + offset > field.maxY) {
-				velocity = new Vector2D(velocity.x, -velocity.y / decay);
-				position.y = 2 * (field.maxY - offset) - position.y + (decay - 1) * (offset + position.y - field.maxY) / decay;
-			}
-
+		if (position.x - offset < field.minX) {
+			velocity = new Vector2D(-velocity.x / decay, velocity.y);
+			position.x = 2 * offset - (position.x - field.minX) - (decay - 1) * (offset - (position.x - field.minX)) / decay + field.minX;
+		} else if (position.x + offset > field.maxX) {
+			velocity = new Vector2D(-velocity.x / decay, velocity.y);
+			position.x = 2 * (field.maxX - offset) - position.x + (decay - 1) * (offset + position.x - field.maxX) / decay;
+		}
+		if (position.y - offset < field.minY) {
+			velocity = new Vector2D(velocity.x, -velocity.y / decay);
+			position.y = 2 * offset - (position.y - field.minY) - (decay - 1) * (offset - (position.y - field.minY)) / decay + field.minY;
+		} else if (position.y + offset > field.maxY) {
+			velocity = new Vector2D(velocity.x, -velocity.y / decay);
+			position.y = 2 * (field.maxY - offset) - position.y + (decay - 1) * (offset + position.y - field.maxY) / decay;
 		}
 
 		Body newBody = new Body(body.getId(), size, body.getMass(), position, velocity, body);
