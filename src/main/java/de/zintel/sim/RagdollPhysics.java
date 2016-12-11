@@ -13,6 +13,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.function.Consumer;
@@ -65,7 +66,9 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private volatile boolean mousePressed = false;
 
-	private Collection<Vertex2D> grabbedVertices = null;
+	private final Collection<Vertex2D> grabbedVertices = Collections.synchronizedCollection(new ArrayList<>());
+
+	private Vector2D mousePoint = new Vector2D();
 
 	public static void main(String args[]) throws InterruptedException {
 		new RagdollPhysics().start();
@@ -91,7 +94,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60));
 
 			add(new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
-					50, 10, 11, 11).setColor(Color.LIGHT_GRAY));
+					50, 10, 11, 11).setColor(Color.GRAY));
 		}
 	};
 
@@ -286,6 +289,14 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		}
 
 		for (final Edge2D edge : edges) {
+
+			if (isHit(mousePoint, edge.getFirst()) && !isGrabbed(edge.getFirst())) {
+				graphicsSubsystem.drawFilledCircle((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y, vertexSize,
+						() -> Color.RED);
+			} else if (isHit(mousePoint, edge.getSecond()) && !isGrabbed(edge.getSecond())) {
+				graphicsSubsystem.drawFilledCircle((int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, vertexSize,
+						() -> Color.RED);
+			}
 			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
 					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, edge.getColor());
 		}
@@ -356,11 +367,10 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 	@Override
 	public void mousePressed(MouseEvent meEvent) {
 
-		grabbedVertices = new ArrayList<>();
-		Vector2D mPoint = new Vector2D(meEvent.getPoint());
+		setMousePoint(meEvent);
 
 		for (Vertex2D vertex : vertices) {
-			if (isHit(mPoint, vertex)) {
+			if (isHit(mousePoint, vertex)) {
 				grabbedVertices.add(vertex);
 			}
 		}
@@ -368,8 +378,8 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		for (Vertex2D vertex : grabbedVertices) {
 
 			vertex.setPinned(true);
-			vertex.setCurrent(mPoint);
-			vertex.setPrevious(mPoint);
+			vertex.setCurrent(mousePoint);
+			vertex.setPrevious(mousePoint);
 
 		}
 
@@ -379,6 +389,8 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
+
+		setMousePoint(e);
 
 		mousePressed = false;
 		if (e.getButton() == MouseEvent.BUTTON1) {
@@ -405,25 +417,37 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			}
 		}
 
-		grabbedVertices = null;
+		grabbedVertices.clear();
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
 
+		setMousePoint(e);
+
 		if (mousePressed) {
 
-			final Vector2D mPoint = new Vector2D(e.getPoint());
 			for (Vertex2D vertex : grabbedVertices) {
-				vertex.setCurrent(mPoint);
-				vertex.setPrevious(mPoint);
+				vertex.setCurrent(mousePoint);
+				vertex.setPrevious(mousePoint);
 
 			}
 		}
 	}
 
+	private boolean isGrabbed(Vertex2D vertex) {
+		return grabbedVertices.contains(vertex);
+	}
+
 	@Override
 	public void mouseMoved(MouseEvent e) {
+		setMousePoint(e);
+	}
+
+	private void setMousePoint(MouseEvent e) {
+
+		mousePoint.x = e.getX();
+		mousePoint.y = e.getY();
 
 	}
 

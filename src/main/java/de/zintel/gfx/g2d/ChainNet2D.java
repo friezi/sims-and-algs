@@ -34,7 +34,7 @@ public class ChainNet2D extends EdgeContainer2D {
 		}
 
 		private float adjustColor(final float value, double ratio) {
-			return (ratio > 1 ? (float) (value / (1.0 + (ratio - 1.0) / 2)) : (float) (1.0 - (1 - value) * (0.6 * ratio)));
+			return (ratio > 1 ? (float) (value / (1.0 + (ratio - 1.0) / 2)) : (float) (1.0 - (1 - value) * (1.0 * ratio)));
 		}
 
 	}
