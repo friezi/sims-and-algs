@@ -58,6 +58,10 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private long calculations = 0;
 
+	private long rStartTs = 0;
+
+	private long renderings = 0;
+
 	private volatile boolean mousePressed = false;
 
 	private Collection<Vertex2D> grabbedVertices = null;
@@ -274,6 +278,12 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 	@Override
 	public void render() {
 
+		renderings++;
+
+		if (rStartTs == 0) {
+			rStartTs = System.currentTimeMillis();
+		}
+
 		for (final Edge2D edge : edges) {
 			graphicsSubsystem.drawFilledCircle((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y, vertexSize,
 					() -> edge.getColor());
@@ -281,6 +291,17 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 					() -> edge.getColor());
 			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
 					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, edge.getColor());
+		}
+
+		long rStopTs = System.currentTimeMillis();
+		if (rStopTs - rStartTs >= 1000) {
+
+			double framerate = renderings / ((rStopTs - rStartTs) / (double) 1000);
+			System.out.println("framerate: " + framerate + " fps");
+
+			rStartTs = System.currentTimeMillis();
+			renderings = 0;
+
 		}
 
 	}
