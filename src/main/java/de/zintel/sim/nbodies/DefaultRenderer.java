@@ -315,9 +315,9 @@ public class DefaultRenderer implements IRenderer {
 
 				final int endx = (int) project(body.getPosition().x - 10 * body.getVelocity().x / (max - i), graphicsSubsystem.getWidth());
 				final int endy = (int) project(body.getPosition().y - 10 * body.getVelocity().y / (max - i), graphicsSubsystem.getHeight());
-				final int red = brighten(color.getRed(), colorBrigthnessFactor);
-				final int green = brighten(color.getGreen(), colorBrigthnessFactor);
-				final int blue = brighten(color.getBlue(), colorBrigthnessFactor);
+				final int red = CUtils.brighten(color.getRed(), colorBrigthnessFactor);
+				final int green = CUtils.brighten(color.getGreen(), colorBrigthnessFactor);
+				final int blue = CUtils.brighten(color.getBlue(), colorBrigthnessFactor);
 				final int alpha = (int) ((a * alphaDecayFactor) / (i + 1));
 				graphicsSubsystem.drawLine(startx, starty, endx, endy, new Color(red, green, blue, alpha));
 
@@ -325,16 +325,6 @@ public class DefaultRenderer implements IRenderer {
 				starty = endy;
 
 			}
-		}
-
-	}
-
-	private int brighten(final int cValue, double colorBrigthnessFactor) {
-
-		if (colorBrigthnessFactor < 1) {
-			return cValue;
-		} else {
-			return (int) (cValue + (colorBrigthnessFactor - 1) * ((255 - cValue) / colorBrigthnessFactor));
 		}
 
 	}

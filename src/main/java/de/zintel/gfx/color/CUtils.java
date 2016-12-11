@@ -51,4 +51,14 @@ public final class CUtils {
 				&& c1.getAlpha() == c2.getAlpha());
 	}
 
+	public static int brighten(final int cValue, double colorBrigthnessFactor) {
+	
+		if (colorBrigthnessFactor < 1) {
+			return cValue;
+		} else {
+			return (int) (cValue + (colorBrigthnessFactor - 1) * ((255 - cValue) / colorBrigthnessFactor));
+		}
+	
+	}
+
 }

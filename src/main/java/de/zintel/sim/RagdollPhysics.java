@@ -85,7 +85,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60));
 
 			add(new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
-					90, 10, 10, 10));
+					50, 10, 11, 11).setColor(Color.LIGHT_GRAY));
 		}
 	};
 
@@ -271,11 +271,11 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 		for (final Edge2D edge : edges) {
 			graphicsSubsystem.drawFilledCircle((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y, vertexSize,
-					() -> Color.WHITE);
+					() -> edge.getColor());
 			graphicsSubsystem.drawFilledCircle((int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, vertexSize,
-					() -> Color.WHITE);
+					() -> edge.getColor());
 			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
-					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, Color.WHITE);
+					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, edge.getColor());
 		}
 
 	}
@@ -359,17 +359,24 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 		mousePressed = false;
 		if (e.getButton() == MouseEvent.BUTTON1) {
+			// unpin
 			for (Vertex2D vertex : grabbedVertices) {
 				vertex.setPinned(false);
 			}
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
+			// glue together
 			for (Vertex2D vertex : grabbedVertices) {
 				for (Edge2D edge : edges) {
 					if (isHit(vertex.getCurrent(), edge.getFirst())) {
-						edge.setFirst(vertex);
+						if (!isHit(vertex.getCurrent(), edge.getSecond())) {
+							// hm, is it really necessary???
+							edge.setFirst(vertex);
+						}
 					}
 					if (isHit(vertex.getCurrent(), edge.getSecond())) {
-						edge.setSecond(vertex);
+						if (!isHit(vertex.getCurrent(), edge.getFirst())) {
+							edge.setSecond(vertex);
+						}
 					}
 				}
 			}
