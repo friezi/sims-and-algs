@@ -9,11 +9,11 @@ package de.zintel.gfx.g2d;
  */
 public class Edge2D {
 
-	private final Vertex2D first;
+	private Vertex2D first;
 
-	private final Vertex2D second;
+	private Vertex2D second;
 
-	private final double length;
+	private double length;
 
 	public Edge2D(Vertex2D first, Vertex2D second) {
 		this.first = first;
@@ -31,6 +31,16 @@ public class Edge2D {
 
 	public double getLength() {
 		return length;
+	}
+
+	public void setFirst(Vertex2D first) {
+		this.first = first;
+		this.length = Vector2D.distance(first.getCurrent(), second.getCurrent());
+	}
+
+	public void setSecond(Vertex2D second) {
+		this.second = second;
+		this.length = Vector2D.distance(first.getCurrent(), second.getCurrent());
 	}
 
 }

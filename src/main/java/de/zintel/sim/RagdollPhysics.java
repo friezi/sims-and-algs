@@ -4,7 +4,6 @@
 package de.zintel.sim;
 
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -13,13 +12,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.List;
 
 import de.zintel.gfx.GfxUtils;
+import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.Koordination;
 import de.zintel.gfx.g2d.Chain2D;
 import de.zintel.gfx.g2d.Cuboid2D;
@@ -27,7 +25,6 @@ import de.zintel.gfx.g2d.Edge2D;
 import de.zintel.gfx.g2d.EdgeContainer2D;
 import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.gfx.g2d.Vertex2D;
-import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystemFactory;
 import de.zintel.gfx.graphicsubsystem.IRendererListener;
@@ -43,6 +40,8 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
 
 	private static final int iterations = 20;
+
+	private final double calmnessThreshold = 2;
 
 	private static final int vertexSize = 3;
 
@@ -235,19 +234,31 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 		final Vector2D current = vertex.getCurrent();
 		final Vector2D previous = vertex.getPrevious();
+		final double velocity = Vector2D.distance(current, previous);
 
 		// bounce
 		if (current.x > graphicsSubsystem.getWidth() - 1) {
-			current.x = graphicsSubsystem.getWidth() - 1 - ((current.x - (graphicsSubsystem.getWidth() - 1)) * decay);
-			previous.x = graphicsSubsystem.getWidth() - 1 + (current.x - previous.x) * decay;
+
+			if (velocity < calmnessThreshold) {
+				current.x = graphicsSubsystem.getWidth() - 1;
+				previous.x = current.x;
+			} else {
+				current.x = graphicsSubsystem.getWidth() - 1 - ((current.x - (graphicsSubsystem.getWidth() - 1)) * decay);
+				previous.x = graphicsSubsystem.getWidth() - 1 + (current.x - previous.x) * decay;
+			}
 		} else if (current.x < 0) {
 			current.x *= -decay;
 			previous.x = -previous.x * decay;
 		}
 
 		if (current.y > graphicsSubsystem.getHeight() - 1) {
-			current.y = graphicsSubsystem.getHeight() - 1 - ((current.y - (graphicsSubsystem.getHeight() - 1)) * decay);
-			previous.y = graphicsSubsystem.getHeight() - 1 + (current.y - previous.y) * decay;
+			if (velocity < calmnessThreshold) {
+				current.y = graphicsSubsystem.getHeight() - 1;
+				previous.y = current.y;
+			} else {
+				current.y = graphicsSubsystem.getHeight() - 1 - ((current.y - (graphicsSubsystem.getHeight() - 1)) * decay);
+				previous.y = graphicsSubsystem.getHeight() - 1 + (current.y - previous.y) * decay;
+			}
 		} else if (current.y < 0) {
 			current.y *= -decay;
 			previous.y = -previous.y * decay;
@@ -315,6 +326,10 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	}
 
+	private boolean isHit(final Vector2D point, final Vertex2D vertex) {
+		return Vector2D.distance(point, vertex.getCurrent()) <= vertexSize;
+	}
+
 	@Override
 	public void mousePressed(MouseEvent meEvent) {
 
@@ -322,7 +337,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		Vector2D mPoint = new Vector2D(meEvent.getPoint());
 
 		for (Vertex2D vertex : vertices) {
-			if (Vector2D.distance(mPoint, vertex.getCurrent()) <= vertexSize) {
+			if (isHit(mPoint, vertex)) {
 				grabbedVertices.add(vertex);
 			}
 		}
@@ -340,12 +355,27 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
+	public void mouseReleased(MouseEvent e) {
 
 		mousePressed = false;
-		for (Vertex2D vertex : grabbedVertices) {
-			vertex.setPinned(false);
+		if (e.getButton() == MouseEvent.BUTTON1) {
+			for (Vertex2D vertex : grabbedVertices) {
+				vertex.setPinned(false);
+			}
+		} else if (e.getButton() == MouseEvent.BUTTON3) {
+			for (Vertex2D vertex : grabbedVertices) {
+				for (Edge2D edge : edges) {
+					if (isHit(vertex.getCurrent(), edge.getFirst())) {
+						edge.setFirst(vertex);
+					}
+					if (isHit(vertex.getCurrent(), edge.getSecond())) {
+						edge.setSecond(vertex);
+					}
+				}
+			}
 		}
+
+		grabbedVertices = null;
 	}
 
 	@Override
