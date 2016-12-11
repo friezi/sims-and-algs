@@ -375,11 +375,12 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			}
 		}
 
+		final Vector2D mPoint = new Vector2D(mousePoint);
 		for (Vertex2D vertex : grabbedVertices) {
 
 			vertex.setPinned(true);
-			vertex.setCurrent(mousePoint);
-			vertex.setPrevious(mousePoint);
+			vertex.setCurrent(mPoint);
+			vertex.setPrevious(mPoint);
 
 		}
 
@@ -427,9 +428,12 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 		if (mousePressed) {
 
+			System.out.println("dragged!");
+
+			final Vector2D mPoint = new Vector2D(mousePoint);
 			for (Vertex2D vertex : grabbedVertices) {
-				vertex.setCurrent(mousePoint);
-				vertex.setPrevious(mousePoint);
+				vertex.setCurrent(mPoint);
+				vertex.setPrevious(mPoint);
 
 			}
 		}
