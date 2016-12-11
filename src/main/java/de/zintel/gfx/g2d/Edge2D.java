@@ -73,16 +73,18 @@ public class Edge2D {
 		}
 	}
 
-	public void setColor(Color color) {
+	public Edge2D setColor(Color color) {
 		this.color = color;
+		return this;
 	}
 
 	public EdgeColorChooser getColorChooser() {
 		return colorChooser;
 	}
 
-	public void setColorChooser(EdgeColorChooser colorChooser) {
+	public Edge2D setColorChooser(EdgeColorChooser colorChooser) {
 		this.colorChooser = colorChooser;
+		return this;
 	}
 
 }

@@ -42,7 +42,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
 
-	private static final int iterations = 12;
+	private static final int iterations = 20;
 
 	private static final double calmnessThreshold = 2;
 
@@ -82,6 +82,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		new RagdollPhysics().start();
 	}
 
+	@SuppressWarnings("serial")
 	private final Collection<EdgeContainer2D> edgeContainers = new LinkedList<EdgeContainer2D>() {
 		{
 			add(new EdgeContainer2D() {
@@ -102,10 +103,11 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60));
 
 			add(new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
-					50, 10, 11, 11).setColor(Color.GRAY));
+					50, 10, 11, 11).setColor(Color.LIGHT_GRAY));
 		}
 	};
 
+	@SuppressWarnings("serial")
 	private Collection<Edge2D> edges = new ArrayList<Edge2D>() {
 		{
 			for (EdgeContainer2D edgeContainer : edgeContainers) {
@@ -157,7 +159,8 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			if (crStopTs - crStartTs >= 1000) {
 
 				double calculationrate = calculations / ((crStopTs - crStartTs) / (double) 1000);
-				System.out.println("calculationrate: " + calculationrate + " cps");
+				System.out.println(
+						"calculationrate: " + calculationrate + " cps : vertices: " + vertices.size() + " : edges: " + edges.size());
 
 				crStartTs = System.currentTimeMillis();
 				calculations = 0;
@@ -268,8 +271,13 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 				previous.x = graphicsSubsystem.getWidth() - 1 + (current.x - previous.x) * decay;
 			}
 		} else if (current.x < 0) {
-			current.x *= -decay;
-			previous.x = -previous.x * decay;
+			if (velocity < calmnessThreshold) {
+				current.x = 0;
+				previous.x = current.x;
+			} else {
+				current.x = -decay;
+				previous.x = -previous.x * decay;
+			}
 		}
 
 		if (current.y > graphicsSubsystem.getHeight() - 1) {
@@ -281,8 +289,13 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 				previous.y = graphicsSubsystem.getHeight() - 1 + (current.y - previous.y) * decay;
 			}
 		} else if (current.y < 0) {
-			current.y *= -decay;
-			previous.y = -previous.y * decay;
+			if (velocity < calmnessThreshold) {
+				current.y = 0;
+				previous.y = current.y;
+			} else {
+				current.y = -decay;
+				previous.y = -previous.y * decay;
+			}
 		}
 
 	}
