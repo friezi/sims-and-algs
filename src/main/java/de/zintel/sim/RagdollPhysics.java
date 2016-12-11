@@ -4,12 +4,14 @@
 package de.zintel.sim;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,7 +36,7 @@ import de.zintel.gfx.graphicsubsystem.IRendererListener;
  * @author friedemann.zintel
  *
  */
-public class RagdollPhysics implements MouseListener, ActionListener, KeyListener, IRendererListener {
+public class RagdollPhysics implements MouseListener, MouseMotionListener, ActionListener, KeyListener, IRendererListener {
 
 	private static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
 
@@ -42,7 +44,9 @@ public class RagdollPhysics implements MouseListener, ActionListener, KeyListene
 
 	private static final int iterations = 20;
 
-	private final double gravity = 0.8;
+	private static final int vertexSize = 3;
+
+	private final Vector2D gravity = new Vector2D(0, 0.8);
 
 	private final double decay = 0.99;
 
@@ -53,6 +57,10 @@ public class RagdollPhysics implements MouseListener, ActionListener, KeyListene
 	private static Koordination koordination = new Koordination();
 
 	private long calculations = 0;
+
+	private volatile boolean mousePressed = false;
+
+	private Collection<Vertex2D> grabbedVertices = null;
 
 	public static void main(String args[]) throws InterruptedException {
 		new RagdollPhysics().start();
@@ -74,15 +82,11 @@ public class RagdollPhysics implements MouseListener, ActionListener, KeyListene
 			add(new Cuboid2D(new Vertex2D(new Vector2D(600, 10), new Vector2D(605, 105)), new Vertex2D(new Vector2D(700, 10)),
 					new Vertex2D(new Vector2D(700, 140)), new Vertex2D(new Vector2D(600, 140))));
 
-			add(new Chain2D(Arrays.asList(new Vertex2D(new Vector2D(20, 50)).setPinned(true), new Vertex2D(new Vector2D(30, 40)),
-					new Vertex2D(new Vector2D(40, 60), new Vector2D(40, 50)), new Vertex2D(new Vector2D(50, 10)),
-					new Vertex2D(new Vector2D(60, 9)), new Vertex2D(new Vector2D(70, 12)), new Vertex2D(new Vector2D(80, 8)),
-					new Vertex2D(new Vector2D(85, 5)))));
 			add(new Chain2D(new Vertex2D(new Vector2D(500, 15)).setPinned(true), new Vertex2D(new Vector2D(800, 100)), 40));
 			add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60));
 
 			add(new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
-					70, 20, 5, 5));
+					90, 10, 10, 10));
 		}
 	};
 
@@ -114,6 +118,7 @@ public class RagdollPhysics implements MouseListener, ActionListener, KeyListene
 		graphicsSubsystem.addMouseListener(this);
 		graphicsSubsystem.addKeyListener(this);
 		graphicsSubsystem.addRendererListener(this);
+		graphicsSubsystem.addMouseMotionListener(this);
 
 		graphicsSubsystem.synchronize(false);
 		graphicsSubsystem.display();
@@ -174,7 +179,7 @@ public class RagdollPhysics implements MouseListener, ActionListener, KeyListene
 
 			final Vector2D newCurrent = Vector2D.add(vertex.getCurrent(),
 					Vector2D.mult(frictionFac, Vector2D.substract(vertex.getCurrent(), vertex.getPrevious())));
-			newCurrent.y += gravity;
+			newCurrent.add(gravity);
 			vertex.setPrevious(vertex.getCurrent());
 			vertex.setCurrent(newCurrent);
 
@@ -254,9 +259,9 @@ public class RagdollPhysics implements MouseListener, ActionListener, KeyListene
 	public void render() {
 
 		for (final Edge2D edge : edges) {
-			graphicsSubsystem.drawFilledCircle((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y, 3,
+			graphicsSubsystem.drawFilledCircle((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y, vertexSize,
 					() -> Color.WHITE);
-			graphicsSubsystem.drawFilledCircle((int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, 3,
+			graphicsSubsystem.drawFilledCircle((int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, vertexSize,
 					() -> Color.WHITE);
 			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
 					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, Color.WHITE);
@@ -311,14 +316,54 @@ public class RagdollPhysics implements MouseListener, ActionListener, KeyListene
 	}
 
 	@Override
-	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+	public void mousePressed(MouseEvent meEvent) {
+
+		grabbedVertices = new ArrayList<>();
+		Vector2D mPoint = new Vector2D(meEvent.getPoint());
+
+		for (Vertex2D vertex : vertices) {
+			if (Vector2D.distance(mPoint, vertex.getCurrent()) <= vertexSize) {
+				grabbedVertices.add(vertex);
+			}
+		}
+
+		for (Vertex2D vertex : grabbedVertices) {
+
+			vertex.setPinned(true);
+			vertex.setCurrent(mPoint);
+			vertex.setPrevious(mPoint);
+
+		}
+
+		mousePressed = true;
 
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+
+		mousePressed = false;
+		for (Vertex2D vertex : grabbedVertices) {
+			vertex.setPinned(false);
+		}
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+
+		if (mousePressed) {
+
+			final Vector2D mPoint = new Vector2D(e.getPoint());
+			for (Vertex2D vertex : grabbedVertices) {
+				vertex.setCurrent(mPoint);
+				vertex.setPrevious(mPoint);
+
+			}
+		}
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
 
 	}
 
