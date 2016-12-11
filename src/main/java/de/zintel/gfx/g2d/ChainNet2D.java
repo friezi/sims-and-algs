@@ -1,17 +1,12 @@
 /**
  * 
  */
-package de.zintel.sim;
+package de.zintel.gfx.g2d;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.zintel.gfx.g2d.Chain2D;
-import de.zintel.gfx.g2d.Edge2D;
-import de.zintel.gfx.g2d.EdgeContainer2D;
-import de.zintel.gfx.g2d.Vector2D;
-import de.zintel.gfx.g2d.Vertex2D;
 import de.zintel.math.Utils;
 
 /**

@@ -21,6 +21,7 @@ import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.Koordination;
 import de.zintel.gfx.g2d.Chain2D;
+import de.zintel.gfx.g2d.ChainNet2D;
 import de.zintel.gfx.g2d.Cuboid2D;
 import de.zintel.gfx.g2d.Edge2D;
 import de.zintel.gfx.g2d.EdgeContainer2D;
@@ -285,10 +286,6 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		}
 
 		for (final Edge2D edge : edges) {
-			graphicsSubsystem.drawFilledCircle((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y, vertexSize,
-					() -> edge.getColor());
-			graphicsSubsystem.drawFilledCircle((int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, vertexSize,
-					() -> edge.getColor());
 			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
 					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, edge.getColor());
 		}
