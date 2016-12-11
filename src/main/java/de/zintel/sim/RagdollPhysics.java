@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.function.Consumer;
 
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
@@ -164,25 +165,29 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private void calculatePhysics() {
 
-		for (final Vertex2D vertex : vertices) {
+		vertices.parallelStream().forEach(new Consumer<Vertex2D>() {
 
-			if (vertex.isPinned()) {
-				continue;
+			@Override
+			public void accept(Vertex2D vertex) {
+
+				if (vertex.isPinned()) {
+					return;
+				}
+
+				double frictionFac = 1;
+				// friction
+				if (vertex.getCurrent().y == graphicsSubsystem.getHeight() - 1) {
+					frictionFac = friction;
+				}
+
+				final Vector2D newCurrent = Vector2D.add(vertex.getCurrent(),
+						Vector2D.mult(frictionFac, Vector2D.substract(vertex.getCurrent(), vertex.getPrevious())));
+				newCurrent.add(gravity);
+				vertex.setPrevious(vertex.getCurrent());
+				vertex.setCurrent(newCurrent);
+
 			}
-
-			double frictionFac = 1;
-			// friction
-			if (vertex.getCurrent().y == graphicsSubsystem.getHeight() - 1) {
-				frictionFac = friction;
-			}
-
-			final Vector2D newCurrent = Vector2D.add(vertex.getCurrent(),
-					Vector2D.mult(frictionFac, Vector2D.substract(vertex.getCurrent(), vertex.getPrevious())));
-			newCurrent.add(gravity);
-			vertex.setPrevious(vertex.getCurrent());
-			vertex.setCurrent(newCurrent);
-
-		}
+		});
 
 		for (int i = 0; i < iterations; i++) {
 			handleConstraints();
@@ -191,10 +196,10 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private void handleConstraints() {
 
-		for (final Vertex2D vertex : vertices) {
-			handleBorderConstraints(vertex);
-		}
+		vertices.parallelStream().forEach(vertex -> handleBorderConstraints(vertex));
 
+		// here parallelisation should not be done because some edges access the
+		// same vertex
 		for (final Edge2D edge : edges) {
 			handleStickConstraints(edge);
 		}
