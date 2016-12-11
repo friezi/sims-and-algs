@@ -44,11 +44,19 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private static final int iterations = 12;
 
-	private final double calmnessThreshold = 2;
+	private static final double calmnessThreshold = 2;
 
 	private static final int vertexSize = 3;
 
-	private final Vector2D gravity = new Vector2D(0, 0.8);
+	private static final Vector2D GRAV_DOWN = new Vector2D(0, 0.8);
+
+	private static final Vector2D GRAV_UP = new Vector2D(0, -0.8);
+
+	private static final Vector2D GRAV_RIGHT = new Vector2D(0.8, 0);
+
+	private static final Vector2D GRAV_LEFT = new Vector2D(-0.8, 0);
+
+	private Vector2D gravity = GRAV_DOWN;
 
 	private final double decay = 0.99;
 
@@ -315,8 +323,17 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 	}
 
 	@Override
-	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
+	public void keyPressed(KeyEvent ke) {
+
+		if (ke.getExtendedKeyCode() == KeyEvent.VK_DOWN) {
+			gravity = GRAV_DOWN;
+		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_UP) {
+			gravity = GRAV_UP;
+		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_RIGHT) {
+			gravity = GRAV_RIGHT;
+		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_LEFT) {
+			gravity = GRAV_LEFT;
+		}
 
 	}
 
