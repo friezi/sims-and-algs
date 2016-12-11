@@ -42,7 +42,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
 
-	private static final int iterations = 20;
+	private static final int iterations = 12;
 
 	private final double calmnessThreshold = 2;
 
