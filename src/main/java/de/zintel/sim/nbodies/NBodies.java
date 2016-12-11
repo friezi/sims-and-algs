@@ -86,8 +86,6 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 
 	private long rStartTs = 0;
 
-	private long crStartTs = 0;
-
 	private long renderings = 0;
 
 	private long calculations = 0;
@@ -108,8 +106,8 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 
 	public void start() throws Exception {
 
-//		 bodyConsumers.add(new BodySerializer("c:/tmp/grav1.dat"));
-//		 bodyConsumers.add(new ParameterSerializer("c:/tmp/grav.par"));
+		// bodyConsumers.add(new BodySerializer("c:/tmp/grav1.dat"));
+		// bodyConsumers.add(new ParameterSerializer("c:/tmp/grav.par"));
 
 		bodyProducer = scenery.createGravitationSystem();
 
@@ -134,6 +132,7 @@ public class NBodies implements MouseListener, ActionListener, MouseWheelListene
 		Collection<Body> bodies = bodyProducer.getBodies();
 		renderer.initBodyProperties(bodies);
 
+		long crStartTs = 0;
 		long rIter = 0;
 		while (!stopped && (!doRecord || rIter < maxFrames)) {
 

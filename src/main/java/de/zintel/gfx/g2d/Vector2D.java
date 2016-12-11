@@ -68,7 +68,7 @@ public class Vector2D implements Serializable {
 	}
 
 	public Vector2D substract(Vector2D vector) {
-		add(-vector.x, -vector.y);
+		substract(vector.x, vector.y);
 		return this;
 	}
 
@@ -82,24 +82,35 @@ public class Vector2D implements Serializable {
 		this.y += y;
 	}
 
+	public void substract(double x, double y) {
+		this.x -= x;
+		this.y -= y;
+	}
+
 	public static Vector2D mult(double val, Vector2D vector) {
-		return new Vector2D(val * vector.x, val * vector.y);
+		final Vector2D nvector = new Vector2D(vector);
+		nvector.mult(val);
+		return nvector;
 	}
 
 	public static Vector2D add(Vector2D a, Vector2D b) {
-		return new Vector2D(a.x + b.x, a.y + b.y);
+		final Vector2D nvector = new Vector2D(a);
+		nvector.add(b);
+		return nvector;
 	}
 
-	public boolean isNullVector() {
-		return x == 0.0 && y == 0.0;
+	public static Vector2D substract(Vector2D a, Vector2D b) {
+		final Vector2D nvector = new Vector2D(a);
+		nvector.substract(b);
+		return nvector;
 	}
 
 	public static double mult(Vector2D a, Vector2D b) {
 		return a.x * b.x + a.y * b.y;
 	}
 
-	public static Vector2D substract(Vector2D a, Vector2D b) {
-		return new Vector2D(a.x - b.x, a.y - b.y);
+	public boolean isNullVector() {
+		return x == 0.0 && y == 0.0;
 	}
 
 	public static Vector2D normalize(Vector2D vector) {

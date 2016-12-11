@@ -99,6 +99,8 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 
 	private TextRenderer textRenderer = null;
 
+	private boolean synchronizzed = false;
+
 	public GLGraphicsSubsystem(String title, int width, int height) {
 		this.title = title;
 		this.dimension = new Dimension(width, height);
@@ -137,7 +139,8 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 				e.printStackTrace();
 			}
 
-		} else {
+		}
+		if (!synchronizzed) {
 
 			displayTask = new DisplayTask();
 			renderThread = new Thread(displayTask);
@@ -179,7 +182,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	@Override
 	public void repaint() {
 
-		if (doRecord) {
+		if (synchronizzed) {
 
 			canvas.display();
 
@@ -451,6 +454,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 
 		this.recordFilename = filename;
 		this.doRecord = doRecord;
+		this.synchronizzed = true;
 
 	}
 
@@ -477,6 +481,11 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	@Override
 	public boolean supportsColorChange() {
 		return true;
+	}
+
+	@Override
+	public void synchronize(boolean value) {
+		this.synchronizzed = value;
 	}
 
 }

@@ -231,4 +231,9 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 		return false;
 	}
 
+	@Override
+	public void synchronize(boolean value) {
+		// not supported
+	}
+
 }

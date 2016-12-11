@@ -10,7 +10,7 @@ import de.zintel.sim.nbodies.SwingBodyProperty;
 public class BlackholeSceneryConfig extends CommonSceneryConfig {
 
 	public BlackholeSceneryConfig(int width, int height) {
-		super(width, height, 230, 100, 20000, 100000, 100, 10, false, true, 30,
+		super(width, height, 180, 100, 20000, 100000, 100, 10, false, true, 30,
 				new Physics().setRestitutionCoefficient(0.995).setDecay(2).setThresholdCollision(2).setParticleMass(300)
 						.setParticleVelocityReduction(2.2).setExplosionThreshold(50).setAccelerationFactor(0.2).setUseExplosion(true)
 						.setCollision(true).setParticleGravitation(true).setParticleCollision(true).setParticleInfluence(true)

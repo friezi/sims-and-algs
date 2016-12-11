@@ -62,6 +62,8 @@ public interface IGraphicsSubsystem {
 
 	void shutdown();
 
+	void synchronize(boolean value);
+
 	void recordSession(boolean doRecord, String filename);
 
 }

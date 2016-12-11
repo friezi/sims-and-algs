@@ -230,10 +230,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-
-		CollectiveIntelligence application = new CollectiveIntelligence();
-		application.start();
-
+		new CollectiveIntelligence().start();
 	}
 
 	public void start() throws Exception {
