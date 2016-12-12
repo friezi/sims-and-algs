@@ -11,10 +11,6 @@ import java.awt.Color;
  */
 public class Edge2D {
 
-	public static interface EdgeColorChooser {
-		Color getColor(Edge2D edge);
-	}
-
 	private Vertex2D first;
 
 	private Vertex2D second;
@@ -23,7 +19,7 @@ public class Edge2D {
 
 	private Color color;
 
-	private EdgeColorChooser colorChooser = null;
+	private ColorModifier<Edge2D> colorModifier = null;
 
 	public Edge2D(Vertex2D first, Vertex2D second) {
 		this(first, second, Color.WHITE);
@@ -66,8 +62,8 @@ public class Edge2D {
 
 	public Color getColor() {
 
-		if (colorChooser != null) {
-			return colorChooser.getColor(this);
+		if (colorModifier != null) {
+			return colorModifier.getColor(this);
 		} else {
 			return color;
 		}
@@ -78,12 +74,12 @@ public class Edge2D {
 		return this;
 	}
 
-	public EdgeColorChooser getColorChooser() {
-		return colorChooser;
+	public ColorModifier<Edge2D> getColorModifier() {
+		return colorModifier;
 	}
 
-	public Edge2D setColorChooser(EdgeColorChooser colorChooser) {
-		this.colorChooser = colorChooser;
+	public Edge2D setColorModifier(ColorModifier<Edge2D> colorModifier) {
+		this.colorModifier = colorModifier;
 		return this;
 	}
 

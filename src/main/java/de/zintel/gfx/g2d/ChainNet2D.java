@@ -73,7 +73,7 @@ public class ChainNet2D extends EdgeContainer2D {
 		}
 
 		for (Edge2D edge : getEdges()) {
-			edge.setColorChooser(new AdjustingColorChooser());
+			edge.setColorModifier(new AdjustingColorModifier());
 		}
 
 	}

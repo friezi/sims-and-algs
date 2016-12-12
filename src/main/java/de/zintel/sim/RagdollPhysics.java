@@ -103,7 +103,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60));
 
 			add(new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
-					50, 10, 11, 11).setColor(Color.LIGHT_GRAY));
+					50, 10, 11, 11).setColor(Color.ORANGE));
 		}
 	};
 
