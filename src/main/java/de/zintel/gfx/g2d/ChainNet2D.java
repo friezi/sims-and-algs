@@ -18,16 +18,16 @@ public class ChainNet2D extends EdgeContainer2D {
 	/**
 	 * 
 	 */
-	public ChainNet2D(Vertex2D topleft, Vertex2D topright, int height, int chainLinks, int chainsVertical, int chainsHorizontal) {
+	public ChainNet2D(Vertex2D topleft, Vertex2D topright, int height, int chainLinks, int chainsHorizontal, int chainsVertical) {
 
 		List<Vertex2D> nodesH = new ArrayList<>();
 		List<Vertex2D> nodesV = new ArrayList<>();
 		Vertex2D previousH = null;
-		for (int v = 1; v <= chainsVertical; v++) {
+		for (int v = 1; v <= chainsHorizontal; v++) {
 
 			if (v == 1) {
 				previousH = topleft;
-			} else if (v == chainsVertical) {
+			} else if (v == chainsHorizontal) {
 				previousH = topright;
 			} else {
 
@@ -41,7 +41,7 @@ public class ChainNet2D extends EdgeContainer2D {
 			nodesV.add(previousH);
 
 		}
-		for (int h = 1; h <= chainsHorizontal; h++) {
+		for (int h = 1; h <= chainsVertical; h++) {
 
 			if (h > 1) {
 				nodesV = new ArrayList<>();
@@ -56,7 +56,7 @@ public class ChainNet2D extends EdgeContainer2D {
 			}
 
 			previousH = null;
-			for (int v = 0; v < chainsVertical; v++) {
+			for (int v = 0; v < chainsHorizontal; v++) {
 
 				if (v == 0) {
 					previousH = nodesV.get(v);
