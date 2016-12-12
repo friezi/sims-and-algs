@@ -90,6 +90,16 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 					addEdge(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(99, 100)), new Vertex2D(new Vector2D(230, 120))));
 				}
 			});
+			add(new EdgeContainer2D() {
+				{
+					addEdge(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(101, 100)), new Vertex2D(new Vector2D(230, 120))));
+				}
+			});
+			add(new EdgeContainer2D() {
+				{
+					addEdge(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(100, 101)), new Vertex2D(new Vector2D(230, 120))));
+				}
+			});
 
 			final Vertex2D cuboidHook = new Vertex2D(new Vector2D(400, 100), new Vector2D(380, 95));
 			add(new Cuboid2D(cuboidHook, new Vertex2D(new Vector2D(430, 100)), new Vertex2D(new Vector2D(430, 130)),
