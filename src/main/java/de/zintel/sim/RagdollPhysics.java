@@ -113,7 +113,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60));
 
 			add(new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
-					50, 10, 12, 11).setColor(Color.ORANGE));
+					50, 10, 14, 11).setColor(Color.ORANGE));
 		}
 	};
 
@@ -431,13 +431,16 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 	@Override
 	public void mouseReleased(MouseEvent e) {
 
-		setMousePoint(e);
-
 		mousePressed = false;
+
+		setMousePoint(e);
+		final Vector2D mPoint = new Vector2D(mousePoint);
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			// unpin
 			for (Vertex2D vertex : grabbedVertices) {
 				vertex.setPinned(false);
+				vertex.setCurrent(mPoint);
+				vertex.setPrevious(mPoint);
 			}
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
 			// glue together
@@ -467,8 +470,6 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		setMousePoint(e);
 
 		if (mousePressed) {
-
-			System.out.println("dragged!");
 
 			final Vector2D mPoint = new Vector2D(mousePoint);
 			for (Vertex2D vertex : grabbedVertices) {
