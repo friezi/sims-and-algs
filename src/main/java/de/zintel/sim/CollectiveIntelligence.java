@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
@@ -34,6 +35,7 @@ import de.zintel.gfx.component.FadingText;
 import de.zintel.gfx.component.GfxState;
 import de.zintel.gfx.component.IGfxComponent;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
+import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.Polar;
 import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
@@ -121,8 +123,10 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 		private Point previousPosition;
 
 		private final int speed;
+		//
+		// private BezierPointInterpolater interpolater = null;
 
-		private BezierPointInterpolater interpolater = null;
+		private final Collection<BezierPointInterpolater> interpolaters = new LinkedList<>();
 
 		public BezierMotioner(Boid boid, int speed) {
 			super();
@@ -133,30 +137,87 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 		public Vector2D nextMotionVector() {
 
 			Point currentPosition = previousPosition;
-			if (interpolater != null && interpolater.hasNext()) {
 
-				for (int i = 0; i < speed; i++) {
-					if (interpolater.hasNext()) {
-						currentPosition = interpolater.next().getPoint();
+			{
+				final Iterator<BezierPointInterpolater> iterator = interpolaters.iterator();
+				while (iterator.hasNext()) {
+					if (!iterator.next().hasNext()) {
+						iterator.remove();
 					}
 				}
+			}
 
-			} else {
+			if (interpolaters.isEmpty()) {
 
-				interpolater = new BezierPointInterpolater(previousPosition, makeRandomPoint(koordination.WIDTH, koordination.HEIGHT),
-						false, false);
-				int nmbControlPoints = RANDOM.nextInt(10);
-				for (int i = 0; i < nmbControlPoints; i++) {
-					interpolater.addControlPoint(makeRandomPoint(koordination.WIDTH, koordination.HEIGHT));
+				interpolaters.clear();
+				interpolaters.add(newBezierPointInterpolater(previousPosition));
+
+			}
+
+			for (int i = 0; i < speed; i++) {
+
+				final Iterator<BezierPointInterpolater> iterator = interpolaters.iterator();
+				if (iterator.hasNext()) {
+
+					final BezierPointInterpolater interpolater = iterator.next();
+					if (interpolater.hasNext()) {
+
+						final IterationUnit2D currentUnit = interpolater.next();
+						currentPosition = currentUnit.getPoint();
+						final double ratio = ((double) currentUnit.getIteration()) / currentUnit.getMaxIterations();
+						if (ratio > 0.75) {
+
+							BezierPointInterpolater nextInterpolater;
+
+							if (!iterator.hasNext()) {
+
+								nextInterpolater = newBezierPointInterpolater(currentPosition);
+								interpolaters.add(nextInterpolater);
+
+							} else {
+
+								nextInterpolater = iterator.next();
+								if (!nextInterpolater.hasNext()) {
+
+									interpolaters.remove(nextInterpolater);
+									nextInterpolater = newBezierPointInterpolater(currentPosition);
+									interpolaters.add(nextInterpolater);
+
+								}
+
+							}
+
+							final IterationUnit2D nextUnit = nextInterpolater.next();
+							Point nextPosition = nextUnit.getPoint();
+							// smooth combination of both interpolaters
+							currentPosition = new Point((int) ((1 - ratio) * currentPosition.x + ratio * nextPosition.x),
+									(int) ((1 - ratio) * currentPosition.y + ratio * nextPosition.y));
+
+						}
+
+					} else {
+						iterator.remove();
+					}
 				}
-
-				currentPosition = interpolater.next().getPoint();
 			}
 
 			final Vector2D motionVector = new Vector2D(currentPosition.x - previousPosition.x, currentPosition.y - previousPosition.y);
 			previousPosition = currentPosition;
 
 			return motionVector;
+		}
+
+		private BezierPointInterpolater newBezierPointInterpolater(Point start) {
+
+			BezierPointInterpolater interpolater = new BezierPointInterpolater(start,
+					makeRandomPoint(koordination.WIDTH, koordination.HEIGHT), false, false);
+			int nmbControlPoints = RANDOM.nextInt(10);
+			for (int i = 0; i < nmbControlPoints; i++) {
+				interpolater.addControlPoint(makeRandomPoint(koordination.WIDTH, koordination.HEIGHT));
+			}
+
+			return interpolater;
+
 		}
 	}
 
