@@ -22,52 +22,52 @@ public final class Utils {
 
 	}
 
-	public static int interpolateLinear(int v1, int v2, int iteration, int maxIterations) {
-		return interpolate(v1, v2, iteration, maxIterations, (x, max) -> {
+	public static int interpolateLinear(int start, int end, int iteration, int maxIterations) {
+		return interpolate(start, end, iteration, maxIterations, (x, max) -> {
 			return x;
 		});
 	}
 
-	public static double interpolateLinearReal(double v1, double v2, int iteration, int maxIterations) {
-		return interpolateReal(v1, v2, iteration, maxIterations, (x, max) -> {
+	public static double interpolateLinearReal(double start, double end, int iteration, int maxIterations) {
+		return interpolateReal(start, end, iteration, maxIterations, (x, max) -> {
 			return x;
 		});
 	}
 
-	public static int interpolateLinearMoreScattering(int v1, int v2, int iteration, int maxIterations) {
-		return interpolateMoreScattering(v1, v2, iteration, maxIterations, (x, max) -> {
+	public static int interpolateLinearMoreScattering(int start, int end, int iteration, int maxIterations) {
+		return interpolateMoreScattering(start, end, iteration, maxIterations, (x, max) -> {
 			return x;
 		});
 	}
 
-	public static int interpolateTexture(int v1, int v2, int iteration, int maxIterations) {
-		return interpolateMisc(v1, v2, iteration, maxIterations);
+	public static int interpolateTexture(int start, int end, int iteration, int maxIterations) {
+		return interpolateMisc(start, end, iteration, maxIterations);
 	}
 
-	public static int interpolateMisc(int v1, int v2, int iteration, int maxIterations) {
-		return interpolate(v1, v2, iteration, maxIterations, (x, max) -> {
+	public static int interpolateMisc(int start, int end, int iteration, int maxIterations) {
+		return interpolate(start, end, iteration, maxIterations, (x, max) -> {
 			return x + (x < max / 2 ? 1 : -1) * 100 * Math.sin((x * Math.PI) / max) * Math.cos((x * Math.PI) / max);
 		});
 	}
 
-	public static int interpolate(int v1, int v2, int iteration, int maxIterations, StepProjection p) {
-		return (int) interpolateReal(v1, v2, iteration, maxIterations, p);
+	public static int interpolate(int start, int end, int iteration, int maxIterations, StepProjection p) {
+		return (int) interpolateReal(start, end, iteration, maxIterations, p);
 	}
 
-	public static double interpolateReal(double v1, double v2, int iteration, int maxIterations, StepProjection p) {
+	public static double interpolateReal(double start, double end, int iteration, int maxIterations, StepProjection p) {
 
 		final int maxSteps = maxIterations - 1;
 		final int step = iteration - 1;
 		double projectedStep = Math.abs(p.project(step, maxSteps)) % (maxSteps + 1);
-		return (maxSteps <= 0 ? v1 : (v1 + (((projectedStep * (v2 - v1))) / maxSteps)));
+		return (maxSteps <= 0 ? start : (start + (((projectedStep * (end - start))) / maxSteps)));
 	}
 
-	public static int interpolateMoreScattering(int v1, int v2, int iteration, int maxIterations, StepProjection p) {
+	public static int interpolateMoreScattering(int start, int end, int iteration, int maxIterations, StepProjection p) {
 
 		final int maxSteps = maxIterations - 1;
 		final int step = iteration - 1;
 		double projectedStep = Math.abs(p.project(step, maxSteps)) % (maxSteps + 1);
-		return (maxSteps <= 0 ? v1 : (v1 - ((int) (v1 * projectedStep)) / maxSteps + ((int) (v2 * projectedStep)) / maxSteps));
+		return (maxSteps <= 0 ? start : (start - ((int) (start * projectedStep)) / maxSteps + ((int) (end * projectedStep)) / maxSteps));
 	}
 
 	public static int distance(Point p1, Point p2) {

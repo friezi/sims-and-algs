@@ -154,6 +154,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 			}
 
+			final double threshold = 0.75;
 			for (int i = 0; i < speed; i++) {
 
 				final Iterator<BezierPointInterpolater> iterator = interpolaters.iterator();
@@ -165,7 +166,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 						final IterationUnit2D currentUnit = interpolater.next();
 						currentPosition = currentUnit.getPoint();
 						final double ratio = ((double) currentUnit.getIteration()) / currentUnit.getMaxIterations();
-						if (ratio > 0.75) {
+						if (ratio > threshold) {
 
 							BezierPointInterpolater nextInterpolater;
 
@@ -188,10 +189,15 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 							}
 
 							final IterationUnit2D nextUnit = nextInterpolater.next();
-							Point nextPosition = nextUnit.getPoint();
-							// smooth combination of both interpolaters
-							currentPosition = new Point((int) ((1 - ratio) * currentPosition.x + ratio * nextPosition.x),
-									(int) ((1 - ratio) * currentPosition.y + ratio * nextPosition.y));
+							final Point nextPosition = nextUnit.getPoint();
+							final int thresholdStart = (int) (currentUnit.getMaxIterations() * threshold);
+							final int max = currentUnit.getMaxIterations() - thresholdStart;
+							final int step = currentUnit.getIteration() - thresholdStart + 1;
+							final double sFac = Utils.interpolateLinearReal(1, 0, step, max);
+							final double tFac = Utils.interpolateLinearReal(0, 1, step, max);
+							// smooth transition of both interpolaters
+							currentPosition = new Point((int) (sFac * currentPosition.x + tFac * nextPosition.x),
+									(int) (sFac * currentPosition.y + tFac * nextPosition.y));
 
 						}
 
