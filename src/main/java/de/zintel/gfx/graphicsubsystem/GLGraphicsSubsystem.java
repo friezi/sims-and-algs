@@ -163,7 +163,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	}
 
 	@Override
-	public void drawFilledEllipse(int x, int y, int radius, double ratioYX, float angle, ColorGenerator colorGenerator) {
+	public void drawFilledEllipse(int x, int y, int radius, double ratioYX, double angle, ColorGenerator colorGenerator) {
 		circleDrawer.drawFilledEllipse(x, y, radius, colorGenerator, dimension, ratioYX, angle, gl);
 	}
 

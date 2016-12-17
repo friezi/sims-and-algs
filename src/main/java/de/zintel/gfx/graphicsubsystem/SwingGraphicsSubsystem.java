@@ -98,6 +98,11 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 		graphics.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
 	}
 
+	@Override
+	public void drawFilledEllipse(int x, int y, int radius, double ratioYX, double angle, ColorGenerator colorGenerator) {
+		drawFilledCircle(x, y, radius, colorGenerator);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -233,11 +238,6 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 
 	@Override
 	public void synchronize(boolean value) {
-		// not supported
-	}
-
-	@Override
-	public void drawFilledEllipse(int x, int y, int radius, double ratioYX, float angle, ColorGenerator colorGenerator) {
 		// not supported
 	}
 

@@ -24,7 +24,7 @@ public interface IGraphicsSubsystem {
 
 	void drawFilledCircle(final int x, final int y, final int radius, final ColorGenerator colorGenerator);
 
-	void drawFilledEllipse(final int x, final int y, final int radius, double ratioYX, float angle, final ColorGenerator colorGenerator);
+	void drawFilledEllipse(final int x, final int y, final int radius, double ratioYX, double angle, final ColorGenerator colorGenerator);
 
 	void drawLine(final int x1, final int y1, final int x2, final int y2, final Color color);
 

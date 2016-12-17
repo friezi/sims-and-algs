@@ -65,7 +65,7 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static final int NMB_PREDATORS = 3;
 
-	private static final int BOID_SIZE = 4;
+	private static final int BOID_SIZE = 6;
 
 	private static final long DELAY = 10;
 
@@ -879,11 +879,13 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 				}
 			};
 
-			graphicsSubsystem.drawFilledCircle((int) boid.getPosition().x, (int) boid.getPosition().y,
-					graphicsSubsystem.supportsColorChange() ? BOID_SIZE : BOID_SIZE / 2, colorGenerator);
+			graphicsSubsystem.drawFilledEllipse((int) boid.getPosition().x, (int) boid.getPosition().y,
+					graphicsSubsystem.supportsColorChange() ? BOID_SIZE : BOID_SIZE / 2, 2,
+					Math.PI / 2 - boid.getDirectionPolar().getAngle(), colorGenerator);
 
 			if (SHIVERING && !graphicsSubsystem.supportsColorChange()) {
-				graphicsSubsystem.drawFilledCircle((int) boid.getPosition().x, (int) boid.getPosition().y, BOID_SIZE,
+				graphicsSubsystem.drawFilledEllipse((int) boid.getPosition().x, (int) boid.getPosition().y, BOID_SIZE, 2,
+						Math.PI / 2 - boid.getDirectionPolar().getAngle(),
 						() -> new Color(effectiveColor.getRed(), effectiveColor.getGreen(), effectiveColor.getBlue(), 100));
 			}
 		}
@@ -912,8 +914,8 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 	 */
 	private Color calculateMovementDependentDeltaColor(final Color shine, Color color, final Boid boid) {
 
-		Polar polarDirection = boid.getDirection().toPolar();
-		Polar polarPreviousDirection = boid.getPreviousDirection().toPolar();
+		Polar polarDirection = boid.getDirectionPolar();
+		Polar polarPreviousDirection = boid.getPreviousDirectionPolar();
 
 		double deltaAngle = (Double.isNaN(polarDirection.getAngle()) || Double.isNaN(polarPreviousDirection.getAngle())) ? 0
 				: Math.abs(polarDirection.getAngle() - polarPreviousDirection.getAngle());

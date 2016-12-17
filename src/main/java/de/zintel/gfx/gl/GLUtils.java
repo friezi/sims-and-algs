@@ -82,7 +82,7 @@ public final class GLUtils {
 		 * @param gl
 		 */
 		public void drawFilledEllipse(int x, int y, int radius, final ColorGenerator colorGenerator, final Dimension dimension,
-				double ratioYX, float angle, final GL2 gl) {
+				double ratioYX, double angle, final GL2 gl) {
 
 			float x1, y1, x2, y2;
 			float rx = projectX(radius, dimension) + 1;
