@@ -83,4 +83,9 @@ public class Edge2D {
 		return this;
 	}
 
+	@Override
+	public String toString() {
+		return "Edge2D [first=" + first + ", second=" + second + ", length=" + length + "]";
+	}
+
 }

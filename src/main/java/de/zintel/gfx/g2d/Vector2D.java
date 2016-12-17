@@ -117,6 +117,10 @@ public class Vector2D implements Serializable {
 		return mult(1 / vector.length(), vector);
 	}
 
+	public static Vector2D max(Vector2D v1, Vector2D v2) {
+		return (v1.length() >= v2.length() ? v1 : v2);
+	}
+
 	public Polar toPolar() {
 		return new Polar(length(), x != 0 ? Math.acos(x / length()) : Math.asin(y / length()));
 	}

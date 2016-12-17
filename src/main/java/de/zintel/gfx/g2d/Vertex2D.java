@@ -60,4 +60,9 @@ public class Vertex2D {
 		return this;
 	}
 
+	@Override
+	public String toString() {
+		return "Vertex2D [current=" + current + ", previous=" + previous + ", pinned=" + pinned + "]";
+	}
+
 }

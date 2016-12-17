@@ -42,7 +42,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
 
-	private static final int iterations = 20;
+	private static final int iterations = 80;
 
 	private static final double calmnessThreshold = 2;
 
@@ -113,7 +113,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60));
 
 			add(new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
-					50, 10, 14, 11).setColor(Color.ORANGE));
+					20, 10, 30, 30).setColor(Color.ORANGE));
 		}
 	};
 
@@ -162,6 +162,15 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			}
 
 			calculatePhysics();
+
+			for (Vertex2D vertex : vertices) {
+				if (Double.isNaN(vertex.getCurrent().x) || Double.isNaN(vertex.getCurrent().y) || Double.isNaN(vertex.getPrevious().x)
+						|| Double.isNaN(vertex.getPrevious().y) || Double.isInfinite(vertex.getCurrent().x)
+						|| Double.isInfinite(vertex.getCurrent().y) || Double.isInfinite(vertex.getPrevious().x)
+						|| Double.isInfinite(vertex.getPrevious().y)) {
+					System.out.println(vertex);
+				}
+			}
 
 			graphicsSubsystem.repaint();
 
@@ -239,7 +248,14 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 		final Vector2D cFirst = edge.getFirst().getCurrent();
 		final Vector2D cSecond = edge.getSecond().getCurrent();
-		final Vector2D dV = Vector2D.substract(cFirst, cSecond);
+		Vector2D dV = Vector2D.substract(cFirst, cSecond);
+		if (dV.isNullVector()) {
+			// Problem!!! no line anymore
+			System.out.println("Nullvector! edge: " + edge);
+			dV = Vector2D.max(Vector2D.substract(edge.getFirst().getPrevious(), edge.getSecond().getCurrent()),
+					Vector2D.substract(edge.getSecond().getPrevious(), edge.getFirst().getCurrent()));
+			dV.mult(0.001);
+		}
 
 		if (dV.length() > edge.getLength() || dV.length() < edge.getLength()) {
 

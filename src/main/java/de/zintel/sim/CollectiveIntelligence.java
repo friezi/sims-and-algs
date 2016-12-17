@@ -120,11 +120,11 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static class BezierMotioner implements BoidMotioner {
 
+		private static final double threshold = 0.75;
+
 		private Point previousPosition;
 
 		private final int speed;
-		//
-		// private BezierPointInterpolater interpolater = null;
 
 		private final Collection<BezierPointInterpolater> interpolaters = new LinkedList<>();
 
@@ -154,7 +154,6 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 			}
 
-			final double threshold = 0.75;
 			for (int i = 0; i < speed; i++) {
 
 				final Iterator<BezierPointInterpolater> iterator = interpolaters.iterator();

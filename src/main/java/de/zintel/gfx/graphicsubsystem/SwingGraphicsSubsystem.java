@@ -236,4 +236,9 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 		// not supported
 	}
 
+	@Override
+	public void drawFilledEllipse(int x, int y, int radius, double ratioYX, float angle, ColorGenerator colorGenerator) {
+		// not supported
+	}
+
 }
