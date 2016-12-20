@@ -284,12 +284,12 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 		final Vector2D current = vertex.getCurrent();
 		final Vector2D previous = vertex.getPrevious();
-		final double velocity = Vector2D.distance(current, previous);
+		final double speed = Vector2D.distance(current, previous);
 
 		// bounce
 		if (current.x > graphicsSubsystem.getWidth() - 1) {
 
-			if (velocity < calmnessThreshold) {
+			if (speed < calmnessThreshold) {
 				current.x = graphicsSubsystem.getWidth() - 1;
 				previous.x = current.x;
 			} else {
@@ -297,7 +297,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 				previous.x = graphicsSubsystem.getWidth() - 1 + (current.x - previous.x) * decay;
 			}
 		} else if (current.x < 0) {
-			if (velocity < calmnessThreshold) {
+			if (speed < calmnessThreshold) {
 				current.x = 0;
 				previous.x = current.x;
 			} else {
@@ -307,7 +307,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		}
 
 		if (current.y > graphicsSubsystem.getHeight() - 1) {
-			if (velocity < calmnessThreshold) {
+			if (speed < calmnessThreshold) {
 				current.y = graphicsSubsystem.getHeight() - 1;
 				previous.y = current.y;
 			} else {
@@ -315,7 +315,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 				previous.y = graphicsSubsystem.getHeight() - 1 + (current.y - previous.y) * decay;
 			}
 		} else if (current.y < 0) {
-			if (velocity < calmnessThreshold) {
+			if (speed < calmnessThreshold) {
 				current.y = 0;
 				previous.y = current.y;
 			} else {
@@ -456,7 +456,6 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			for (Vertex2D vertex : grabbedVertices) {
 				vertex.setPinned(false);
 				vertex.setCurrent(mPoint);
-				vertex.setPrevious(mPoint);
 			}
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
 			// glue together
