@@ -5,6 +5,8 @@ package de.zintel.gfx.g2d;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import de.zintel.math.Utils;
@@ -13,12 +15,19 @@ import de.zintel.math.Utils;
  * @author friedemann.zintel
  *
  */
-public class ChainNet2D extends EdgeContainer2D {
+public class ChainNet2D implements IEdgeContainer2D {
+
+	private IRenderer<ChainNet2D> renderer;
+
+	private final Collection<Edge2D> edges = new LinkedList<>();
 
 	/**
 	 * 
 	 */
-	public ChainNet2D(Vertex2D topleft, Vertex2D topright, int height, int chainLinks, int chainsHorizontal, int chainsVertical) {
+	public ChainNet2D(Vertex2D topleft, Vertex2D topright, int height, int chainLinks, int chainsHorizontal, int chainsVertical,
+			IRenderer<ChainNet2D> renderer, IRenderer<Chain2D> chainRenderer, IRenderer<Edge2D> edgeRenderer) {
+
+		this.renderer = renderer;
 
 		List<Vertex2D> nodesH = new ArrayList<>();
 		List<Vertex2D> nodesV = new ArrayList<>();
@@ -48,8 +57,8 @@ public class ChainNet2D extends EdgeContainer2D {
 				for (Vertex2D node : nodesH) {
 
 					final Vertex2D currentV = new Vertex2D(new Vector2D(node.getCurrent().x, node.getCurrent().y + height));
-					final Chain2D chainV = new Chain2D(node, currentV, chainLinks);
-					getEdges().addAll(chainV.getEdges());
+					final Chain2D chainV = new Chain2D(node, currentV, chainLinks, chainRenderer, edgeRenderer);
+					edges.addAll(chainV.getEdges());
 					nodesV.add(currentV);
 
 				}
@@ -63,8 +72,8 @@ public class ChainNet2D extends EdgeContainer2D {
 				} else {
 
 					final Vertex2D currentH = nodesV.get(v);
-					final Chain2D chain = new Chain2D(previousH, currentH, chainLinks);
-					getEdges().addAll(chain.getEdges());
+					final Chain2D chain = new Chain2D(previousH, currentH, chainLinks, chainRenderer, edgeRenderer);
+					edges.addAll(chain.getEdges());
 
 					previousH = currentH;
 				}
@@ -72,8 +81,9 @@ public class ChainNet2D extends EdgeContainer2D {
 			nodesH = nodesV;
 		}
 
+		final AdjustingColorModifier colorModifier = new AdjustingColorModifier();
 		for (Edge2D edge : getEdges()) {
-			edge.setColorModifier(new AdjustingColorModifier());
+			edge.setColorModifier(colorModifier);
 		}
 
 	}
@@ -83,6 +93,16 @@ public class ChainNet2D extends EdgeContainer2D {
 			edge.setColor(color);
 		}
 		return this;
+	}
+
+	@Override
+	public void render() {
+		renderer.render(this);
+	}
+
+	@Override
+	public Collection<Edge2D> getEdges() {
+		return edges;
 	}
 
 }

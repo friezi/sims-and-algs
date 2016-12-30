@@ -4,12 +4,14 @@
 package de.zintel.gfx.g2d;
 
 import java.awt.Color;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * @author friedemann.zintel
  *
  */
-public class Edge2D {
+public class Edge2D implements IEdgeContainer2D {
 
 	private Vertex2D first;
 
@@ -19,16 +21,19 @@ public class Edge2D {
 
 	private Color color;
 
+	private IRenderer<Edge2D> renderer;
+
 	private ColorModifier<Edge2D> colorModifier = null;
 
-	public Edge2D(Vertex2D first, Vertex2D second) {
-		this(first, second, Color.WHITE);
+	public Edge2D(Vertex2D first, Vertex2D second, IRenderer<Edge2D> renderer) {
+		this(first, second, Color.WHITE, renderer);
 	}
 
-	public Edge2D(Vertex2D first, Vertex2D second, Color color) {
+	public Edge2D(Vertex2D first, Vertex2D second, Color color, IRenderer<Edge2D> renderer) {
 		this.first = first;
 		this.second = second;
 		this.color = color;
+		this.renderer = renderer;
 		this.length = Vector2D.distance(first.getCurrent(), second.getCurrent());
 	}
 
@@ -86,6 +91,16 @@ public class Edge2D {
 	@Override
 	public String toString() {
 		return "Edge2D [first=" + first + ", second=" + second + ", length=" + length + "]";
+	}
+
+	@Override
+	public void render() {
+		renderer.render(this);
+	}
+
+	@Override
+	public Collection<Edge2D> getEdges() {
+		return Arrays.asList(this);
 	}
 
 }

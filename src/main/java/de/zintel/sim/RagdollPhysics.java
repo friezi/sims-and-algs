@@ -25,7 +25,8 @@ import de.zintel.gfx.g2d.Chain2D;
 import de.zintel.gfx.g2d.ChainNet2D;
 import de.zintel.gfx.g2d.Cuboid2D;
 import de.zintel.gfx.g2d.Edge2D;
-import de.zintel.gfx.g2d.EdgeContainer2D;
+import de.zintel.gfx.g2d.IEdgeContainer2D;
+import de.zintel.gfx.g2d.IRenderer;
 import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.gfx.g2d.Vertex2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
@@ -37,6 +38,55 @@ import de.zintel.gfx.graphicsubsystem.IRendererListener;
  *
  */
 public class RagdollPhysics implements MouseListener, MouseMotionListener, ActionListener, KeyListener, IRendererListener {
+
+	private static class DfltEdgeRenderer implements IRenderer<Edge2D> {
+
+		private final IGraphicsSubsystem graphicsSubsystem;
+
+		public DfltEdgeRenderer(IGraphicsSubsystem graphicsSubsystem) {
+			this.graphicsSubsystem = graphicsSubsystem;
+		}
+
+		@Override
+		public void render(Edge2D edge) {
+			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
+					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, edge.getColor());
+		}
+
+	}
+
+	private static class DfltChainRenderer implements IRenderer<Chain2D> {
+
+		@Override
+		public void render(Chain2D item) {
+			for (Edge2D edge : item.getEdges()) {
+				edge.render();
+			}
+		}
+
+	}
+
+	private static class DfltCuboidRenderer implements IRenderer<Cuboid2D> {
+
+		@Override
+		public void render(Cuboid2D item) {
+			for (Edge2D edge : item.getEdges()) {
+				edge.render();
+			}
+		}
+
+	}
+
+	private static class DfltChainNetRenderer implements IRenderer<ChainNet2D> {
+
+		@Override
+		public void render(ChainNet2D item) {
+			for (Edge2D edge : item.getEdges()) {
+				edge.render();
+			}
+		}
+
+	}
 
 	private static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
 
@@ -82,59 +132,17 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		new RagdollPhysics().start();
 	}
 
-	@SuppressWarnings("serial")
-	private final Collection<EdgeContainer2D> edgeContainers = new LinkedList<EdgeContainer2D>() {
-		{
-			add(new EdgeContainer2D() {
-				{
-					addEdge(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(99, 100)), new Vertex2D(new Vector2D(230, 120))));
-				}
-			});
-			add(new EdgeContainer2D() {
-				{
-					addEdge(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(101, 100)), new Vertex2D(new Vector2D(230, 120))));
-				}
-			});
-			add(new EdgeContainer2D() {
-				{
-					addEdge(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(100, 101)), new Vertex2D(new Vector2D(230, 120))));
-				}
-			});
+	private final Collection<IEdgeContainer2D> edgeContainers = new LinkedList<>();
 
-			final Vertex2D cuboidHook = new Vertex2D(new Vector2D(400, 100), new Vector2D(380, 95));
-			add(new Cuboid2D(cuboidHook, new Vertex2D(new Vector2D(430, 100)), new Vertex2D(new Vector2D(430, 130)),
-					new Vertex2D(new Vector2D(400, 130))));
-			add(new Cuboid2D(new Vertex2D(new Vector2D(450, 100), new Vector2D(410, 105)), new Vertex2D(new Vector2D(490, 100)),
-					new Vertex2D(new Vector2D(490, 140)), new Vertex2D(new Vector2D(450, 140))));
-			add(new Cuboid2D(new Vertex2D(new Vector2D(600, 10), new Vector2D(605, 105)), new Vertex2D(new Vector2D(700, 10)),
-					new Vertex2D(new Vector2D(700, 140)), new Vertex2D(new Vector2D(600, 140))));
+	private Collection<Edge2D> edges = new ArrayList<>();
 
-			add(new Chain2D(new Vertex2D(new Vector2D(500, 15)).setPinned(true), new Vertex2D(new Vector2D(800, 100)), 40));
-			add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60));
+	private Collection<Vertex2D> vertices = new LinkedHashSet<>();
 
-			add(new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
-					50, 10, 11, 11).setColor(Color.ORANGE));
-		}
-	};
-
-	@SuppressWarnings("serial")
-	private Collection<Edge2D> edges = new ArrayList<Edge2D>() {
-		{
-			for (EdgeContainer2D edgeContainer : edgeContainers) {
-				addAll(edgeContainer.getEdges());
-			}
-		}
-	};
-
-	@SuppressWarnings("serial")
-	private Collection<Vertex2D> vertices = new LinkedHashSet<Vertex2D>() {
-		{
-			for (final Edge2D edge : edges) {
-				add(edge.getFirst());
-				add(edge.getSecond());
-			}
-		}
-	};
+	/**
+	 * 
+	 */
+	public RagdollPhysics() {
+	}
 
 	private void start() throws InterruptedException {
 
@@ -150,6 +158,8 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 		graphicsSubsystem.synchronize(false);
 		graphicsSubsystem.display();
+
+		initScene();
 
 		long crStartTs = 0;
 		while (true) {
@@ -195,10 +205,46 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	}
 
-	/**
-	 * 
-	 */
-	public RagdollPhysics() {
+	private void initScene() {
+
+		final DfltEdgeRenderer dfltEdgeRenderer = new DfltEdgeRenderer(graphicsSubsystem);
+		final DfltCuboidRenderer dfltCuboidRenderer = new DfltCuboidRenderer();
+		final DfltChainRenderer dfltChainRenderer = new DfltChainRenderer();
+		final DfltChainNetRenderer dfltChainNetRenderer = new DfltChainNetRenderer();
+
+		edgeContainers.add(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(99, 100)), new Vertex2D(new Vector2D(230, 120)),
+				dfltEdgeRenderer));
+		edgeContainers.add(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(101, 100)), new Vertex2D(new Vector2D(230, 120)),
+				dfltEdgeRenderer));
+		edgeContainers.add(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(100, 101)), new Vertex2D(new Vector2D(230, 120)),
+				dfltEdgeRenderer));
+
+		final Vertex2D cuboidHook = new Vertex2D(new Vector2D(400, 100), new Vector2D(380, 95));
+		edgeContainers.add(new Cuboid2D(cuboidHook, new Vertex2D(new Vector2D(430, 100)), new Vertex2D(new Vector2D(430, 130)),
+				new Vertex2D(new Vector2D(400, 130)), dfltCuboidRenderer, dfltEdgeRenderer));
+		edgeContainers.add(new Cuboid2D(new Vertex2D(new Vector2D(450, 100), new Vector2D(410, 105)), new Vertex2D(new Vector2D(490, 100)),
+				new Vertex2D(new Vector2D(490, 140)), new Vertex2D(new Vector2D(450, 140)), dfltCuboidRenderer, dfltEdgeRenderer));
+		edgeContainers.add(new Cuboid2D(new Vertex2D(new Vector2D(600, 10), new Vector2D(605, 105)), new Vertex2D(new Vector2D(700, 10)),
+				new Vertex2D(new Vector2D(700, 140)), new Vertex2D(new Vector2D(600, 140)), dfltCuboidRenderer, dfltEdgeRenderer));
+
+		edgeContainers.add(new Chain2D(new Vertex2D(new Vector2D(500, 15)).setPinned(true), new Vertex2D(new Vector2D(800, 100)), 40,
+				dfltChainRenderer, dfltEdgeRenderer));
+		edgeContainers
+				.add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60, dfltChainRenderer, dfltEdgeRenderer));
+
+		edgeContainers.add(
+				new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
+						50, 10, 11, 11, dfltChainNetRenderer, dfltChainRenderer, dfltEdgeRenderer).setColor(Color.ORANGE));
+
+		for (IEdgeContainer2D edgeContainer : edgeContainers) {
+			edges.addAll(edgeContainer.getEdges());
+		}
+
+		for (final Edge2D edge : edges) {
+			vertices.add(edge.getFirst());
+			vertices.add(edge.getSecond());
+		}
+
 	}
 
 	private void calculatePhysics() {
@@ -335,17 +381,15 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			rStartTs = System.currentTimeMillis();
 		}
 
-		for (final Edge2D edge : edges) {
-
-			if (isHit(mousePoint, edge.getFirst()) && !isGrabbed(edge.getFirst())) {
-				graphicsSubsystem.drawFilledCircle((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y, vertexSize,
-						() -> Color.RED);
-			} else if (isHit(mousePoint, edge.getSecond()) && !isGrabbed(edge.getSecond())) {
-				graphicsSubsystem.drawFilledCircle((int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, vertexSize,
-						() -> Color.RED);
+		for (Vertex2D vertex : vertices) {
+			if (isHit(mousePoint, vertex) && !isGrabbed(vertex)) {
+				// grabbing
+				graphicsSubsystem.drawFilledCircle((int) vertex.getCurrent().x, (int) vertex.getCurrent().y, vertexSize, () -> Color.RED);
 			}
-			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
-					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, edge.getColor());
+		}
+
+		for (IEdgeContainer2D edgeContainer : edgeContainers) {
+			edgeContainer.render();
 		}
 
 		long rStopTs = System.currentTimeMillis();
