@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import de.zintel.gfx.GfxUtils;
@@ -86,6 +87,60 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			}
 		}
 
+	}
+
+	private static class FilledChainNetRenderer implements IRenderer<ChainNet2D> {
+
+		private final IGraphicsSubsystem graphicsSubsystem;
+
+		public FilledChainNetRenderer(IGraphicsSubsystem graphicsSubsystem) {
+			this.graphicsSubsystem = graphicsSubsystem;
+		}
+
+		@Override
+		public void render(ChainNet2D item) {
+
+			final List<List<Collection<Edge2D>>> edgesH = item.getEdgesH();
+			final List<List<Collection<Edge2D>>> edgesV = item.getEdgesV();
+
+			for (int v = 0; v < edgesH.size() - 1; v++) {
+
+				final List<Collection<Edge2D>> currentEdgesH = edgesH.get(v);
+				for (int h = 0; h < currentEdgesH.size() - 1; h++) {
+
+					final Collection<Edge2D> hTop = currentEdgesH.get(h);
+					final Collection<Edge2D> vRight = edgesV.get(h + 1).get(v);
+					final Collection<Edge2D> hBottom = currentEdgesH.get(h + 1);
+					final Collection<Edge2D> vLeft = edgesV.get(h).get(v);
+
+					final Collection<Vector2D> points = new ArrayList<>(hTop.size() + vRight.size() + hBottom.size() + vLeft.size());
+					for (final Edge2D edge : hTop) {
+						points.add(edge.getFirst().getCurrent());
+					}
+					for (final Edge2D edge : vRight) {
+						points.add(edge.getFirst().getCurrent());
+					}
+					for (final Edge2D edge : hBottom) {
+						points.add(edge.getFirst().getCurrent());
+					}
+					for (final Edge2D edge : vLeft) {
+						points.add(edge.getFirst().getCurrent());
+					}
+					final Color hTopColor = hTop.iterator().next().getColor();
+					final Color vRightColor = vRight.iterator().next().getColor();
+					final Color hBottomColor = hBottom.iterator().next().getColor();
+					final Color vLeftColor = vLeft.iterator().next().getColor();
+					graphicsSubsystem.drawFilledPolygon(points,
+							new Color((hTopColor.getRed() + vRightColor.getRed() + hBottomColor.getRed() + vLeftColor.getRed()) / 4,
+									(hTopColor.getGreen() + vRightColor.getGreen() + hBottomColor.getGreen() + vLeftColor.getGreen()) / 4,
+									(hTopColor.getBlue() + vRightColor.getBlue() + hBottomColor.getBlue() + vLeftColor.getBlue()) / 4,
+									(hTopColor.getAlpha() + vRightColor.getAlpha() + hBottomColor.getAlpha() + vLeftColor.getAlpha()) / 4));
+				}
+			}
+			for (Edge2D edge : item.getEdges()) {
+				edge.render();
+			}
+		}
 	}
 
 	private static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
@@ -207,34 +262,33 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private void initScene() {
 
-		final DfltEdgeRenderer dfltEdgeRenderer = new DfltEdgeRenderer(graphicsSubsystem);
-		final DfltCuboidRenderer dfltCuboidRenderer = new DfltCuboidRenderer();
-		final DfltChainRenderer dfltChainRenderer = new DfltChainRenderer();
-		final DfltChainNetRenderer dfltChainNetRenderer = new DfltChainNetRenderer();
+		final IRenderer<Edge2D> edgeRenderer = new DfltEdgeRenderer(graphicsSubsystem);
+		final IRenderer<Cuboid2D> cuboidRenderer = new DfltCuboidRenderer();
+		final IRenderer<Chain2D> chainRenderer = new DfltChainRenderer();
+		final IRenderer<ChainNet2D> chainNetRenderer = new FilledChainNetRenderer(graphicsSubsystem);
 
 		edgeContainers.add(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(99, 100)), new Vertex2D(new Vector2D(230, 120)),
-				dfltEdgeRenderer));
+				edgeRenderer));
 		edgeContainers.add(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(101, 100)), new Vertex2D(new Vector2D(230, 120)),
-				dfltEdgeRenderer));
+				edgeRenderer));
 		edgeContainers.add(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(100, 101)), new Vertex2D(new Vector2D(230, 120)),
-				dfltEdgeRenderer));
+				edgeRenderer));
 
 		final Vertex2D cuboidHook = new Vertex2D(new Vector2D(400, 100), new Vector2D(380, 95));
 		edgeContainers.add(new Cuboid2D(cuboidHook, new Vertex2D(new Vector2D(430, 100)), new Vertex2D(new Vector2D(430, 130)),
-				new Vertex2D(new Vector2D(400, 130)), dfltCuboidRenderer, dfltEdgeRenderer));
+				new Vertex2D(new Vector2D(400, 130)), cuboidRenderer, edgeRenderer));
 		edgeContainers.add(new Cuboid2D(new Vertex2D(new Vector2D(450, 100), new Vector2D(410, 105)), new Vertex2D(new Vector2D(490, 100)),
-				new Vertex2D(new Vector2D(490, 140)), new Vertex2D(new Vector2D(450, 140)), dfltCuboidRenderer, dfltEdgeRenderer));
+				new Vertex2D(new Vector2D(490, 140)), new Vertex2D(new Vector2D(450, 140)), cuboidRenderer, edgeRenderer));
 		edgeContainers.add(new Cuboid2D(new Vertex2D(new Vector2D(600, 10), new Vector2D(605, 105)), new Vertex2D(new Vector2D(700, 10)),
-				new Vertex2D(new Vector2D(700, 140)), new Vertex2D(new Vector2D(600, 140)), dfltCuboidRenderer, dfltEdgeRenderer));
+				new Vertex2D(new Vector2D(700, 140)), new Vertex2D(new Vector2D(600, 140)), cuboidRenderer, edgeRenderer));
 
 		edgeContainers.add(new Chain2D(new Vertex2D(new Vector2D(500, 15)).setPinned(true), new Vertex2D(new Vector2D(800, 100)), 40,
-				dfltChainRenderer, dfltEdgeRenderer));
-		edgeContainers
-				.add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60, dfltChainRenderer, dfltEdgeRenderer));
+				chainRenderer, edgeRenderer));
+		edgeContainers.add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60, chainRenderer, edgeRenderer));
 
 		edgeContainers.add(
 				new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
-						50, 10, 11, 11, dfltChainNetRenderer, dfltChainRenderer, dfltEdgeRenderer).setColor(Color.ORANGE));
+						50, 10, 11, 11, chainNetRenderer, edgeRenderer).setColor(Color.ORANGE));
 
 		for (IEdgeContainer2D edgeContainer : edgeContainers) {
 			edges.addAll(edgeContainer.getEdges());

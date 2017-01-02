@@ -34,6 +34,7 @@ import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
 import com.jogamp.opengl.util.awt.TextRenderer;
 
 import de.zintel.gfx.color.CUtils.ColorGenerator;
+import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.gfx.gl.GLUtils;
 import de.zintel.gfx.gl.GLUtils.CircleDrawer;
 
@@ -177,6 +178,16 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	public void drawLine(int x1, int y1, int x2, int y2, Color color) {
 		GLUtils.drawLine(x1, y1, x2, y2, color, dimension, gl);
 
+	}
+
+	@Override
+	public void drawFilledTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Color color) {
+		GLUtils.drawFilledTriangle(x1, y1, x2, y2, x3, y3, color, dimension, gl);
+	}
+
+	@Override
+	public void drawFilledPolygon(Collection<Vector2D> points, Color color) {
+		GLUtils.drawFilledPolygon(points, color, dimension, gl);
 	}
 
 	/*

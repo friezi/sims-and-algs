@@ -5,11 +5,14 @@ package de.zintel.gfx.gl;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 
 import de.zintel.gfx.color.CUtils.ColorGenerator;
+import de.zintel.gfx.g2d.Vector2D;
 
 /**
  * @author Friedemann
@@ -96,7 +99,7 @@ public final class GLUtils {
 			gl.glBegin(GL.GL_TRIANGLE_FAN);
 			gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()),
 					projectColorValue2GL(color.getBlue()), projectColorValue2GL(color.getAlpha()));
-			gl.glVertex2d(x1, y1);
+			gl.glVertex2f(x1, y1);
 			int angleIndex = (int) Math.round((steps / (2 * Math.PI / angle)));
 
 			if (ratioYX < 1) {
@@ -137,18 +140,69 @@ public final class GLUtils {
 	private GLUtils() {
 	}
 
+	public static void drawFilledTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Color color, final Dimension dimension,
+			final GL2 gl) {
+		drawFilledTriangle(projectX(x1, dimension), projectY(y1, dimension), projectX(x2, dimension), projectY(y2, dimension),
+				projectX(x3, dimension), projectY(y3, dimension), color, gl);
+	}
+
+	private static void drawFilledTriangle(float x1, float y1, float x2, float y2, float x3, float y3, Color color, final GL2 gl) {
+
+		gl.glBegin(GL2.GL_TRIANGLE_FAN);
+		gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()), projectColorValue2GL(color.getBlue()),
+				projectColorValue2GL(color.getAlpha()));
+		gl.glVertex2f(x1, y1);
+		gl.glVertex2f(x2, y2);
+		gl.glVertex2f(x3, y3);
+		gl.glEnd();
+
+	}
+
+	public static void drawFilledPolygon(final Collection<Vector2D> points, Color color, final Dimension dimension, final GL2 gl) {
+
+		final Collection<Vector2D> projectedPoints = new ArrayList<>(points.size());
+		for (Vector2D point : points) {
+			projectedPoints.add(new Vector2D(projectX((int) point.x, dimension), projectY((int) point.y, dimension)));
+		}
+
+		drawFilledPolygon(projectedPoints, color, gl);
+	}
+
+	public static void drawFilledPolygon(final Collection<Vector2D> hPoints, Color color, final GL2 gl) {
+
+		gl.glBegin(GL2.GL_POLYGON);
+		gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()), projectColorValue2GL(color.getBlue()),
+				projectColorValue2GL(color.getAlpha()));
+		for (Vector2D point : hPoints) {
+			gl.glVertex2d(point.x, point.y);
+		}
+
+		gl.glEnd();
+
+	}
+
 	public static void drawLine(final int x1, final int y1, final int x2, final int y2, final Color color, final Dimension dimension,
 			final GL2 gl) {
 		drawLine(projectX(x1, dimension), projectY(y1, dimension), projectX(x2, dimension), projectY(y2, dimension), color, gl);
 	}
 
+	/**
+	 * zeichnet Linie auf Basis von homogenen Koordinaten.
+	 * 
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 * @param color
+	 * @param gl
+	 */
 	public static void drawLine(float x1, float y1, float x2, float y2, Color color, final GL2 gl) {
 
-		gl.glBegin(GL.GL_LINES);
+		gl.glBegin(GL2.GL_LINES);
 		gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()), projectColorValue2GL(color.getBlue()),
 				projectColorValue2GL(color.getAlpha()));
-		gl.glVertex2d(x1, y1);
-		gl.glVertex2d(x2, y2);
+		gl.glVertex2f(x1, y1);
+		gl.glVertex2f(x2, y2);
 		gl.glEnd();
 
 	}

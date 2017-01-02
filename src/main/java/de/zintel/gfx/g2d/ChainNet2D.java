@@ -6,7 +6,6 @@ package de.zintel.gfx.g2d;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import de.zintel.math.Utils;
@@ -19,66 +18,88 @@ public class ChainNet2D implements IEdgeContainer2D {
 
 	private IRenderer<ChainNet2D> renderer;
 
-	private final Collection<Edge2D> edges = new LinkedList<>();
+	private final Collection<Edge2D> edges = new ArrayList<>();
+
+	// for each vertical position all horizontal chains
+	private final List<List<Collection<Edge2D>>> edgesH = new ArrayList<>();
+	// for each horizontal position all vertical chains
+	private final List<List<Collection<Edge2D>>> edgesV = new ArrayList<>();
 
 	/**
 	 * 
 	 */
 	public ChainNet2D(Vertex2D topleft, Vertex2D topright, int height, int chainLinks, int chainsHorizontal, int chainsVertical,
-			IRenderer<ChainNet2D> renderer, IRenderer<Chain2D> chainRenderer, IRenderer<Edge2D> edgeRenderer) {
+			IRenderer<ChainNet2D> renderer, IRenderer<Edge2D> edgeRenderer) {
 
 		this.renderer = renderer;
 
-		List<Vertex2D> nodesH = new ArrayList<>();
-		List<Vertex2D> nodesV = new ArrayList<>();
-		Vertex2D previousH = null;
-		for (int v = 1; v <= chainsHorizontal; v++) {
+		List<Vertex2D> verticesV = new ArrayList<>();
+		List<Vertex2D> verticesH = new ArrayList<>();
+		List<Collection<Edge2D>> currentChainsH = null;
+		List<Collection<Edge2D>> currentChainsV = null;
+		Vertex2D current = null;
+		Vertex2D previous = null;
+		for (int h = 0; h < chainsHorizontal; h++) {
+			// generate the initial horizontal node-vertices.
 
-			if (v == 1) {
-				previousH = topleft;
-			} else if (v == chainsHorizontal) {
-				previousH = topright;
+			if (h == 0) {
+				current = topleft;
+			} else if (h == chainsHorizontal - 1) {
+				current = topright;
 			} else {
 
-				final Vertex2D currentH = new Vertex2D(
-						new Vector2D(Utils.interpolateLinearReal(topleft.getCurrent().x, topright.getCurrent().x, v, chainsHorizontal),
+				current = new Vertex2D(
+						new Vector2D(Utils.interpolateLinearReal(topleft.getCurrent().x, topright.getCurrent().x, h + 1, chainsHorizontal),
 								topleft.getCurrent().y));
-				currentH.setPinned(topleft.isPinned());
-				previousH = currentH;
+				current.setPinned(topleft.isPinned());
 			}
 
-			nodesV.add(previousH);
+			verticesH.add(current);
 
 		}
-		for (int h = 1; h <= chainsVertical; h++) {
 
-			if (h > 1) {
-				nodesV = new ArrayList<>();
-				for (Vertex2D node : nodesH) {
+		for (int v = 0; v < chainsVertical; v++) {
+			edgesV.add(new ArrayList<>());
+		}
 
-					final Vertex2D currentV = new Vertex2D(new Vector2D(node.getCurrent().x, node.getCurrent().y + height));
-					final Chain2D chainV = new Chain2D(node, currentV, chainLinks, chainRenderer, edgeRenderer);
-					edges.addAll(chainV.getEdges());
-					nodesV.add(currentV);
+		for (int v = 0; v < chainsVertical; v++) {
+
+			currentChainsH = new ArrayList<>();
+			edgesH.add(currentChainsH);
+
+			if (v > 0) {
+
+				verticesH = new ArrayList<>();
+				for (int h = 0; h < chainsHorizontal; h++) {
+
+					currentChainsV = edgesV.get(h);
+					edgesV.get(h);
+					final Vertex2D vertex = verticesV.get(h);
+					current = new Vertex2D(new Vector2D(vertex.getCurrent().x, vertex.getCurrent().y + height));
+					final Chain2D chainH = new Chain2D(vertex, current, chainLinks, null, edgeRenderer);
+					edges.addAll(chainH.getEdges());
+					currentChainsV.add(chainH.getEdges());
+					verticesH.add(current);
 
 				}
 			}
 
-			previousH = null;
-			for (int v = 0; v < chainsHorizontal; v++) {
+			previous = null;
+			for (int h = 0; h < chainsHorizontal; h++) {
 
-				if (v == 0) {
-					previousH = nodesV.get(v);
+				if (h == 0) {
+					previous = verticesH.get(h);
 				} else {
 
-					final Vertex2D currentH = nodesV.get(v);
-					final Chain2D chain = new Chain2D(previousH, currentH, chainLinks, chainRenderer, edgeRenderer);
+					current = verticesH.get(h);
+					final Chain2D chain = new Chain2D(previous, current, chainLinks, null, edgeRenderer);
 					edges.addAll(chain.getEdges());
+					currentChainsH.add(chain.getEdges());
 
-					previousH = currentH;
+					previous = current;
 				}
 			}
-			nodesH = nodesV;
+			verticesV = verticesH;
 		}
 
 		final AdjustingColorModifier colorModifier = new AdjustingColorModifier();
@@ -97,12 +118,22 @@ public class ChainNet2D implements IEdgeContainer2D {
 
 	@Override
 	public void render() {
-		renderer.render(this);
+		if (renderer != null) {
+			renderer.render(this);
+		}
 	}
 
 	@Override
 	public Collection<Edge2D> getEdges() {
 		return edges;
+	}
+
+	public List<List<Collection<Edge2D>>> getEdgesH() {
+		return edgesH;
+	}
+
+	public List<List<Collection<Edge2D>>> getEdgesV() {
+		return edgesV;
 	}
 
 }

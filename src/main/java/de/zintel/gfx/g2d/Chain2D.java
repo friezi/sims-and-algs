@@ -55,7 +55,9 @@ public class Chain2D implements IEdgeContainer2D {
 
 	@Override
 	public void render() {
-		renderer.render(this);
+		if (renderer != null) {
+			renderer.render(this);
+		}
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import de.zintel.gfx.color.CUtils.ColorGenerator;
+import de.zintel.gfx.g2d.Vector2D;
 
 /**
  * @author Friedemann
@@ -239,6 +240,34 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 	@Override
 	public void synchronize(boolean value) {
 		// not supported
+	}
+
+	@Override
+	public void drawFilledTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Color color) {
+
+		Collection<Vector2D> points = new ArrayList<>(3);
+		points.add(new Vector2D(x1, y1));
+		points.add(new Vector2D(x2, y2));
+		points.add(new Vector2D(x3, y3));
+
+		drawFilledPolygon(points, color);
+
+	}
+
+	@Override
+	public void drawFilledPolygon(Collection<Vector2D> points, Color color) {
+		graphics.setColor(color);
+
+		final int x[] = new int[points.size()];
+		final int y[] = new int[points.size()];
+		int i = 0;
+		for (Vector2D point : points) {
+			x[i] = (int) point.x;
+			y[i] = (int) point.y;
+			i++;
+		}
+
+		graphics.drawPolygon(x, y, points.size());
 	}
 
 }
