@@ -3,7 +3,7 @@
  */
 package de.zintel.gfx.g2d;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @author friedemann.zintel
@@ -11,6 +11,6 @@ import java.util.Collection;
  */
 public interface IEdgeContainer2D extends IRenderable {
 
-	public Collection<Edge2D> getEdges();
+	public List<Edge2D> getEdges();
 
 }

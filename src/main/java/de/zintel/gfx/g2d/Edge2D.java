@@ -5,7 +5,7 @@ package de.zintel.gfx.g2d;
 
 import java.awt.Color;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @author friedemann.zintel
@@ -101,7 +101,7 @@ public class Edge2D implements IEdgeContainer2D {
 	}
 
 	@Override
-	public Collection<Edge2D> getEdges() {
+	public List<Edge2D> getEdges() {
 		return Arrays.asList(this);
 	}
 

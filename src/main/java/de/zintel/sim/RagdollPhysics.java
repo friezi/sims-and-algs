@@ -40,6 +40,46 @@ import de.zintel.gfx.graphicsubsystem.IRendererListener;
  */
 public class RagdollPhysics implements MouseListener, MouseMotionListener, ActionListener, KeyListener, IRendererListener {
 
+	private static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
+
+	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
+
+	private static final int iterations = 20;
+
+	private static final double calmnessThreshold = 2;
+
+	private static final int vertexSize = 3;
+
+	private static final Vector2D GRAV_DOWN = new Vector2D(0, 0.8);
+
+	private static final Vector2D GRAV_UP = new Vector2D(0, -0.8);
+
+	private static final Vector2D GRAV_RIGHT = new Vector2D(0.8, 0);
+
+	private static final Vector2D GRAV_LEFT = new Vector2D(-0.8, 0);
+
+	private Vector2D gravity = GRAV_DOWN;
+
+	private final double decay = 0.99;
+
+	private final double friction = 0.999;
+
+	private IGraphicsSubsystem graphicsSubsystem;
+
+	private static Koordination koordination = new Koordination();
+
+	private long calculations = 0;
+
+	private long rStartTs = 0;
+
+	private long renderings = 0;
+
+	private volatile boolean mousePressed = false;
+
+	private final Collection<Vertex2D> grabbedVertices = Collections.synchronizedCollection(new ArrayList<>());
+
+	private Vector2D mousePoint = new Vector2D();
+
 	private static class DfltEdgeRenderer implements IRenderer<Edge2D> {
 
 		private final IGraphicsSubsystem graphicsSubsystem;
@@ -100,31 +140,32 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		@Override
 		public void render(ChainNet2D item) {
 
-			final List<List<Collection<Edge2D>>> edgesH = item.getEdgesH();
-			final List<List<Collection<Edge2D>>> edgesV = item.getEdgesV();
+			final List<List<List<Edge2D>>> edgesH = item.getEdgesH();
+			final List<List<List<Edge2D>>> edgesV = item.getEdgesV();
 
 			for (int v = 0; v < edgesH.size() - 1; v++) {
 
-				final List<Collection<Edge2D>> currentEdgesH = edgesH.get(v);
-				for (int h = 0; h < currentEdgesH.size() - 1; h++) {
+				final List<List<Edge2D>> currentEdgesHTop = edgesH.get(v);
+				final List<List<Edge2D>> currentEdgesHBottom = edgesH.get(v + 1);
+				for (int h = 0; h < edgesV.size() - 1; h++) {
 
-					final Collection<Edge2D> hTop = currentEdgesH.get(h);
-					final Collection<Edge2D> vRight = edgesV.get(h + 1).get(v);
-					final Collection<Edge2D> hBottom = currentEdgesH.get(h + 1);
-					final Collection<Edge2D> vLeft = edgesV.get(h).get(v);
+					final List<Edge2D> hTop = currentEdgesHTop.get(h);
+					final List<Edge2D> vRight = edgesV.get(h + 1).get(v);
+					final List<Edge2D> hBottom = currentEdgesHBottom.get(h);
+					final List<Edge2D> vLeft = edgesV.get(h).get(v);
 
 					final Collection<Vector2D> points = new ArrayList<>(hTop.size() + vRight.size() + hBottom.size() + vLeft.size());
-					for (final Edge2D edge : hTop) {
-						points.add(edge.getFirst().getCurrent());
+					for (int i = 0; i < hTop.size(); i++) {
+						points.add(hTop.get(i).getFirst().getCurrent());
 					}
-					for (final Edge2D edge : vRight) {
-						points.add(edge.getFirst().getCurrent());
+					for (int i = 0; i < vRight.size(); i++) {
+						points.add(vRight.get(i).getFirst().getCurrent());
 					}
-					for (final Edge2D edge : hBottom) {
-						points.add(edge.getFirst().getCurrent());
+					for (int i = hBottom.size() - 1; i >= 0; i--) {
+						points.add(hBottom.get(i).getFirst().getCurrent());
 					}
-					for (final Edge2D edge : vLeft) {
-						points.add(edge.getFirst().getCurrent());
+					for (int i = vLeft.size() - 1; i >= 0; i--) {
+						points.add(vLeft.get(i).getFirst().getCurrent());
 					}
 					final Color hTopColor = hTop.iterator().next().getColor();
 					final Color vRightColor = vRight.iterator().next().getColor();
@@ -135,53 +176,26 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 									(hTopColor.getGreen() + vRightColor.getGreen() + hBottomColor.getGreen() + vLeftColor.getGreen()) / 4,
 									(hTopColor.getBlue() + vRightColor.getBlue() + hBottomColor.getBlue() + vLeftColor.getBlue()) / 4,
 									(hTopColor.getAlpha() + vRightColor.getAlpha() + hBottomColor.getAlpha() + vLeftColor.getAlpha()) / 4));
+
+					// for (final Edge2D edge : hTop) {
+					// edge.render();
+					// }
+					// for (final Edge2D edge : vRight) {
+					// edge.render();
+					// }
+					// for (final Edge2D edge : hBottom) {
+					// edge.render();
+					// }
+					// for (final Edge2D edge : vLeft) {
+					// edge.render();
+					// }
 				}
 			}
-			for (Edge2D edge : item.getEdges()) {
-				edge.render();
-			}
+			// for (Edge2D edge : item.getEdges()) {
+			// edge.render();
+			// }
 		}
 	}
-
-	private static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
-
-	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
-
-	private static final int iterations = 20;
-
-	private static final double calmnessThreshold = 2;
-
-	private static final int vertexSize = 3;
-
-	private static final Vector2D GRAV_DOWN = new Vector2D(0, 0.8);
-
-	private static final Vector2D GRAV_UP = new Vector2D(0, -0.8);
-
-	private static final Vector2D GRAV_RIGHT = new Vector2D(0.8, 0);
-
-	private static final Vector2D GRAV_LEFT = new Vector2D(-0.8, 0);
-
-	private Vector2D gravity = GRAV_DOWN;
-
-	private final double decay = 0.99;
-
-	private final double friction = 0.999;
-
-	private IGraphicsSubsystem graphicsSubsystem;
-
-	private static Koordination koordination = new Koordination();
-
-	private long calculations = 0;
-
-	private long rStartTs = 0;
-
-	private long renderings = 0;
-
-	private volatile boolean mousePressed = false;
-
-	private final Collection<Vertex2D> grabbedVertices = Collections.synchronizedCollection(new ArrayList<>());
-
-	private Vector2D mousePoint = new Vector2D();
 
 	public static void main(String args[]) throws InterruptedException {
 		new RagdollPhysics().start();
@@ -435,15 +449,15 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			rStartTs = System.currentTimeMillis();
 		}
 
+		for (IEdgeContainer2D edgeContainer : edgeContainers) {
+			edgeContainer.render();
+		}
+
 		for (Vertex2D vertex : vertices) {
 			if (isHit(mousePoint, vertex) && !isGrabbed(vertex)) {
 				// grabbing
 				graphicsSubsystem.drawFilledCircle((int) vertex.getCurrent().x, (int) vertex.getCurrent().y, vertexSize, () -> Color.RED);
 			}
-		}
-
-		for (IEdgeContainer2D edgeContainer : edgeContainers) {
-			edgeContainer.render();
 		}
 
 		long rStopTs = System.currentTimeMillis();

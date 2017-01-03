@@ -87,9 +87,9 @@ public final class GLUtils {
 		public void drawFilledEllipse(int x, int y, int radius, final ColorGenerator colorGenerator, final Dimension dimension,
 				double ratioYX, double angle, final GL2 gl) {
 
-			float x1, y1, x2, y2;
-			float rx = projectX(radius, dimension) + 1;
-			float ry = -projectY(radius, dimension) + 1;
+			double x1, y1, x2, y2;
+			double rx = projectX(radius, dimension) + 1;
+			double ry = -projectY(radius, dimension) + 1;
 
 			x1 = projectX(x, dimension);
 			y1 = projectY(y, dimension);
@@ -99,7 +99,7 @@ public final class GLUtils {
 			gl.glBegin(GL.GL_TRIANGLE_FAN);
 			gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()),
 					projectColorValue2GL(color.getBlue()), projectColorValue2GL(color.getAlpha()));
-			gl.glVertex2f(x1, y1);
+			gl.glVertex2d(x1, y1);
 			int angleIndex = (int) Math.round((steps / (2 * Math.PI / angle)));
 
 			if (ratioYX < 1) {
@@ -126,7 +126,7 @@ public final class GLUtils {
 				gl.glColor4f(projectColorValue2GL(nextColor.getRed()), projectColorValue2GL(nextColor.getGreen()),
 						projectColorValue2GL(nextColor.getBlue()), projectColorValue2GL(nextColor.getAlpha()));
 
-				gl.glVertex2f(x2, y2);
+				gl.glVertex2d(x2, y2);
 			}
 
 			gl.glEnd();
@@ -146,14 +146,14 @@ public final class GLUtils {
 				projectX(x3, dimension), projectY(y3, dimension), color, gl);
 	}
 
-	private static void drawFilledTriangle(float x1, float y1, float x2, float y2, float x3, float y3, Color color, final GL2 gl) {
+	private static void drawFilledTriangle(double x1, double y1, double x2, double y2, double x3, double y3, Color color, final GL2 gl) {
 
 		gl.glBegin(GL2.GL_TRIANGLE_FAN);
 		gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()), projectColorValue2GL(color.getBlue()),
 				projectColorValue2GL(color.getAlpha()));
-		gl.glVertex2f(x1, y1);
-		gl.glVertex2f(x2, y2);
-		gl.glVertex2f(x3, y3);
+		gl.glVertex2d(x1, y1);
+		gl.glVertex2d(x2, y2);
+		gl.glVertex2d(x3, y3);
 		gl.glEnd();
 
 	}
@@ -196,13 +196,13 @@ public final class GLUtils {
 	 * @param color
 	 * @param gl
 	 */
-	public static void drawLine(float x1, float y1, float x2, float y2, Color color, final GL2 gl) {
+	public static void drawLine(double x1, double y1, double x2, double y2, Color color, final GL2 gl) {
 
 		gl.glBegin(GL2.GL_LINES);
-		gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()), projectColorValue2GL(color.getBlue()),
+		gl.glColor4d(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()), projectColorValue2GL(color.getBlue()),
 				projectColorValue2GL(color.getAlpha()));
-		gl.glVertex2f(x1, y1);
-		gl.glVertex2f(x2, y2);
+		gl.glVertex2d(x1, y1);
+		gl.glVertex2d(x2, y2);
 		gl.glEnd();
 
 	}
@@ -211,20 +211,20 @@ public final class GLUtils {
 		return value / 255f;
 	}
 
-	public static float projectY(int y, final Dimension dimension) {
+	public static double projectY(int y, final Dimension dimension) {
 		return -projectHomogenous(y, dimension.height);
 	}
 
-	public static float projectX(int x, final Dimension dimension) {
+	public static double projectX(int x, final Dimension dimension) {
 		return projectHomogenous(x, dimension.width);
 	}
 
-	public static float projectHomogenous(int value, int max) {
+	public static double projectHomogenous(int value, int max) {
 		return 2 * normalize(value, max) - 1;
 	}
 
-	public static float normalize(int value, int max) {
-		return (float) value / max;
+	public static double normalize(int value, int max) {
+		return (double) value / max;
 	}
 
 }

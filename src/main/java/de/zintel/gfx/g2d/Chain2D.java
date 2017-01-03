@@ -5,6 +5,7 @@ package de.zintel.gfx.g2d;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 import de.zintel.math.Utils;
 
@@ -16,7 +17,7 @@ public class Chain2D implements IEdgeContainer2D {
 
 	private IRenderer<Chain2D> renderer;
 
-	private final Collection<Edge2D> edges = new LinkedList<>();
+	private final List<Edge2D> edges = new LinkedList<>();
 
 	/**
 	 * 
@@ -61,7 +62,7 @@ public class Chain2D implements IEdgeContainer2D {
 	}
 
 	@Override
-	public Collection<Edge2D> getEdges() {
+	public List<Edge2D> getEdges() {
 		return edges;
 	}
 

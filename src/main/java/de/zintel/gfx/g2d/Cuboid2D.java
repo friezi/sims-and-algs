@@ -3,8 +3,8 @@
  */
 package de.zintel.gfx.g2d;
 
-import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author friedemann.zintel
@@ -14,7 +14,7 @@ public class Cuboid2D implements IEdgeContainer2D {
 
 	private IRenderer<Cuboid2D> renderer;
 
-	private final Collection<Edge2D> edges = new LinkedList<>();
+	private final List<Edge2D> edges = new LinkedList<>();
 
 	/**
 	 * 
@@ -39,7 +39,7 @@ public class Cuboid2D implements IEdgeContainer2D {
 	}
 
 	@Override
-	public Collection<Edge2D> getEdges() {
+	public List<Edge2D> getEdges() {
 		return edges;
 	}
 
