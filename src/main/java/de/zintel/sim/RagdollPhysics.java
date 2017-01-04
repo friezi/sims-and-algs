@@ -44,7 +44,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
 
-	private static final int iterations = 20;
+	private static final int iterations = 40;
 
 	private static final double calmnessThreshold = 2;
 
@@ -295,7 +295,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		edgeContainers.add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60, chainRenderer, edgeRenderer));
 
 		chainNet = new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
-				50, 10, 11, 11, chainNetRenderer, edgeRenderer).setColor(colors[0]);
+				30, 10, 15, 16, chainNetRenderer, edgeRenderer).setColor(colors[0]);
 		edgeContainers.add(chainNet);
 
 		for (IEdgeContainer2D edgeContainer : edgeContainers) {
