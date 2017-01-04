@@ -80,6 +80,13 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private Vector2D mousePoint = new Vector2D();
 
+	private ChainNet2D chainNet;
+
+	private final Color[] colors = { Color.ORANGE, Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW, Color.GRAY, Color.CYAN, Color.MAGENTA,
+			Color.PINK };
+
+	private int colorCycleCnt = 0;
+
 	private static class DfltEdgeRenderer implements IRenderer<Edge2D> {
 
 		private final IGraphicsSubsystem graphicsSubsystem;
@@ -143,7 +150,9 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			final List<List<List<Edge2D>>> edgesH = item.getEdgesH();
 			final List<List<List<Edge2D>>> edgesV = item.getEdgesV();
 
-			for (int v = 0; v < edgesH.size() - 1; v++) {
+			for (int v = edgesH.size() - 2; v >= 0; v--) {
+				// rendering from bottom to top to overcome OpenGL convex-only
+				// polygon-rendering
 
 				final List<List<Edge2D>> currentEdgesHTop = edgesH.get(v);
 				final List<List<Edge2D>> currentEdgesHBottom = edgesH.get(v + 1);
@@ -162,10 +171,10 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 						points.add(vRight.get(i).getFirst().getCurrent());
 					}
 					for (int i = hBottom.size() - 1; i >= 0; i--) {
-						points.add(hBottom.get(i).getFirst().getCurrent());
+						points.add(hBottom.get(i).getSecond().getCurrent());
 					}
 					for (int i = vLeft.size() - 1; i >= 0; i--) {
-						points.add(vLeft.get(i).getFirst().getCurrent());
+						points.add(vLeft.get(i).getSecond().getCurrent());
 					}
 					final Color hTopColor = hTop.iterator().next().getColor();
 					final Color vRightColor = vRight.iterator().next().getColor();
@@ -177,23 +186,8 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 									(hTopColor.getBlue() + vRightColor.getBlue() + hBottomColor.getBlue() + vLeftColor.getBlue()) / 4,
 									(hTopColor.getAlpha() + vRightColor.getAlpha() + hBottomColor.getAlpha() + vLeftColor.getAlpha()) / 4));
 
-					// for (final Edge2D edge : hTop) {
-					// edge.render();
-					// }
-					// for (final Edge2D edge : vRight) {
-					// edge.render();
-					// }
-					// for (final Edge2D edge : hBottom) {
-					// edge.render();
-					// }
-					// for (final Edge2D edge : vLeft) {
-					// edge.render();
-					// }
 				}
 			}
-			// for (Edge2D edge : item.getEdges()) {
-			// edge.render();
-			// }
 		}
 	}
 
@@ -279,7 +273,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		final IRenderer<Edge2D> edgeRenderer = new DfltEdgeRenderer(graphicsSubsystem);
 		final IRenderer<Cuboid2D> cuboidRenderer = new DfltCuboidRenderer();
 		final IRenderer<Chain2D> chainRenderer = new DfltChainRenderer();
-		final IRenderer<ChainNet2D> chainNetRenderer = new FilledChainNetRenderer(graphicsSubsystem);
+		final IRenderer<ChainNet2D> chainNetRenderer = new DfltChainNetRenderer();
 
 		edgeContainers.add(new Edge2D(new Vertex2D(new Vector2D(100, 100), new Vector2D(99, 100)), new Vertex2D(new Vector2D(230, 120)),
 				edgeRenderer));
@@ -300,9 +294,9 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 				chainRenderer, edgeRenderer));
 		edgeContainers.add(new Chain2D(new Vertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60, chainRenderer, edgeRenderer));
 
-		edgeContainers.add(
-				new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
-						50, 10, 11, 11, chainNetRenderer, edgeRenderer).setColor(Color.ORANGE));
+		chainNet = new ChainNet2D(new Vertex2D(new Vector2D(900, 15)).setPinned(true), new Vertex2D(new Vector2D(1400, 15)).setPinned(true),
+				50, 10, 11, 11, chainNetRenderer, edgeRenderer).setColor(colors[0]);
+		edgeContainers.add(chainNet);
 
 		for (IEdgeContainer2D edgeContainer : edgeContainers) {
 			edges.addAll(edgeContainer.getEdges());
@@ -484,6 +478,18 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			gravity = GRAV_RIGHT;
 		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_LEFT) {
 			gravity = GRAV_LEFT;
+		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_PLUS) {
+			chainNet.setRenderer(new FilledChainNetRenderer(graphicsSubsystem));
+		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_MINUS) {
+			chainNet.setRenderer(new DfltChainNetRenderer());
+		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_C) {
+
+			colorCycleCnt++;
+			if (colorCycleCnt >= colors.length) {
+				colorCycleCnt = 0;
+			}
+
+			chainNet.setColor(colors[colorCycleCnt]);
 		}
 
 	}

@@ -35,7 +35,6 @@ public class ChainNet2D implements IEdgeContainer2D {
 		List<Vertex2D> verticesV = new ArrayList<>();
 		List<Vertex2D> verticesH = new ArrayList<>();
 		Vertex2D current = null;
-		Vertex2D previous = null;
 		for (int h = 0; h < dimHorizontal; h++) {
 			// generate the initial horizontal node-vertices.
 
@@ -70,28 +69,28 @@ public class ChainNet2D implements IEdgeContainer2D {
 				for (int h = 0; h < dimHorizontal; h++) {
 
 					List<List<Edge2D>> currentChainsV = edgesV.get(h);
-					final Vertex2D vertex = verticesV.get(h);
-					current = new Vertex2D(new Vector2D(vertex.getCurrent().x, vertex.getCurrent().y + height));
-					final Chain2D chainV = new Chain2D(vertex, current, chainLinks, null, edgeRenderer);
+					final Vertex2D top = verticesV.get(h);
+					Vertex2D bottom = new Vertex2D(new Vector2D(top.getCurrent().x, top.getCurrent().y + height));
+					final Chain2D chainV = new Chain2D(top, bottom, chainLinks, null, edgeRenderer);
 					edges.addAll(chainV.getEdges());
 					currentChainsV.add(chainV.getEdges());
-					verticesH.add(current);
+					verticesH.add(bottom);
 
 				}
 			}
 
-			previous = null;
+			Vertex2D left = null;
 			for (int h = 0; h < dimHorizontal; h++) {
 
-				current = verticesH.get(h);
+				Vertex2D right = verticesH.get(h);
 				if (h > 0) {
 
-					final Chain2D chain = new Chain2D(previous, current, chainLinks, null, edgeRenderer);
+					final Chain2D chain = new Chain2D(left, right, chainLinks, null, edgeRenderer);
 					edges.addAll(chain.getEdges());
 					currentChainsH.add(chain.getEdges());
 
 				}
-				previous = current;
+				left = right;
 			}
 			verticesV = verticesH;
 		}
@@ -128,6 +127,14 @@ public class ChainNet2D implements IEdgeContainer2D {
 
 	public List<List<List<Edge2D>>> getEdgesV() {
 		return edgesV;
+	}
+
+	public IRenderer<ChainNet2D> getRenderer() {
+		return renderer;
+	}
+
+	public void setRenderer(IRenderer<ChainNet2D> renderer) {
+		this.renderer = renderer;
 	}
 
 }
