@@ -40,6 +40,12 @@ import de.zintel.gfx.graphicsubsystem.IRendererListener;
  */
 public class RagdollPhysics implements MouseListener, MouseMotionListener, ActionListener, KeyListener, IRendererListener {
 
+	private static final boolean doRecord = false;
+
+	private static final String recordFilename = "D:/cloth-sim.mpg";
+
+	private final int recordingRate = 2;
+
 	private static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
 
 	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
@@ -73,6 +79,8 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 	private long rStartTs = 0;
 
 	private long renderings = 0;
+
+	private boolean stopped = false;
 
 	private volatile boolean mousePressed = false;
 
@@ -211,6 +219,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 		final IGraphicsSubsystemFactory graphicsSubsystemFactory = GfxUtils.graphicsSubsystemFactories.get(GFX_SSYSTEM);
 		graphicsSubsystem = graphicsSubsystemFactory.newGraphicsSubsystem("Ragdoll physics", koordination.WIDTH, koordination.HEIGHT);
+		graphicsSubsystem.recordSession(doRecord, recordFilename);
 		graphicsSubsystem.init();
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		graphicsSubsystem.setFullScreen();
@@ -219,13 +228,12 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		graphicsSubsystem.addRendererListener(this);
 		graphicsSubsystem.addMouseMotionListener(this);
 
-		graphicsSubsystem.synchronize(false);
 		graphicsSubsystem.display();
 
 		initScene();
 
 		long crStartTs = 0;
-		while (true) {
+		while (!stopped) {
 
 			long startTs = System.currentTimeMillis();
 
@@ -245,7 +253,9 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 				}
 			}
 
-			graphicsSubsystem.repaint();
+			if (!doRecord || calculations % recordingRate == 0) {
+				graphicsSubsystem.repaint();
+			}
 
 			long crStopTs = System.currentTimeMillis();
 			if (crStopTs - crStartTs >= 1000) {
@@ -265,6 +275,9 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 				Thread.sleep(delay - diffTs);
 			}
 		}
+
+		graphicsSubsystem.shutdown();
+		System.exit(0);
 
 	}
 
@@ -498,8 +511,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 	public void keyReleased(KeyEvent ke) {
 
 		if (ke.getExtendedKeyCode() == KeyEvent.VK_ESCAPE) {
-			graphicsSubsystem.shutdown();
-			System.exit(0);
+			stopped = true;
 		}
 
 	}

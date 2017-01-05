@@ -470,7 +470,9 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 
 		this.recordFilename = filename;
 		this.doRecord = doRecord;
-		this.synchronizzed = true;
+		if (doRecord) {
+			this.synchronizzed = true;
+		}
 
 	}
 
