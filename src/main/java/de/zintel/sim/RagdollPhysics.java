@@ -47,8 +47,6 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private static final int iterations = 40;
 
-	private static final double calmnessThreshold = 2;
-
 	private static final int vertexSize = 3;
 
 	private static final Vector2D GRAV_DOWN = new Vector2D(0, 0.8);
@@ -61,7 +59,7 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private Vector2D gravity = GRAV_DOWN;
 
-	private final double decay = 0.99;
+	private final double decay = 0.2;
 
 	private final double friction = 0.999;
 
@@ -277,6 +275,7 @@ public class RagdollPhysics extends SimulationScreen {
 			public void accept(Vertex2D vertex) {
 
 				if (vertex.isPinned()) {
+					vertex.setPrevious(vertex.getCurrent());
 					return;
 				}
 
@@ -319,13 +318,18 @@ public class RagdollPhysics extends SimulationScreen {
 		Vector2D dV = Vector2D.substract(cFirst, cSecond);
 		if (dV.isNullVector()) {
 			// Problem!!! no line anymore
-			System.out.println("Nullvector! edge: " + edge);
-			dV = Vector2D.max(Vector2D.substract(edge.getFirst().getPrevious(), edge.getSecond().getCurrent()),
-					Vector2D.substract(edge.getSecond().getPrevious(), edge.getFirst().getCurrent()));
-			dV.mult(0.001);
+			// System.out.println("Nullvector! edge: " + edge);
+			// do no adjustment to prevent NaN
+			return;
+			// dV =
+			// Vector2D.max(Vector2D.substract(edge.getFirst().getPrevious(),
+			// edge.getSecond().getCurrent()),
+			// Vector2D.substract(edge.getSecond().getPrevious(),
+			// edge.getFirst().getCurrent()));
+			// dV.mult(0.001);
 		}
 
-		if (dV.length() > edge.getLength() || dV.length() < edge.getLength()) {
+		if (dV.length() != edge.getLength()) {
 
 			double diff = dV.length() - edge.getLength();
 			Vector2D slackV = Vector2D.mult(diff / dV.length() / 2, dV);
@@ -352,44 +356,22 @@ public class RagdollPhysics extends SimulationScreen {
 
 		final Vector2D current = vertex.getCurrent();
 		final Vector2D previous = vertex.getPrevious();
-		final double speed = Vector2D.distance(current, previous);
 
 		// bounce
 		if (current.x > dimension.getWidth() - 1) {
-
-			if (speed < calmnessThreshold) {
-				current.x = dimension.getWidth() - 1;
-				previous.x = current.x;
-			} else {
-				current.x = dimension.getWidth() - 1 - ((current.x - (dimension.getWidth() - 1)) * decay);
-				previous.x = dimension.getWidth() - 1 + (current.x - previous.x) * decay;
-			}
+			current.x = dimension.getWidth() - 1 - ((current.x - (dimension.getWidth() - 1)) * decay);
+			previous.x = dimension.getWidth() - 1 - (previous.x - (dimension.getWidth() - 1));
 		} else if (current.x < 0) {
-			if (speed < calmnessThreshold) {
-				current.x = 0;
-				previous.x = current.x;
-			} else {
-				current.x = -decay;
-				previous.x = -previous.x * decay;
-			}
+			current.x = -current.x * decay;
+			previous.x = -previous.x;
 		}
 
 		if (current.y > dimension.getHeight() - 1) {
-			if (speed < calmnessThreshold) {
-				current.y = dimension.getHeight() - 1;
-				previous.y = current.y;
-			} else {
-				current.y = dimension.getHeight() - 1 - ((current.y - (dimension.getHeight() - 1)) * decay);
-				previous.y = dimension.getHeight() - 1 + (current.y - previous.y) * decay;
-			}
+			current.y = dimension.getHeight() - 1 - ((current.y - (dimension.getHeight() - 1)) * decay);
+			previous.y = dimension.getHeight() - 1 - (previous.y - (dimension.getHeight() - 1));
 		} else if (current.y < 0) {
-			if (speed < calmnessThreshold) {
-				current.y = 0;
-				previous.y = current.y;
-			} else {
-				current.y = -decay;
-				previous.y = -previous.y * decay;
-			}
+			current.y = -current.y * decay;
+			previous.y = -previous.y;
 		}
 
 	}
@@ -534,8 +516,6 @@ public class RagdollPhysics extends SimulationScreen {
 			final Vector2D mPoint = new Vector2D(mousePoint);
 			for (Vertex2D vertex : grabbedVertices) {
 				vertex.setCurrent(mPoint);
-				vertex.setPrevious(mPoint);
-
 			}
 		}
 	}
