@@ -94,8 +94,6 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 
 	private SequenceEncoder enc;
 
-	private boolean doRecord = false;
-
 	private String recordFilename;
 
 	private TextRenderer textRenderer = null;
@@ -113,7 +111,9 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	 * @see de.zintel.sim.nbodies.IGraphicsSubsystem#init()
 	 */
 	@Override
-	public void init() {
+	public void init(boolean doRecord, String filename) {
+
+		recordSession(doRecord, filename);
 
 		final GLCapabilities glCapabilities = new GLCapabilities(GLProfile.getDefault());
 
@@ -320,24 +320,9 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 		dimension.height = mainFrame.getHeight();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.zintel.sim.nbodies.IGraphicsSubsystem#getWidth()
-	 */
 	@Override
-	public int getWidth() {
-		return dimension.width;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.zintel.sim.nbodies.IGraphicsSubsystem#getHeight()
-	 */
-	@Override
-	public int getHeight() {
-		return dimension.height;
+	public Dimension getDimension() {
+		return dimension;
 	}
 
 	@Override
@@ -357,7 +342,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
 		for (IRendererListener renderer : rendererListeners) {
-			renderer.render();
+			renderer.render(this);
 		}
 
 		if (enc != null) {
@@ -465,11 +450,9 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 
 	}
 
-	@Override
-	public void recordSession(boolean doRecord, String filename) {
+	private void recordSession(boolean doRecord, String filename) {
 
 		this.recordFilename = filename;
-		this.doRecord = doRecord;
 		if (doRecord) {
 			this.synchronizzed = true;
 		}

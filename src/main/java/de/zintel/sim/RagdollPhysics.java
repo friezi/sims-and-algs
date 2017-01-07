@@ -4,13 +4,10 @@
 package de.zintel.sim;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Dimension;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,20 +28,18 @@ import de.zintel.gfx.g2d.IRenderer;
 import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.gfx.g2d.Vertex2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
-import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystemFactory;
-import de.zintel.gfx.graphicsubsystem.IRendererListener;
 
 /**
  * @author friedemann.zintel
  *
  */
-public class RagdollPhysics implements MouseListener, MouseMotionListener, ActionListener, KeyListener, IRendererListener {
+public class RagdollPhysics extends SimulationScreen {
 
 	private static final boolean doRecord = false;
 
 	private static final String recordFilename = "D:/cloth-sim.mpg";
 
-	private final int recordingRate = 2;
+	private static final int recordingRate = 2;
 
 	private static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
 
@@ -70,17 +65,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private final double friction = 0.999;
 
-	private IGraphicsSubsystem graphicsSubsystem;
-
 	private static Koordination koordination = new Koordination();
-
-	private long calculations = 0;
-
-	private long rStartTs = 0;
-
-	private long renderings = 0;
-
-	private boolean stopped = false;
 
 	private volatile boolean mousePressed = false;
 
@@ -199,8 +184,8 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		}
 	}
 
-	public static void main(String args[]) throws InterruptedException {
-		new RagdollPhysics().start();
+	public static void main(String args[]) throws Exception {
+		new RagdollPhysics(GFX_SSYSTEM, koordination, doRecord, recordFilename, recordingRate).start();
 	}
 
 	private final Collection<IEdgeContainer2D> edgeContainers = new LinkedList<>();
@@ -209,79 +194,41 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	private Collection<Vertex2D> vertices = new LinkedHashSet<>();
 
-	/**
-	 * 
-	 */
-	public RagdollPhysics() {
+	public RagdollPhysics(EGraphicsSubsystem gfxSsystem, Koordination coordination, boolean doRecord, String recordFilename,
+			int recordingRate) {
+		super("Ragdoll physics", gfxSsystem, coordination, doRecord, recordFilename, recordingRate);
 	}
 
-	private void start() throws InterruptedException {
+	@Override
+	protected void init(IGraphicsSubsystem graphicsSubsystem) {
 
-		final IGraphicsSubsystemFactory graphicsSubsystemFactory = GfxUtils.graphicsSubsystemFactories.get(GFX_SSYSTEM);
-		graphicsSubsystem = graphicsSubsystemFactory.newGraphicsSubsystem("Ragdoll physics", koordination.WIDTH, koordination.HEIGHT);
-		graphicsSubsystem.recordSession(doRecord, recordFilename);
-		graphicsSubsystem.init();
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
-		graphicsSubsystem.setFullScreen();
-		graphicsSubsystem.addMouseListener(this);
-		graphicsSubsystem.addKeyListener(this);
-		graphicsSubsystem.addRendererListener(this);
-		graphicsSubsystem.addMouseMotionListener(this);
+		initScene(graphicsSubsystem);
 
-		graphicsSubsystem.display();
+	}
 
-		initScene();
+	@Override
+	protected void calculate(Dimension dimension) throws Exception {
 
-		long crStartTs = 0;
-		while (!stopped) {
+		calculatePhysics(dimension);
 
-			long startTs = System.currentTimeMillis();
-
-			calculations++;
-			if (crStartTs == 0) {
-				crStartTs = System.currentTimeMillis();
-			}
-
-			calculatePhysics();
-
-			for (Vertex2D vertex : vertices) {
-				if (Double.isNaN(vertex.getCurrent().x) || Double.isNaN(vertex.getCurrent().y) || Double.isNaN(vertex.getPrevious().x)
-						|| Double.isNaN(vertex.getPrevious().y) || Double.isInfinite(vertex.getCurrent().x)
-						|| Double.isInfinite(vertex.getCurrent().y) || Double.isInfinite(vertex.getPrevious().x)
-						|| Double.isInfinite(vertex.getPrevious().y)) {
-					System.out.println(vertex);
-				}
-			}
-
-			if (!doRecord || calculations % recordingRate == 0) {
-				graphicsSubsystem.repaint();
-			}
-
-			long crStopTs = System.currentTimeMillis();
-			if (crStopTs - crStartTs >= 1000) {
-
-				double calculationrate = calculations / ((crStopTs - crStartTs) / (double) 1000);
-				System.out.println(
-						"calculationrate: " + calculationrate + " cps : vertices: " + vertices.size() + " : edges: " + edges.size());
-
-				crStartTs = System.currentTimeMillis();
-				calculations = 0;
-
-			}
-
-			int delay = 1000 / 60;
-			long diffTs = System.currentTimeMillis() - startTs;
-			if (diffTs < delay) {
-				Thread.sleep(delay - diffTs);
+		for (Vertex2D vertex : vertices) {
+			if (Double.isNaN(vertex.getCurrent().x) || Double.isNaN(vertex.getCurrent().y) || Double.isNaN(vertex.getPrevious().x)
+					|| Double.isNaN(vertex.getPrevious().y) || Double.isInfinite(vertex.getCurrent().x)
+					|| Double.isInfinite(vertex.getCurrent().y) || Double.isInfinite(vertex.getPrevious().x)
+					|| Double.isInfinite(vertex.getPrevious().y)) {
+				System.out.println(vertex);
 			}
 		}
 
-		graphicsSubsystem.shutdown();
-		System.exit(0);
+	}
+
+	@Override
+	protected void shutdown() throws Exception {
 
 	}
 
-	private void initScene() {
+	private void initScene(IGraphicsSubsystem graphicsSubsystem) {
 
 		final IRenderer<Edge2D> edgeRenderer = new DfltEdgeRenderer(graphicsSubsystem);
 		final IRenderer<Cuboid2D> cuboidRenderer = new DfltCuboidRenderer();
@@ -322,7 +269,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	}
 
-	private void calculatePhysics() {
+	private void calculatePhysics(Dimension dimension) {
 
 		vertices.parallelStream().forEach(new Consumer<Vertex2D>() {
 
@@ -335,7 +282,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 				double frictionFac = 1;
 				// friction
-				if (vertex.getCurrent().y == graphicsSubsystem.getHeight() - 1) {
+				if (vertex.getCurrent().y == dimension.getHeight() - 1) {
 					frictionFac = friction;
 				}
 
@@ -349,13 +296,13 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		});
 
 		for (int i = 0; i < iterations; i++) {
-			handleConstraints();
+			handleConstraints(dimension);
 		}
 	}
 
-	private void handleConstraints() {
+	private void handleConstraints(Dimension dimension) {
 
-		vertices.parallelStream().forEach(vertex -> handleBorderConstraints(vertex));
+		vertices.parallelStream().forEach(vertex -> handleBorderConstraints(vertex, dimension));
 
 		// here parallelisation should not be done because some edges access the
 		// same vertex
@@ -401,21 +348,21 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	}
 
-	private void handleBorderConstraints(final Vertex2D vertex) {
+	private void handleBorderConstraints(final Vertex2D vertex, Dimension dimension) {
 
 		final Vector2D current = vertex.getCurrent();
 		final Vector2D previous = vertex.getPrevious();
 		final double speed = Vector2D.distance(current, previous);
 
 		// bounce
-		if (current.x > graphicsSubsystem.getWidth() - 1) {
+		if (current.x > dimension.getWidth() - 1) {
 
 			if (speed < calmnessThreshold) {
-				current.x = graphicsSubsystem.getWidth() - 1;
+				current.x = dimension.getWidth() - 1;
 				previous.x = current.x;
 			} else {
-				current.x = graphicsSubsystem.getWidth() - 1 - ((current.x - (graphicsSubsystem.getWidth() - 1)) * decay);
-				previous.x = graphicsSubsystem.getWidth() - 1 + (current.x - previous.x) * decay;
+				current.x = dimension.getWidth() - 1 - ((current.x - (dimension.getWidth() - 1)) * decay);
+				previous.x = dimension.getWidth() - 1 + (current.x - previous.x) * decay;
 			}
 		} else if (current.x < 0) {
 			if (speed < calmnessThreshold) {
@@ -427,13 +374,13 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 			}
 		}
 
-		if (current.y > graphicsSubsystem.getHeight() - 1) {
+		if (current.y > dimension.getHeight() - 1) {
 			if (speed < calmnessThreshold) {
-				current.y = graphicsSubsystem.getHeight() - 1;
+				current.y = dimension.getHeight() - 1;
 				previous.y = current.y;
 			} else {
-				current.y = graphicsSubsystem.getHeight() - 1 - ((current.y - (graphicsSubsystem.getHeight() - 1)) * decay);
-				previous.y = graphicsSubsystem.getHeight() - 1 + (current.y - previous.y) * decay;
+				current.y = dimension.getHeight() - 1 - ((current.y - (dimension.getHeight() - 1)) * decay);
+				previous.y = dimension.getHeight() - 1 + (current.y - previous.y) * decay;
 			}
 		} else if (current.y < 0) {
 			if (speed < calmnessThreshold) {
@@ -448,13 +395,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 	}
 
 	@Override
-	public void render() {
-
-		renderings++;
-
-		if (rStartTs == 0) {
-			rStartTs = System.currentTimeMillis();
-		}
+	public void renderSim(IGraphicsSubsystem graphicsSubsystem) {
 
 		for (IEdgeContainer2D edgeContainer : edgeContainers) {
 			edgeContainer.render();
@@ -465,17 +406,6 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 				// grabbing
 				graphicsSubsystem.drawFilledCircle((int) vertex.getCurrent().x, (int) vertex.getCurrent().y, vertexSize, () -> Color.RED);
 			}
-		}
-
-		long rStopTs = System.currentTimeMillis();
-		if (rStopTs - rStartTs >= 1000) {
-
-			double framerate = renderings / ((rStopTs - rStartTs) / (double) 1000);
-			System.out.println("framerate: " + framerate + " fps");
-
-			rStartTs = System.currentTimeMillis();
-			renderings = 0;
-
 		}
 
 	}
@@ -492,7 +422,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_LEFT) {
 			gravity = GRAV_LEFT;
 		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_PLUS) {
-			chainNet.setRenderer(new FilledChainNetRenderer(graphicsSubsystem));
+			chainNet.setRenderer(new FilledChainNetRenderer(getGraphicsSubsystem()));
 		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_MINUS) {
 			chainNet.setRenderer(new DfltChainNetRenderer());
 		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_C) {
@@ -508,22 +438,7 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 	}
 
 	@Override
-	public void keyReleased(KeyEvent ke) {
-
-		if (ke.getExtendedKeyCode() == KeyEvent.VK_ESCAPE) {
-			stopped = true;
-		}
-
-	}
-
-	@Override
 	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
@@ -641,4 +556,9 @@ public class RagdollPhysics implements MouseListener, MouseMotionListener, Actio
 
 	}
 
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		// TODO Auto-generated method stub
+
+	}
 }

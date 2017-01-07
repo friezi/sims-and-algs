@@ -4,6 +4,7 @@
 package de.zintel.gfx.graphicsubsystem;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
@@ -20,7 +21,7 @@ import de.zintel.gfx.g2d.Vector2D;
  */
 public interface IGraphicsSubsystem {
 
-	void init();
+	void init(boolean doRecord, String filename);
 
 	boolean supportsColorChange();
 
@@ -64,14 +65,10 @@ public interface IGraphicsSubsystem {
 
 	void display();
 
-	int getWidth();
-
-	int getHeight();
+	Dimension getDimension();
 
 	void shutdown();
 
 	void synchronize(boolean value);
-
-	void recordSession(boolean doRecord, String filename);
 
 }

@@ -25,6 +25,4 @@ public interface IRenderer {
 
 	void renderFiretail(Body body);
 
-	void display();
-
 }
