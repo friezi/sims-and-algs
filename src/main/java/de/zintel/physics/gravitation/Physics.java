@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.zintel.sim.nbodies;
+package de.zintel.physics.gravitation;
 
 /**
  * @author Friedemann
@@ -188,6 +188,14 @@ public class Physics {
 	public Physics setUseMelting(boolean useMelting) {
 		this.useMelting = useMelting;
 		return this;
+	}
+
+	/**
+	 * @param mass
+	 * @return
+	 */
+	public static double calculateSize(double mass) {
+		return Math.sqrt(mass / Math.PI);
 	}
 
 }

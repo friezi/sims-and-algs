@@ -9,6 +9,6 @@ package de.zintel.gfx.graphicsubsystem;
  */
 public interface IRendererListener {
 
-	void render();
+	void render(IGraphicsSubsystem graphicsSubsystem);
 
 }

@@ -4,6 +4,7 @@
 package de.zintel.gfx.graphicsubsystem;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -19,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import de.zintel.gfx.color.CUtils.ColorGenerator;
+import de.zintel.gfx.g2d.Vector2D;
 
 /**
  * @author Friedemann
@@ -36,7 +38,7 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 			SwingGraphicsSubsystem.this.graphics = graphics;
 
 			for (IRendererListener renderer : rendererListeners) {
-				renderer.render();
+				renderer.render(SwingGraphicsSubsystem.this);
 			}
 
 		}
@@ -49,9 +51,7 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 
 	private String title;
 
-	private int width;
-
-	private int height;
+	private Dimension dimension;
 
 	private Graphics graphics;
 
@@ -59,8 +59,7 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 
 	public SwingGraphicsSubsystem(String title, int width, int height) {
 		this.title = title;
-		this.width = width;
-		this.height = height;
+		this.dimension = new Dimension(width, height);
 	}
 
 	/*
@@ -69,10 +68,10 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 	 * @see de.zintel.sim.nbodies.IGraphics#init()
 	 */
 	@Override
-	public void init() {
+	public void init(boolean doecord, String filename) {
 
 		mainFrame = new JFrame(title);
-		mainFrame.setSize(width, height);
+		mainFrame.setSize(dimension.width, dimension.height);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setIgnoreRepaint(true);
 
@@ -81,8 +80,7 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 		gfxPanel.setOpaque(true);
 		mainFrame.setContentPane(gfxPanel);
 
-		width = mainFrame.getWidth();
-		height = mainFrame.getHeight();
+		dimension = new Dimension(mainFrame.getWidth(), mainFrame.getHeight());
 
 	}
 
@@ -96,6 +94,11 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 	public void drawFilledCircle(int x, int y, int radius, ColorGenerator colorGenerator) {
 		graphics.setColor(colorGenerator.generateColor());
 		graphics.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+	}
+
+	@Override
+	public void drawFilledEllipse(int x, int y, int radius, double ratioYX, double angle, ColorGenerator colorGenerator) {
+		drawFilledCircle(x, y, radius, colorGenerator);
 	}
 
 	/*
@@ -129,8 +132,7 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 	@Override
 	public void display() {
 		mainFrame.setVisible(true);
-		width = mainFrame.getWidth();
-		height = mainFrame.getHeight();
+		dimension = new Dimension(mainFrame.getWidth(), mainFrame.getHeight());
 	}
 
 	@Override
@@ -141,13 +143,8 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 	}
 
 	@Override
-	public int getWidth() {
-		return width;
-	}
-
-	@Override
-	public int getHeight() {
-		return height;
+	public Dimension getDimension() {
+		return dimension;
 	}
 
 	@Override
@@ -163,11 +160,6 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 
 	@Override
 	public void shutdown() {
-
-	}
-
-	@Override
-	public void recordSession(boolean doecord, String filename) {
 
 	}
 
@@ -229,6 +221,39 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 	@Override
 	public boolean supportsColorChange() {
 		return false;
+	}
+
+	@Override
+	public void synchronize(boolean value) {
+		// not supported
+	}
+
+	@Override
+	public void drawFilledTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Color color) {
+
+		Collection<Vector2D> points = new ArrayList<>(3);
+		points.add(new Vector2D(x1, y1));
+		points.add(new Vector2D(x2, y2));
+		points.add(new Vector2D(x3, y3));
+
+		drawFilledPolygon(points, color);
+
+	}
+
+	@Override
+	public void drawFilledPolygon(Collection<Vector2D> points, Color color) {
+		graphics.setColor(color);
+
+		final int x[] = new int[points.size()];
+		final int y[] = new int[points.size()];
+		int i = 0;
+		for (Vector2D point : points) {
+			x[i] = (int) point.x;
+			y[i] = (int) point.y;
+			i++;
+		}
+
+		graphics.drawPolygon(x, y, points.size());
 	}
 
 }

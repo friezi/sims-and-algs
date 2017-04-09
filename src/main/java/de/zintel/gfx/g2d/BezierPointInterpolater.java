@@ -158,11 +158,8 @@ public class BezierPointInterpolater extends APointInterpolater2D {
 			} else {
 
 				List<Line> nextLines = new ArrayList<>();
-				Line l1;
-				Line l2;
-				Point previousPoint = null;
-				Point point1;
-				Point point2;
+				Line l1, l2;
+				Point point1, point2, previousPoint = null;
 				for (int i = 0; i < currentLines.size() - 1; i++) {
 
 					l1 = currentLines.get(i);

@@ -4,19 +4,18 @@
 package de.zintel.sim;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
@@ -34,11 +33,10 @@ import de.zintel.gfx.component.FadingText;
 import de.zintel.gfx.component.GfxState;
 import de.zintel.gfx.component.IGfxComponent;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
+import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.Polar;
 import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
-import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystemFactory;
-import de.zintel.gfx.graphicsubsystem.IRendererListener;
 import de.zintel.math.ContinuousInterpolatingValueProvider;
 import de.zintel.math.Utils;
 
@@ -47,7 +45,7 @@ import de.zintel.math.Utils;
  *
  */
 @SuppressWarnings("serial")
-public class CollectiveIntelligence implements MouseListener, ActionListener, KeyListener, IRendererListener {
+public class CollectiveIntelligence extends SimulationScreen {
 
 	private static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
 
@@ -63,9 +61,9 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private static final int NMB_PREDATORS = 3;
 
-	private static final int BOID_SIZE = 4;
+	private static final int BOID_SIZE = 6;
 
-	private static final long DELAY = 10;
+	private static final int DELAY = 10;
 
 	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
 
@@ -116,13 +114,17 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 
 	private int cIdx = 0;
 
+	private boolean firstRun = true;
+
 	private static class BezierMotioner implements BoidMotioner {
+
+		private static final double threshold = 0.75;
 
 		private Point previousPosition;
 
 		private final int speed;
 
-		private BezierPointInterpolater interpolater = null;
+		private final Collection<BezierPointInterpolater> interpolaters = new LinkedList<>();
 
 		public BezierMotioner(Boid boid, int speed) {
 			super();
@@ -133,30 +135,92 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 		public Vector2D nextMotionVector() {
 
 			Point currentPosition = previousPosition;
-			if (interpolater != null && interpolater.hasNext()) {
 
-				for (int i = 0; i < speed; i++) {
-					if (interpolater.hasNext()) {
-						currentPosition = interpolater.next().getPoint();
+			{
+				final Iterator<BezierPointInterpolater> iterator = interpolaters.iterator();
+				while (iterator.hasNext()) {
+					if (!iterator.next().hasNext()) {
+						iterator.remove();
 					}
 				}
+			}
 
-			} else {
+			if (interpolaters.isEmpty()) {
 
-				interpolater = new BezierPointInterpolater(previousPosition, makeRandomPoint(koordination.WIDTH, koordination.HEIGHT),
-						false, false);
-				int nmbControlPoints = RANDOM.nextInt(10);
-				for (int i = 0; i < nmbControlPoints; i++) {
-					interpolater.addControlPoint(makeRandomPoint(koordination.WIDTH, koordination.HEIGHT));
+				interpolaters.clear();
+				interpolaters.add(newBezierPointInterpolater(previousPosition));
+
+			}
+
+			for (int i = 0; i < speed; i++) {
+
+				final Iterator<BezierPointInterpolater> iterator = interpolaters.iterator();
+				if (iterator.hasNext()) {
+
+					final BezierPointInterpolater interpolater = iterator.next();
+					if (interpolater.hasNext()) {
+
+						final IterationUnit2D currentUnit = interpolater.next();
+						currentPosition = currentUnit.getPoint();
+						final double ratio = ((double) currentUnit.getIteration()) / currentUnit.getMaxIterations();
+						if (ratio > threshold) {
+
+							BezierPointInterpolater nextInterpolater;
+
+							if (!iterator.hasNext()) {
+
+								nextInterpolater = newBezierPointInterpolater(currentPosition);
+								interpolaters.add(nextInterpolater);
+
+							} else {
+
+								nextInterpolater = iterator.next();
+								if (!nextInterpolater.hasNext()) {
+
+									interpolaters.remove(nextInterpolater);
+									nextInterpolater = newBezierPointInterpolater(currentPosition);
+									interpolaters.add(nextInterpolater);
+
+								}
+
+							}
+
+							final IterationUnit2D nextUnit = nextInterpolater.next();
+							final Point nextPosition = nextUnit.getPoint();
+							final int thresholdStart = (int) (currentUnit.getMaxIterations() * threshold);
+							final int max = currentUnit.getMaxIterations() - thresholdStart;
+							final int step = currentUnit.getIteration() - thresholdStart + 1;
+							final double sFac = Utils.interpolateLinearReal(1, 0, step, max);
+							final double tFac = Utils.interpolateLinearReal(0, 1, step, max);
+							// smooth transition of both interpolaters
+							currentPosition = new Point((int) (sFac * currentPosition.x + tFac * nextPosition.x),
+									(int) (sFac * currentPosition.y + tFac * nextPosition.y));
+
+						}
+
+					} else {
+						iterator.remove();
+					}
 				}
-
-				currentPosition = interpolater.next().getPoint();
 			}
 
 			final Vector2D motionVector = new Vector2D(currentPosition.x - previousPosition.x, currentPosition.y - previousPosition.y);
 			previousPosition = currentPosition;
 
 			return motionVector;
+		}
+
+		private BezierPointInterpolater newBezierPointInterpolater(Point start) {
+
+			BezierPointInterpolater interpolater = new BezierPointInterpolater(start,
+					makeRandomPoint(koordination.WIDTH, koordination.HEIGHT), false, false);
+			int nmbControlPoints = RANDOM.nextInt(10);
+			for (int i = 0; i < nmbControlPoints; i++) {
+				interpolater.addControlPoint(makeRandomPoint(koordination.WIDTH, koordination.HEIGHT));
+			}
+
+			return interpolater;
+
 		}
 	}
 
@@ -230,46 +294,39 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-
-		CollectiveIntelligence application = new CollectiveIntelligence();
-		application.start();
-
+		new CollectiveIntelligence(GFX_SSYSTEM, koordination, false, "", 1).start();
 	}
 
-	public void start() throws Exception {
+	public CollectiveIntelligence(EGraphicsSubsystem gfxSsystem, Koordination coordination, boolean doRecord, String recordFilename,
+			int recordingRate) {
+		super("Collective Intelligence", gfxSsystem, coordination, doRecord, recordFilename, recordingRate);
+	}
 
-		final IGraphicsSubsystemFactory graphicsSubsystemFactory = GfxUtils.graphicsSubsystemFactories.get(GFX_SSYSTEM);
-		graphicsSubsystem = graphicsSubsystemFactory.newGraphicsSubsystem("Collective Intelligence", koordination.WIDTH,
-				koordination.HEIGHT);
-		graphicsSubsystem.init();
+	@Override
+	protected void init(IGraphicsSubsystem graphicsSubsystem) {
+
+		this.graphicsSubsystem = graphicsSubsystem;
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
-		graphicsSubsystem.setFullScreen();
-		graphicsSubsystem.addMouseListener(this);
-		graphicsSubsystem.addKeyListener(this);
-		graphicsSubsystem.addRendererListener(this);
 
-		swarm = new FishSwarm(new Vector2D(graphicsSubsystem.getWidth() / 2, graphicsSubsystem.getHeight() / 2)).setUseLeader(true)
-				.setUsePredator(true).setPublicDistance(Utils.distance(new Point(), new Point(koordination.WIDTH, koordination.HEIGHT)) / 4)
-				.setLeaderAttraction(40000);
+		swarm = new FishSwarm(
+				new Vector2D(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2))
+						.setUseLeader(true).setUsePredator(true)
+						.setPublicDistance(Utils.distance(new Point(), new Point(koordination.WIDTH, koordination.HEIGHT)) / 4)
+						.setLeaderAttraction(40000);
 
 		initKeyActions();
 		initBoids();
 
-		graphicsSubsystem.display();
+		setCalculationRate(DELAY);
 
-		while (true) {
+	}
 
-			long startTs = System.currentTimeMillis();
+	@Override
+	protected void calculate(Dimension dimension) throws Exception {
 
-			swarm.swarm();
-
-			graphicsSubsystem.repaint();
-
-			long diffTs = System.currentTimeMillis() - startTs;
-
-			if (diffTs < DELAY) {
-				Thread.sleep(DELAY - diffTs);
-			}
+		if (firstRun) {
+			firstRun = false;
+		} else {
 
 			if (cIdx == Integer.MAX_VALUE - NMB_BOIDS) {
 				cIdx = 0;
@@ -281,8 +338,81 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 				swarm.setLeaderAttraction(leaderAttractionProvider.nextValue());
 				swarm.setBoidSpeed(speedProvider.nextValue());
 			}
+		}
+
+		swarm.swarm();
+
+	}
+
+	@Override
+	protected void renderSim(IGraphicsSubsystem graphicsSubsystem) {
+
+		int i = 0;
+		Color color = null;
+		for (final Boid boid : swarm.getBoids()) {
+
+			i++;
+
+			if (boid.getType() == BoidType.LEADER || boid.getType() == BoidType.PREDATOR) {
+
+				if (boid.getType() == BoidType.LEADER) {
+					color = calculateMovementDependentDeltaColor(SHINE, COLOR_LEADER[cIdx % COLOR_LEADER.length], boid);
+
+				} else if (boid.getType() == BoidType.PREDATOR) {
+					color = COLOR_PREDATOR[cIdx % COLOR_PREDATOR.length];
+				}
+
+			} else {
+				color = calculateMovementDependentDeltaColor(SHINE, COLOR_BOID[(cIdx + i) % COLOR_BOID.length], boid);
+			}
+
+			final Color effectiveColor = color;
+
+			ColorGenerator colorGenerator = new ColorGenerator() {
+
+				boolean center = true;
+
+				@Override
+				public Color generateColor() {
+
+					if (center == true) {
+
+						center = false;
+						return effectiveColor;
+
+					} else {
+						return new Color(effectiveColor.getRed(), effectiveColor.getGreen(), effectiveColor.getBlue(), 50);
+					}
+				}
+			};
+
+			graphicsSubsystem.drawFilledEllipse((int) boid.getPosition().x, (int) boid.getPosition().y,
+					graphicsSubsystem.supportsColorChange() ? BOID_SIZE : BOID_SIZE / 2, 2,
+					Math.PI / 2 - boid.getDirectionPolar().getAngle(), colorGenerator);
+
+			if (SHIVERING && !graphicsSubsystem.supportsColorChange()) {
+				graphicsSubsystem.drawFilledEllipse((int) boid.getPosition().x, (int) boid.getPosition().y, BOID_SIZE, 2,
+						Math.PI / 2 - boid.getDirectionPolar().getAngle(),
+						() -> new Color(effectiveColor.getRed(), effectiveColor.getGreen(), effectiveColor.getBlue(), 100));
+			}
+		}
+
+		Iterator<IGfxComponent> gfxIterator = gfxComponents.values().iterator();
+		while (gfxIterator.hasNext()) {
+
+			IGfxComponent gfxComponent = gfxIterator.next();
+			if (gfxComponent.getState() == GfxState.STOPPED) {
+				gfxIterator.remove();
+			} else {
+				gfxComponent.draw(graphicsSubsystem);
+			}
 
 		}
+
+	}
+
+	@Override
+	protected void shutdown() throws Exception {
 
 	}
 
@@ -774,71 +904,6 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 		return new Point(RANDOM.nextInt(width - 1) + 1, RANDOM.nextInt(height - 1) + 1);
 	}
 
-	@Override
-	public void render() {
-
-		int i = 0;
-		Color color = null;
-		for (final Boid boid : swarm.getBoids()) {
-
-			i++;
-
-			if (boid.getType() == BoidType.LEADER || boid.getType() == BoidType.PREDATOR) {
-
-				if (boid.getType() == BoidType.LEADER) {
-					color = calculateMovementDependentDeltaColor(SHINE, COLOR_LEADER[cIdx % COLOR_LEADER.length], boid);
-
-				} else if (boid.getType() == BoidType.PREDATOR) {
-					color = COLOR_PREDATOR[cIdx % COLOR_PREDATOR.length];
-				}
-
-			} else {
-				color = calculateMovementDependentDeltaColor(SHINE, COLOR_BOID[(cIdx + i) % COLOR_BOID.length], boid);
-			}
-
-			final Color effectiveColor = color;
-
-			ColorGenerator colorGenerator = new ColorGenerator() {
-
-				boolean center = true;
-
-				@Override
-				public Color generateColor() {
-
-					if (center == true) {
-
-						center = false;
-						return effectiveColor;
-
-					} else {
-						return new Color(effectiveColor.getRed(), effectiveColor.getGreen(), effectiveColor.getBlue(), 50);
-					}
-				}
-			};
-
-			graphicsSubsystem.drawFilledCircle((int) boid.getPosition().x, (int) boid.getPosition().y,
-					graphicsSubsystem.supportsColorChange() ? BOID_SIZE : BOID_SIZE / 2, colorGenerator);
-
-			if (SHIVERING && !graphicsSubsystem.supportsColorChange()) {
-				graphicsSubsystem.drawFilledCircle((int) boid.getPosition().x, (int) boid.getPosition().y, BOID_SIZE,
-						() -> new Color(effectiveColor.getRed(), effectiveColor.getGreen(), effectiveColor.getBlue(), 100));
-			}
-		}
-
-		Iterator<IGfxComponent> gfxIterator = gfxComponents.values().iterator();
-		while (gfxIterator.hasNext()) {
-
-			IGfxComponent gfxComponent = gfxIterator.next();
-			if (gfxComponent.getState() == GfxState.STOPPED) {
-				gfxIterator.remove();
-			} else {
-				gfxComponent.draw(graphicsSubsystem);
-			}
-
-		}
-
-	}
-
 	/**
 	 * calculates color-change dependent on the angle-change of movement.
 	 * 
@@ -849,8 +914,8 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 	 */
 	private Color calculateMovementDependentDeltaColor(final Color shine, Color color, final Boid boid) {
 
-		Polar polarDirection = boid.getDirection().toPolar();
-		Polar polarPreviousDirection = boid.getPreviousDirection().toPolar();
+		Polar polarDirection = boid.getDirectionPolar();
+		Polar polarPreviousDirection = boid.getPreviousDirectionPolar();
 
 		double deltaAngle = (Double.isNaN(polarDirection.getAngle()) || Double.isNaN(polarPreviousDirection.getAngle())) ? 0
 				: Math.abs(polarDirection.getAngle() - polarPreviousDirection.getAngle());
@@ -915,10 +980,6 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
 	}
 
 	@Override
@@ -1004,16 +1065,25 @@ public class CollectiveIntelligence implements MouseListener, ActionListener, Ke
 	}
 
 	@Override
-	public void keyReleased(KeyEvent ke) {
+	public void keyTyped(KeyEvent arg0) {
 
-		if (ke.getExtendedKeyCode() == KeyEvent.VK_ESCAPE) {
-			graphicsSubsystem.shutdown();
-			System.exit(0);
-		}
 	}
 
 	@Override
-	public void keyTyped(KeyEvent arg0) {
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent arg0) {
+		// TODO Auto-generated method stub
 
 	}
 

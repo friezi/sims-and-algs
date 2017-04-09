@@ -3,6 +3,7 @@
  */
 package de.zintel.ci;
 
+import de.zintel.gfx.g2d.Polar;
 import de.zintel.gfx.g2d.Vector2D;
 
 /**
@@ -17,7 +18,11 @@ public class Boid {
 
 	private Vector2D direction = new Vector2D();
 
+	private Polar directionPolar = new Polar(1, 0);
+
 	private Vector2D previousDirection = new Vector2D();
+
+	private Polar previousDirectionPolar = new Polar(1, 0);
 
 	private Vector2D panic = new Vector2D();
 
@@ -47,6 +52,7 @@ public class Boid {
 
 	public void setDirection(Vector2D direction) {
 		this.direction = direction;
+		directionPolar = direction.toPolar();
 	}
 
 	public BoidMotioner getMotioner() {
@@ -93,6 +99,7 @@ public class Boid {
 
 	public Boid setPreviousDirection(Vector2D previousDirection) {
 		this.previousDirection = previousDirection;
+		previousDirectionPolar = previousDirection.toPolar();
 		return this;
 	}
 
@@ -121,6 +128,14 @@ public class Boid {
 	public Boid setPanic(Vector2D panic) {
 		this.panic = panic;
 		return this;
+	}
+
+	public Polar getDirectionPolar() {
+		return directionPolar;
+	}
+
+	public Polar getPreviousDirectionPolar() {
+		return previousDirectionPolar;
 	}
 
 }

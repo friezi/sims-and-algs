@@ -4,12 +4,18 @@
 package de.zintel.gfx.g2d;
 
 import java.awt.Point;
+import java.io.Serializable;
 
 /**
  * @author Friedemann
  *
  */
-public class Vector2D {
+public class Vector2D implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5754883813412571661L;
 
 	public double x;
 
@@ -35,6 +41,18 @@ public class Vector2D {
 		this.y = y;
 	}
 
+	/**
+	 * only for deserialization purpose!
+	 * 
+	 * @param x
+	 * @param y
+	 * @param length
+	 */
+	public Vector2D(double x, double y, double length) {
+		this(x, y);
+		this.length = length;
+	}
+
 	public double length() {
 
 		if (length == -1) {
@@ -50,7 +68,7 @@ public class Vector2D {
 	}
 
 	public Vector2D substract(Vector2D vector) {
-		add(-vector.x, -vector.y);
+		substract(vector.x, vector.y);
 		return this;
 	}
 
@@ -64,28 +82,43 @@ public class Vector2D {
 		this.y += y;
 	}
 
+	public void substract(double x, double y) {
+		this.x -= x;
+		this.y -= y;
+	}
+
 	public static Vector2D mult(double val, Vector2D vector) {
-		return new Vector2D(val * vector.x, val * vector.y);
+		final Vector2D nvector = new Vector2D(vector);
+		nvector.mult(val);
+		return nvector;
 	}
 
 	public static Vector2D add(Vector2D a, Vector2D b) {
-		return new Vector2D(a.x + b.x, a.y + b.y);
+		final Vector2D nvector = new Vector2D(a);
+		nvector.add(b);
+		return nvector;
 	}
 
-	public boolean isNullVector() {
-		return x == 0.0 && y == 0.0;
+	public static Vector2D substract(Vector2D a, Vector2D b) {
+		final Vector2D nvector = new Vector2D(a);
+		nvector.substract(b);
+		return nvector;
 	}
 
 	public static double mult(Vector2D a, Vector2D b) {
 		return a.x * b.x + a.y * b.y;
 	}
 
-	public static Vector2D substract(Vector2D a, Vector2D b) {
-		return new Vector2D(a.x - b.x, a.y - b.y);
+	public boolean isNullVector() {
+		return x == 0.0 && y == 0.0;
 	}
 
 	public static Vector2D normalize(Vector2D vector) {
 		return mult(1 / vector.length(), vector);
+	}
+
+	public static Vector2D max(Vector2D v1, Vector2D v2) {
+		return (v1.length() >= v2.length() ? v1 : v2);
 	}
 
 	public Polar toPolar() {

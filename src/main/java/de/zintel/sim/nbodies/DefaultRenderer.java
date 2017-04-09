@@ -11,6 +11,7 @@ import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.physics.Body;
+import de.zintel.physics.gravitation.Physics;
 import de.zintel.sim.nbodies.sceneries.Scenery;
 
 /**
@@ -39,8 +40,6 @@ public class DefaultRenderer implements IRenderer {
 	@Override
 	public void initGraphics() {
 
-		graphicsSubsystem.init();
-
 		if (scenery.getSceneryConfig().isStarfield()) {
 
 			graphicsSubsystem.setBackground(new Color(0, 0, 15));
@@ -48,11 +47,6 @@ public class DefaultRenderer implements IRenderer {
 
 		}
 
-	}
-
-	@Override
-	public void display() {
-		graphicsSubsystem.display();
 	}
 
 	@Override
@@ -87,8 +81,9 @@ public class DefaultRenderer implements IRenderer {
 		};
 
 		double size = Math.ceil(body.getSize());
-		graphicsSubsystem.drawFilledCircle((int) project(body.getPosition().x, graphicsSubsystem.getWidth()),
-				(int) project(body.getPosition().y, graphicsSubsystem.getHeight()), (int) Math.max(scale(size), 1), colorGenerator);
+		graphicsSubsystem.drawFilledCircle((int) project(body.getPosition().x, graphicsSubsystem.getDimension().getWidth()),
+				(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()), (int) Math.max(scale(size), 1),
+				colorGenerator);
 
 	}
 
@@ -195,8 +190,9 @@ public class DefaultRenderer implements IRenderer {
 					}
 				};
 
-				graphicsSubsystem.drawFilledCircle((int) project(body.getPosition().x, graphicsSubsystem.getWidth()),
-						(int) project(body.getPosition().y, graphicsSubsystem.getHeight()), (int) scaledSize, colorGenerator);
+				graphicsSubsystem.drawFilledCircle((int) project(body.getPosition().x, graphicsSubsystem.getDimension().getWidth()),
+						(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()), (int) scaledSize,
+						colorGenerator);
 
 			} else {
 
@@ -239,8 +235,9 @@ public class DefaultRenderer implements IRenderer {
 									(int) (basecolor.getBlue() / divisor), 100 / alphacnt);
 						}
 					};
-					graphicsSubsystem.drawFilledCircle((int) project(body.getPosition().x, graphicsSubsystem.getWidth()),
-							(int) project(body.getPosition().y, graphicsSubsystem.getHeight()), (int) scaledSize, colorGenerator);
+					graphicsSubsystem.drawFilledCircle((int) project(body.getPosition().x, graphicsSubsystem.getDimension().getWidth()),
+							(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()), (int) scaledSize,
+							colorGenerator);
 				}
 			}
 		}
@@ -262,10 +259,10 @@ public class DefaultRenderer implements IRenderer {
 
 	@Override
 	public void renderVelocity(Body body) {
-		graphicsSubsystem.drawLine((int) project(body.getPosition().x, graphicsSubsystem.getWidth()),
-				(int) project(body.getPosition().y, graphicsSubsystem.getHeight()),
-				(int) project(body.getPosition().x + 10 * body.getVelocity().x, graphicsSubsystem.getWidth()),
-				(int) project(body.getPosition().y + 10 * body.getVelocity().y, graphicsSubsystem.getHeight()), Color.RED);
+		graphicsSubsystem.drawLine((int) project(body.getPosition().x, graphicsSubsystem.getDimension().getWidth()),
+				(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()),
+				(int) project(body.getPosition().x + 10 * body.getVelocity().x, graphicsSubsystem.getDimension().getWidth()),
+				(int) project(body.getPosition().y + 10 * body.getVelocity().y, graphicsSubsystem.getDimension().getHeight()), Color.RED);
 
 	}
 
@@ -280,8 +277,8 @@ public class DefaultRenderer implements IRenderer {
 		double alphaDecayFactor = 1d;
 		double colorBrigthnessFactor = 0;
 		int max = 6;
-		int startx = (int) project(body.getPosition().x, graphicsSubsystem.getWidth());
-		int starty = (int) project(body.getPosition().y, graphicsSubsystem.getHeight());
+		int startx = (int) project(body.getPosition().x, graphicsSubsystem.getDimension().getWidth());
+		int starty = (int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight());
 
 		final Physics physics = scenery.getSceneryConfig().getPhysics();
 		if (physics.getDestroyParticlesSpeedThreshold() > 0 && body.getVelocity().length() >= physics.getDestroyParticlesSpeedThreshold()) {
@@ -299,9 +296,9 @@ public class DefaultRenderer implements IRenderer {
 			if (i == -1) {
 
 				final int endx = (int) project(body.getPosition().x - 15 * body.getVelocity().x / body.getVelocity().length(),
-						graphicsSubsystem.getWidth());
+						graphicsSubsystem.getDimension().getWidth());
 				final int endy = (int) project(body.getPosition().y - 15 * body.getVelocity().y / body.getVelocity().length(),
-						graphicsSubsystem.getHeight());
+						graphicsSubsystem.getDimension().getHeight());
 				final Color iColor = Color.WHITE;
 				final int alpha = (int) (a * alphaDecayFactor);
 				graphicsSubsystem.drawLine(startx, starty, endx, endy,
@@ -312,11 +309,13 @@ public class DefaultRenderer implements IRenderer {
 
 			} else {
 
-				final int endx = (int) project(body.getPosition().x - 10 * body.getVelocity().x / (max - i), graphicsSubsystem.getWidth());
-				final int endy = (int) project(body.getPosition().y - 10 * body.getVelocity().y / (max - i), graphicsSubsystem.getHeight());
-				final int red = brighten(color.getRed(), colorBrigthnessFactor);
-				final int green = brighten(color.getGreen(), colorBrigthnessFactor);
-				final int blue = brighten(color.getBlue(), colorBrigthnessFactor);
+				final int endx = (int) project(body.getPosition().x - 10 * body.getVelocity().x / (max - i),
+						graphicsSubsystem.getDimension().getWidth());
+				final int endy = (int) project(body.getPosition().y - 10 * body.getVelocity().y / (max - i),
+						graphicsSubsystem.getDimension().getHeight());
+				final int red = CUtils.brighten(color.getRed(), colorBrigthnessFactor);
+				final int green = CUtils.brighten(color.getGreen(), colorBrigthnessFactor);
+				final int blue = CUtils.brighten(color.getBlue(), colorBrigthnessFactor);
 				final int alpha = (int) ((a * alphaDecayFactor) / (i + 1));
 				graphicsSubsystem.drawLine(startx, starty, endx, endy, new Color(red, green, blue, alpha));
 
@@ -324,16 +323,6 @@ public class DefaultRenderer implements IRenderer {
 				starty = endy;
 
 			}
-		}
-
-	}
-
-	private int brighten(final int cValue, double colorBrigthnessFactor) {
-
-		if (colorBrigthnessFactor < 1) {
-			return cValue;
-		} else {
-			return (int) (cValue + (colorBrigthnessFactor - 1) * ((255 - cValue) / colorBrigthnessFactor));
 		}
 
 	}

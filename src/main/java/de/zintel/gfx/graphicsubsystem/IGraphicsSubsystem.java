@@ -4,13 +4,16 @@
 package de.zintel.gfx.graphicsubsystem;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
+import java.util.Collection;
 
 import de.zintel.gfx.color.CUtils.ColorGenerator;
+import de.zintel.gfx.g2d.Vector2D;
 
 /**
  * @author Friedemann
@@ -18,13 +21,19 @@ import de.zintel.gfx.color.CUtils.ColorGenerator;
  */
 public interface IGraphicsSubsystem {
 
-	void init();
+	void init(boolean doRecord, String filename);
 
 	boolean supportsColorChange();
 
 	void drawFilledCircle(final int x, final int y, final int radius, final ColorGenerator colorGenerator);
 
+	void drawFilledEllipse(final int x, final int y, final int radius, double ratioYX, double angle, final ColorGenerator colorGenerator);
+
 	void drawLine(final int x1, final int y1, final int x2, final int y2, final Color color);
+
+	void drawFilledTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3, final Color color);
+
+	void drawFilledPolygon(final Collection<Vector2D> points, final Color color);
 
 	void drawString(String str, final int x, final int y, final Color color);
 
@@ -56,12 +65,10 @@ public interface IGraphicsSubsystem {
 
 	void display();
 
-	int getWidth();
-
-	int getHeight();
+	Dimension getDimension();
 
 	void shutdown();
 
-	void recordSession(boolean doRecord, String filename);
+	void synchronize(boolean value);
 
 }

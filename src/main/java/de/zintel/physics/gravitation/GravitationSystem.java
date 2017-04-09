@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.zintel.physics;
+package de.zintel.physics.gravitation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,15 +12,15 @@ import java.util.TreeSet;
 import de.zintel.gfx.g2d.Field;
 import de.zintel.gfx.g2d.Polar;
 import de.zintel.gfx.g2d.Vector2D;
-import de.zintel.sim.nbodies.Physics;
+import de.zintel.physics.Body;
 import de.zintel.utils.Pair;
-import de.zintel.utils.SequenceCollection;
+import de.zintel.utils.CompositeCollection;
 
 /**
  * @author Friedemann
  *
  */
-public class GravitationSystem {
+public class GravitationSystem implements IBodyProducer {
 
 	private Field field;
 
@@ -41,9 +41,19 @@ public class GravitationSystem {
 	 * @param body
 	 * @return
 	 */
-	public GravitationSystem addBody(final Body body) {
+	public IBodyProducer addBody(final Body body) {
 		massBodies.add(body);
 		return this;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.zintel.physics.gravitation.IBodyProducer#gravitate()
+	 */
+	@Override
+	public void calculate() {
+		gravitate();
 	}
 
 	/**
@@ -56,7 +66,7 @@ public class GravitationSystem {
 
 		massBodies.parallelStream().forEach(body -> {
 
-			final SequenceCollection<Body> bodies = new SequenceCollection<Body>().cat(massBodies);
+			final CompositeCollection<Body> bodies = new CompositeCollection<Body>().cat(massBodies);
 
 			if (physics.isParticleInfluence()) {
 				bodies.cat(particles);
@@ -77,7 +87,7 @@ public class GravitationSystem {
 
 		particles.parallelStream().forEach(body -> {
 
-			final SequenceCollection<Body> bodies = new SequenceCollection<Body>().cat(massBodies);
+			final CompositeCollection<Body> bodies = new CompositeCollection<Body>().cat(massBodies);
 
 			if (physics.isParticleOnParticle()) {
 				bodies.cat(particles);
@@ -117,25 +127,19 @@ public class GravitationSystem {
 		position.add(velocity);
 
 		// Reflexion vom Rand
-		if (position.x - offset < field.minX || position.x + offset > field.maxX || position.y - offset < field.minY
-				|| position.y + offset > field.maxY) {
-			if (position.x - offset < field.minX) {
-				velocity = new Vector2D(-velocity.x / decay, velocity.y);
-				position.x = 2 * offset - (position.x - field.minX) - (decay - 1) * (offset - (position.x - field.minX)) / decay
-						+ field.minX;
-			} else if (position.x + offset > field.maxX) {
-				velocity = new Vector2D(-velocity.x / decay, velocity.y);
-				position.x = 2 * (field.maxX - offset) - position.x + (decay - 1) * (offset + position.x - field.maxX) / decay;
-			}
-			if (position.y - offset < field.minY) {
-				velocity = new Vector2D(velocity.x, -velocity.y / decay);
-				position.y = 2 * offset - (position.y - field.minY) - (decay - 1) * (offset - (position.y - field.minY)) / decay
-						+ field.minY;
-			} else if (position.y + offset > field.maxY) {
-				velocity = new Vector2D(velocity.x, -velocity.y / decay);
-				position.y = 2 * (field.maxY - offset) - position.y + (decay - 1) * (offset + position.y - field.maxY) / decay;
-			}
-
+		if (position.x - offset < field.minX) {
+			velocity = new Vector2D(-velocity.x / decay, velocity.y);
+			position.x = 2 * offset - (position.x - field.minX) - (decay - 1) * (offset - (position.x - field.minX)) / decay + field.minX;
+		} else if (position.x + offset > field.maxX) {
+			velocity = new Vector2D(-velocity.x / decay, velocity.y);
+			position.x = 2 * (field.maxX - offset) - position.x + (decay - 1) * (offset + position.x - field.maxX) / decay;
+		}
+		if (position.y - offset < field.minY) {
+			velocity = new Vector2D(velocity.x, -velocity.y / decay);
+			position.y = 2 * offset - (position.y - field.minY) - (decay - 1) * (offset - (position.y - field.minY)) / decay + field.minY;
+		} else if (position.y + offset > field.maxY) {
+			velocity = new Vector2D(velocity.x, -velocity.y / decay);
+			position.y = 2 * (field.maxY - offset) - position.y + (decay - 1) * (offset + position.y - field.maxY) / decay;
 		}
 
 		Body newBody = new Body(body.getId(), size, body.getMass(), position, velocity, body);
@@ -184,7 +188,7 @@ public class GravitationSystem {
 		Collection<Body> particles = new ArrayList<>(amountParticles);
 
 		double mass = body.getMass() / amountParticles;
-		double size = calculateSize(mass);
+		double size = Physics.calculateSize(mass);
 		for (int i = 0; i < amountParticles; i++) {
 
 			Vector2D position = createExplosionParticlePosition(body);
@@ -244,7 +248,7 @@ public class GravitationSystem {
 		Collection<Body> particles = new ArrayList<>();
 
 		final double mass = physics.getParticleMass();
-		double size = calculateSize(mass);
+		double size = Physics.calculateSize(mass);
 
 		Body particle = new Body("meltingparticle:" + body.getId(), size, mass, createMeltingParticlePosition(body),
 				new Vector2D(body.getVelocity()), body);
@@ -273,14 +277,6 @@ public class GravitationSystem {
 		Polar deltaPosition = new Polar((2 * RANDOM.nextDouble() + 0.5) * body.getSize(), deltaAngle);
 		position.add(deltaPosition.toCartesian());
 		return position;
-	}
-
-	/**
-	 * @param mass
-	 * @return
-	 */
-	public static double calculateSize(double mass) {
-		return Math.sqrt(mass / Math.PI);
 	}
 
 	/**
@@ -540,15 +536,23 @@ public class GravitationSystem {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.zintel.physics.gravitation.IBodyProducer#getBodies()
+	 */
+	@Override
 	public Collection<Body> getBodies() {
-		return new SequenceCollection<Body>().cat(particles).cat(massBodies);
+		return new CompositeCollection<Body>().cat(particles).cat(massBodies);
 	}
 
-	public Field getField() {
-		return field;
-	}
-
+	@Override
 	public void setField(Field field) {
 		this.field = field;
+	}
+
+	@Override
+	public void shutdown() {
+
 	}
 }

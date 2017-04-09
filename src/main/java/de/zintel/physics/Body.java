@@ -3,6 +3,7 @@
  */
 package de.zintel.physics;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,33 +14,21 @@ import de.zintel.sim.nbodies.BodyProperty;
  * @author Friedemann
  *
  */
-public class Body implements Comparable<Body> {
+public class Body implements Comparable<Body>, Serializable {
 
-	private final String id;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4862332522510864345L;
 
-	private double size;
-
-	private double mass;
-
-	private double density;
-
-	private double volume;
-
-	private Vector2D position;
-
-	private Vector2D velocity;
-
-	private boolean particle = false;
-
-	private boolean destroyed = false;
-
-	private boolean merged = false;
-
-	private boolean melting = false;
-
-	private double meltingIntensity = 0;
+	private BodyParameters parameters;
 
 	private Map<String, BodyProperty> properties = new HashMap<>();
+
+	public Body(BodyParameters parameters) {
+		super();
+		this.parameters = parameters;
+	}
 
 	public Body(String id, double size, double mass, Vector2D position) {
 		this(id, size, mass, position, new Vector2D());
@@ -51,94 +40,93 @@ public class Body implements Comparable<Body> {
 	}
 
 	public Body(String id, double size, double mass, Vector2D position, Vector2D velocity) {
-		super();
-		this.id = id;
-		this.size = size;
-		this.mass = mass;
-		this.position = position;
-		this.velocity = velocity;
+		this(new BodyParameters(id));
+		parameters.size = size;
+		parameters.mass = mass;
+		parameters.position = position;
+		parameters.velocity = velocity;
 		adjustVolume();
 		adjustDensity();
 	}
 
 	private void adjustDensity() {
-		density = mass / volume;
+		parameters.density = parameters.mass / parameters.volume;
 	}
 
 	private void adjustVolume() {
-		volume = Math.PI * size * size;
+		parameters.volume = Math.PI * parameters.size * parameters.size;
 	}
 
 	private void adjustSize() {
-		size = Math.sqrt(mass / (Math.PI * density));
+		parameters.size = Math.sqrt(parameters.mass / (Math.PI * parameters.density));
 	}
 
 	public double getSize() {
-		return size;
+		return parameters.size;
 	}
 
 	public double getMass() {
-		return mass;
+		return parameters.mass;
 	}
 
 	public Vector2D getVelocity() {
-		return velocity;
+		return parameters.velocity;
 	}
 
 	public void setVelocity(Vector2D velocity) {
-		this.velocity = velocity;
+		parameters.velocity = velocity;
 	}
 
 	public Vector2D getPosition() {
-		return position;
+		return parameters.position;
 	}
 
 	public void setPosition(Vector2D position) {
-		this.position = position;
+		parameters.position = position;
 	}
 
 	public String getId() {
-		return id;
+		return parameters.id;
 	}
 
 	public void setSize(double size) {
-		this.size = size;
+		parameters.size = size;
 		adjustVolume();
 		adjustDensity();
 	}
 
 	public void setMass(double mass) {
-		this.mass = mass;
+		parameters.mass = mass;
 		adjustDensity();
 	}
 
 	public boolean isParticle() {
-		return particle;
+		return parameters.particle;
 	}
 
 	public void setParticle(boolean particle) {
-		this.particle = particle;
+		parameters.particle = particle;
 	}
 
 	public boolean isDestroyed() {
-		return destroyed;
+		return parameters.destroyed;
 	}
 
 	public void setDestroyed(boolean destroyed) {
-		this.destroyed = destroyed;
+		parameters.destroyed = destroyed;
 	}
 
 	public boolean isMerged() {
-		return merged;
+		return parameters.merged;
 	}
 
 	public void setMerged(boolean merged) {
-		this.merged = merged;
+		parameters.merged = merged;
 	}
 
 	@Override
 	public int compareTo(Body o) {
-		return id.compareTo(o.getId());
+		return parameters.id.compareTo(o.getId());
 	}
 
 	public BodyProperty getProperty(final String key) {
@@ -165,35 +153,43 @@ public class Body implements Comparable<Body> {
 	}
 
 	public double getDensity() {
-		return density;
+		return parameters.density;
 	}
 
 	public void setDensity(double density) {
-		this.density = density;
+		parameters.density = density;
 		adjustSize();
 	}
 
 	@Override
 	public String toString() {
-		return "Body [id=" + id + ", size=" + size + ", mass=" + mass + ", density=" + density + ", position=" + position + ", velocity="
-				+ velocity + ", particle=" + particle + ", destroyed=" + destroyed + ", merged=" + merged + ", properties=" + properties
-				+ "]";
+		return "Body [id=" + parameters.id + ", size=" + parameters.size + ", mass=" + parameters.mass + ", density=" + parameters.density
+				+ ", position=" + parameters.position + ", velocity=" + parameters.velocity + ", particle=" + parameters.particle
+				+ ", destroyed=" + parameters.destroyed + ", merged=" + parameters.merged + ", properties=" + properties + "]";
 	}
 
 	public boolean isMelting() {
-		return melting;
+		return parameters.melting;
 	}
 
 	public void setMelting(boolean melting) {
-		this.melting = melting;
+		parameters.melting = melting;
 	}
 
 	public double getMeltingIntensity() {
-		return meltingIntensity;
+		return parameters.meltingIntensity;
 	}
 
 	public void setMeltingIntensity(double meltingIntensity) {
-		this.meltingIntensity = meltingIntensity;
+		parameters.meltingIntensity = meltingIntensity;
+	}
+
+	public BodyParameters getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(BodyParameters parameters) {
+		this.parameters = parameters;
 	}
 
 }

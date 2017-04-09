@@ -11,6 +11,11 @@ import java.awt.Color;
  */
 public class SwingBodyProperty extends BodyProperty {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4454748306686697295L;
+
 	public static final String CLASSNAME = SwingBodyProperty.class.getSimpleName();
 
 	private Color bodyColor;
