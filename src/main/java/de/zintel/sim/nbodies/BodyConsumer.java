@@ -12,8 +12,5 @@ import de.zintel.physics.Body;
  * @author friedemann.zintel
  *
  */
-public abstract class BodyConsumer implements Consumer<Collection<Body>> {
-
-	public abstract void close() throws Exception;
-
+public abstract class BodyConsumer implements Consumer<Collection<Body>>, AutoCloseable {
 }
