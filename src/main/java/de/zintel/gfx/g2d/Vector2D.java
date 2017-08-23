@@ -75,16 +75,19 @@ public class Vector2D implements Serializable {
 	public void mult(double value) {
 		this.x *= value;
 		this.y *= value;
+		length = -1;
 	}
 
 	public void add(double x, double y) {
 		this.x += x;
 		this.y += y;
+		length = -1;
 	}
 
 	public void substract(double x, double y) {
 		this.x -= x;
 		this.y -= y;
+		length = -1;
 	}
 
 	public static Vector2D mult(double val, Vector2D vector) {
