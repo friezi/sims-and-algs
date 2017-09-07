@@ -118,14 +118,13 @@ public class GravitationSystem implements IBodyProducer {
 	 */
 	private Collection<Body> calculateNewPosition(final Body body, Vector2D velocity, Vector2D acceleration) {
 
-		double size = body.getSize();
-		double offset = size;
 		Vector2D position = new Vector2D(body.getPosition());
 		acceleration.mult(physics.getAccelerationFactor());
 		double decay = physics.getDecay();
 		velocity.add(acceleration);
 		position.add(velocity);
 
+		double offset = body.getSize();
 		// Reflexion vom Rand
 		if (position.x - offset < field.minX) {
 			velocity = new Vector2D(-velocity.x / decay, velocity.y);
@@ -142,7 +141,7 @@ public class GravitationSystem implements IBodyProducer {
 			position.y = 2 * (field.maxY - offset) - position.y + (decay - 1) * (offset + position.y - field.maxY) / decay;
 		}
 
-		Body newBody = new Body(body.getId(), size, body.getMass(), position, velocity, body);
+		Body newBody = new Body(body.getId(), body.getSize(), body.getMass(), position, velocity, body);
 		newBody.setParticle(body.isParticle());
 		newBody.setMelting(body.isMelting());
 		newBody.setMeltingIntensity(body.getMeltingIntensity());
@@ -400,14 +399,7 @@ public class GravitationSystem implements IBodyProducer {
 	 * @return
 	 */
 	private Vector2D calculateAccelerationVector(Body body, Vector2D force) {
-
-		double forceAmount = force.length();
-		if (forceAmount == 0.0) {
-			return new Vector2D();
-		}
-		double acceleration = forceAmount / body.getMass();
-
-		return Vector2D.mult(acceleration / forceAmount, force);
+		return Vector2D.mult(1 / body.getMass(), force);
 	}
 
 	/**
