@@ -5,6 +5,7 @@ package de.zintel.math;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -27,17 +28,17 @@ public class VectorND implements Serializable {
 	private double length = -1;
 
 	public VectorND(VectorND vector) {
-		this(new ArrayList<Double>(vector.getCoords()));
+		this(vector.getCoords());
 	}
 
-	public VectorND(List<Double> coords) {
+	public VectorND(Collection<Double> coords) {
 		this(coords.size(), coords);
 	}
 
-	public VectorND(int dim, List<Double> coords) {
-		assertProp(dim == coords.size());
+	public VectorND(int dim, Collection<Double> coords) {
 		this.dim = dim;
-		this.coords = coords;
+		this.coords = new ArrayList<Double>(coords);
+		assertProp(dim == this.coords.size());
 	}
 	//
 	// /**
