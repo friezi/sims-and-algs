@@ -4,6 +4,13 @@
 package de.zintel.math;
 
 import java.awt.Point;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * @author Friedemann
@@ -17,6 +24,14 @@ public final class Utils {
 		double project(int x, int max);
 
 	}
+
+	public static final Comparator<Double> DOUBLE_COMPARATOR = new Comparator<Double>() {
+
+		@Override
+		public int compare(Double o1, Double o2) {
+			return Double.compare(o1, o2);
+		}
+	};
 
 	private Utils() {
 
@@ -78,6 +93,27 @@ public final class Utils {
 
 	public static int length(Point vector) {
 		return distance(new Point(), vector);
+	}
+
+	public static Double max(final Collection<Double> collection) {
+		return minmax(collection, Collectors.maxBy(DOUBLE_COMPARATOR));
+	}
+
+	public static Double min(final Collection<Double> collection) {
+		return minmax(collection, Collectors.minBy(DOUBLE_COMPARATOR));
+	}
+
+	public static Double sum(final Collection<Double> collection) {
+		return collection.stream().collect(Collectors.summingDouble(x -> x));
+	}
+
+	private static Double minmax(final Collection<Double> collection, final Collector<Double, ?, Optional<Double>> collector) {
+
+		if (collection.isEmpty()) {
+			throw new IllegalArgumentException("collection is null");
+		}
+
+		return collection.stream().collect(collector).get();
 	}
 
 }
