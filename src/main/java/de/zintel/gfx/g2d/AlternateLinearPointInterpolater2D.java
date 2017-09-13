@@ -8,7 +8,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Random;
 
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 
 /**
  * @author Friedemann
@@ -65,8 +65,8 @@ public class AlternateLinearPointInterpolater2D extends APointInterpolater2D {
 			int y;
 
 			final int step = delta + 1;
-			x = Utils.interpolateLinear(p1.x, p2.x, step, stepMax);
-			y = Utils.interpolateLinear(p1.y, p2.y, step, stepMax);
+			x = MathUtils.interpolateLinear(p1.x, p2.x, step, stepMax);
+			y = MathUtils.interpolateLinear(p1.y, p2.y, step, stepMax);
 
 			if (avoidEmptyMoiree) {
 				if (delta != 0) {

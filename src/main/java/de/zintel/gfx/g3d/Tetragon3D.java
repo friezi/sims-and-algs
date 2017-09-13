@@ -17,7 +17,7 @@ import de.zintel.gfx.g2d.Pin2D;
 import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.Tetragon2D;
 import de.zintel.gfx.texture.ITexture;
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 import de.zintel.utils.Processor;
 
 /**
@@ -132,7 +132,7 @@ public class Tetragon3D implements IObject3D {
 				int sStepMax = sStepUnit.getStepMax();
 
 				StepUnit3D eStepUnit = eITP.getCurrent();
-				if (Utils.interpolateLinear(0, eStepUnit.getStepMax(), sStep, sStepMax) > eStepUnit.getStep() && eITP.hasNext()) {
+				if (MathUtils.interpolateLinear(0, eStepUnit.getStepMax(), sStep, sStepMax) > eStepUnit.getStep() && eITP.hasNext()) {
 					ePoints.clear();
 					eITP.next();
 					eStepUnit = eITP.getCurrent();
@@ -156,17 +156,17 @@ public class Tetragon3D implements IObject3D {
 							int stepMax = stepUnit.getStepMax();
 							Point3D linepoint = stepUnit.getPoint();
 
-							int tx = Utils.interpolateLinear(Utils.interpolateLinear(sT1.x, sT2.x, sStep, sStepMax),
-									Utils.interpolateLinear(eT1.x, eT2.x, eStep, eStepMax), step, stepMax);
-							int ty = Utils.interpolateLinear(Utils.interpolateLinear(sT1.y, sT2.y, sStep, sStepMax),
-									Utils.interpolateLinear(eT1.y, eT2.y, eStep, eStepMax), step, stepMax);
+							int tx = MathUtils.interpolateLinear(MathUtils.interpolateLinear(sT1.x, sT2.x, sStep, sStepMax),
+									MathUtils.interpolateLinear(eT1.x, eT2.x, eStep, eStepMax), step, stepMax);
+							int ty = MathUtils.interpolateLinear(MathUtils.interpolateLinear(sT1.y, sT2.y, sStep, sStepMax),
+									MathUtils.interpolateLinear(eT1.y, eT2.y, eStep, eStepMax), step, stepMax);
 							Color color = texture.getColor(tx, ty);
 
-							int red = (scaleBrighteness ? Utils.interpolateLinear(CUtils.minDark(color.getRed()),
+							int red = (scaleBrighteness ? MathUtils.interpolateLinear(CUtils.minDark(color.getRed()),
 									CUtils.maxBright(color.getRed()), step, stepMax) : color.getRed());
-							int green = (scaleBrighteness ? Utils.interpolateLinear(CUtils.minDark(color.getGreen()),
+							int green = (scaleBrighteness ? MathUtils.interpolateLinear(CUtils.minDark(color.getGreen()),
 									CUtils.maxBright(color.getGreen()), step, stepMax) : color.getGreen());
-							int blue = (scaleBrighteness ? Utils.interpolateLinear(CUtils.minDark(color.getBlue()),
+							int blue = (scaleBrighteness ? MathUtils.interpolateLinear(CUtils.minDark(color.getBlue()),
 									CUtils.maxBright(color.getBlue()), step, stepMax) : color.getBlue());
 
 							Point planePoint = view.getProjector().project(linepoint.add(view.getNullpoint()));
@@ -193,8 +193,8 @@ public class Tetragon3D implements IObject3D {
 
 										int stepMax2D = stepUnit2D.getMaxIterations();
 										Point iPoint = stepUnit2D.getPoint();
-										graphics.setColor(texture.getColor(Utils.interpolateLinear(lastTx, tx, step2D, stepMax2D),
-												Utils.interpolateLinear(lastTy, ty, step2D, stepMax2D)));
+										graphics.setColor(texture.getColor(MathUtils.interpolateLinear(lastTx, tx, step2D, stepMax2D),
+												MathUtils.interpolateLinear(lastTy, ty, step2D, stepMax2D)));
 										graphics.drawLine(iPoint.x, iPoint.y, iPoint.x, iPoint.y);
 
 									}

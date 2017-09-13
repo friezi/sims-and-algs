@@ -8,7 +8,7 @@ import java.awt.Point;
 import de.zintel.gfx.g2d.AlternateLinearPointInterpolater2D;
 import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.LinearPointInterpolater2D;
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 
 /**
  * @author Friedemann
@@ -40,7 +40,7 @@ public class TestLIP {
 
 		}
 
-		System.out.println(Utils.interpolateLinear(1, 15, 14, 14));
+		System.out.println(MathUtils.interpolateLinear(1, 15, 14, 14));
 
 	}
 

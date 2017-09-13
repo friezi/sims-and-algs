@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import de.zintel.gfx.g2d.Vector2D;
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 
 /**
  * @author Friedemann
@@ -296,7 +296,7 @@ public class Swarm {
 
 	private Point calculateInertnessVector(Point direction) {
 
-		if (Utils.distance(new Point(), direction) <= 10) {
+		if (MathUtils.distance(new Point(), direction) <= 10) {
 			return new Point(-direction.x, -direction.y);
 		}
 

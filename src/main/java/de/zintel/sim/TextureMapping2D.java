@@ -38,7 +38,7 @@ import de.zintel.gfx.g2d.View2D;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.gfx.texture.ImageTexture;
 import de.zintel.gfx.texture.TxCrd;
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 import de.zintel.utils.Processor;
 
 /**
@@ -328,7 +328,7 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 				mainStepperInfo.getStepper().next();
 
 				for (StepperInfo stepperInfo : stepperInfos) {
-					if (Utils.interpolateLinear(0, stepperInfo.getStepUnit().getMaxIterations(),
+					if (MathUtils.interpolateLinear(0, stepperInfo.getStepUnit().getMaxIterations(),
 							mainStepperInfo.getStepper().getCurrent().getIteration(),
 							mainStepperInfo.getStepper().getCurrent().getMaxIterations()) > stepperInfo.getStepUnit().getIteration()) {
 
@@ -383,9 +383,9 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 						int step = stepUnit.getIteration();
 						int stepMax = stepUnit.getMaxIterations();
 						points1.add(new ColorPoint(stepUnit.getPoint(),
-								new Color(Utils.interpolateLinear(ssColor.getRed(), stColor.getRed(), step, stepMax),
-										Utils.interpolateLinear(ssColor.getGreen(), stColor.getGreen(), step, stepMax),
-										Utils.interpolateLinear(ssColor.getBlue(), stColor.getBlue(), step, stepMax))));
+								new Color(MathUtils.interpolateLinear(ssColor.getRed(), stColor.getRed(), step, stepMax),
+										MathUtils.interpolateLinear(ssColor.getGreen(), stColor.getGreen(), step, stepMax),
+										MathUtils.interpolateLinear(ssColor.getBlue(), stColor.getBlue(), step, stepMax))));
 					}
 				}).iterate();
 
@@ -398,9 +398,9 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 						int step = stepUnit.getIteration();
 						int stepMax = stepUnit.getMaxIterations();
 						points2.add(new ColorPoint(stepUnit.getPoint(),
-								new Color(Utils.interpolateLinear(tsColor.getRed(), ttColor.getRed(), step, stepMax),
-										Utils.interpolateLinear(tsColor.getGreen(), ttColor.getGreen(), step, stepMax),
-										Utils.interpolateLinear(tsColor.getBlue(), ttColor.getBlue(), step, stepMax))));
+								new Color(MathUtils.interpolateLinear(tsColor.getRed(), ttColor.getRed(), step, stepMax),
+										MathUtils.interpolateLinear(tsColor.getGreen(), ttColor.getGreen(), step, stepMax),
+										MathUtils.interpolateLinear(tsColor.getBlue(), ttColor.getBlue(), step, stepMax))));
 					}
 				}).iterate();
 
@@ -433,9 +433,9 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 							int stepMax = stepUnit.getMaxIterations();
 							Point point = stepUnit.getPoint();
 
-							graphics.setColor(new Color(Utils.interpolateLinear(sColor.getRed(), tColor.getRed(), step, stepMax),
-									Utils.interpolateLinear(sColor.getGreen(), tColor.getGreen(), step, stepMax),
-									Utils.interpolateLinear(sColor.getBlue(), tColor.getBlue(), step, stepMax)));
+							graphics.setColor(new Color(MathUtils.interpolateLinear(sColor.getRed(), tColor.getRed(), step, stepMax),
+									MathUtils.interpolateLinear(sColor.getGreen(), tColor.getGreen(), step, stepMax),
+									MathUtils.interpolateLinear(sColor.getBlue(), tColor.getBlue(), step, stepMax)));
 							graphics.drawLine(point.x, point.y, point.x, point.y);
 
 						}

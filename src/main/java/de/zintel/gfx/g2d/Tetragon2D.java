@@ -12,8 +12,8 @@ import java.util.function.Consumer;
 
 import de.zintel.gfx.EAntialiasing;
 import de.zintel.gfx.texture.ITexture;
-import de.zintel.math.Utils;
-import de.zintel.math.Utils.StepProjection;
+import de.zintel.math.MathUtils;
+import de.zintel.math.MathUtils.StepProjection;
 import de.zintel.utils.Processor;
 
 /**
@@ -156,8 +156,8 @@ public class Tetragon2D implements IObject2D {
 				int sStep = sItUnit.getIteration();
 				int sStepMax = sItUnit.getMaxIterations();
 
-				final double sTx = Utils.interpolateReal(sT1.x, sT2.x, sStep, sStepMax, stepProjection);
-				final double sTy = Utils.interpolateReal(sT1.y, sT2.y, sStep, sStepMax, stepProjection);
+				final double sTx = MathUtils.interpolateReal(sT1.x, sT2.x, sStep, sStepMax, stepProjection);
+				final double sTy = MathUtils.interpolateReal(sT1.y, sT2.y, sStep, sStepMax, stepProjection);
 
 				/*
 				 * hier wird der Endrand interpoliert, der immer kleiner gleich
@@ -166,11 +166,11 @@ public class Tetragon2D implements IObject2D {
 				 * nächste Step berechnet.
 				 */
 				IterationUnit2D eItUnit = eITP.getCurrent();
-				if ((eItUnit == null || Utils.interpolateLinear(0, eItUnit.getMaxIterations(), sStep, sStepMax) > eItUnit.getIteration())
+				if ((eItUnit == null || MathUtils.interpolateLinear(0, eItUnit.getMaxIterations(), sStep, sStepMax) > eItUnit.getIteration())
 						&& eITP.hasNext()) {
 					ePoints.clear();
 					while ((eItUnit == null
-							|| Utils.interpolateLinear(0, eItUnit.getMaxIterations(), sStep, sStepMax) > eItUnit.getIteration())
+							|| MathUtils.interpolateLinear(0, eItUnit.getMaxIterations(), sStep, sStepMax) > eItUnit.getIteration())
 							&& eITP.hasNext()) {
 						eITP.next();
 						eItUnit = eITP.getCurrent();
@@ -181,8 +181,8 @@ public class Tetragon2D implements IObject2D {
 				int eIt = eItUnit.getIteration();
 				int eItMax = eItUnit.getMaxIterations();
 
-				final double eTx = Utils.interpolateReal(eT1.x, eT2.x, eIt, eItMax, stepProjection);
-				final double eTy = Utils.interpolateReal(eT1.y, eT2.y, eIt, eItMax, stepProjection);
+				final double eTx = MathUtils.interpolateReal(eT1.x, eT2.x, eIt, eItMax, stepProjection);
+				final double eTy = MathUtils.interpolateReal(eT1.y, eT2.y, eIt, eItMax, stepProjection);
 
 				// Linie interpolieren
 				for (Point ePoint : ePoints) {
@@ -199,8 +199,8 @@ public class Tetragon2D implements IObject2D {
 							int itMax = itUnit.getMaxIterations();
 							Point linepoint = itUnit.getPoint();
 
-							double tx = Utils.interpolateReal(sTx, eTx, it, itMax, stepProjection);
-							double ty = Utils.interpolateReal(sTy, eTy, it, itMax, stepProjection);
+							double tx = MathUtils.interpolateReal(sTx, eTx, it, itMax, stepProjection);
+							double ty = MathUtils.interpolateReal(sTy, eTy, it, itMax, stepProjection);
 
 							Collection<ColorRate> colorRates = new ArrayList<ColorRate>(3);
 

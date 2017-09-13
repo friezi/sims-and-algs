@@ -17,7 +17,11 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import de.zintel.ci.Boid;
 import de.zintel.ci.BoidMotioner;
@@ -38,7 +42,7 @@ import de.zintel.gfx.g2d.Polar;
 import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.ContinuousInterpolatingValueProvider;
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 
 /**
  * @author Friedemann
@@ -111,6 +115,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 	private static final String ID_PANIC = "l_a";
 
 	private static final String ID_STATUS = "status";
+
+	private static final String ID_CLUSTERING = "clustering";
 
 	private int cIdx = 0;
 
@@ -190,8 +196,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 							final int thresholdStart = (int) (currentUnit.getMaxIterations() * threshold);
 							final int max = currentUnit.getMaxIterations() - thresholdStart;
 							final int step = currentUnit.getIteration() - thresholdStart + 1;
-							final double sFac = Utils.interpolateLinearReal(1, 0, step, max);
-							final double tFac = Utils.interpolateLinearReal(0, 1, step, max);
+							final double sFac = MathUtils.interpolateLinearReal(1, 0, step, max);
+							final double tFac = MathUtils.interpolateLinearReal(0, 1, step, max);
 							// smooth transition of both interpolaters
 							currentPosition = new Point((int) (sFac * currentPosition.x + tFac * nextPosition.x),
 									(int) (sFac * currentPosition.y + tFac * nextPosition.y));
@@ -260,6 +266,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 	private ContinuousInterpolatingValueProvider leaderAttractionProvider = new ContinuousInterpolatingValueProvider(1, 800000);
 	private ContinuousInterpolatingValueProvider speedProvider = new ContinuousInterpolatingValueProvider(1, 100);
 
+	private boolean clustering = false;
+
 	private final Collection<Boid> leaders = new ArrayList<Boid>() {
 		{
 			for (int i = 0; i < NMB_LEADERS; i++) {
@@ -311,7 +319,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 		swarm = new FishSwarm(
 				new Vector2D(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2))
 						.setUseLeader(true).setUsePredator(true)
-						.setPublicDistance(Utils.distance(new Point(), new Point(koordination.WIDTH, koordination.HEIGHT)) / 4)
+						.setPublicDistance(MathUtils.distance(new Point(), new Point(koordination.WIDTH, koordination.HEIGHT)) / 4)
 						.setLeaderAttraction(40000);
 
 		initKeyActions();
@@ -347,9 +355,35 @@ public class CollectiveIntelligence extends SimulationScreen {
 	@Override
 	protected void renderSim(IGraphicsSubsystem graphicsSubsystem) {
 
+		final Collection<Boid> boids = new ArrayList<Boid>(swarm.getBoids());
+		if (clustering) {
+
+			// detect clusters
+			final BiFunction<Boid, Boid, Double> distanceOp = (b1, b2) -> Vector2D.distance(b1.getPosition(), b2.getPosition());
+			final Collection<Boid> memberBoids = boids.stream().filter(boid -> boid.getType() == BoidType.MEMBER)
+					.collect(Collectors.toList());
+
+			final Double meanMinDistance = MathUtils.getMeanMinDistance(memberBoids, distanceOp);
+			final Set<Collection<Boid>> boidClusters = MathUtils.getClusters(memberBoids, meanMinDistance, 2.5, distanceOp);
+
+			// Visualize clusters
+			for (Collection<Boid> cluster : boidClusters) {
+
+				final Queue<Boid> queue = new LinkedList<>(cluster);
+				Boid boid = null;
+				while ((boid = queue.poll()) != null) {
+					for (Boid neighbour : queue) {
+						graphicsSubsystem.drawLine((int) boid.getPosition().x, (int) boid.getPosition().y, (int) neighbour.getPosition().x,
+								(int) neighbour.getPosition().y, Color.GREEN.darker());
+					}
+				}
+			}
+
+		}
+
 		int i = 0;
 		Color color = null;
-		for (final Boid boid : swarm.getBoids()) {
+		for (final Boid boid : boids) {
 
 			i++;
 
@@ -406,9 +440,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 			} else {
 				gfxComponent.draw(graphicsSubsystem);
 			}
-
 		}
-
 	}
 
 	@Override
@@ -827,6 +859,43 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
+		keyActions.put(KeyEvent.VK_U, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public String textID() {
+				return ID_CLUSTERING;
+			}
+
+			@Override
+			public String text() {
+				return "clustering";
+			}
+
+			@Override
+			public void plus() {
+				clustering = true;
+			}
+
+			@Override
+			public void minus() {
+				clustering = false;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(clustering);
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+		});
 		keyActions.put(KeyEvent.VK_F1, new IKeyAction() {
 
 			@Override
@@ -861,7 +930,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 						+ swarm.getInfluenceOfAlignment() + "\n" + "cohesion: " + swarm.isUseCohesion() + "\n" + "separation: "
 						+ swarm.isUseSeparation() + "\n" + "panic: " + swarm.isUsePanic() + "\n" + "alignment: " + swarm.isUseAlignment()
 						+ "\n" + "public distance: " + swarm.getPublicDistance() + "\n" + "personal distance: "
-						+ swarm.getPersonalDistance() + "\n" + "predator distance: " + swarm.getPredatorDistance();
+						+ swarm.getPersonalDistance() + "\n" + "predator distance: " + swarm.getPredatorDistance() + "\n" + "clustering: "
+						+ clustering;
 			}
 
 			@Override

@@ -38,7 +38,7 @@ import de.zintel.gfx.g2d.View2D;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.gfx.texture.ImageTexture;
 import de.zintel.gfx.texture.TxCrd;
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 import de.zintel.utils.Processor;
 
 /**

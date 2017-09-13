@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 
 /**
  * @author Friedemann
@@ -79,7 +79,7 @@ public class Test {
 		int maxIt = 10;
 
 		for (int i = 1; i <= maxIt; i++) {
-			System.out.println(Utils.interpolateLinearReal(start, end, i, maxIt));
+			System.out.println(MathUtils.interpolateLinearReal(start, end, i, maxIt));
 		}
 
 	}

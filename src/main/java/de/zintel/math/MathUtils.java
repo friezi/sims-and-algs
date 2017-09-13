@@ -4,11 +4,15 @@
 package de.zintel.math;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Optional;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
+import java.util.Queue;
+import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -16,7 +20,7 @@ import java.util.stream.Collectors;
  * @author Friedemann
  *
  */
-public final class Utils {
+public final class MathUtils {
 
 	@FunctionalInterface
 	public static interface StepProjection {
@@ -33,7 +37,7 @@ public final class Utils {
 		}
 	};
 
-	private Utils() {
+	private MathUtils() {
 
 	}
 
@@ -95,25 +99,80 @@ public final class Utils {
 		return distance(new Point(), vector);
 	}
 
-	public static Double max(final Collection<Double> collection) {
-		return minmax(collection, Collectors.maxBy(DOUBLE_COMPARATOR));
+	public static Optional<Double> max(final Collection<Double> collection) {
+		return reduceDoubles(collection, Collectors.maxBy(DOUBLE_COMPARATOR));
 	}
 
-	public static Double min(final Collection<Double> collection) {
-		return minmax(collection, Collectors.minBy(DOUBLE_COMPARATOR));
+	public static Optional<Double> min(final Collection<Double> collection) {
+		return reduceDoubles(collection, Collectors.minBy(DOUBLE_COMPARATOR));
 	}
 
 	public static Double sum(final Collection<Double> collection) {
-		return collection.stream().collect(Collectors.summingDouble(x -> x));
+		return reduceDoubles(collection, Collectors.summingDouble(x -> x));
 	}
 
-	private static Double minmax(final Collection<Double> collection, final Collector<Double, ?, Optional<Double>> collector) {
+	private static <T> T reduceDoubles(final Collection<Double> collection, final Collector<Double, ?, T> collector) {
+		return collection.stream().collect(collector);
+	}
 
-		if (collection.isEmpty()) {
-			throw new IllegalArgumentException("collection is null");
+	public static <T> Double getMeanMinDistance(final Collection<T> items, BiFunction<T, T, Double> distanceOp) {
+
+		final Collection<Double> minDistances = new ArrayList<>(items.size());
+		for (T item : items) {
+			final Collection<Double> distances = new ArrayList<>(items.size());
+
+			for (T neighbour : items) {
+				if (item == neighbour) {
+					continue;
+				}
+
+				distances.add(distanceOp.apply(item, neighbour));
+			}
+
+			minDistances.add(MathUtils.min(distances).get());
 		}
 
-		return collection.stream().collect(collector).get();
+		final Double meanMinDistance = MathUtils.sum(minDistances) / items.size();
+		return meanMinDistance;
+
+	}
+
+	public static <T> Set<Collection<T>> getClusters(final Collection<T> items, final Double meanMinDistance, final Double coefficient,
+			BiFunction<T, T, Double> distanceOp) {
+
+		final Set<Collection<T>> clusters = new HashSet<>();
+
+		final Queue<T> remainingItems = new LinkedList<>(items);
+		T clusterItem = null;
+		while ((clusterItem = remainingItems.poll()) != null) {
+
+			final Set<T> cluster = new HashSet<>();
+			clusters.add(cluster);
+			cluster.add(clusterItem);
+
+			final Queue<T> parents = new LinkedList<>();
+			parents.add(clusterItem);
+
+			T parent = null;
+			T remainingItem = null;
+			while ((parent = parents.poll()) != null) {
+
+				final Queue<T> nonClassified = new LinkedList<>();
+				while ((remainingItem = remainingItems.poll()) != null) {
+
+					if (distanceOp.apply(parent, remainingItem) - coefficient * meanMinDistance <= 0) {
+						cluster.add(remainingItem);
+						parents.add(remainingItem);
+					} else {
+						nonClassified.add(remainingItem);
+					}
+				}
+
+				remainingItems.addAll(nonClassified);
+			}
+		}
+
+		return clusters;
 	}
 
 }

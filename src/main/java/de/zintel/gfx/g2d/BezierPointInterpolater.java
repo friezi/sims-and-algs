@@ -7,7 +7,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 
 /**
  * @author Friedemann
@@ -123,8 +123,8 @@ public class BezierPointInterpolater extends APointInterpolater2D {
 	}
 
 	private int interpolate(int v1, int v2, int iterations, int maxIterations) {
-		return scattering ? Utils.interpolateLinearMoreScattering(v1, v2, iteration, maxIterations)
-				: Utils.interpolateLinear(v1, v2, iteration, maxIterations);
+		return scattering ? MathUtils.interpolateLinearMoreScattering(v1, v2, iteration, maxIterations)
+				: MathUtils.interpolateLinear(v1, v2, iteration, maxIterations);
 	}
 
 	private void interpolate(final List<Line> lines) {

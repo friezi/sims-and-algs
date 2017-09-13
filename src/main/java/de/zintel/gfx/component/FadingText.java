@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 
 /**
  * @author Friedemann
@@ -144,7 +144,7 @@ public class FadingText implements IGfxComponent {
 	}
 
 	private int interpolate(int v1, int v2, int iteration, int maxIterations) {
-		return Utils.interpolate(v1, v2, iteration, maxIterations, (x, max) -> {
+		return MathUtils.interpolate(v1, v2, iteration, maxIterations, (x, max) -> {
 			return x * Math.sin((Math.PI * x) / (2 * max));
 			// return x * Math.sin((Math.PI * x) / (2 * max));
 			// return x * Math.tanh(40*(double)x/max);

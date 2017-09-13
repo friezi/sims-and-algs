@@ -7,7 +7,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 
 /**
  * @author friedemann.zintel
@@ -45,7 +45,7 @@ public class ChainNet2D implements IEdgeContainer2D {
 			} else {
 
 				current = new Vertex2D(
-						new Vector2D(Utils.interpolateLinearReal(topleft.getCurrent().x, topright.getCurrent().x, h + 1, dimHorizontal),
+						new Vector2D(MathUtils.interpolateLinearReal(topleft.getCurrent().x, topright.getCurrent().x, h + 1, dimHorizontal),
 								topleft.getCurrent().y));
 				current.setPinned(topleft.isPinned());
 			}

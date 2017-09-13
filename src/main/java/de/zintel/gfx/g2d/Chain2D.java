@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 
 /**
  * @author friedemann.zintel
@@ -43,8 +43,8 @@ public class Chain2D implements IEdgeContainer2D {
 		for (int i = 2; i < elements; i++) {
 
 			final Vertex2D current = new Vertex2D(
-					new Vector2D(Utils.interpolateLinearReal(first.getCurrent().x, last.getCurrent().x, i, elements),
-							Utils.interpolateLinearReal(first.getCurrent().y, last.getCurrent().y, i, elements)));
+					new Vector2D(MathUtils.interpolateLinearReal(first.getCurrent().x, last.getCurrent().x, i, elements),
+							MathUtils.interpolateLinearReal(first.getCurrent().y, last.getCurrent().y, i, elements)));
 			edges.add(new Edge2D(previous, current, edgeRenderer));
 			previous = current;
 

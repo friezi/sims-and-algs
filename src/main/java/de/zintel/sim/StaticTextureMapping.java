@@ -36,7 +36,7 @@ import de.zintel.gfx.g2d.View2D;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.gfx.texture.ImageTexture;
 import de.zintel.gfx.texture.TxCrd;
-import de.zintel.math.Utils;
+import de.zintel.math.MathUtils;
 import de.zintel.utils.Processor;
 
 /**
@@ -326,7 +326,7 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 				mainStepperInfo.getStepper().next();
 
 				for (StepperInfo stepperInfo : stepperInfos) {
-					if (Utils.interpolateLinear(0, stepperInfo.getStepUnit().getMaxIterations(),
+					if (MathUtils.interpolateLinear(0, stepperInfo.getStepUnit().getMaxIterations(),
 							mainStepperInfo.getStepper().getCurrent().getIteration(),
 							mainStepperInfo.getStepper().getCurrent().getMaxIterations()) > stepperInfo.getStepUnit().getIteration()) {
 
