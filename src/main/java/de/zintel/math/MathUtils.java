@@ -137,8 +137,10 @@ public final class MathUtils {
 
 	}
 
-	public static <T> Set<Collection<T>> getClusters(final Collection<T> items, final Double meanMinDistance, final Double coefficient,
+	public static <T> Set<Collection<T>> getClusters(final Collection<T> items, final Double coefficientMeanMinDistance,
 			BiFunction<T, T, Double> distanceOp) {
+
+		final Double meanMinDistance = getMeanMinDistance(items, distanceOp);
 
 		final Set<Collection<T>> clusters = new HashSet<>();
 
@@ -160,7 +162,7 @@ public final class MathUtils {
 				final Queue<T> nonClassified = new LinkedList<>();
 				while ((remainingItem = remainingItems.poll()) != null) {
 
-					if (distanceOp.apply(parent, remainingItem) - coefficient * meanMinDistance <= 0) {
+					if (distanceOp.apply(parent, remainingItem) - coefficientMeanMinDistance * meanMinDistance <= 0) {
 						cluster.add(remainingItem);
 						parents.add(remainingItem);
 					} else {

@@ -363,8 +363,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 			final Collection<Boid> memberBoids = boids.stream().filter(boid -> boid.getType() == BoidType.MEMBER)
 					.collect(Collectors.toList());
 
-			final Double meanMinDistance = MathUtils.getMeanMinDistance(memberBoids, distanceOp);
-			final Set<Collection<Boid>> boidClusters = MathUtils.getClusters(memberBoids, meanMinDistance, 2.5, distanceOp);
+			final Set<Collection<Boid>> boidClusters = MathUtils.getClusters(memberBoids, 2.5, distanceOp);
 
 			// Visualize clusters
 			for (Collection<Boid> cluster : boidClusters) {
