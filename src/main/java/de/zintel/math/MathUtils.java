@@ -115,6 +115,14 @@ public final class MathUtils {
 		return collection.stream().collect(collector);
 	}
 
+	/**
+	 * calculates the mean minimal distance of all items depending on a
+	 * distance-operation.
+	 * 
+	 * @param items
+	 * @param distanceOp
+	 * @return
+	 */
 	public static <T> Double getMeanMinDistance(final Collection<T> items, BiFunction<T, T, Double> distanceOp) {
 
 		final Collection<Double> minDistances = new ArrayList<>(items.size());
@@ -137,6 +145,14 @@ public final class MathUtils {
 
 	}
 
+	/**
+	 * clustering. calculates clusters of items.
+	 * 
+	 * @param items
+	 * @param coefficientMeanMinDistance
+	 * @param distanceOp
+	 * @return
+	 */
 	public static <T> Set<Collection<T>> getClusters(final Collection<T> items, final Double coefficientMeanMinDistance,
 			BiFunction<T, T, Double> distanceOp) {
 
@@ -144,7 +160,7 @@ public final class MathUtils {
 
 		final Set<Collection<T>> clusters = new HashSet<>();
 
-		final Queue<T> remainingItems = new LinkedList<>(items);
+		Queue<T> remainingItems = new LinkedList<>(items);
 		T clusterItem = null;
 		while ((clusterItem = remainingItems.poll()) != null) {
 
@@ -159,18 +175,18 @@ public final class MathUtils {
 			T remainingItem = null;
 			while ((parent = parents.poll()) != null) {
 
-				final Queue<T> nonClassified = new LinkedList<>();
+				final Queue<T> nonClassifiedItems = new LinkedList<>();
 				while ((remainingItem = remainingItems.poll()) != null) {
 
 					if (distanceOp.apply(parent, remainingItem) - coefficientMeanMinDistance * meanMinDistance <= 0) {
 						cluster.add(remainingItem);
 						parents.add(remainingItem);
 					} else {
-						nonClassified.add(remainingItem);
+						nonClassifiedItems.add(remainingItem);
 					}
 				}
 
-				remainingItems.addAll(nonClassified);
+				remainingItems = nonClassifiedItems;
 			}
 		}
 
