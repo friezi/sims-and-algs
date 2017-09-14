@@ -78,6 +78,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 	private static final Color[] COLOR_PREDATOR = new Color[] { Color.RED, new Color(200, 0, 0) };
 
+	private static final Color COLOR_CLUSTERING = Color.GREEN.darker().darker().darker().darker().darker().darker();
+
 	private static final Color SHINE = Color.WHITE;
 
 	private static final int LEADER_SPEED = 3;
@@ -373,7 +375,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				while ((boid = queue.poll()) != null) {
 					for (Boid neighbour : queue) {
 						graphicsSubsystem.drawLine((int) boid.getPosition().x, (int) boid.getPosition().y, (int) neighbour.getPosition().x,
-								(int) neighbour.getPosition().y, Color.GREEN.darker());
+								(int) neighbour.getPosition().y, COLOR_CLUSTERING);
 					}
 				}
 			}
@@ -924,13 +926,10 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 			@Override
 			public String getValue() {
-				return "leader attraction: " + swarm.getLeaderAttraction() + "\n" + "boid speed: " + swarm.getBoidSpeed() + "\n"
-						+ "influence of separation: " + swarm.getInfluenceOfSeparation() + "\n" + "influence of alignment: "
-						+ swarm.getInfluenceOfAlignment() + "\n" + "cohesion: " + swarm.isUseCohesion() + "\n" + "separation: "
-						+ swarm.isUseSeparation() + "\n" + "panic: " + swarm.isUsePanic() + "\n" + "alignment: " + swarm.isUseAlignment()
-						+ "\n" + "public distance: " + swarm.getPublicDistance() + "\n" + "personal distance: "
-						+ swarm.getPersonalDistance() + "\n" + "predator distance: " + swarm.getPredatorDistance() + "\n" + "clustering: "
-						+ clustering;
+				return keyActions.entrySet()
+						.stream().filter(entry -> entry.getValue() != this).map(entry -> entry.getValue().text() + ": "
+								+ entry.getValue().getValue() + "  -> key: " + KeyEvent.getKeyText(entry.getKey()))
+						.collect(Collectors.joining("\n"));
 			}
 
 			@Override
