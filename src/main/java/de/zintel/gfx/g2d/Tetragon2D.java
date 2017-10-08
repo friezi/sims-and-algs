@@ -3,7 +3,6 @@
  */
 package de.zintel.gfx.g2d;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -21,27 +20,6 @@ import de.zintel.utils.Processor;
  *
  */
 public class Tetragon2D implements IObject2D {
-
-	private static class ColorRate {
-
-		private final Color color;
-
-		private final double rate;
-
-		public ColorRate(Color color, double rate) {
-			this.color = color;
-			this.rate = rate;
-		}
-
-		public Color getColor() {
-			return color;
-		}
-
-		public double getRate() {
-			return rate;
-		}
-
-	}
 
 	private final Point p11;
 
@@ -65,18 +43,16 @@ public class Tetragon2D implements IObject2D {
 
 	private final Point t22;
 
-	private final int aaDim;
-
 	public Tetragon2D(Pin2D pin11, Pin2D pin12, Pin2D pin21, Pin2D pin22, ITexture texture) {
 		this(pin11, pin12, pin21, pin22, texture, (x, max) -> {
 			return x;
-		} , EAntialiasing.NONE);
+		}, EAntialiasing.NONE);
 	}
 
 	public Tetragon2D(Pin2D pin11, Pin2D pin12, Pin2D pin21, Pin2D pin22, ITexture texture, EAntialiasing antialiasing) {
 		this(pin11, pin12, pin21, pin22, texture, (x, max) -> {
 			return x;
-		} , antialiasing);
+		}, antialiasing);
 	}
 
 	public Tetragon2D(Pin2D pin11, Pin2D pin12, Pin2D pin21, Pin2D pin22, ITexture texture, StepProjection stepProjection,
@@ -89,16 +65,6 @@ public class Tetragon2D implements IObject2D {
 		this.texture = texture;
 		this.stepProjection = stepProjection;
 		this.antialiasing = antialiasing;
-
-		if (antialiasing == EAntialiasing.NONE) {
-			aaDim = 1;
-		} else if (antialiasing == EAntialiasing.BILINEAR_1) {
-			aaDim = 2;
-		} else if (antialiasing == EAntialiasing.BILINEAR_2) {
-			aaDim = 3;
-		} else {
-			aaDim = 1;
-		}
 
 		this.t11 = new Point(mkTxIdx(pin11), mkTyIdx(pin11));
 		this.t12 = new Point(mkTxIdx(pin12), mkTyIdx(pin12));
@@ -166,7 +132,8 @@ public class Tetragon2D implements IObject2D {
 				 * nächste Step berechnet.
 				 */
 				IterationUnit2D eItUnit = eITP.getCurrent();
-				if ((eItUnit == null || MathUtils.interpolateLinear(0, eItUnit.getMaxIterations(), sStep, sStepMax) > eItUnit.getIteration())
+				if ((eItUnit == null
+						|| MathUtils.interpolateLinear(0, eItUnit.getMaxIterations(), sStep, sStepMax) > eItUnit.getIteration())
 						&& eITP.hasNext()) {
 					ePoints.clear();
 					while ((eItUnit == null
@@ -189,90 +156,22 @@ public class Tetragon2D implements IObject2D {
 					new Processor<IterationUnit2D>(new AlternateLinearPointInterpolater2D(sPoint, ePoint, true),
 							new Consumer<IterationUnit2D>() {
 
-						double previousTx = -1;
-						double previousTy = -1;
+								@Override
+								public void accept(IterationUnit2D itUnit) {
 
-						@Override
-						public void accept(IterationUnit2D itUnit) {
+									int it = itUnit.getIteration();
+									int itMax = itUnit.getMaxIterations();
+									Point linepoint = itUnit.getPoint();
 
-							int it = itUnit.getIteration();
-							int itMax = itUnit.getMaxIterations();
-							Point linepoint = itUnit.getPoint();
+									double tx = MathUtils.interpolateReal(sTx, eTx, it, itMax, stepProjection);
+									double ty = MathUtils.interpolateReal(sTy, eTy, it, itMax, stepProjection);
 
-							double tx = MathUtils.interpolateReal(sTx, eTx, it, itMax, stepProjection);
-							double ty = MathUtils.interpolateReal(sTy, eTy, it, itMax, stepProjection);
+									graphics.setColor(texture.getColor(tx, ty));
+									graphics.drawLine(linepoint.x + point.x, linepoint.y + point.y, linepoint.x + point.x,
+											linepoint.y + point.y);
 
-							Collection<ColorRate> colorRates = new ArrayList<ColorRate>(3);
-
-							int total = aaDim;
-//
-//							if (previousTx >= 0 && previousTx < tx - 1 || previousTy >= 0 && previousTy < ty - 1) {
-//
-//								if (previousTx >= 0 && previousTx < tx - 1) {
-//									total += (tx - previousTx) + 1;
-//								}
-//
-//								if (previousTy >= 0 && previousTy < ty - 1) {
-//									total += (ty - previousTy) + 1;
-//								}
-//
-//								double rate = 1.0 / total;
-//								if (previousTx >= 0 && previousTx < tx - 1) {
-//									for (int i = (int) previousTx + 1; i <= tx; i++) {
-//										colorRates.add(new ColorRate(texture.getColor(i, (int) ty), rate));
-//									}
-//								}
-//								if (previousTy >= 0 && previousTy < ty - 1) {
-//									for (int i = (int) previousTy + 1; i <= ty; i++) {
-//										colorRates.add(new ColorRate(texture.getColor((int) tx, i), rate));
-//									}
-//								}
-//							}
-
-							double dTx = tx - Math.floor(tx);
-							double dTy = ty - Math.floor(ty);
-							double colorPortion = 1;
-							if (antialiasing == EAntialiasing.BILINEAR_1) {
-								colorPortion = (1 - dTx) + (1 - dTy);
-							} else if (antialiasing == EAntialiasing.BILINEAR_2) {
-								colorPortion = (1 - dTx) + (1 - dTy) + ((1 - dTx) + (1 - dTy)) / 2;
-							}
-							colorRates.add(new ColorRate(texture.getColor((int) tx, (int) ty), colorPortion / total));
-
-							if (antialiasing == EAntialiasing.BILINEAR_1 || antialiasing == EAntialiasing.BILINEAR_2) {
-								if (dTx > 0 && tx < texture.getWidth() - 1) {
-									colorRates.add(new ColorRate(texture.getColor((int) tx + 1, (int) ty), dTx / total));
 								}
-								if (dTy > 0 && ty < texture.getHeight() - 1) {
-									colorRates.add(new ColorRate(texture.getColor((int) tx, (int) ty + 1), dTy / total));
-								}
-							}
-							if (antialiasing == EAntialiasing.BILINEAR_2) {
-								if (dTx > 0 && tx < texture.getWidth() - 1 && dTy > 0 && ty < texture.getHeight() - 1) {
-									colorRates.add(new ColorRate(texture.getColor((int) tx + 1, (int) ty + 1), (dTx + dTy) / (2 * total)));
-								}
-							}
-
-							double red, green, blue;
-							red = green = blue = 0;
-							for (ColorRate colorRate : colorRates) {
-
-								red += colorRate.getColor().getRed() * colorRate.getRate();
-								green += colorRate.getColor().getGreen() * colorRate.getRate();
-								blue += colorRate.getColor().getBlue() * colorRate.getRate();
-
-							}
-
-							// System.out.println("red" + red + " green " +
-							// green + " blue " + blue);
-							graphics.setColor(new Color((int) red, (int) green, (int) blue));
-							graphics.drawLine(linepoint.x + point.x, linepoint.y + point.y, linepoint.x + point.x, linepoint.y + point.y);
-
-							previousTx = tx;
-							previousTy = ty;
-
-						}
-					}).iterate();
+							}).iterate();
 				}
 			}
 		}).iterate();

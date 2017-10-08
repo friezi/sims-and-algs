@@ -106,8 +106,8 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 		}
 
 		@Override
-		public Color getColor(int x, int y) {
-			return colors[x][y];
+		public Color getColor(double x, double y) {
+			return colors[(int) x][(int) y];
 		}
 
 	}
@@ -229,7 +229,7 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 	}
 
 	private void makeImageTexture() throws IOException {
-		texture = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse.jpg"));
+		texture = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse.jpg"), false);
 
 	}
 

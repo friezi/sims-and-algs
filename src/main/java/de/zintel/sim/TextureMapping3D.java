@@ -83,7 +83,7 @@ public class TextureMapping3D extends JPanel implements MouseListener, ActionLis
 
 	private void initGraphicalObjects() throws IOException {
 
-		ITexture texture = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/goethe.jpg"));
+		ITexture texture = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/goethe.jpg"), false);
 
 		component = new Component3D();
 
@@ -128,47 +128,39 @@ public class TextureMapping3D extends JPanel implements MouseListener, ActionLis
 				new Pin3D(new Point3D(texture.getHeight(), texture.getHeight(), texture.getWidth() + 1), new TxCrd(0, 1)),
 				new Pin3D(new Point3D(0, texture.getHeight(), 2 * texture.getWidth()), new TxCrd(0, 0)),
 				new Pin3D(new Point3D(texture.getHeight(), texture.getHeight(), 2 * texture.getWidth()), new TxCrd(1, 0)), texture));
+		house.add(new Tetragon3D(new Pin3D(new Point3D(0, texture.getHeight(), 0), new TxCrd(0.8, 0.6)),
+				new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), 0), new TxCrd(0.6, 0.8)),
+				new Pin3D(new Point3D(0, texture.getHeight(), texture.getWidth()), new TxCrd(0.2, 0.4)),
+				new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), texture.getWidth()),
+						new TxCrd(0.4, 0.2)),
+				texture));
 		house.add(
 				new Tetragon3D(
 						new Pin3D(
 								new Point3D(
 										0, texture
 												.getHeight(),
-										0),
-								new TxCrd(0.8, 0.6)),
-						new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), 0), new TxCrd(0.6, 0.8)),
-						new Pin3D(new Point3D(0, texture.getHeight(), texture.getWidth()), new TxCrd(0.2, 0.4)),
-						new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), texture.getWidth()),
-								new TxCrd(0.4, 0.2)),
-						texture));
-		house.add(
-				new Tetragon3D(
-						new Pin3D(
-								new Point3D(0, texture.getHeight(),
 										texture.getWidth()
 												+ 1),
 								new TxCrd(1, 1.5)),
 						new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), texture.getWidth() + 1),
 								new TxCrd(5.3, 3.2)),
-				new Pin3D(new Point3D(0, texture.getHeight(), 2 * texture.getWidth()), new TxCrd(1.8, 8.1)),
-				new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), 2 * texture.getWidth()),
-						new TxCrd(0.1, 1.2)), texture));
-		house.add(
-				new Tetragon3D(new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), 0), new TxCrd(0.9, 0.4)),
-						new Pin3D(new Point3D(texture.getHeight(), texture.getHeight(), 0), new TxCrd(0.2, 0.5)),
-						new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), texture.getWidth()),
-								new TxCrd(0.7, 0.3)),
-				new Pin3D(new Point3D(texture.getHeight(), texture.getHeight(), texture.getWidth()), new TxCrd(0.6, 0.1)), texture));
-		house.add(
-				new Tetragon3D(
-						new Pin3D(
-								new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2),
-										texture.getWidth()
-												+ 1),
-								new TxCrd(1, 1)),
-						new Pin3D(new Point3D(texture.getHeight(), texture.getHeight(), texture.getWidth() + 1), new TxCrd(0, 0)),
+						new Pin3D(new Point3D(0, texture.getHeight(), 2 * texture.getWidth()), new TxCrd(1.8, 8.1)),
 						new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), 2 * texture.getWidth()),
-								new TxCrd(1, 0)),
+								new TxCrd(0.1, 1.2)),
+						texture));
+		house.add(new Tetragon3D(
+				new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), 0), new TxCrd(0.9, 0.4)),
+				new Pin3D(new Point3D(texture.getHeight(), texture.getHeight(), 0), new TxCrd(0.2, 0.5)),
+				new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), texture.getWidth()),
+						new TxCrd(0.7, 0.3)),
+				new Pin3D(new Point3D(texture.getHeight(), texture.getHeight(), texture.getWidth()), new TxCrd(0.6, 0.1)), texture));
+		house.add(new Tetragon3D(
+				new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), texture.getWidth() + 1),
+						new TxCrd(1, 1)),
+				new Pin3D(new Point3D(texture.getHeight(), texture.getHeight(), texture.getWidth() + 1), new TxCrd(0, 0)),
+				new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), 2 * texture.getWidth()),
+						new TxCrd(1, 0)),
 				new Pin3D(new Point3D(texture.getHeight(), texture.getHeight(), 2 * texture.getWidth()), new TxCrd(1, 1)), texture));
 
 		return house;
