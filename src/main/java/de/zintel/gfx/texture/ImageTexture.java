@@ -11,6 +11,8 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
+import de.zintel.gfx.ESmoothing;
+
 /**
  * @author Friedemann
  *
@@ -19,19 +21,19 @@ public class ImageTexture implements ITexture {
 
 	private final BufferedImage image;
 
-	private final boolean colorInterpolation;
+	private final ESmoothing smoothing;
 
-	public ImageTexture(BufferedImage image, boolean colorInterpolation) {
+	public ImageTexture(BufferedImage image, ESmoothing smoothing) {
 		this.image = image;
-		this.colorInterpolation = colorInterpolation;
+		this.smoothing = smoothing;
 	}
 
-	public ImageTexture(final String path, boolean colorInterpolation) throws IOException {
-		this(ImageIO.read(new File(path)), colorInterpolation);
+	public ImageTexture(final String path, ESmoothing smoothing) throws IOException {
+		this(ImageIO.read(new File(path)), smoothing);
 	}
 
-	public ImageTexture(final InputStream is, boolean colorInterpolation) throws IOException {
-		this(ImageIO.read(is), colorInterpolation);
+	public ImageTexture(final InputStream is, ESmoothing smoothing) throws IOException {
+		this(ImageIO.read(is), smoothing);
 	}
 
 	/*
@@ -64,29 +66,61 @@ public class ImageTexture implements ITexture {
 
 		final int ix = (int) x;
 		final int iy = (int) y;
-		if (!colorInterpolation || (ix == image.getWidth() - 1 || iy == image.getHeight() - 1)) {
+		if (smoothing == ESmoothing.NONE) {
 			return new Color(image.getRGB(ix, iy));
+		} else if (smoothing == ESmoothing.COL_IPOL) {
+
+			if (ix == image.getWidth() - 1 && iy == image.getHeight() - 1) {
+				return new Color(image.getRGB(ix, iy));
+			} else if (ix == image.getWidth() - 1) {
+
+				double dx = x - Math.floor(x);
+
+				Color ul = new Color(image.getRGB(ix, iy));
+				Color dl = new Color(image.getRGB(ix, iy + 1));
+
+				return new Color(interpolateColor(ul.getRed(), dl.getRed(), dx), interpolateColor(ul.getGreen(), dl.getGreen(), dx),
+						interpolateColor(ul.getBlue(), dl.getBlue(), dx));
+
+			} else if (iy == image.getHeight() - 1) {
+
+				double dy = y - Math.floor(y);
+
+				Color ul = new Color(image.getRGB(ix, iy));
+				Color ur = new Color(image.getRGB(ix + 1, iy));
+
+				return new Color(interpolateColor(ul.getRed(), ur.getRed(), dy), interpolateColor(ul.getGreen(), ur.getGreen(), dy),
+						interpolateColor(ul.getBlue(), ur.getBlue(), dy));
+
+			} else {
+
+				double dx = x - Math.floor(x);
+				double dy = y - Math.floor(y);
+
+				Color ul = new Color(image.getRGB(ix, iy));
+				Color ur = new Color(image.getRGB(ix + 1, iy));
+				Color dl = new Color(image.getRGB(ix, iy + 1));
+				Color dr = new Color(image.getRGB(ix + 1, iy + 1));
+
+				return new Color(interpolateColor(ul.getRed(), ur.getRed(), dl.getRed(), dr.getRed(), dx, dy),
+						interpolateColor(ul.getGreen(), ur.getGreen(), dl.getGreen(), dr.getGreen(), dx, dy),
+						interpolateColor(ul.getBlue(), ur.getBlue(), dl.getBlue(), dr.getBlue(), dx, dy));
+
+			}
+
 		} else {
-
-			double dx = x - Math.floor(x);
-			double dy = y - Math.floor(y);
-
-			Color c1 = new Color(image.getRGB(ix, iy));
-			Color c2 = new Color(image.getRGB(ix + 1, iy));
-			Color c3 = new Color(image.getRGB(ix, iy + 1));
-			Color c4 = new Color(image.getRGB(ix + 1, iy + 1));
-
-			return new Color(interpolateColor(c1.getRed(), c2.getRed(), c3.getRed(), c4.getRed(), dx, dy),
-					interpolateColor(c1.getGreen(), c2.getGreen(), c3.getGreen(), c4.getGreen(), dx, dy),
-					interpolateColor(c1.getBlue(), c2.getBlue(), c3.getBlue(), c4.getBlue(), dx, dy));
-
+			throw new RuntimeException("unsupported smothing: '" + smoothing + "'");
 		}
 	}
 
-	private int interpolateColor(double v1, double v2, double v3, double v4, double dx, double dy) {
+	private int interpolateColor(double from, double to, double dx) {
+		return (int) ((1 - dx) * from + dx * to);
+	}
+
+	private int interpolateColor(double ul, double ur, double dl, double dr, double dx, double dy) {
 		final double dualdx = 1 - dx;
 		final double dualdy = 1 - dy;
-		return (int) (dualdx * dualdy * v1 + dualdy * dx * v2 + dualdx * dy * v3 + dx * dy * v4);
+		return (int) (dualdx * dualdy * ul + dualdy * dx * ur + dualdx * dy * dl + dx * dy * dr);
 	}
 
 }

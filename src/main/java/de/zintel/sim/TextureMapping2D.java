@@ -25,14 +25,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import de.zintel.gfx.EAntialiasing;
+import de.zintel.gfx.ESmoothing;
 import de.zintel.gfx.Koordination;
-import de.zintel.gfx.g2d.LinearPointInterpolater2D;
-import de.zintel.gfx.g2d.Pin2D;
 import de.zintel.gfx.g2d.APointInterpolater2D;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
 import de.zintel.gfx.g2d.IterationUnit2D;
-import de.zintel.gfx.g2d.Tetragon2D;
+import de.zintel.gfx.g2d.LinearPointInterpolater2D;
+import de.zintel.gfx.g2d.Pin2D;
 import de.zintel.gfx.g2d.Tetragon2D;
 import de.zintel.gfx.g2d.View2D;
 import de.zintel.gfx.texture.ITexture;
@@ -229,7 +228,7 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 	}
 
 	private void makeImageTexture() throws IOException {
-		texture = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse.jpg"), false);
+		texture = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse.jpg"), ESmoothing.COL_IPOL);
 
 	}
 
@@ -446,8 +445,8 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 	private void renderTextured(Graphics graphics) {
 
 		new Tetragon2D(new Pin2D(p11.getPoint(), new TxCrd(0, 1)), new Pin2D(p12.getPoint(), new TxCrd(0, 0)),
-				new Pin2D(p21.getPoint(), new TxCrd(1, 1)), new Pin2D(p22.getPoint(), new TxCrd(1, 0)), texture, EAntialiasing.BILINEAR_1)
-						.draw(new Point(0, 0), graphics);
+				new Pin2D(p21.getPoint(), new TxCrd(1, 1)), new Pin2D(p22.getPoint(), new TxCrd(1, 0)), texture).draw(new Point(0, 0),
+						graphics);
 	}
 
 	private int minDark(final int colorValue) {

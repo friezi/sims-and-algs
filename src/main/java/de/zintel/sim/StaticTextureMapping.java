@@ -11,26 +11,22 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import de.zintel.gfx.EAntialiasing;
+import de.zintel.gfx.ESmoothing;
 import de.zintel.gfx.Koordination;
+import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.LinearPointInterpolater2D;
 import de.zintel.gfx.g2d.Pin2D;
-import de.zintel.gfx.g2d.IterationUnit2D;
-import de.zintel.gfx.g2d.Tetragon2D;
 import de.zintel.gfx.g2d.Tetragon2D;
 import de.zintel.gfx.g2d.View2D;
 import de.zintel.gfx.texture.ITexture;
@@ -56,28 +52,6 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 	private static final boolean SCALE_BRIGHTNESS = false;
 
 	private static final View2D VIEW = new View2D(koordination.HEIGHT, koordination.XNULL, koordination.YNULL);
-
-	private static class ColorPoint {
-
-		private final Point point;
-
-		private final Color color;
-
-		public ColorPoint(Point point, Color color) {
-			super();
-			this.point = point;
-			this.color = color;
-		}
-
-		public Point getPoint() {
-			return point;
-		}
-
-		public Color getColor() {
-			return color;
-		}
-
-	}
 
 	private static final class SimpleTexture implements ITexture {
 
@@ -228,8 +202,10 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 	}
 
 	private void makeImageTexture() throws IOException {
-		texture_noninterpolated = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"), false);
-		texture_interpolated = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"), true);
+		texture_noninterpolated = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"),
+				ESmoothing.NONE);
+		texture_interpolated = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"),
+				ESmoothing.COL_IPOL);
 	}
 
 	private void drawTexture(Graphics g) {
@@ -367,37 +343,51 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 
 		int factor = 8;
 
-		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)), new Pin2D(new Point(0, texture_noninterpolated.getHeight() * factor), new TxCrd(0, 1)),
+		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)),
+				new Pin2D(new Point(0, texture_noninterpolated.getHeight() * factor), new TxCrd(0, 1)),
 				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, 0), new TxCrd(1, 0)),
-				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, texture_noninterpolated.getHeight() * factor), new TxCrd(1, 1)), texture_noninterpolated,
-				EAntialiasing.NONE).draw(new Point(texture_noninterpolated.getWidth() + 10, 0), graphics);
+				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, texture_noninterpolated.getHeight() * factor),
+						new TxCrd(1, 1)),
+				texture_noninterpolated).draw(new Point(texture_noninterpolated.getWidth() + 10, 0), graphics);
 
-		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)), new Pin2D(new Point(0, texture_interpolated.getHeight() * factor), new TxCrd(0, 1)),
+		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)),
+				new Pin2D(new Point(0, texture_interpolated.getHeight() * factor), new TxCrd(0, 1)),
 				new Pin2D(new Point(texture_interpolated.getWidth() * factor, 0), new TxCrd(1, 0)),
-				new Pin2D(new Point(texture_interpolated.getWidth() * factor, texture_interpolated.getHeight() * factor), new TxCrd(1, 1)), texture_interpolated,
-				EAntialiasing.NONE).draw(new Point(texture_interpolated.getWidth() * factor + 60, 0), graphics);
+				new Pin2D(new Point(texture_interpolated.getWidth() * factor, texture_interpolated.getHeight() * factor), new TxCrd(1, 1)),
+				texture_interpolated).draw(new Point(texture_interpolated.getWidth() * factor + 60, 0), graphics);
 
-		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 1)), new Pin2D(new Point(0, texture_noninterpolated.getHeight() * factor), new TxCrd(0, 0)),
+		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 1)),
+				new Pin2D(new Point(0, texture_noninterpolated.getHeight() * factor), new TxCrd(0, 0)),
 				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, 0), new TxCrd(1, 1)),
-				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, texture_noninterpolated.getHeight() * factor), new TxCrd(1, 0)), texture_noninterpolated,
-				EAntialiasing.BILINEAR_2).draw(new Point(2 * texture_noninterpolated.getWidth() * factor + 60, 0),
+				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, texture_noninterpolated.getHeight() * factor),
+						new TxCrd(1, 0)),
+				texture_noninterpolated).draw(new Point(2 * texture_noninterpolated.getWidth() * factor + 60, 0), graphics);
+
+		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)),
+				new Pin2D(new Point(0, texture_noninterpolated.getHeight() * factor), new TxCrd(0, 1)),
+				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, 0), new TxCrd(1, 0)),
+				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, texture_noninterpolated.getHeight() * factor),
+						new TxCrd(1, 1)),
+				texture_noninterpolated).draw(
+						new Point(texture_noninterpolated.getWidth() * factor + 60, texture_noninterpolated.getHeight() * factor + 10),
 						graphics);
 
-		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)), new Pin2D(new Point(0, texture_noninterpolated.getHeight() * factor), new TxCrd(0, 1)),
+		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)),
+				new Pin2D(new Point(0, texture_noninterpolated.getHeight() * factor), new TxCrd(0, 1)),
 				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, 0), new TxCrd(1, 0)),
-				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, texture_noninterpolated.getHeight() * factor), new TxCrd(1, 1)), texture_noninterpolated,
-				EAntialiasing.BILINEAR_1).draw(new Point(texture_noninterpolated.getWidth() * factor + 60, texture_noninterpolated.getHeight() * factor + 10), graphics);
+				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, texture_noninterpolated.getHeight() * factor),
+						new TxCrd(1, 1)),
+				texture_noninterpolated).draw(
+						new Point(2 * texture_noninterpolated.getWidth() * factor + 60, texture_noninterpolated.getHeight() * factor + 10),
+						graphics);
 
-		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)), new Pin2D(new Point(0, texture_noninterpolated.getHeight() * factor), new TxCrd(0, 1)),
-				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, 0), new TxCrd(1, 0)),
-				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, texture_noninterpolated.getHeight() * factor), new TxCrd(1, 1)), texture_noninterpolated,
-				EAntialiasing.BILINEAR_2).draw(new Point(2 * texture_noninterpolated.getWidth() * factor + 60, texture_noninterpolated.getHeight() * factor + 10), graphics);
-
-		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)), new Pin2D(new Point(0, texture_noninterpolated.getHeight() * factor), new TxCrd(0, 1)),
-				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, 0), new TxCrd(1, 0)),
-				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, texture_noninterpolated.getHeight() * factor), new TxCrd(1, 1)), texture_noninterpolated, (x, max) -> {
+		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)),
+				new Pin2D(new Point(0, texture_interpolated.getHeight() * factor), new TxCrd(0, 1)),
+				new Pin2D(new Point(texture_interpolated.getWidth() * factor, 0), new TxCrd(1, 0)),
+				new Pin2D(new Point(texture_interpolated.getWidth() * factor, texture_interpolated.getHeight() * factor), new TxCrd(1, 1)),
+				texture_interpolated, (x, max) -> {
 					return x + (x < max / 2 ? -1 : 1) * 100 * Math.sin((x * Math.PI) / max) * Math.cos((x * Math.PI) / max);
-				}, EAntialiasing.BILINEAR_2).draw(new Point(0, texture_noninterpolated.getHeight() * factor + 10), graphics);
+				}).draw(new Point(0, texture_interpolated.getHeight() * factor + 10), graphics);
 	}
 
 	@Override

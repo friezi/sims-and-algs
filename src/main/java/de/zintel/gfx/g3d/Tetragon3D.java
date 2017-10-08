@@ -10,11 +10,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import de.zintel.gfx.EAntialiasing;
 import de.zintel.gfx.color.CUtils;
+import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.LinearPointInterpolater2D;
 import de.zintel.gfx.g2d.Pin2D;
-import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.Tetragon2D;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.math.MathUtils;
@@ -115,8 +114,8 @@ public class Tetragon3D implements IObject3D {
 			// Endrand interpolieren
 			Processor<StepUnit3D> eITP = new Processor<StepUnit3D>(new LinearPointInterpolater3D(eP1.add(point), eP2.add(point), true),
 					stepUnit -> {
-				ePoints.add(stepUnit.getPoint());
-			}) {
+						ePoints.add(stepUnit.getPoint());
+					}) {
 				{
 					if (this.hasNext()) {
 						this.next();
@@ -181,24 +180,25 @@ public class Tetragon3D implements IObject3D {
 								new Processor<IterationUnit2D>(new LinearPointInterpolater2D(lastpoint, planePoint, true),
 										new Consumer<IterationUnit2D>() {
 
-									@Override
-									public void accept(IterationUnit2D stepUnit2D) {
+											@Override
+											public void accept(IterationUnit2D stepUnit2D) {
 
-										int step2D = stepUnit2D.getIteration();
-										if (step2D == 0) {
-											// der ist bereits
-											// gezeichnet
-											return;
-										}
+												int step2D = stepUnit2D.getIteration();
+												if (step2D == 0) {
+													// der ist bereits
+													// gezeichnet
+													return;
+												}
 
-										int stepMax2D = stepUnit2D.getMaxIterations();
-										Point iPoint = stepUnit2D.getPoint();
-										graphics.setColor(texture.getColor(MathUtils.interpolateLinear(lastTx, tx, step2D, stepMax2D),
-												MathUtils.interpolateLinear(lastTy, ty, step2D, stepMax2D)));
-										graphics.drawLine(iPoint.x, iPoint.y, iPoint.x, iPoint.y);
+												int stepMax2D = stepUnit2D.getMaxIterations();
+												Point iPoint = stepUnit2D.getPoint();
+												graphics.setColor(
+														texture.getColor(MathUtils.interpolateLinear(lastTx, tx, step2D, stepMax2D),
+																MathUtils.interpolateLinear(lastTy, ty, step2D, stepMax2D)));
+												graphics.drawLine(iPoint.x, iPoint.y, iPoint.x, iPoint.y);
 
-									}
-								}).iterate();
+											}
+										}).iterate();
 							}
 
 							lastpoint = planePoint;
@@ -216,8 +216,8 @@ public class Tetragon3D implements IObject3D {
 		new Tetragon2D(new Pin2D(view.getProjector().project(p11.point.add(view.getNullpoint()).add(point)), p11.txCrd),
 				new Pin2D(view.getProjector().project(p12.point.add(view.getNullpoint()).add(point)), p12.txCrd),
 				new Pin2D(view.getProjector().project(p21.point.add(view.getNullpoint()).add(point)), p21.txCrd),
-				new Pin2D(view.getProjector().project(p22.point.add(view.getNullpoint()).add(point)), p22.txCrd), texture,
-				EAntialiasing.BILINEAR_2).draw(new Point(0, 0), graphics);
+				new Pin2D(view.getProjector().project(p22.point.add(view.getNullpoint()).add(point)), p22.txCrd), texture)
+						.draw(new Point(0, 0), graphics);
 
 	}
 

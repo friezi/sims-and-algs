@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import de.zintel.gfx.EAntialiasing;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.math.MathUtils;
 import de.zintel.math.MathUtils.StepProjection;
@@ -33,8 +32,6 @@ public class Tetragon2D implements IObject2D {
 
 	private final StepProjection stepProjection;
 
-	private final EAntialiasing antialiasing;
-
 	private final Point t11;
 
 	private final Point t12;
@@ -46,17 +43,10 @@ public class Tetragon2D implements IObject2D {
 	public Tetragon2D(Pin2D pin11, Pin2D pin12, Pin2D pin21, Pin2D pin22, ITexture texture) {
 		this(pin11, pin12, pin21, pin22, texture, (x, max) -> {
 			return x;
-		}, EAntialiasing.NONE);
+		});
 	}
 
-	public Tetragon2D(Pin2D pin11, Pin2D pin12, Pin2D pin21, Pin2D pin22, ITexture texture, EAntialiasing antialiasing) {
-		this(pin11, pin12, pin21, pin22, texture, (x, max) -> {
-			return x;
-		}, antialiasing);
-	}
-
-	public Tetragon2D(Pin2D pin11, Pin2D pin12, Pin2D pin21, Pin2D pin22, ITexture texture, StepProjection stepProjection,
-			EAntialiasing antialiasing) {
+	public Tetragon2D(Pin2D pin11, Pin2D pin12, Pin2D pin21, Pin2D pin22, ITexture texture, StepProjection stepProjection) {
 		super();
 		this.p11 = pin11.point;
 		this.p12 = pin12.point;
@@ -64,7 +54,6 @@ public class Tetragon2D implements IObject2D {
 		this.p22 = pin22.point;
 		this.texture = texture;
 		this.stepProjection = stepProjection;
-		this.antialiasing = antialiasing;
 
 		this.t11 = new Point(mkTxIdx(pin11), mkTyIdx(pin11));
 		this.t12 = new Point(mkTxIdx(pin12), mkTyIdx(pin12));
