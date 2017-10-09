@@ -22,7 +22,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import de.zintel.gfx.ESmoothing;
 import de.zintel.gfx.Koordination;
 import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.LinearPointInterpolater2D;
@@ -31,6 +30,7 @@ import de.zintel.gfx.g2d.Tetragon2D;
 import de.zintel.gfx.g2d.View2D;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.gfx.texture.ImageTexture;
+import de.zintel.gfx.texture.SmoothingFilter;
 import de.zintel.gfx.texture.TxCrd;
 import de.zintel.math.MathUtils;
 import de.zintel.utils.Processor;
@@ -202,10 +202,9 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 	}
 
 	private void makeImageTexture() throws IOException {
-		texture_noninterpolated = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"),
-				ESmoothing.NONE);
-		texture_interpolated = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"),
-				ESmoothing.COL_IPOL);
+		texture_noninterpolated = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"));
+		texture_interpolated = new SmoothingFilter(
+				new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg")));
 	}
 
 	private void drawTexture(Graphics g) {

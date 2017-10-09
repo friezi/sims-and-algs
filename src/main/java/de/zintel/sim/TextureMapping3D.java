@@ -16,7 +16,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import de.zintel.gfx.ESmoothing;
 import de.zintel.gfx.Koordination;
 import de.zintel.gfx.g3d.Component3D;
 import de.zintel.gfx.g3d.Line3D;
@@ -28,6 +27,7 @@ import de.zintel.gfx.g3d.Triangle3D;
 import de.zintel.gfx.g3d.View3D;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.gfx.texture.ImageTexture;
+import de.zintel.gfx.texture.SmoothingFilter;
 import de.zintel.gfx.texture.TxCrd;
 
 /**
@@ -84,7 +84,7 @@ public class TextureMapping3D extends JPanel implements MouseListener, ActionLis
 
 	private void initGraphicalObjects() throws IOException {
 
-		ITexture texture = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/goethe.jpg"), ESmoothing.COL_IPOL);
+		ITexture texture = new SmoothingFilter(new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/goethe.jpg")));
 
 		component = new Component3D();
 
