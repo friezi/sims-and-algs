@@ -7,11 +7,11 @@ package de.zintel.gfx.texture;
  * @author friedemann.zintel
  *
  */
-public abstract class FilteredTexture implements ITexture {
+public abstract class AFilteredTexture implements ITexture {
 
 	private final ITexture texture;
 
-	public FilteredTexture(ITexture texture) {
+	public AFilteredTexture(ITexture texture) {
 		this.texture = texture;
 	}
 

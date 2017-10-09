@@ -9,7 +9,7 @@ import java.awt.Color;
  * @author friedemann.zintel
  *
  */
-public class SmoothingFilter extends FilteredTexture {
+public class SmoothingFilter extends AFilteredTexture {
 
 	/**
 	 * @param texture
