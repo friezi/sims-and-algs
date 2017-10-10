@@ -926,9 +926,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 			@Override
 			public String getValue() {
-				return keyActions.entrySet()
-						.stream().filter(entry -> entry.getValue() != this).map(entry -> entry.getValue().text() + ": "
-								+ entry.getValue().getValue() + "  -> key: " + KeyEvent.getKeyText(entry.getKey()))
+				return keyActions.entrySet().stream().filter(entry -> entry.getValue() != this).map(
+						entry -> KeyEvent.getKeyText(entry.getKey()) + ": " + entry.getValue().text() + ": " + entry.getValue().getValue())
 						.collect(Collectors.joining("\n"));
 			}
 
