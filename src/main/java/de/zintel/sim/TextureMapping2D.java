@@ -35,7 +35,7 @@ import de.zintel.gfx.g2d.Tetragon2D;
 import de.zintel.gfx.g2d.View2D;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.gfx.texture.ImageTexture;
-import de.zintel.gfx.texture.SmoothingFilter;
+import de.zintel.gfx.texture.BilinearFilter;
 import de.zintel.gfx.texture.TxCrd;
 import de.zintel.math.MathUtils;
 import de.zintel.utils.Processor;
@@ -228,7 +228,7 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 	}
 
 	private void makeImageTexture() throws IOException {
-		texture = new SmoothingFilter(new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse.jpg")));
+		texture = new BilinearFilter(new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse.jpg")));
 
 	}
 

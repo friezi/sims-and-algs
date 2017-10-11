@@ -193,4 +193,8 @@ public final class MathUtils {
 		return clusters;
 	}
 
+	public static boolean isSet(final long bitmask, final int bit) {
+		return ((bitmask >> bit) & 1L) == 1L;
+	}
+
 }

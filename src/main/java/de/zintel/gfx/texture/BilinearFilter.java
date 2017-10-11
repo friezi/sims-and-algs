@@ -9,12 +9,12 @@ import java.awt.Color;
  * @author friedemann.zintel
  *
  */
-public class SmoothingFilter extends AFilteredTexture {
+public class BilinearFilter extends AFilteredTexture {
 
 	/**
 	 * @param texture
 	 */
-	public SmoothingFilter(ITexture texture) {
+	public BilinearFilter(ITexture texture) {
 		super(texture);
 	}
 

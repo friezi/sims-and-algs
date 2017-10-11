@@ -27,7 +27,7 @@ import de.zintel.gfx.g3d.Triangle3D;
 import de.zintel.gfx.g3d.View3D;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.gfx.texture.ImageTexture;
-import de.zintel.gfx.texture.SmoothingFilter;
+import de.zintel.gfx.texture.BilinearFilter;
 import de.zintel.gfx.texture.TxCrd;
 
 /**
@@ -84,7 +84,7 @@ public class TextureMapping3D extends JPanel implements MouseListener, ActionLis
 
 	private void initGraphicalObjects() throws IOException {
 
-		ITexture texture = new SmoothingFilter(new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/goethe.jpg")));
+		ITexture texture = new BilinearFilter(new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/goethe.jpg")));
 
 		component = new Component3D();
 

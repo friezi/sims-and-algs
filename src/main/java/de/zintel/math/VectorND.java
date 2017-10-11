@@ -166,6 +166,10 @@ public class VectorND implements Serializable {
 		return coords;
 	}
 
+	public Double get(int index) {
+		return coords.get(index);
+	}
+
 	private static void assertProp(final boolean value) {
 		if (!value) {
 			throw new IllegalArgumentException("dim not matching");

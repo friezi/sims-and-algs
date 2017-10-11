@@ -31,7 +31,7 @@ import de.zintel.gfx.g2d.View2D;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.gfx.texture.ImageTexture;
 import de.zintel.gfx.texture.InvertFilter;
-import de.zintel.gfx.texture.SmoothingFilter;
+import de.zintel.gfx.texture.BilinearFilter;
 import de.zintel.gfx.texture.TxCrd;
 import de.zintel.math.MathUtils;
 import de.zintel.utils.Processor;
@@ -206,10 +206,10 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 
 	private void makeImageTexture() throws IOException {
 		texture_noninterpolated = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"));
-		texture_interpolated = new SmoothingFilter(
+		texture_interpolated = new BilinearFilter(
 				new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg")));
 		texture_inverted = new InvertFilter(
-				new SmoothingFilter(new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"))));
+				new BilinearFilter(new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"))));
 	}
 
 	private void drawTexture(Graphics g) {
