@@ -33,23 +33,23 @@ public class BilinearFilter extends AFilteredTexture {
 			return getTexture().getColor(ix, iy);
 		} else if (ix == getTexture().getWidth() - 1) {
 
-			double dx = x - Math.floor(x);
+			double dy = y - Math.floor(y);
 
 			Color ul = getTexture().getColor(ix, iy);
 			Color dl = getTexture().getColor(ix, iy + 1);
 
-			return new Color(interpolateColor(ul.getRed(), dl.getRed(), dx), interpolateColor(ul.getGreen(), dl.getGreen(), dx),
-					interpolateColor(ul.getBlue(), dl.getBlue(), dx));
+			return new Color(interpolateColor(ul.getRed(), dl.getRed(), dy), interpolateColor(ul.getGreen(), dl.getGreen(), dy),
+					interpolateColor(ul.getBlue(), dl.getBlue(), dy));
 
 		} else if (iy == getTexture().getHeight() - 1) {
 
-			double dy = y - Math.floor(y);
+			double dx = x - Math.floor(x);
 
 			Color ul = getTexture().getColor(ix, iy);
 			Color ur = getTexture().getColor(ix + 1, iy);
 
-			return new Color(interpolateColor(ul.getRed(), ur.getRed(), dy), interpolateColor(ul.getGreen(), ur.getGreen(), dy),
-					interpolateColor(ul.getBlue(), ur.getBlue(), dy));
+			return new Color(interpolateColor(ul.getRed(), ur.getRed(), dx), interpolateColor(ul.getGreen(), ur.getGreen(), dx),
+					interpolateColor(ul.getBlue(), ur.getBlue(), dx));
 
 		} else {
 
@@ -68,8 +68,8 @@ public class BilinearFilter extends AFilteredTexture {
 		}
 	}
 
-	private int interpolateColor(double from, double to, double dx) {
-		return (int) ((1 - dx) * from + dx * to);
+	private int interpolateColor(double from, double to, double dr) {
+		return (int) ((1 - dr) * from + dr * to);
 	}
 
 	private int interpolateColor(double ul, double ur, double dl, double dr, double dx, double dy) {

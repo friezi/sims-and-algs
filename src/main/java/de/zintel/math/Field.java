@@ -26,6 +26,7 @@ public interface Field {
 	default VectorND interpolateBilinear(VectorND pos) {
 
 		final List<Double> origin = new ArrayList<>(pos.getDim());
+		// distancevector
 		final List<Double> dv = new ArrayList<>(pos.getDim());
 		for (final double comp : pos.getCoords()) {
 
@@ -38,29 +39,22 @@ public interface Field {
 		final long card = (int) Math.pow(2, dim);
 
 		final int outputDim = getValue(pos).getDim();
-		final List<Double> outputVec = new ArrayList<>(outputDim);
-		for (int i = 0; i < outputDim; i++) {
-			double sum = 0;
+		VectorND sum = new VectorND(outputDim);
+		for (long dirset = 0; dirset < card; dirset++) {
+
 			double prod = 1;
-			for (long s = 0; s < card; s++) {
+			for (int d = 0; d < dim; d++) {
 
-				final List<Double> tv = new ArrayList<>(origin.size());
-				for (int d = 0; d < dim; d++) {
-
-					final Double dvd = dv.get(d);
-					final boolean delta = MathUtils.isSet(card, d);
-					tv.add(delta ? origin.get(d) + 1 : origin.get(d));
-					prod *= (delta ? dvd : (1 - dvd));
-				}
-
-				final VectorND directionVector = getDirectionVector(origin, s);
-				sum += prod * getValue(directionVector).getCoords().get(i);
+				final Double dvd = dv.get(d);
+				final boolean delta = MathUtils.isSet(card, d);
+				prod *= (delta ? dvd : (1 - dvd));
 			}
 
-			outputVec.add(sum);
+			final VectorND directionVector = getDirectionVector(origin, dirset);
+			sum.add(new VectorND(outputDim).add(getValue(directionVector)).mult(prod));
 		}
 
-		return new VectorND(outputVec);
+		return sum;
 	}
 
 	default VectorND getDirectionVector(final List<Double> origin, final long dirmask) {

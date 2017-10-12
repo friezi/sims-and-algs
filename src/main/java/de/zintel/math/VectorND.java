@@ -35,10 +35,32 @@ public class VectorND implements Serializable {
 		this(coords.size(), coords);
 	}
 
-	public VectorND(int dim, Collection<Double> coords) {
+	/**
+	 * creates the null vector.
+	 * 
+	 * @param dim
+	 */
+	@SuppressWarnings("serial")
+	public VectorND(final int dim) {
+
+		this(dim, new ArrayList<Double>(dim) {
+			{
+				for (int i = 0; i < dim; i++) {
+					add(0.0);
+				}
+			}
+		}, true);
+	}
+
+	public VectorND(final int dim, final Collection<Double> coords) {
+		this(dim, new ArrayList<Double>(coords), true);
+	}
+
+	private VectorND(final int dim, final List<Double> coords, final boolean nix) {
 		this.dim = dim;
-		this.coords = new ArrayList<Double>(coords);
+		this.coords = coords;
 		assertProp(dim == this.coords.size());
+
 	}
 	//
 	// /**
@@ -63,16 +85,14 @@ public class VectorND implements Serializable {
 	}
 
 	public VectorND add(VectorND vector) {
-		add(vector.getCoords());
-		return this;
+		return add(vector.getCoords());
 	}
 
 	public VectorND substract(VectorND vector) {
-		substract(vector.getCoords());
-		return this;
+		return substract(vector.getCoords());
 	}
 
-	public void mult(double value) {
+	public VectorND mult(double value) {
 
 		assertProp(dim == coords.size());
 
@@ -81,14 +101,18 @@ public class VectorND implements Serializable {
 		}
 
 		length = -1;
+
+		return this;
 	}
 
-	public void add(final List<Double> coords) {
+	public VectorND add(final List<Double> coords) {
 		combine(coords, (a, b) -> a + b);
+		return this;
 	}
 
-	public void substract(final List<Double> coords) {
+	public VectorND substract(final List<Double> coords) {
 		combine(coords, (a, b) -> a - b);
+		return this;
 	}
 
 	private void combine(final List<Double> coords, BiFunction<Double, Double, Double> combinator) {
