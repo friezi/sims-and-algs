@@ -25,39 +25,57 @@ public interface Field {
 
 	default VectorND interpolateBilinear(VectorND pos) {
 
+		final List<Integer> fieldDimensions = getDimensions();
 		final List<Double> origin = new ArrayList<>(pos.getDim());
 		// distancevector
-		final List<Double> dv = new ArrayList<>(pos.getDim());
-		for (final double comp : pos.getCoords()) {
+		final List<Double> deltavector = new ArrayList<>(pos.getDim());
+		long edgeComponetMask = 0L;
+		int fdim = 0;
+		for (final double component : pos.getCoords()) {
 
-			final double floor = Math.floor(comp);
+			final double floor = Math.floor(component);
 			origin.add(floor);
-			dv.add(comp - floor);
+			deltavector.add(component - floor);
+
+			// check for edge-position
+			if (floor == fieldDimensions.get(fdim) - 1) {
+				edgeComponetMask |= 1L << fdim++;
+			}
 		}
 
-		final int dim = getDimensions().size();
-		final long card = (int) Math.pow(2, dim);
+		final int dimensions = fieldDimensions.size();
+		final long cardinality = (int) Math.pow(2, dimensions);
 
-		final int outputDim = getValue(pos).getDim();
-		VectorND sum = new VectorND(outputDim);
-		for (long dirset = 0; dirset < card; dirset++) {
+		VectorND sum = null;
+		for (long targetSetMask = 0; targetSetMask < cardinality; targetSetMask++) {
+
+			if ((targetSetMask & edgeComponetMask) > 0) {
+				// edge-position contained in dimension-set for target
+				continue;
+			}
 
 			double prod = 1;
-			for (int d = 0; d < dim; d++) {
+			for (int dim = 0; dim < dimensions; dim++) {
 
-				final Double dvd = dv.get(d);
-				final boolean delta = MathUtils.isSet(card, d);
+				// check for edge-position of dimension
+				if (MathUtils.isSet(edgeComponetMask, dim)) {
+					continue;
+				}
+
+				final Double dvd = deltavector.get(dim);
+				final boolean delta = MathUtils.isSet(cardinality, dim);
 				prod *= (delta ? dvd : (1 - dvd));
 			}
 
-			final VectorND directionVector = getDirectionVector(origin, dirset);
-			sum.add(new VectorND(outputDim).add(getValue(directionVector)).mult(prod));
+			final VectorND targetVector = getTargetVector(origin, targetSetMask);
+			final VectorND value = getValue(targetVector);
+			sum = new VectorND(value.getDim()).add(value).mult(prod).add(sum == null ? new VectorND(value.getDim()) : sum);
 		}
 
-		return sum;
+		return (sum == null ? new VectorND(getValue(pos).getDim()) : sum);
 	}
 
-	default VectorND getDirectionVector(final List<Double> origin, final long dirmask) {
+	default VectorND getTargetVector(final List<Double> origin, final long dirmask) {
 
 		final List<Double> dirVector = new ArrayList<>(origin.size());
 		for (int i = 0; i < origin.size(); i++) {
