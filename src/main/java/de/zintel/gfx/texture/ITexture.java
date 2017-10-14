@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.zintel.math.Field;
+import de.zintel.math.VectorField;
 import de.zintel.math.VectorND;
 
 /**
  * @author Friedemann
  *
  */
-public interface ITexture extends Field {
+public interface ITexture extends VectorField {
 
 	int getWidth();
 
@@ -36,6 +36,11 @@ public interface ITexture extends Field {
 	default VectorND getValue(VectorND pos) {
 		final Color color = getColor(pos.getCoords().get(0), pos.getCoords().get(1));
 		return new VectorND(Arrays.asList((double) color.getRed(), (double) color.getGreen(), (double) color.getBlue()));
+	}
+
+	@Override
+	default int getDimensionsCodomain() {
+		return 3; // colors
 	}
 
 }

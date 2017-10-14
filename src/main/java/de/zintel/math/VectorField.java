@@ -12,9 +12,11 @@ import java.util.List;
  * @author friedemann.zintel
  *
  */
-public interface Field {
+public interface VectorField {
 
 	List<Integer> getDimensions();
+
+	int getDimensionsCodomain();
 
 	/**
 	 * @param pos
@@ -30,7 +32,7 @@ public interface Field {
 		// distancevector
 		final List<Double> deltavector = new ArrayList<>(pos.getDim());
 		long edgeComponetMask = 0L;
-		int fdim = 0;
+		int fieldDimension = 0;
 		for (final double component : pos.getCoords()) {
 
 			final double floor = Math.floor(component);
@@ -38,9 +40,10 @@ public interface Field {
 			deltavector.add(component - floor);
 
 			// check for edge-position
-			if (floor == fieldDimensions.get(fdim) - 1) {
-				edgeComponetMask |= 1L << fdim++;
+			if (floor == fieldDimensions.get(fieldDimension) - 1) {
+				edgeComponetMask |= 1L << fieldDimension;
 			}
+			fieldDimension++;
 		}
 
 		final int dimensions = fieldDimensions.size();
@@ -63,8 +66,16 @@ public interface Field {
 				}
 
 				final Double dvd = deltavector.get(dim);
-				final boolean delta = MathUtils.isSet(cardinality, dim);
+				final boolean delta = MathUtils.isSet(targetSetMask, dim);
 				prod *= (delta ? dvd : (1 - dvd));
+
+				if (prod == 0.0) {
+					break;
+				}
+			}
+
+			if (prod == 0.0) {
+				continue;
 			}
 
 			final VectorND targetVector = getTargetVector(origin, targetSetMask);
@@ -72,7 +83,7 @@ public interface Field {
 			sum = new VectorND(value.getDim()).add(value).mult(prod).add(sum == null ? new VectorND(value.getDim()) : sum);
 		}
 
-		return (sum == null ? new VectorND(getValue(pos).getDim()) : sum);
+		return (sum == null ? new VectorND(getDimensionsCodomain()) : sum);
 	}
 
 	default VectorND getTargetVector(final List<Double> origin, final long dirmask) {
@@ -82,11 +93,11 @@ public interface Field {
 			if (MathUtils.isSet(dirmask, i)) {
 				dirVector.add(origin.get(i) + 1);
 			} else {
-				dirVector.get(i);
+				dirVector.add(origin.get(i));
 			}
 		}
 
-		return new VectorND(dirVector);
+		return new VectorND(dirVector.size(), dirVector, true);
 
 	}
 

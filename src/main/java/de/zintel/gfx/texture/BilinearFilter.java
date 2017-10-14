@@ -4,6 +4,9 @@
 package de.zintel.gfx.texture;
 
 import java.awt.Color;
+import java.util.Arrays;
+
+import de.zintel.math.VectorND;
 
 /**
  * @author friedemann.zintel
@@ -33,7 +36,7 @@ public class BilinearFilter extends AFilteredTexture {
 			return getTexture().getColor(ix, iy);
 		} else if (ix == getTexture().getWidth() - 1) {
 
-			double dy = y - Math.floor(y);
+			double dy = y - iy;
 
 			Color ul = getTexture().getColor(ix, iy);
 			Color dl = getTexture().getColor(ix, iy + 1);
@@ -43,7 +46,7 @@ public class BilinearFilter extends AFilteredTexture {
 
 		} else if (iy == getTexture().getHeight() - 1) {
 
-			double dx = x - Math.floor(x);
+			double dx = x - ix;
 
 			Color ul = getTexture().getColor(ix, iy);
 			Color ur = getTexture().getColor(ix + 1, iy);
@@ -53,8 +56,8 @@ public class BilinearFilter extends AFilteredTexture {
 
 		} else {
 
-			double dx = x - Math.floor(x);
-			double dy = y - Math.floor(y);
+			double dx = x - ix;
+			double dy = y - iy;
 
 			Color ul = getTexture().getColor(ix, iy);
 			Color ur = getTexture().getColor(ix + 1, iy);
@@ -67,6 +70,18 @@ public class BilinearFilter extends AFilteredTexture {
 
 		}
 	}
+//
+//	/*
+//	 * (non-Javadoc)
+//	 *
+//	 * @see de.zintel.gfx.texture.ITexture#getColor(double, double)
+//	 */
+//	@Override
+//	public Color getColor(double x, double y) {
+//
+//		final VectorND vectorColor = getTexture().interpolateBilinear(new VectorND(Arrays.asList(x, y)));
+//		return new Color(vectorColor.get(0).intValue(), vectorColor.get(1).intValue(), vectorColor.get(2).intValue());
+//	}
 
 	private int interpolateColor(double from, double to, double dr) {
 		return (int) ((1 - dr) * from + dr * to);

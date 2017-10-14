@@ -58,6 +58,13 @@ public class ImageTexture implements ITexture {
 	 */
 	@Override
 	public Color getColor(double x, double y) {
+
+		if (x < 0.0) {
+			x = 0.0;
+		}
+		if (y < 0.0) {
+			y = 0.0;
+		}
 		return new Color(image.getRGB((int) x, (int) y));
 	}
 }

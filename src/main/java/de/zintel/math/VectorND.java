@@ -56,7 +56,15 @@ public class VectorND implements Serializable {
 		this(dim, new ArrayList<Double>(coords), true);
 	}
 
-	private VectorND(final int dim, final List<Double> coords, final boolean nix) {
+	/**
+	 * carefull !!! for performance-reason no copy of coords will be made
+	 * 
+	 * @param dim
+	 * @param coords
+	 * @param nix
+	 *            just to provide different signature from other constructor
+	 */
+	public VectorND(final int dim, final List<Double> coords, final boolean nix) {
 		this.dim = dim;
 		this.coords = coords;
 		assertProp(dim == this.coords.size());
@@ -198,6 +206,11 @@ public class VectorND implements Serializable {
 		if (!value) {
 			throw new IllegalArgumentException("dim not matching");
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "VectorND [dim=" + dim + ", coords=" + coords + "]";
 	}
 
 }
