@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
-import de.zintel.gfx.Koordination;
+import de.zintel.gfx.Coordination;
 import de.zintel.gfx.g2d.Field;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.physics.Body;
@@ -45,7 +45,7 @@ public class NBodies extends SimulationScreen {
 
 	private static final GfxUtils.EGraphicsSubsystem eGrapicsSubsystem = GfxUtils.EGraphicsSubsystem.GL;
 
-	private static final Koordination coordination = new Koordination();
+	private static final Coordination coordination = new Coordination();
 
 	private int width = coordination.WIDTH;
 
@@ -86,7 +86,7 @@ public class NBodies extends SimulationScreen {
 
 	}
 
-	public NBodies(EGraphicsSubsystem gfxSsystem, de.zintel.gfx.Koordination coordination, boolean doRecord, String recordFilename,
+	public NBodies(EGraphicsSubsystem gfxSsystem, de.zintel.gfx.Coordination coordination, boolean doRecord, String recordFilename,
 			int recordingRate) {
 		super("NBodies", gfxSsystem, coordination, doRecord, recordFilename, recordingRate);
 	}

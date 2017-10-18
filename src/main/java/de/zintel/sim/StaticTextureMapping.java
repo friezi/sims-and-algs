@@ -22,7 +22,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import de.zintel.gfx.Koordination;
+import de.zintel.gfx.Coordination;
 import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.LinearPointInterpolater2D;
 import de.zintel.gfx.g2d.Pin2D;
@@ -43,7 +43,7 @@ import de.zintel.utils.Processor;
 @SuppressWarnings("serial")
 public class StaticTextureMapping extends JPanel implements MouseListener, ActionListener {
 
-	private static Koordination koordination = new Koordination();
+	private static Coordination coordination = new Coordination();
 
 	private static final int SPEED = 20;
 
@@ -52,7 +52,7 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 
 	private static final boolean SCALE_BRIGHTNESS = false;
 
-	private static final View2D VIEW = new View2D(koordination.HEIGHT, koordination.XNULL, koordination.YNULL);
+	private static final View2D VIEW = new View2D(coordination.HEIGHT, coordination.XNULL, coordination.YNULL);
 
 	private static final class SimpleTexture implements ITexture {
 
@@ -163,7 +163,7 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 
 		mainFrame = new JFrame("Static Texture mapping");
 		// mainFrame.addMouseListener(this);
-		mainFrame.setSize(koordination.WIDTH, koordination.HEIGHT);
+		mainFrame.setSize(coordination.WIDTH, coordination.HEIGHT);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel gfxPanel = this;
@@ -239,10 +239,10 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 		stepperInfos = new TreeSet<StaticTextureMapping.StepperInfo>(new StepperComparator());
 
 		l11 = new Processor<IterationUnit2D>(new LinearPointInterpolater2D(
-				new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-						koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y)),
-				new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-						koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y)),
+				new Point(RANDOM.nextInt(coordination.RENDER_MAX_RAND_X),
+						coordination.RENDER_STARTY + RANDOM.nextInt(coordination.RENDER_MAX_RAND_Y)),
+				new Point(RANDOM.nextInt(coordination.RENDER_MAX_RAND_X),
+						coordination.RENDER_STARTY + RANDOM.nextInt(coordination.RENDER_MAX_RAND_Y)),
 				false), stepUnit -> {
 					p11 = stepUnit;
 				});
@@ -250,10 +250,10 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 		stepperInfos.add(new StepperInfo(l11, p11));
 
 		l12 = new Processor<IterationUnit2D>(new LinearPointInterpolater2D(
-				new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-						koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y)),
-				new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-						koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y)),
+				new Point(RANDOM.nextInt(coordination.RENDER_MAX_RAND_X),
+						coordination.RENDER_STARTY + RANDOM.nextInt(coordination.RENDER_MAX_RAND_Y)),
+				new Point(RANDOM.nextInt(coordination.RENDER_MAX_RAND_X),
+						coordination.RENDER_STARTY + RANDOM.nextInt(coordination.RENDER_MAX_RAND_Y)),
 				false), stepUnit -> {
 					p12 = stepUnit;
 				});
@@ -261,10 +261,10 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 		stepperInfos.add(new StepperInfo(l12, p12));
 
 		l21 = new Processor<IterationUnit2D>(new LinearPointInterpolater2D(
-				new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-						koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y)),
-				new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-						koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y)),
+				new Point(RANDOM.nextInt(coordination.RENDER_MAX_RAND_X),
+						coordination.RENDER_STARTY + RANDOM.nextInt(coordination.RENDER_MAX_RAND_Y)),
+				new Point(RANDOM.nextInt(coordination.RENDER_MAX_RAND_X),
+						coordination.RENDER_STARTY + RANDOM.nextInt(coordination.RENDER_MAX_RAND_Y)),
 				false), stepUnit -> {
 					p21 = stepUnit;
 				});
@@ -272,10 +272,10 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 		stepperInfos.add(new StepperInfo(l21, p21));
 
 		l22 = new Processor<IterationUnit2D>(new LinearPointInterpolater2D(
-				new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-						koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y)),
-				new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-						koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y)),
+				new Point(RANDOM.nextInt(coordination.RENDER_MAX_RAND_X),
+						coordination.RENDER_STARTY + RANDOM.nextInt(coordination.RENDER_MAX_RAND_Y)),
+				new Point(RANDOM.nextInt(coordination.RENDER_MAX_RAND_X),
+						coordination.RENDER_STARTY + RANDOM.nextInt(coordination.RENDER_MAX_RAND_Y)),
 				false), stepUnit -> {
 					p22 = stepUnit;
 				});

@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.zintel.math.VectorField;
+import de.zintel.math.IVectorField;
 import de.zintel.math.VectorND;
 
 /**
  * @author Friedemann
  *
  */
-public interface ITexture extends VectorField {
+public interface ITexture extends IVectorField {
 
 	int getWidth();
 

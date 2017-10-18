@@ -25,7 +25,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import de.zintel.gfx.Koordination;
+import de.zintel.gfx.Coordination;
 import de.zintel.gfx.g2d.APointInterpolater2D;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
 import de.zintel.gfx.g2d.IterationUnit2D;
@@ -55,9 +55,9 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 	private static final int maxControlPoints = 20;
 	private static final boolean SCALE_BRIGHTNESS = false;
 
-	private static Koordination koordination = new Koordination();
+	private static Coordination coordination = new Coordination();
 
-	private static final View2D VIEW = new View2D(koordination.HEIGHT, koordination.XNULL, koordination.YNULL);
+	private static final View2D VIEW = new View2D(coordination.HEIGHT, coordination.XNULL, coordination.YNULL);
 
 	private static class ColorPoint {
 
@@ -186,7 +186,7 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 
 		mainFrame = new JFrame("Texture mapping and animation 2D");
 		mainFrame.addMouseListener(this);
-		mainFrame.setSize(koordination.WIDTH, koordination.HEIGHT);
+		mainFrame.setSize(coordination.WIDTH, coordination.HEIGHT);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel gfxPanel = this;
@@ -291,15 +291,15 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 	private APointInterpolater2D makeRandomInterpolater() {
 
 		final BezierPointInterpolater interpolater = new BezierPointInterpolater(
-				new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-						koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y)),
-				new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-						koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y)),
+				new Point(RANDOM.nextInt(coordination.RENDER_MAX_RAND_X),
+						coordination.RENDER_STARTY + RANDOM.nextInt(coordination.RENDER_MAX_RAND_Y)),
+				new Point(RANDOM.nextInt(coordination.RENDER_MAX_RAND_X),
+						coordination.RENDER_STARTY + RANDOM.nextInt(coordination.RENDER_MAX_RAND_Y)),
 				false, false);
 		int max = RANDOM.nextInt(maxControlPoints);
 		for (int i = 0; i < max; i++) {
-			interpolater.addControlPoint(new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-					koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y)));
+			interpolater.addControlPoint(new Point(RANDOM.nextInt(coordination.RENDER_MAX_RAND_X),
+					coordination.RENDER_STARTY + RANDOM.nextInt(coordination.RENDER_MAX_RAND_Y)));
 		}
 
 		return interpolater;

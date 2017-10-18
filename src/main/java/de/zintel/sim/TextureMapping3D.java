@@ -16,7 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import de.zintel.gfx.Koordination;
+import de.zintel.gfx.Coordination;
 import de.zintel.gfx.g3d.Component3D;
 import de.zintel.gfx.g3d.Line3D;
 import de.zintel.gfx.g3d.Pin3D;
@@ -37,7 +37,7 @@ import de.zintel.gfx.texture.TxCrd;
 @SuppressWarnings("serial")
 public class TextureMapping3D extends JPanel implements MouseListener, ActionListener {
 
-	private Koordination koordination = new Koordination();
+	private Coordination koordination = new Coordination();
 
 	private Point3D viewpoint = new Point3D(koordination.WIDTH * 2 / 3, 1420, -1000);
 	private Point3D nullpoint = new Point3D(30, 200, 100);

@@ -3,16 +3,27 @@
  */
 package de.zintel.sim;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
-import de.zintel.gfx.Koordination;
+import de.zintel.gfx.component.FadingText;
+import de.zintel.gfx.component.GfxState;
+import de.zintel.gfx.component.IGfxComponent;
+import de.zintel.control.IKeyAction;
+import de.zintel.gfx.Coordination;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystemFactory;
 import de.zintel.gfx.graphicsubsystem.IRendererListener;
@@ -23,7 +34,19 @@ import de.zintel.gfx.graphicsubsystem.IRendererListener;
  */
 public abstract class SimulationScreen implements MouseListener, MouseWheelListener, MouseMotionListener, KeyListener, IRendererListener {
 
+	public static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
+
 	private static final int DFLT_CALCULATION_RATE = 1000 / 60;
+
+	private static final int FADING_TEXT_ITERATIONS = (GFX_SSYSTEM == GfxUtils.EGraphicsSubsystem.GL ? 20 : 40);
+
+	private static final long TEXT_TIMEOUT = 1500;
+
+	private static final Point TEXT_POSITION = new Point(20, 30);
+
+	private static final String ID_STATUS = "status";
+
+	private final Coordination coordination;
 
 	private final boolean doRecord;
 
@@ -47,8 +70,15 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	private volatile boolean paused = false;
 
-	public SimulationScreen(String title, EGraphicsSubsystem gfxSsystem, Koordination coordination, boolean doRecord, String recordFilename,
+	private Map<Integer, IKeyAction> keyActions = new HashMap<>();
+
+	private Integer keyValue = null;
+
+	private Map<String, IGfxComponent> gfxComponents = new LinkedHashMap<>();
+
+	public SimulationScreen(String title, EGraphicsSubsystem gfxSsystem, Coordination coordination, boolean doRecord, String recordFilename,
 			int recordingRate) {
+		this.coordination = coordination;
 		this.doRecord = doRecord;
 		this.recordFilename = recordFilename;
 		this.recordingRate = recordingRate;
@@ -69,6 +99,7 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 		graphicsSubsystem.addRendererListener(this);
 
 		init(graphicsSubsystem);
+		initBaseKeyActions();
 
 		graphicsSubsystem.display();
 
@@ -139,6 +170,7 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 		}
 
 		renderSim(graphicsSubsystem);
+		renderGfxComponents();
 
 		long rStopTs = System.currentTimeMillis();
 		if (rStopTs - rStartTs >= 1000) {
@@ -149,6 +181,21 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 			rStartTs = System.currentTimeMillis();
 			renderings = 0;
 
+		}
+
+	}
+
+	private void renderGfxComponents() {
+
+		Iterator<IGfxComponent> gfxIterator = gfxComponents.values().iterator();
+		while (gfxIterator.hasNext()) {
+
+			IGfxComponent gfxComponent = gfxIterator.next();
+			if (gfxComponent.getState() == GfxState.STOPPED) {
+				gfxIterator.remove();
+			} else {
+				gfxComponent.draw(graphicsSubsystem);
+			}
 		}
 
 	}
@@ -164,6 +211,135 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 	 * @throws Exception
 	 */
 	protected abstract void shutdown() throws Exception;
+
+	@Override
+	public void keyPressed(KeyEvent ke) {
+
+		int pressedKeyCode = ke.getExtendedKeyCode();
+		IKeyAction keyAction = keyActions.get(pressedKeyCode);
+		if (keyAction != null) {
+
+			String result = keyAction.getValue();
+			String text = keyAction.text();
+			updateFadingText(keyAction.textID(), (text != null ? text + ": " : "") + result, TEXT_POSITION, Color.YELLOW, TEXT_TIMEOUT,
+					keyAction.toggleComponent());
+
+			if (keyAction.withAction()) {
+				keyValue = pressedKeyCode;
+			} else {
+				keyValue = null;
+			}
+
+		} else if (pressedKeyCode == KeyEvent.VK_PLUS) {
+
+			if (keyValue != null) {
+
+				keyAction = keyActions.get(keyValue);
+				if (keyAction == null) {
+					return;
+				}
+
+				keyAction.plus();
+				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
+						TEXT_TIMEOUT, keyAction.toggleComponent());
+
+			}
+
+		} else if (pressedKeyCode == KeyEvent.VK_MINUS) {
+
+			if (keyValue != null) {
+
+				keyAction = keyActions.get(keyValue);
+				if (keyAction == null) {
+					return;
+				}
+
+				keyAction.minus();
+				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
+						TEXT_TIMEOUT, keyAction.toggleComponent());
+
+			}
+		}
+
+	}
+
+	private void updateFadingText(String id, String text, Point position, Color color, long timeout, boolean toggleComponent) {
+
+		FadingText fadingText = (FadingText) gfxComponents.get(id);
+		if (fadingText == null) {
+
+			for (IGfxComponent gfxComponent : gfxComponents.values()) {
+				gfxComponent.stop();
+			}
+
+			if (toggleComponent) {
+				fadingText = new FadingText(text, position, color).setMaxIterations(FADING_TEXT_ITERATIONS);
+			} else {
+				fadingText = new FadingText(text, position, color, timeout).setMaxIterations(FADING_TEXT_ITERATIONS);
+			}
+			gfxComponents.put(id, fadingText);
+
+		} else {
+
+			boolean stopping = fadingText.getState() == GfxState.STOPPING;
+
+			for (IGfxComponent gfxComponent : gfxComponents.values()) {
+				gfxComponent.stop();
+			}
+
+			if (!toggleComponent || stopping) {
+				fadingText.setText(text);
+			}
+		}
+
+	}
+
+	private void initBaseKeyActions() {
+		keyActions.put(KeyEvent.VK_F1, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return ID_STATUS;
+			}
+
+			@Override
+			public String text() {
+				return null;
+			}
+
+			@Override
+			public void plus() {
+
+			}
+
+			@Override
+			public void minus() {
+
+			}
+
+			@Override
+			public String getValue() {
+				return keyActions.entrySet().stream().filter(entry -> entry.getValue() != this).map(
+						entry -> KeyEvent.getKeyText(entry.getKey()) + ": " + entry.getValue().text() + ": " + entry.getValue().getValue())
+						.collect(Collectors.joining("\n"));
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return true;
+			}
+		});
+
+	}
+
+	public void addKeyAction(final int event, final IKeyAction action) {
+		keyActions.put(event, action);
+	}
 
 	@Override
 	public void keyReleased(KeyEvent ke) {
@@ -199,6 +375,10 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	public void setMaxFrames(long maxFrames) {
 		this.maxFrames = maxFrames;
+	}
+
+	public Coordination getCoordination() {
+		return coordination;
 	}
 
 }

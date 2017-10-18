@@ -9,16 +9,19 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
 
+import de.zintel.control.IKeyAction;
+import de.zintel.gfx.Coordination;
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
-import de.zintel.gfx.Koordination;
 import de.zintel.gfx.g2d.Chain2D;
 import de.zintel.gfx.g2d.ChainNet2D;
 import de.zintel.gfx.g2d.Cuboid2D;
@@ -28,6 +31,8 @@ import de.zintel.gfx.g2d.IRenderer;
 import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.gfx.g2d.Vertex2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
+import de.zintel.math.VectorField2D;
+import de.zintel.math.VectorND;
 
 /**
  * @author friedemann.zintel
@@ -63,7 +68,17 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private final double friction = 0.999;
 
-	private static Koordination koordination = new Koordination();
+	private final static Coordination COORDINATION = new Coordination();
+
+	private final static String TXT_ID_WIND = "wind";
+
+	private final static String TXT_ID_FILLED = "filled";
+
+	private final static String TXT_ID_GRAVITY = "gravity";
+
+	private final static String TXT_ID_WINDVECTORS = "windvectors";
+
+	private final Random rnd = new Random();
 
 	private volatile boolean mousePressed = false;
 
@@ -77,6 +92,16 @@ public class RagdollPhysics extends SimulationScreen {
 			Color.PINK };
 
 	private int colorCycleCnt = 0;
+
+	private VectorField2D windField;
+
+	private boolean useWind = false;
+
+	private boolean filled = false;
+
+	private boolean useGravity = true;
+
+	private boolean showWindVectors = false;
 
 	private static class DfltEdgeRenderer implements IRenderer<Edge2D> {
 
@@ -183,7 +208,7 @@ public class RagdollPhysics extends SimulationScreen {
 	}
 
 	public static void main(String args[]) throws Exception {
-		new RagdollPhysics(GFX_SSYSTEM, koordination, doRecord, recordFilename, recordingRate).start();
+		new RagdollPhysics(GFX_SSYSTEM, COORDINATION, doRecord, recordFilename, recordingRate).start();
 	}
 
 	private final Collection<IEdgeContainer2D> edgeContainers = new LinkedList<>();
@@ -192,7 +217,7 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private Collection<Vertex2D> vertices = new LinkedHashSet<>();
 
-	public RagdollPhysics(EGraphicsSubsystem gfxSsystem, Koordination coordination, boolean doRecord, String recordFilename,
+	public RagdollPhysics(EGraphicsSubsystem gfxSsystem, Coordination coordination, boolean doRecord, String recordFilename,
 			int recordingRate) {
 		super("Ragdoll physics", gfxSsystem, coordination, doRecord, recordFilename, recordingRate);
 	}
@@ -202,6 +227,8 @@ public class RagdollPhysics extends SimulationScreen {
 
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		initScene(graphicsSubsystem);
+		initWindField();
+		initKeyActions();
 
 	}
 
@@ -223,6 +250,33 @@ public class RagdollPhysics extends SimulationScreen {
 
 	@Override
 	protected void shutdown() throws Exception {
+
+	}
+
+	private void initWindField() {
+
+		final int fieldWidth = getCoordination().WIDTH / 80;
+		final int fieldHeight = getCoordination().HEIGHT / 80;
+		VectorND[][] windfieldarray = new VectorND[fieldWidth][fieldHeight];
+		this.windField = new VectorField2D(2, windfieldarray);
+
+		VectorND[][] initfieldarray1 = { { new VectorND(Arrays.asList(0.0, 0.0)), new VectorND(Arrays.asList(0.0, 10.0)) },
+				{ new VectorND(Arrays.asList(10.0, 0.0)), new VectorND(Arrays.asList(10.0, 10.0)) } };
+		VectorField2D initfield1 = new VectorField2D(2, initfieldarray1);
+		VectorND[][] initfieldarray2 = { { new VectorND(Arrays.asList(0.5, 0.0)), new VectorND(Arrays.asList(0.0, 0.0)) },
+				{ new VectorND(Arrays.asList(3.0, -3.0)), new VectorND(Arrays.asList(0.0, 0.0)) } };
+		VectorField2D initfield2 = new VectorField2D(2, initfieldarray2);
+
+		for (int x = 0; x < fieldWidth; x++) {
+			for (int y = 0; y < fieldHeight; y++) {
+
+				final VectorND pos = new VectorND(Arrays.asList(((double) x) / fieldWidth, ((double) y) / fieldHeight));
+				final VectorND v1 = initfield1.interpolateLinear(pos);
+				final VectorND v2 = initfield2.interpolateLinear(pos);
+				windfieldarray[x][y] = VectorND.add(v1, v2);
+
+			}
+		}
 
 	}
 
@@ -287,7 +341,15 @@ public class RagdollPhysics extends SimulationScreen {
 
 				final Vector2D newCurrent = Vector2D.add(vertex.getCurrent(),
 						Vector2D.mult(frictionFac, Vector2D.substract(vertex.getCurrent(), vertex.getPrevious())));
-				newCurrent.add(gravity);
+
+				if (useGravity) {
+					newCurrent.add(gravity);
+				}
+
+				if (useWind) {
+					newCurrent.add(calculateWind(vertex.getCurrent()));
+				}
+
 				vertex.setPrevious(vertex.getCurrent());
 				vertex.setCurrent(newCurrent);
 
@@ -297,6 +359,17 @@ public class RagdollPhysics extends SimulationScreen {
 		for (int i = 0; i < iterations; i++) {
 			handleConstraints(dimension);
 		}
+	}
+
+	private Vector2D calculateWind(final Vector2D pos) {
+
+		final List<Integer> windfieldDimensions = windField.getDimensions();
+		final VectorND windVector = windField
+				.interpolateLinear(new VectorND(Arrays.asList(pos.x * (windfieldDimensions.get(0) / getCoordination().WIDTH),
+						pos.y * (windfieldDimensions.get(1) / getCoordination().HEIGHT))));
+
+		return new Vector2D(windVector.get(0) * rnd.nextDouble() * 3 - 0.6, windVector.get(1) * rnd.nextDouble() * 3 - 0.6);
+
 	}
 
 	private void handleConstraints(Dimension dimension) {
@@ -390,10 +463,40 @@ public class RagdollPhysics extends SimulationScreen {
 			}
 		}
 
+		if (showWindVectors) {
+
+			final List<Integer> winddimensions = windField.getDimensions();
+			final int windWidth = winddimensions.get(0);
+			final int windHeight = winddimensions.get(1);
+			final int scale = 5;
+			final int alpha = 150;
+
+			for (int x = 0; x < windWidth; x++) {
+				for (int y = 0; y < windHeight; y++) {
+
+					final VectorND windvector = windField.getValue(new VectorND(Arrays.asList((double) x, (double) y)));
+
+					int xpos = (int) (((double) x) * getCoordination().WIDTH / windWidth);
+					int ypos = (int) (((double) y) * getCoordination().HEIGHT / windHeight);
+					final int xend = xpos + (int) (scale * windvector.get(0));
+					final int yend = ypos + (int) (scale * windvector.get(1));
+					graphicsSubsystem.drawLine(xpos, ypos, xend, yend, transparent(Color.RED, alpha));
+					graphicsSubsystem.drawFilledCircle(xend, yend, 2, () -> transparent(Color.ORANGE, alpha));
+				}
+			}
+
+		}
+
+	}
+
+	private Color transparent(final Color color, final int alpha) {
+		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
 	}
 
 	@Override
 	public void keyPressed(KeyEvent ke) {
+
+		super.keyPressed(ke);
 
 		if (ke.getExtendedKeyCode() == KeyEvent.VK_DOWN) {
 			gravity = GRAV_DOWN;
@@ -403,10 +506,6 @@ public class RagdollPhysics extends SimulationScreen {
 			gravity = GRAV_RIGHT;
 		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_LEFT) {
 			gravity = GRAV_LEFT;
-		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_PLUS) {
-			chainNet.setRenderer(new FilledChainNetRenderer(getGraphicsSubsystem()));
-		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_MINUS) {
-			chainNet.setRenderer(new DfltChainNetRenderer());
 		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_C) {
 
 			colorCycleCnt++;
@@ -540,5 +639,158 @@ public class RagdollPhysics extends SimulationScreen {
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		// TODO Auto-generated method stub
 
+	}
+
+	private void initKeyActions() {
+		addKeyAction(KeyEvent.VK_W, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return TXT_ID_WIND;
+			}
+
+			@Override
+			public String text() {
+				return "wind";
+			}
+
+			@Override
+			public void plus() {
+				useWind = true;
+			}
+
+			@Override
+			public void minus() {
+				useWind = false;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(useWind);
+			}
+		});
+		addKeyAction(KeyEvent.VK_F, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return TXT_ID_FILLED;
+			}
+
+			@Override
+			public String text() {
+				return "filled";
+			}
+
+			@Override
+			public void plus() {
+				chainNet.setRenderer(new FilledChainNetRenderer(getGraphicsSubsystem()));
+				filled = true;
+			}
+
+			@Override
+			public void minus() {
+				chainNet.setRenderer(new DfltChainNetRenderer());
+				filled = false;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(filled);
+			}
+		});
+		addKeyAction(KeyEvent.VK_G, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return TXT_ID_GRAVITY;
+			}
+
+			@Override
+			public String text() {
+				return "gravity";
+			}
+
+			@Override
+			public void plus() {
+				useGravity = true;
+			}
+
+			@Override
+			public void minus() {
+				useGravity = false;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(useGravity);
+			}
+		});
+		addKeyAction(KeyEvent.VK_V, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return TXT_ID_WINDVECTORS;
+			}
+
+			@Override
+			public String text() {
+				return "show windvectors";
+			}
+
+			@Override
+			public void plus() {
+				showWindVectors = true;
+			}
+
+			@Override
+			public void minus() {
+				showWindVectors = false;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(showWindVectors);
+			}
+		});
 	}
 }

@@ -26,7 +26,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import de.zintel.gfx.Koordination;
+import de.zintel.gfx.Coordination;
 import de.zintel.gfx.g2d.LinearPointInterpolater2D;
 import de.zintel.gfx.g2d.Pin2D;
 import de.zintel.gfx.g2d.APointInterpolater2D;
@@ -66,7 +66,7 @@ public class Bezier extends JPanel implements MouseListener, ActionListener {
 
 	private int iterations = 0;
 
-	private Koordination koordination = new Koordination();
+	private Coordination koordination = new Coordination();
 
 	/**
 	 * @param args

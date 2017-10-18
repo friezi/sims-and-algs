@@ -10,7 +10,7 @@ import java.awt.GraphicsEnvironment;
  * @author Friedemann
  *
  */
-public final class Koordination {
+public final class Coordination {
 
 	public final int WIDTH /* = 1920 */;
 	public final int HEIGHT /* = 1080 */;
@@ -21,7 +21,7 @@ public final class Koordination {
 	public final int RENDER_MAX_RAND_X;
 	public final int RENDER_MAX_RAND_Y;
 
-	public Koordination() {
+	public Coordination() {
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		this.WIDTH = gd.getDisplayMode().getWidth();
 		this.HEIGHT = gd.getDisplayMode().getHeight();

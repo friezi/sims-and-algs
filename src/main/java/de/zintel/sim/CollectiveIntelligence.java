@@ -12,11 +12,8 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
@@ -29,13 +26,10 @@ import de.zintel.ci.BoidType;
 import de.zintel.ci.FishSwarm;
 import de.zintel.ci.Swarm;
 import de.zintel.control.IKeyAction;
+import de.zintel.gfx.Coordination;
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
-import de.zintel.gfx.Koordination;
 import de.zintel.gfx.color.CUtils.ColorGenerator;
-import de.zintel.gfx.component.FadingText;
-import de.zintel.gfx.component.GfxState;
-import de.zintel.gfx.component.IGfxComponent;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
 import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.Polar;
@@ -51,9 +45,7 @@ import de.zintel.math.MathUtils;
 @SuppressWarnings("serial")
 public class CollectiveIntelligence extends SimulationScreen {
 
-	private static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
-
-	private static Koordination koordination = new Koordination();
+	private static Coordination koordination = new Coordination();
 
 	private static final Random RANDOM = new Random();
 
@@ -88,12 +80,6 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 	private static final boolean SHIVERING = (GFX_SSYSTEM == GfxUtils.EGraphicsSubsystem.GL);
 
-	private static final int FADING_TEXT_ITERATIONS = (GFX_SSYSTEM == GfxUtils.EGraphicsSubsystem.GL ? 20 : 40);
-
-	private static final long TEXT_TIMEOUT = 1500;
-
-	private static final Point TEXT_POSITION = new Point(20, 30);
-
 	private static final String ID_BOID_SPEED = "b_s";
 
 	private static final String ID_SEPARATION_INFLUENCE = "s_i";
@@ -115,8 +101,6 @@ public class CollectiveIntelligence extends SimulationScreen {
 	private static final String ID_LEADER_ATTRACTION = "pan";
 
 	private static final String ID_PANIC = "l_a";
-
-	private static final String ID_STATUS = "status";
 
 	private static final String ID_CLUSTERING = "clustering";
 
@@ -293,12 +277,6 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 	private boolean mouseIsLeader = true;
 
-	private Map<Integer, IKeyAction> keyActions = new HashMap<>();
-
-	private Integer keyValue = null;
-
-	private Map<String, IGfxComponent> gfxComponents = new LinkedHashMap<>();
-
 	/**
 	 * @param args
 	 * @throws Exception
@@ -307,7 +285,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 		new CollectiveIntelligence(GFX_SSYSTEM, koordination, false, "", 1).start();
 	}
 
-	public CollectiveIntelligence(EGraphicsSubsystem gfxSsystem, Koordination coordination, boolean doRecord, String recordFilename,
+	public CollectiveIntelligence(EGraphicsSubsystem gfxSsystem, Coordination coordination, boolean doRecord, String recordFilename,
 			int recordingRate) {
 		super("Collective Intelligence", gfxSsystem, coordination, doRecord, recordFilename, recordingRate);
 	}
@@ -431,17 +409,6 @@ public class CollectiveIntelligence extends SimulationScreen {
 						() -> new Color(effectiveColor.getRed(), effectiveColor.getGreen(), effectiveColor.getBlue(), 100));
 			}
 		}
-
-		Iterator<IGfxComponent> gfxIterator = gfxComponents.values().iterator();
-		while (gfxIterator.hasNext()) {
-
-			IGfxComponent gfxComponent = gfxIterator.next();
-			if (gfxComponent.getState() == GfxState.STOPPED) {
-				gfxIterator.remove();
-			} else {
-				gfxComponent.draw(graphicsSubsystem);
-			}
-		}
 	}
 
 	@Override
@@ -451,7 +418,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 	private void initKeyActions() {
 
-		keyActions.put(KeyEvent.VK_L, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_L, new IKeyAction() {
 
 			final int delta = 1000;
 
@@ -490,7 +457,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
-		keyActions.put(KeyEvent.VK_S, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_S, new IKeyAction() {
 
 			@Override
 			public String textID() {
@@ -527,7 +494,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
-		keyActions.put(KeyEvent.VK_I, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_I, new IKeyAction() {
 
 			@Override
 			public String textID() {
@@ -564,7 +531,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
-		keyActions.put(KeyEvent.VK_J, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_J, new IKeyAction() {
 
 			@Override
 			public String textID() {
@@ -601,7 +568,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
-		keyActions.put(KeyEvent.VK_C, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_C, new IKeyAction() {
 
 			@Override
 			public boolean withAction() {
@@ -638,7 +605,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
-		keyActions.put(KeyEvent.VK_P, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_P, new IKeyAction() {
 
 			@Override
 			public boolean withAction() {
@@ -675,7 +642,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
-		keyActions.put(KeyEvent.VK_N, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_N, new IKeyAction() {
 
 			@Override
 			public boolean withAction() {
@@ -712,7 +679,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
-		keyActions.put(KeyEvent.VK_A, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_A, new IKeyAction() {
 
 			@Override
 			public boolean withAction() {
@@ -749,7 +716,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
-		keyActions.put(KeyEvent.VK_U, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_U, new IKeyAction() {
 
 			@Override
 			public boolean withAction() {
@@ -786,7 +753,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
-		keyActions.put(KeyEvent.VK_E, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_E, new IKeyAction() {
 
 			@Override
 			public boolean withAction() {
@@ -823,7 +790,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
-		keyActions.put(KeyEvent.VK_R, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_R, new IKeyAction() {
 
 			@Override
 			public boolean withAction() {
@@ -860,7 +827,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				return false;
 			}
 		});
-		keyActions.put(KeyEvent.VK_U, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_U, new IKeyAction() {
 
 			@Override
 			public boolean withAction() {
@@ -895,45 +862,6 @@ public class CollectiveIntelligence extends SimulationScreen {
 			@Override
 			public boolean toggleComponent() {
 				return false;
-			}
-		});
-		keyActions.put(KeyEvent.VK_F1, new IKeyAction() {
-
-			@Override
-			public boolean withAction() {
-				return false;
-			}
-
-			@Override
-			public String textID() {
-				return ID_STATUS;
-			}
-
-			@Override
-			public String text() {
-				return null;
-			}
-
-			@Override
-			public void plus() {
-
-			}
-
-			@Override
-			public void minus() {
-
-			}
-
-			@Override
-			public String getValue() {
-				return keyActions.entrySet().stream().filter(entry -> entry.getValue() != this).map(
-						entry -> KeyEvent.getKeyText(entry.getKey()) + ": " + entry.getValue().text() + ": " + entry.getValue().getValue())
-						.collect(Collectors.joining("\n"));
-			}
-
-			@Override
-			public boolean toggleComponent() {
-				return true;
 			}
 		});
 
@@ -1046,88 +974,6 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-
-	}
-
-	@Override
-	public void keyPressed(KeyEvent ke) {
-
-		int pressedKeyCode = ke.getExtendedKeyCode();
-		IKeyAction keyAction = keyActions.get(pressedKeyCode);
-		if (keyAction != null) {
-
-			String result = keyAction.getValue();
-			String text = keyAction.text();
-			updateFadingText(keyAction.textID(), (text != null ? text + ": " : "") + result, TEXT_POSITION, Color.YELLOW, TEXT_TIMEOUT,
-					keyAction.toggleComponent());
-
-			if (keyAction.withAction()) {
-				keyValue = pressedKeyCode;
-			} else {
-				keyValue = null;
-			}
-
-		} else if (pressedKeyCode == KeyEvent.VK_PLUS) {
-
-			if (keyValue != null) {
-
-				keyAction = keyActions.get(keyValue);
-				if (keyAction == null) {
-					return;
-				}
-
-				keyAction.plus();
-				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
-						TEXT_TIMEOUT, keyAction.toggleComponent());
-
-			}
-
-		} else if (pressedKeyCode == KeyEvent.VK_MINUS) {
-
-			if (keyValue != null) {
-
-				keyAction = keyActions.get(keyValue);
-				if (keyAction == null) {
-					return;
-				}
-
-				keyAction.minus();
-				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
-						TEXT_TIMEOUT, keyAction.toggleComponent());
-
-			}
-		}
-
-	}
-
-	private void updateFadingText(String id, String text, Point position, Color color, long timeout, boolean toggleComponent) {
-
-		FadingText fadingText = (FadingText) gfxComponents.get(id);
-		if (fadingText == null) {
-
-			for (IGfxComponent gfxComponent : gfxComponents.values()) {
-				gfxComponent.stop();
-			}
-
-			if (toggleComponent) {
-				fadingText = new FadingText(text, position, color).setMaxIterations(FADING_TEXT_ITERATIONS);
-			} else {
-				fadingText = new FadingText(text, position, color, timeout).setMaxIterations(FADING_TEXT_ITERATIONS);
-			}
-			gfxComponents.put(id, fadingText);
-
-		} else {
-
-			boolean stopping = fadingText.getState() == GfxState.STOPPING;
-
-			for (IGfxComponent gfxComponent : gfxComponents.values()) {
-				gfxComponent.stop();
-			}
-
-			if (!toggleComponent || stopping) {
-				fadingText.setText(text);
-			}
-		}
 
 	}
 

@@ -12,7 +12,7 @@ import java.util.List;
  * @author friedemann.zintel
  *
  */
-public interface VectorField {
+public interface IVectorField {
 
 	List<Integer> getDimensions();
 
@@ -25,7 +25,7 @@ public interface VectorField {
 	 */
 	VectorND getValue(VectorND pos);
 
-	default VectorND interpolateBilinear(VectorND pos) {
+	default VectorND interpolateLinear(VectorND pos) {
 
 		final List<Integer> fieldDimensions = getDimensions();
 		final List<Double> origin = new ArrayList<>(pos.getDim());
