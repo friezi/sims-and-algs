@@ -368,8 +368,12 @@ public class RagdollPhysics extends SimulationScreen {
 				.interpolateLinear(new VectorND(Arrays.asList(pos.x * (windfieldDimensions.get(0) / getCoordination().WIDTH),
 						pos.y * (windfieldDimensions.get(1) / getCoordination().HEIGHT))));
 
-		return new Vector2D(windVector.get(0) * rnd.nextDouble() * 3 - 0.6, windVector.get(1) * rnd.nextDouble() * 3 - 0.6);
+		return calculateWindDisturbance(windVector);
 
+	}
+
+	private Vector2D calculateWindDisturbance(final VectorND windVector) {
+		return new Vector2D(windVector.get(0) * rnd.nextDouble() * 3 - 0.6, windVector.get(1) * rnd.nextDouble() * 3 - 0.6);
 	}
 
 	private void handleConstraints(Dimension dimension) {
