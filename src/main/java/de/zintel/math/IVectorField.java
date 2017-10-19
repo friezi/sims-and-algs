@@ -25,6 +25,8 @@ public interface IVectorField {
 	 */
 	VectorND getValue(VectorND pos);
 
+	void setValue(VectorND pos, VectorND value);
+
 	default VectorND interpolateLinear(VectorND pos) {
 
 		final List<Integer> fieldDimensions = getDimensions();

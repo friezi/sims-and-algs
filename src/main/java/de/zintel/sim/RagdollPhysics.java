@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,6 +34,7 @@ import de.zintel.gfx.g2d.Vertex2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.VectorField2D;
 import de.zintel.math.VectorND;
+import de.zintel.physics.simulators.WindSimulator;
 
 /**
  * @author friedemann.zintel
@@ -64,6 +66,8 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private Vector2D gravity = GRAV_DOWN;
 
+	private final Random rnd = new Random(Instant.now().toEpochMilli());
+
 	private final double decay = 0.2;
 
 	private final double friction = 0.999;
@@ -78,8 +82,6 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private final static String TXT_ID_WINDVECTORS = "windvectors";
 
-	private final Random rnd = new Random();
-
 	private volatile boolean mousePressed = false;
 
 	private final Collection<Vertex2D> grabbedVertices = Collections.synchronizedCollection(new ArrayList<>());
@@ -93,7 +95,7 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private int colorCycleCnt = 0;
 
-	private VectorField2D windField;
+	private WindSimulator windSimulator;
 
 	private boolean useWind = false;
 
@@ -227,7 +229,7 @@ public class RagdollPhysics extends SimulationScreen {
 
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		initScene(graphicsSubsystem);
-		initWindField();
+		windSimulator = new WindSimulator(initAirstreamField(), getCoordination());
 		initKeyActions();
 
 	}
@@ -253,12 +255,12 @@ public class RagdollPhysics extends SimulationScreen {
 
 	}
 
-	private void initWindField() {
+	private VectorField2D initAirstreamField() {
 
 		final int fieldWidth = getCoordination().WIDTH / 80;
 		final int fieldHeight = getCoordination().HEIGHT / 80;
-		VectorND[][] windfieldarray = new VectorND[fieldWidth][fieldHeight];
-		this.windField = new VectorField2D(2, windfieldarray);
+		VectorND[][] airstreamfieldarray = new VectorND[fieldWidth][fieldHeight];
+		final VectorField2D airstreamField = new VectorField2D(2, airstreamfieldarray);
 
 		final double max1 = 1.2;
 		VectorND[][] initfieldarray1 = { { new VectorND(Arrays.asList(0.0, 0.0)), new VectorND(Arrays.asList(0.0, max1)) },
@@ -276,10 +278,12 @@ public class RagdollPhysics extends SimulationScreen {
 				final VectorND pos = new VectorND(Arrays.asList(((double) x) / fieldWidth, ((double) y) / fieldHeight));
 				final VectorND v1 = initfield1.interpolateLinear(pos);
 				final VectorND v2 = initfield2.interpolateLinear(pos);
-				windfieldarray[x][y] = VectorND.add(v1, v2);
+				airstreamfieldarray[x][y] = VectorND.add(v1, v2);
 
 			}
 		}
+
+		return airstreamField;
 
 	}
 
@@ -326,6 +330,13 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private void calculatePhysics(Dimension dimension) {
 
+		if (useWind) {
+			windSimulator.progressWindflaw();
+			if (rnd.nextInt(150) == 0) {
+				windSimulator.shuffleAirstream();
+			}
+		}
+
 		vertices.parallelStream().forEach(new Consumer<Vertex2D>() {
 
 			@Override
@@ -350,7 +361,7 @@ public class RagdollPhysics extends SimulationScreen {
 				}
 
 				if (useWind) {
-					newCurrent.add(calculateWind(vertex.getCurrent()));
+					newCurrent.add(windSimulator.calculateWind(vertex.getCurrent()));
 				}
 
 				vertex.setPrevious(vertex.getCurrent());
@@ -362,22 +373,6 @@ public class RagdollPhysics extends SimulationScreen {
 		for (int i = 0; i < iterations; i++) {
 			handleConstraints(dimension);
 		}
-	}
-
-	private Vector2D calculateWind(final Vector2D pos) {
-
-		final List<Integer> windfieldDimensions = windField.getDimensions();
-		final VectorND windVector = windField
-				.interpolateLinear(new VectorND(Arrays.asList(pos.x * windfieldDimensions.get(0) / getCoordination().WIDTH,
-						pos.y * windfieldDimensions.get(1) / getCoordination().HEIGHT)));
-
-		final Vector2D effectiveWind = calculateWindDisturbance(windVector);
-		return effectiveWind;
-
-	}
-
-	private Vector2D calculateWindDisturbance(final VectorND windVector) {
-		return new Vector2D(windVector.get(0) * rnd.nextDouble() * 3 - 0.6, windVector.get(1) * rnd.nextDouble() * 3 - 0.6);
 	}
 
 	private void handleConstraints(Dimension dimension) {
@@ -473,7 +468,7 @@ public class RagdollPhysics extends SimulationScreen {
 
 		if (showWindVectors) {
 
-			final List<Integer> winddimensions = windField.getDimensions();
+			final List<Integer> winddimensions = windSimulator.getAirstreamField().getDimensions();
 			final int windWidth = winddimensions.get(0);
 			final int windHeight = winddimensions.get(1);
 			final int scale = 20;
@@ -482,7 +477,8 @@ public class RagdollPhysics extends SimulationScreen {
 			for (int x = 0; x < windWidth; x++) {
 				for (int y = 0; y < windHeight; y++) {
 
-					final VectorND windvector = windField.getValue(new VectorND(Arrays.asList((double) x, (double) y)));
+					final VectorND windvector = windSimulator.getAirstreamField()
+							.getValue(new VectorND(Arrays.asList((double) x, (double) y)));
 
 					int xpos = (int) (((double) x) * getCoordination().WIDTH / windWidth);
 					int ypos = (int) (((double) y) * getCoordination().HEIGHT / windHeight);
@@ -680,6 +676,7 @@ public class RagdollPhysics extends SimulationScreen {
 			@Override
 			public void minus() {
 				useWind = false;
+				windSimulator.resetWindflaw();
 			}
 
 			@Override
@@ -782,7 +779,7 @@ public class RagdollPhysics extends SimulationScreen {
 
 			@Override
 			public String text() {
-				return "show windvectors";
+				return "windvectors";
 			}
 
 			@Override

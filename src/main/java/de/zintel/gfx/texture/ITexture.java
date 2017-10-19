@@ -43,4 +43,8 @@ public interface ITexture extends IVectorField {
 		return 3; // colors
 	}
 
+	@Override
+	default void setValue(VectorND pos, VectorND value) {
+	}
+
 }

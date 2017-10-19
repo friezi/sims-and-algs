@@ -64,4 +64,9 @@ public class VectorField2D implements IVectorField {
 		return field[x][y];
 	}
 
+	@Override
+	public void setValue(VectorND pos, VectorND value) {
+		field[pos.get(0).intValue()][pos.get(1).intValue()] = value;
+	}
+
 }
