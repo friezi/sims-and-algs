@@ -260,11 +260,14 @@ public class RagdollPhysics extends SimulationScreen {
 		VectorND[][] windfieldarray = new VectorND[fieldWidth][fieldHeight];
 		this.windField = new VectorField2D(2, windfieldarray);
 
-		VectorND[][] initfieldarray1 = { { new VectorND(Arrays.asList(0.0, 0.0)), new VectorND(Arrays.asList(0.0, 10.0)) },
-				{ new VectorND(Arrays.asList(10.0, 0.0)), new VectorND(Arrays.asList(10.0, 10.0)) } };
+		final double max1 = 1.2;
+		VectorND[][] initfieldarray1 = { { new VectorND(Arrays.asList(0.0, 0.0)), new VectorND(Arrays.asList(0.0, max1)) },
+				{ new VectorND(Arrays.asList(max1, 0.0)), new VectorND(Arrays.asList(max1, max1)) } };
 		VectorField2D initfield1 = new VectorField2D(2, initfieldarray1);
-		VectorND[][] initfieldarray2 = { { new VectorND(Arrays.asList(0.5, 0.0)), new VectorND(Arrays.asList(0.0, 0.0)) },
-				{ new VectorND(Arrays.asList(3.0, -3.0)), new VectorND(Arrays.asList(0.0, 0.0)) } };
+
+		final double max2 = 0.2;
+		VectorND[][] initfieldarray2 = { { new VectorND(Arrays.asList(max2, 0.0)), new VectorND(Arrays.asList(0.0, 0.0)) },
+				{ new VectorND(Arrays.asList(max2 / 2, -max2 / 2)), new VectorND(Arrays.asList(0.0, 0.0)) } };
 		VectorField2D initfield2 = new VectorField2D(2, initfieldarray2);
 
 		for (int x = 0; x < fieldWidth; x++) {
@@ -365,10 +368,11 @@ public class RagdollPhysics extends SimulationScreen {
 
 		final List<Integer> windfieldDimensions = windField.getDimensions();
 		final VectorND windVector = windField
-				.interpolateLinear(new VectorND(Arrays.asList(pos.x * (windfieldDimensions.get(0) / getCoordination().WIDTH),
-						pos.y * (windfieldDimensions.get(1) / getCoordination().HEIGHT))));
+				.interpolateLinear(new VectorND(Arrays.asList(pos.x * windfieldDimensions.get(0) / getCoordination().WIDTH,
+						pos.y * windfieldDimensions.get(1) / getCoordination().HEIGHT)));
 
-		return calculateWindDisturbance(windVector);
+		final Vector2D effectiveWind = calculateWindDisturbance(windVector);
+		return effectiveWind;
 
 	}
 
@@ -472,7 +476,7 @@ public class RagdollPhysics extends SimulationScreen {
 			final List<Integer> winddimensions = windField.getDimensions();
 			final int windWidth = winddimensions.get(0);
 			final int windHeight = winddimensions.get(1);
-			final int scale = 5;
+			final int scale = 20;
 			final int alpha = 150;
 
 			for (int x = 0; x < windWidth; x++) {

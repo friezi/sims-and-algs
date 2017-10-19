@@ -55,7 +55,13 @@ public class VectorField2D implements IVectorField {
 	 */
 	@Override
 	public VectorND getValue(VectorND pos) {
-		return field[pos.get(0).intValue()][(int) pos.get(1).intValue()];
+
+		int x = pos.get(0).intValue();
+		int y = pos.get(1).intValue();
+		x = (x >= 0 ? (x < width ? x : width - 1) : 0);
+		y = (y >= 0 ? (y < height ? y : height - 1) : 0);
+
+		return field[x][y];
 	}
 
 }
