@@ -320,7 +320,7 @@ public class DefaultRenderer implements IRenderer {
 				final int blue = CUtils.brighten(color.getBlue(), colorBrigthnessFactor);
 				final int alpha = (int) ((a * alphaDecayFactor) / (i + 1));
 				final Color effectiveColor = new Color(red, green, blue, alpha);
-				graphicsSubsystem.drawLine(startx, starty, endx, endy, effectiveColor, color);
+				graphicsSubsystem.drawLine(startx, starty, endx, endy, effectiveColor, effectiveColor);
 
 				startx = endx;
 				starty = endy;

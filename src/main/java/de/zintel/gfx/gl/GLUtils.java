@@ -195,6 +195,7 @@ public final class GLUtils {
 	 * @param x2
 	 * @param y2
 	 * @param colorStart
+	 * @param colorEnd
 	 * @param gl
 	 */
 	public static void drawLine(double x1, double y1, double x2, double y2, Color colorStart, Color colorEnd, final GL2 gl) {
