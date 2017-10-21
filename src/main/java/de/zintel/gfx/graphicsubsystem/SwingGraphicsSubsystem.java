@@ -107,7 +107,7 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 	 * @see de.zintel.sim.nbodies.IGraphics#drawLine(int, int, int, int, int)
 	 */
 	@Override
-	public void drawLine(int x1, int y1, int x2, int y2, Color color) {
+	public void drawLine(int x1, int y1, int x2, int y2, Color color, Color colorEnd) {
 		graphics.setColor(color);
 		graphics.drawLine(x1, y1, x2, y2);
 

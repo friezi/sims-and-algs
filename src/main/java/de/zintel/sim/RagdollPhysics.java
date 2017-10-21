@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.Coordination;
@@ -44,7 +45,7 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private static final boolean doRecord = false;
 
-	private static final String recordFilename = "D:/cloth-sim.mpg";
+	private static final String recordFilename = "C:/cloth-sim.mpg";
 
 	private static final int recordingRate = 2;
 
@@ -80,7 +81,11 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private final static String TXT_ID_GRAVITY = "gravity";
 
-	private final static String TXT_ID_WINDVECTORS = "windvectors";
+	private final static String TXT_ID_SHOWAIRSTREAMVECTORS = "showairstreamvectors";
+
+	private final static String TXT_ID_SHOWAIRSTREAM = "showairstream";
+
+	private final static String TXT_ID_SHOWWIND = "showwind";
 
 	private volatile boolean mousePressed = false;
 
@@ -103,7 +108,11 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private boolean useGravity = true;
 
-	private boolean showWindVectors = false;
+	private boolean showAirstreamVectors = false;
+
+	private boolean showAirstream = false;
+
+	private boolean showWind = false;
 
 	private static class DfltEdgeRenderer implements IRenderer<Edge2D> {
 
@@ -116,7 +125,7 @@ public class RagdollPhysics extends SimulationScreen {
 		@Override
 		public void render(Edge2D edge) {
 			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
-					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, edge.getColor());
+					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, edge.getColor(), edge.getColor());
 		}
 
 	}
@@ -466,13 +475,13 @@ public class RagdollPhysics extends SimulationScreen {
 			}
 		}
 
-		if (showWindVectors) {
+		if (showAirstreamVectors) {
 
 			final List<Integer> winddimensions = windSimulator.getAirstreamField().getDimensions();
 			final int windWidth = winddimensions.get(0);
 			final int windHeight = winddimensions.get(1);
 			final int scale = 20;
-			final int alpha = 150;
+			final int alpha = 255;
 
 			for (int x = 0; x < windWidth; x++) {
 				for (int y = 0; y < windHeight; y++) {
@@ -484,11 +493,47 @@ public class RagdollPhysics extends SimulationScreen {
 					int ypos = (int) (((double) y) * getCoordination().HEIGHT / windHeight);
 					final int xend = xpos + (int) (scale * windvector.get(0));
 					final int yend = ypos + (int) (scale * windvector.get(1));
-					graphicsSubsystem.drawLine(xpos, ypos, xend, yend, transparent(Color.RED, alpha));
+					final Color lineColor = transparent(Color.RED, alpha);
+					graphicsSubsystem.drawLine(xpos, ypos, xend, yend, lineColor, Color.GREEN);
 					graphicsSubsystem.drawFilledCircle(xend, yend, 2, () -> transparent(Color.ORANGE, alpha));
 				}
 			}
+		}
 
+		if (showAirstream || showWind) {
+
+			final int windWidth = getCoordination().WIDTH;
+			final int windHeight = getCoordination().HEIGHT;
+			final int scale = 20;
+			final int alpha = 10;
+
+			final Function<Double, Integer> ccv = length -> (int) (255 * (1 - (1 / (1 + length / 20))));
+			for (int x = 0; x < windWidth; x++) {
+				for (int y = 0; y < windHeight; y++) {
+
+					if (showAirstream) {
+						final VectorND airstreamvector = windSimulator.calculateAirstream(new Vector2D((double) x, (double) y));
+						final double airstreamlength = airstreamvector.length();
+						final Integer value = ccv.apply(airstreamlength);
+						Color colorStart = new Color(value, value, Color.BLUE.getBlue(), alpha);
+						Color colorEnd = new Color(value, Color.GREEN.getGreen(), value, alpha);
+						graphicsSubsystem.drawLine(x, y, (int) (x + scale * airstreamvector.get(0)),
+								(int) (y + scale * airstreamvector.get(1)), colorStart, colorEnd);
+					}
+
+					if (showWind) {
+						final Vector2D windvector = windSimulator.calculateWind(new Vector2D((double) x, (double) y));
+						final double windlength = windvector.length();
+						if (windlength > 0) {
+							final Integer value = ccv.apply(windlength);
+							Color colorStart = new Color(value, value, Color.BLUE.getBlue(), alpha);
+							Color colorEnd = new Color(value, Color.GREEN.getGreen(), value, alpha);
+							graphicsSubsystem.drawLine(x, y, (int) (x + scale * windvector.x), (int) (y + scale * windvector.y), colorStart,
+									colorEnd);
+						}
+					}
+				}
+			}
 		}
 
 	}
@@ -774,27 +819,101 @@ public class RagdollPhysics extends SimulationScreen {
 
 			@Override
 			public String textID() {
-				return TXT_ID_WINDVECTORS;
+				return TXT_ID_SHOWAIRSTREAMVECTORS;
 			}
 
 			@Override
 			public String text() {
-				return "windvectors";
+				return "show airstreamvectors";
 			}
 
 			@Override
 			public void plus() {
-				showWindVectors = true;
+				showAirstreamVectors = true;
 			}
 
 			@Override
 			public void minus() {
-				showWindVectors = false;
+				showAirstreamVectors = false;
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(showWindVectors);
+				return String.valueOf(showAirstreamVectors);
+			}
+		});
+		addKeyAction(KeyEvent.VK_A, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return TXT_ID_SHOWAIRSTREAM;
+			}
+
+			@Override
+			public String text() {
+				return "show airstream";
+			}
+
+			@Override
+			public void plus() {
+				showAirstream = true;
+			}
+
+			@Override
+			public void minus() {
+				showAirstream = false;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(showAirstream);
+			}
+		});
+		addKeyAction(KeyEvent.VK_S, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return TXT_ID_SHOWWIND;
+			}
+
+			@Override
+			public String text() {
+				return "show wind";
+			}
+
+			@Override
+			public void plus() {
+				showWind = true;
+			}
+
+			@Override
+			public void minus() {
+				showWind = false;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(showWind);
 			}
 		});
 	}

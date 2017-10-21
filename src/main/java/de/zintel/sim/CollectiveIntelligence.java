@@ -353,7 +353,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				while ((boid = queue.poll()) != null) {
 					for (Boid neighbour : queue) {
 						graphicsSubsystem.drawLine((int) boid.getPosition().x, (int) boid.getPosition().y, (int) neighbour.getPosition().x,
-								(int) neighbour.getPosition().y, COLOR_CLUSTERING);
+								(int) neighbour.getPosition().y, COLOR_CLUSTERING, COLOR_CLUSTERING);
 					}
 				}
 			}

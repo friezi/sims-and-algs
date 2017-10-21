@@ -259,10 +259,12 @@ public class DefaultRenderer implements IRenderer {
 
 	@Override
 	public void renderVelocity(Body body) {
+		final Color color = Color.RED;
 		graphicsSubsystem.drawLine((int) project(body.getPosition().x, graphicsSubsystem.getDimension().getWidth()),
 				(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()),
 				(int) project(body.getPosition().x + 10 * body.getVelocity().x, graphicsSubsystem.getDimension().getWidth()),
-				(int) project(body.getPosition().y + 10 * body.getVelocity().y, graphicsSubsystem.getDimension().getHeight()), Color.RED);
+				(int) project(body.getPosition().y + 10 * body.getVelocity().y, graphicsSubsystem.getDimension().getHeight()), color,
+				color);
 
 	}
 
@@ -301,8 +303,8 @@ public class DefaultRenderer implements IRenderer {
 						graphicsSubsystem.getDimension().getHeight());
 				final Color iColor = Color.WHITE;
 				final int alpha = (int) (a * alphaDecayFactor);
-				graphicsSubsystem.drawLine(startx, starty, endx, endy,
-						new Color(iColor.getRed(), iColor.getGreen(), iColor.getBlue(), alpha));
+				final Color effectiveColor = new Color(iColor.getRed(), iColor.getGreen(), iColor.getBlue(), alpha);
+				graphicsSubsystem.drawLine(startx, starty, endx, endy, effectiveColor, effectiveColor);
 
 				startx = endx;
 				starty = endy;
@@ -317,7 +319,8 @@ public class DefaultRenderer implements IRenderer {
 				final int green = CUtils.brighten(color.getGreen(), colorBrigthnessFactor);
 				final int blue = CUtils.brighten(color.getBlue(), colorBrigthnessFactor);
 				final int alpha = (int) ((a * alphaDecayFactor) / (i + 1));
-				graphicsSubsystem.drawLine(startx, starty, endx, endy, new Color(red, green, blue, alpha));
+				final Color effectiveColor = new Color(red, green, blue, alpha);
+				graphicsSubsystem.drawLine(startx, starty, endx, endy, effectiveColor, color);
 
 				startx = endx;
 				starty = endy;

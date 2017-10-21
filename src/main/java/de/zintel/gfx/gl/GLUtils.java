@@ -181,9 +181,10 @@ public final class GLUtils {
 
 	}
 
-	public static void drawLine(final int x1, final int y1, final int x2, final int y2, final Color color, final Dimension dimension,
-			final GL2 gl) {
-		drawLine(projectX(x1, dimension), projectY(y1, dimension), projectX(x2, dimension), projectY(y2, dimension), color, gl);
+	public static void drawLine(final int x1, final int y1, final int x2, final int y2, final Color colorStart, Color colorEnd,
+			final Dimension dimension, final GL2 gl) {
+		drawLine(projectX(x1, dimension), projectY(y1, dimension), projectX(x2, dimension), projectY(y2, dimension), colorStart, colorEnd,
+				gl);
 	}
 
 	/**
@@ -193,15 +194,20 @@ public final class GLUtils {
 	 * @param y1
 	 * @param x2
 	 * @param y2
-	 * @param color
+	 * @param colorStart
 	 * @param gl
 	 */
-	public static void drawLine(double x1, double y1, double x2, double y2, Color color, final GL2 gl) {
+	public static void drawLine(double x1, double y1, double x2, double y2, Color colorStart, Color colorEnd, final GL2 gl) {
 
-		gl.glBegin(GL2.GL_LINES);
-		gl.glColor4d(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()), projectColorValue2GL(color.getBlue()),
-				projectColorValue2GL(color.getAlpha()));
+		gl.glBegin(x1 == x2 && y1 == y2 ? GL2.GL_POINTS : GL2.GL_LINES);
+		gl.glColor4d(projectColorValue2GL(colorStart.getRed()), projectColorValue2GL(colorStart.getGreen()),
+				projectColorValue2GL(colorStart.getBlue()), projectColorValue2GL(colorStart.getAlpha()));
 		gl.glVertex2d(x1, y1);
+
+		if (colorStart != colorEnd) {
+			gl.glColor4d(projectColorValue2GL(colorEnd.getRed()), projectColorValue2GL(colorEnd.getGreen()),
+					projectColorValue2GL(colorEnd.getBlue()), projectColorValue2GL(colorEnd.getAlpha()));
+		}
 		gl.glVertex2d(x2, y2);
 		gl.glEnd();
 

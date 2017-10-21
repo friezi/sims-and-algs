@@ -175,8 +175,8 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	 * int, java.awt.Color)
 	 */
 	@Override
-	public void drawLine(int x1, int y1, int x2, int y2, Color color) {
-		GLUtils.drawLine(x1, y1, x2, y2, color, dimension, gl);
+	public void drawLine(int x1, int y1, int x2, int y2, Color colorStart, Color colorEnd) {
+		GLUtils.drawLine(x1, y1, x2, y2, colorStart, colorEnd, dimension, gl);
 
 	}
 

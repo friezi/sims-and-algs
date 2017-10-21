@@ -54,15 +54,14 @@ public class WindSimulator {
 	}
 
 	public Vector2D calculateWind(final Vector2D pos) {
+		return calculateWindTurbulence(calculateAirstream(pos));
+	}
+
+	public VectorND calculateAirstream(final Vector2D pos) {
 
 		final List<Integer> windfieldDimensions = airstreamField.getDimensions();
-		final VectorND windVector = airstreamField
-				.interpolateLinear(new VectorND(Arrays.asList(pos.x * windfieldDimensions.get(0) / coordination.WIDTH,
-						pos.y * windfieldDimensions.get(1) / coordination.HEIGHT)));
-
-		final Vector2D effectiveWind = calculateWindTurbulence(windVector);
-		return effectiveWind;
-
+		return airstreamField.interpolateLinear(new VectorND(Arrays.asList(pos.x * windfieldDimensions.get(0) / coordination.WIDTH,
+				pos.y * windfieldDimensions.get(1) / coordination.HEIGHT)));
 	}
 
 	private Vector2D calculateWindTurbulence(final VectorND windVector) {
