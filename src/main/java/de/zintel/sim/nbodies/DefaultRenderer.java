@@ -281,6 +281,8 @@ public class DefaultRenderer implements IRenderer {
 		int max = 6;
 		int startx = (int) project(body.getPosition().x, graphicsSubsystem.getDimension().getWidth());
 		int starty = (int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight());
+		int endx = 0;
+		int endy = 0;
 
 		final Physics physics = scenery.getSceneryConfig().getPhysics();
 		if (physics.getDestroyParticlesSpeedThreshold() > 0 && body.getVelocity().length() >= physics.getDestroyParticlesSpeedThreshold()) {
@@ -293,39 +295,37 @@ public class DefaultRenderer implements IRenderer {
 			colorBrigthnessFactor = (1.5 * body.getVelocity().length()) / physics.getDestroyParticlesSpeedThreshold();
 		}
 
+		Color effectiveColor = null;
 		for (int i = -1; i < max; i++) {
 
 			if (i == -1) {
 
-				final int endx = (int) project(body.getPosition().x - 15 * body.getVelocity().x / body.getVelocity().length(),
+				endx = (int) project(body.getPosition().x - 15 * body.getVelocity().x / body.getVelocity().length(),
 						graphicsSubsystem.getDimension().getWidth());
-				final int endy = (int) project(body.getPosition().y - 15 * body.getVelocity().y / body.getVelocity().length(),
+				endy = (int) project(body.getPosition().y - 15 * body.getVelocity().y / body.getVelocity().length(),
 						graphicsSubsystem.getDimension().getHeight());
 				final Color iColor = Color.WHITE;
 				final int alpha = (int) (a * alphaDecayFactor);
-				final Color effectiveColor = new Color(iColor.getRed(), iColor.getGreen(), iColor.getBlue(), alpha);
-				graphicsSubsystem.drawLine(startx, starty, endx, endy, effectiveColor, effectiveColor);
-
-				startx = endx;
-				starty = endy;
+				effectiveColor = new Color(iColor.getRed(), iColor.getGreen(), iColor.getBlue(), alpha);
 
 			} else {
 
-				final int endx = (int) project(body.getPosition().x - 10 * body.getVelocity().x / (max - i),
+				endx = (int) project(body.getPosition().x - 10 * body.getVelocity().x / (max - i),
 						graphicsSubsystem.getDimension().getWidth());
-				final int endy = (int) project(body.getPosition().y - 10 * body.getVelocity().y / (max - i),
+				endy = (int) project(body.getPosition().y - 10 * body.getVelocity().y / (max - i),
 						graphicsSubsystem.getDimension().getHeight());
 				final int red = CUtils.brighten(color.getRed(), colorBrigthnessFactor);
 				final int green = CUtils.brighten(color.getGreen(), colorBrigthnessFactor);
-				final int blue = CUtils.brighten(color.getBlue(), colorBrigthnessFactor);
+				final int blue = CUtils.brighten(color.getBlue(), 2 * colorBrigthnessFactor);
 				final int alpha = (int) ((a * alphaDecayFactor) / (i + 1));
-				final Color effectiveColor = new Color(red, green, blue, alpha);
-				graphicsSubsystem.drawLine(startx, starty, endx, endy, effectiveColor, effectiveColor);
-
-				startx = endx;
-				starty = endy;
+				effectiveColor = new Color(red, green, blue, alpha);
 
 			}
+
+			graphicsSubsystem.drawLine(startx, starty, endx, endy, effectiveColor, effectiveColor);
+
+			startx = endx;
+			starty = endy;
 		}
 
 	}
