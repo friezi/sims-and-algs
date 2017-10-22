@@ -47,6 +47,7 @@ public class WindSimulator {
 			windIteration = 0;
 			windIterationStep = (rnd.nextInt(21) + 1) / 10.0;
 			windIntensityFactor = (rnd.nextInt(40) + 1) / 10.0;
+			randomAirstream();
 
 		}
 		windIntensity = windIntensityFactor * Math.sin(windIteration * Math.PI / 180);
@@ -85,6 +86,21 @@ public class WindSimulator {
 				final VectorND pos = new VectorND(Arrays.asList((double) x, (double) y));
 				airstreamField.setValue(pos, VectorND.add(airstreamField.getValue(pos),
 						new VectorND(Arrays.asList(gen.apply(rnd.nextDouble()), gen.apply(rnd.nextDouble())))));
+			}
+		}
+
+	}
+
+	public void randomAirstream() {
+
+		final Function<Double, Double> gen = v -> v * 2 - 1;
+		final Integer width = airstreamField.getDimensions().get(0);
+		final Integer height = airstreamField.getDimensions().get(1);
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+
+				final VectorND pos = new VectorND(Arrays.asList((double) x, (double) y));
+				airstreamField.setValue(pos, new VectorND(Arrays.asList(gen.apply(rnd.nextDouble()), gen.apply(rnd.nextDouble()))));
 			}
 		}
 

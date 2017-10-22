@@ -8,7 +8,6 @@ import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,7 +15,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -45,7 +43,7 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private static final boolean doRecord = false;
 
-	private static final String recordFilename = "C:/cloth-sim.mpg";
+	private static final String recordFilename = "D:/wind-sim.mpg";
 
 	private static final int recordingRate = 2;
 
@@ -66,8 +64,6 @@ public class RagdollPhysics extends SimulationScreen {
 	private static final Vector2D GRAV_LEFT = new Vector2D(-0.8, 0);
 
 	private Vector2D gravity = GRAV_DOWN;
-
-	private final Random rnd = new Random(Instant.now().toEpochMilli());
 
 	private final double decay = 0.2;
 
@@ -341,9 +337,6 @@ public class RagdollPhysics extends SimulationScreen {
 
 		if (useWind) {
 			windSimulator.progressWindflaw();
-			if (rnd.nextInt(150) == 0) {
-				windSimulator.shuffleAirstream();
-			}
 		}
 
 		vertices.parallelStream().forEach(new Consumer<Vertex2D>() {
