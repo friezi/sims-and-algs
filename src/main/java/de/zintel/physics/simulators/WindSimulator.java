@@ -68,7 +68,9 @@ public class WindSimulator {
 				pos.y * windfieldDimensions.get(1) / coordination.HEIGHT)));
 	}
 
+	@SuppressWarnings("serial")
 	private Vector2D calculateWindTurbulence(final VectorND windVector) {
+//		return new VectorND(new ArrayList<Double>(){{windVector.getCoords().stream().forEach(c->add(windIntensity * c * (rnd.nextDouble() * 3 - 1)));}});
 		return new Vector2D(windIntensity * windVector.get(0) * (rnd.nextDouble() * 3 - 1),
 				windIntensity * windVector.get(1) * (rnd.nextDouble() * 3 - 1));
 	}
