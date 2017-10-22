@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -65,6 +67,8 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private Vector2D gravity = GRAV_DOWN;
 
+	private final Random rnd = new Random(Instant.now().toEpochMilli());
+
 	private final double decay = 0.2;
 
 	private final double friction = 0.999;
@@ -82,6 +86,10 @@ public class RagdollPhysics extends SimulationScreen {
 	private final static String TXT_ID_SHOWAIRSTREAM = "showairstream";
 
 	private final static String TXT_ID_SHOWWIND = "showwind";
+
+	private final static String TXT_ID_AIRSTREAMDEGREE = "airstreamdegree";
+
+	private final static String TXT_ID_RATE_AIRSTREAMCHANGE = "rate_airstreamchange";
 
 	private volatile boolean mousePressed = false;
 
@@ -109,6 +117,10 @@ public class RagdollPhysics extends SimulationScreen {
 	private boolean showAirstream = false;
 
 	private boolean showWind = false;
+
+	private int airstreamdegree = 6;
+
+	private int rateOfAirstreamChange = 1;
 
 	private static class DfltEdgeRenderer implements IRenderer<Edge2D> {
 
@@ -234,7 +246,7 @@ public class RagdollPhysics extends SimulationScreen {
 
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		initScene(graphicsSubsystem);
-		windSimulator = new WindSimulator(initAirstreamField(), getCoordination());
+		windSimulator = new WindSimulator(initAirstreamField(), getCoordination()).setRateOfAirstreamChange(rateOfAirstreamChange);
 		initKeyActions();
 
 	}
@@ -498,18 +510,24 @@ public class RagdollPhysics extends SimulationScreen {
 			final int windWidth = getCoordination().WIDTH;
 			final int windHeight = getCoordination().HEIGHT;
 			final int scale = 20;
-			final int alpha = 10;
+			final int alpha = Math.min(200, 10 * airstreamdegree);
+
+			final Function<Integer, Integer> randomdistributor = v -> airstreamdegree < 2 ? v
+					: v + rnd.nextInt(airstreamdegree / 2) - airstreamdegree / 4;
 
 			final Function<Double, Integer> ccv = length -> (int) (255 * (1 - (1 / (1 + length / 20))));
-			for (int x = 0; x < windWidth; x++) {
-				for (int y = 0; y < windHeight; y++) {
+			for (int posx = rnd.nextInt(airstreamdegree); posx < windWidth; posx += airstreamdegree) {
+				for (int posy = rnd.nextInt(airstreamdegree); posy < windHeight; posy += airstreamdegree) {
+
+					int x = randomdistributor.apply(posx);
+					int y = randomdistributor.apply(posy);
 
 					if (showAirstream) {
 						final VectorND airstreamvector = windSimulator.calculateAirstream(new Vector2D((double) x, (double) y));
 						final double airstreamlength = airstreamvector.length();
 						final Integer value = ccv.apply(airstreamlength);
-						Color colorStart = new Color(value, value, Color.BLUE.getBlue(), alpha);
-						Color colorEnd = new Color(value, Color.GREEN.getGreen(), value, alpha);
+						Color colorStart = new Color(Color.RED.getRed(), value, Color.BLUE.getBlue(), alpha);
+						Color colorEnd = new Color(Color.RED.getRed(), value, value, alpha);
 						graphicsSubsystem.drawLine(x, y, (int) (x + scale * airstreamvector.get(0)),
 								(int) (y + scale * airstreamvector.get(1)), colorStart, colorEnd);
 					}
@@ -907,6 +925,86 @@ public class RagdollPhysics extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return String.valueOf(showWind);
+			}
+		});
+		addKeyAction(KeyEvent.VK_D, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return TXT_ID_AIRSTREAMDEGREE;
+			}
+
+			@Override
+			public String text() {
+				return "degree of wind visualization";
+			}
+
+			@Override
+			public void plus() {
+				airstreamdegree++;
+			}
+
+			@Override
+			public void minus() {
+				if (airstreamdegree > 1) {
+					airstreamdegree--;
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(airstreamdegree);
+			}
+		});
+		addKeyAction(KeyEvent.VK_R, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return TXT_ID_RATE_AIRSTREAMCHANGE;
+			}
+
+			@Override
+			public String text() {
+				return "rate of airstream change";
+			}
+
+			@Override
+			public void plus() {
+				rateOfAirstreamChange++;
+				windSimulator.setRateOfAirstreamChange(rateOfAirstreamChange);
+			}
+
+			@Override
+			public void minus() {
+				if (rateOfAirstreamChange > 0) {
+					rateOfAirstreamChange--;
+					windSimulator.setRateOfAirstreamChange(rateOfAirstreamChange);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(rateOfAirstreamChange);
 			}
 		});
 	}

@@ -34,20 +34,23 @@ public class WindSimulator {
 
 	private double windIterationStep = 0.5;
 
+	private int rateOfAirstreamChange = 1;
+
 	public WindSimulator(VectorField2D airstreamField, Coordination coordination) {
 		this.airstreamField = airstreamField;
+		randomAirstream();
 		this.coordination = coordination;
 	}
 
 	public void progressWindflaw() {
 
+		shuffleAirstream();
 		windIteration += windIterationStep;
 		if (windIteration >= 180) {
 
 			windIteration = 0;
 			windIterationStep = (rnd.nextInt(21) + 1) / 10.0;
 			windIntensityFactor = (rnd.nextInt(40) + 1) / 10.0;
-			randomAirstream();
 
 		}
 		windIntensity = windIntensityFactor * Math.sin(windIteration * Math.PI / 180);
@@ -77,7 +80,7 @@ public class WindSimulator {
 
 	public void shuffleAirstream() {
 
-		final Function<Double, Double> gen = v -> (v - 0.5) / 5;
+		final Function<Double, Double> gen = v -> rateOfAirstreamChange * (v - 0.5) / 5;
 		final Integer width = airstreamField.getDimensions().get(0);
 		final Integer height = airstreamField.getDimensions().get(1);
 		for (int x = 0; x < width; x++) {
@@ -108,5 +111,14 @@ public class WindSimulator {
 
 	public VectorField2D getAirstreamField() {
 		return airstreamField;
+	}
+
+	public int getRateOfAirstreamChange() {
+		return rateOfAirstreamChange;
+	}
+
+	public WindSimulator setRateOfAirstreamChange(int rateOfAirstreamChange) {
+		this.rateOfAirstreamChange = rateOfAirstreamChange;
+		return this;
 	}
 }
