@@ -498,7 +498,8 @@ public class RagdollPhysics extends SimulationScreen {
 
 			final int windWidth = getCoordination().WIDTH;
 			final int windHeight = getCoordination().HEIGHT;
-			final int scale = 20;
+			final int scaleAirstream = 20;
+			final int scaleWind = 2;
 			final int alpha = Math.min(200, 10 * airstreamdegree);
 
 			final Function<Integer, Integer> randomdistributor = v -> airstreamdegree < 2 ? v
@@ -517,8 +518,8 @@ public class RagdollPhysics extends SimulationScreen {
 						final Integer value = ccv.apply(airstreamlength);
 						Color colorStart = new Color(Color.RED.getRed(), value, Color.BLUE.getBlue(), alpha);
 						Color colorEnd = new Color(Color.RED.getRed(), value, value, alpha);
-						graphicsSubsystem.drawLine(x, y, (int) (x + scale * airstreamvector.get(0)),
-								(int) (y + scale * airstreamvector.get(1)), colorStart, colorEnd);
+						graphicsSubsystem.drawLine(x, y, (int) (x + scaleAirstream * airstreamvector.get(0)),
+								(int) (y + scaleAirstream * airstreamvector.get(1)), colorStart, colorEnd);
 					}
 
 					if (showWind) {
@@ -528,8 +529,8 @@ public class RagdollPhysics extends SimulationScreen {
 							final Integer value = ccv.apply(windlength);
 							Color colorStart = new Color(value, value, Color.BLUE.getBlue(), alpha);
 							Color colorEnd = new Color(value, Color.GREEN.getGreen(), value, alpha);
-							graphicsSubsystem.drawLine(x, y, (int) (x + scale * windvector.x), (int) (y + scale * windvector.y), colorStart,
-									colorEnd);
+							graphicsSubsystem.drawLine(x, y, (int) (x + scaleWind * windvector.x), (int) (y + scaleWind * windvector.y),
+									colorStart, colorEnd);
 						}
 					}
 				}
