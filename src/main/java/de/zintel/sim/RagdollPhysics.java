@@ -469,17 +469,6 @@ public class RagdollPhysics extends SimulationScreen {
 	@Override
 	public void renderSim(IGraphicsSubsystem graphicsSubsystem) {
 
-		for (IEdgeContainer2D edgeContainer : edgeContainers) {
-			edgeContainer.render();
-		}
-
-		for (Vertex2D vertex : vertices) {
-			if (isHit(mousePoint, vertex) && !isGrabbed(vertex)) {
-				// grabbing
-				graphicsSubsystem.drawFilledCircle((int) vertex.getCurrent().x, (int) vertex.getCurrent().y, vertexSize, () -> Color.RED);
-			}
-		}
-
 		if (showAirstreamVectors) {
 
 			final List<Integer> winddimensions = windSimulator.getAirstreamField().getDimensions();
@@ -544,6 +533,17 @@ public class RagdollPhysics extends SimulationScreen {
 						}
 					}
 				}
+			}
+		}
+
+		for (IEdgeContainer2D edgeContainer : edgeContainers) {
+			edgeContainer.render();
+		}
+
+		for (Vertex2D vertex : vertices) {
+			if (isHit(mousePoint, vertex) && !isGrabbed(vertex)) {
+				// grabbing
+				graphicsSubsystem.drawFilledCircle((int) vertex.getCurrent().x, (int) vertex.getCurrent().y, vertexSize, () -> Color.RED);
 			}
 		}
 
