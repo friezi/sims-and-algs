@@ -13,10 +13,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -55,7 +57,7 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private static final int iterations = 40;
 
-	private static final int vertexSize = 3;
+	private static final int bobbleSize = 3;
 
 	private static final Vector2D GRAV_DOWN = new Vector2D(0, 0.8);
 
@@ -91,6 +93,8 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private final static String TXT_ID_RATE_AIRSTREAMCHANGE = "rate_airstreamchange";
 
+	private final static String TXT_ID_WIND_PARTICLES = "windparticles";
+
 	private volatile boolean mousePressed = false;
 
 	private final Collection<Vertex2D> grabbedVertices = Collections.synchronizedCollection(new ArrayList<>());
@@ -117,6 +121,12 @@ public class RagdollPhysics extends SimulationScreen {
 	private boolean showAirstream = false;
 
 	private boolean showWind = false;
+
+	private boolean useWindparticles = false;
+
+	private final int windParticleFrequence = 10;
+
+	private long windParticleCnt = 0;
 
 	private int airstreamdegree = 6;
 
@@ -236,6 +246,8 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private Collection<Vertex2D> vertices = new LinkedHashSet<>();
 
+	private final Collection<Vertex2D> windParticles = new ConcurrentLinkedQueue<>();
+
 	public RagdollPhysics(EGraphicsSubsystem gfxSsystem, Coordination coordination, boolean doRecord, String recordFilename,
 			int recordingRate) {
 		super("Ragdoll physics", gfxSsystem, coordination, doRecord, recordFilename, recordingRate);
@@ -351,6 +363,48 @@ public class RagdollPhysics extends SimulationScreen {
 			windSimulator.progressWindflaw();
 		}
 
+		final double width = dimension.getWidth();
+		final double height = dimension.getHeight();
+
+		if (useWind && useWindparticles) {
+
+			if (windParticleCnt == 0) {
+				windParticles.clear();
+			}
+
+			final VectorField2D airstreamField = windSimulator.getAirstreamField();
+
+			if (windParticleCnt % windParticleFrequence == 0) {
+
+				final List<Integer> airstreamdimensions = airstreamField.getDimensions();
+				final int windWidth = airstreamdimensions.get(0);
+				final int windHeight = airstreamdimensions.get(1);
+
+				for (int x = 0; x < windWidth; x++) {
+					for (int y = 0; y < windHeight; y++) {
+						windParticles.add(new Vertex2D(new Vector2D(x * width / windWidth, y * height / windHeight)));
+					}
+				}
+			} else {
+
+				final Iterator<Vertex2D> iterator = windParticles.iterator();
+				while (iterator.hasNext()) {
+
+					final Vertex2D windParticle = iterator.next();
+					final Vector2D newPosition = calculateNewPosition(windParticle, 1);
+					newPosition.add(windSimulator.calculateWind(windParticle.getCurrent()));
+
+					if (newPosition.x >= width || newPosition.x < 0 || newPosition.y >= height || newPosition.y < 0) {
+						iterator.remove();
+					} else {
+						repositionVertex(windParticle, newPosition);
+					}
+				}
+			}
+
+			windParticleCnt++;
+		}
+
 		vertices.parallelStream().forEach(new Consumer<Vertex2D>() {
 
 			@Override
@@ -363,12 +417,11 @@ public class RagdollPhysics extends SimulationScreen {
 
 				double frictionFac = 1;
 				// friction
-				if (vertex.getCurrent().y == dimension.getHeight() - 1) {
+				if (vertex.getCurrent().y == height - 1) {
 					frictionFac = friction;
 				}
 
-				final Vector2D newCurrent = Vector2D.add(vertex.getCurrent(),
-						Vector2D.mult(frictionFac, Vector2D.substract(vertex.getCurrent(), vertex.getPrevious())));
+				final Vector2D newCurrent = calculateNewPosition(vertex, frictionFac);
 
 				if (useGravity) {
 					newCurrent.add(gravity);
@@ -378,8 +431,7 @@ public class RagdollPhysics extends SimulationScreen {
 					newCurrent.add(windSimulator.calculateWind(vertex.getCurrent()));
 				}
 
-				vertex.setPrevious(vertex.getCurrent());
-				vertex.setCurrent(newCurrent);
+				repositionVertex(vertex, newCurrent);
 
 			}
 		});
@@ -387,6 +439,28 @@ public class RagdollPhysics extends SimulationScreen {
 		for (int i = 0; i < iterations; i++) {
 			handleConstraints(dimension);
 		}
+	}
+
+	/**
+	 * calculates the new position. Uses verlet integration.
+	 * 
+	 * @param vertex
+	 * @param friction
+	 * @return
+	 */
+	public Vector2D calculateNewPosition(Vertex2D vertex, double friction) {
+		return Vector2D.add(vertex.getCurrent(), Vector2D.mult(friction, Vector2D.substract(vertex.getCurrent(), vertex.getPrevious())));
+	}
+
+	/**
+	 * sets the vertex to the new position
+	 * 
+	 * @param vertex
+	 * @param newCurrent
+	 */
+	public void repositionVertex(Vertex2D vertex, final Vector2D newCurrent) {
+		vertex.setPrevious(vertex.getCurrent());
+		vertex.setCurrent(newCurrent);
 	}
 
 	private void handleConstraints(Dimension dimension) {
@@ -537,16 +611,18 @@ public class RagdollPhysics extends SimulationScreen {
 			}
 		}
 
-		for (IEdgeContainer2D edgeContainer : edgeContainers) {
-			edgeContainer.render();
+		if (useWind && useWindparticles) {
+			windParticles.stream().forEach(particle -> {
+				graphicsSubsystem.drawFilledCircle((int) particle.getCurrent().x, (int) particle.getCurrent().y, 2 * bobbleSize,
+						() -> new Color(Color.RED.getRed(), 0, Color.BLUE.getBlue(), 100).brighter());
+				graphicsSubsystem.drawFilledCircle((int) particle.getCurrent().x, (int) particle.getCurrent().y, bobbleSize,
+						() -> new Color(Color.RED.getRed(), 0, Color.BLUE.getBlue(), 100));
+			});
 		}
 
-		for (Vertex2D vertex : vertices) {
-			if (isHit(mousePoint, vertex) && !isGrabbed(vertex)) {
-				// grabbing
-				graphicsSubsystem.drawFilledCircle((int) vertex.getCurrent().x, (int) vertex.getCurrent().y, vertexSize, () -> Color.RED);
-			}
-		}
+		edgeContainers.stream().forEach(IEdgeContainer2D::render);
+		vertices.stream().filter(vertex -> isHit(mousePoint, vertex) && !isGrabbed(vertex)).forEach(vertex -> graphicsSubsystem
+				.drawFilledCircle((int) vertex.getCurrent().x, (int) vertex.getCurrent().y, bobbleSize, () -> Color.RED));
 
 	}
 
@@ -604,7 +680,7 @@ public class RagdollPhysics extends SimulationScreen {
 	}
 
 	private boolean isHit(final Vector2D point, final Vertex2D vertex) {
-		return Vector2D.distance(point, vertex.getCurrent()) <= vertexSize;
+		return Vector2D.distance(point, vertex.getCurrent()) <= bobbleSize;
 	}
 
 	@Override
@@ -1006,6 +1082,44 @@ public class RagdollPhysics extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return String.valueOf(rateOfAirstreamChange);
+			}
+		});
+		addKeyAction(KeyEvent.VK_P, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return TXT_ID_WIND_PARTICLES;
+			}
+
+			@Override
+			public String text() {
+				return "use wind particles";
+			}
+
+			@Override
+			public void plus() {
+				useWindparticles = true;
+			}
+
+			@Override
+			public void minus() {
+				useWindparticles = false;
+				windParticleCnt = 0;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(useWindparticles);
 			}
 		});
 	}
