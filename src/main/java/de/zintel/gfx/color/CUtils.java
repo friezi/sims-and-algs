@@ -13,8 +13,36 @@ import java.util.Random;
 public final class CUtils {
 
 	@FunctionalInterface
-	public interface ColorGenerator {
+	public static interface ColorGenerator {
 		Color generateColor();
+	}
+
+	public static class SphericalColorGenerator implements ColorGenerator {
+
+		private boolean center = true;
+
+		private final Color centerColor;
+
+		private final Color edgeColor;
+
+		public SphericalColorGenerator(Color centerColor, Color edgeColor) {
+			this.centerColor = centerColor;
+			this.edgeColor = edgeColor;
+		}
+
+		@Override
+		public Color generateColor() {
+
+			if (center) {
+
+				center = false;
+				return centerColor;
+
+			} else {
+				return edgeColor;
+			}
+		}
+
 	}
 
 	private CUtils() {
@@ -52,13 +80,13 @@ public final class CUtils {
 	}
 
 	public static int brighten(final int cValue, double colorBrigthnessFactor) {
-	
+
 		if (colorBrigthnessFactor < 1) {
 			return cValue;
 		} else {
 			return (int) (cValue + (colorBrigthnessFactor - 1) * ((255 - cValue) / colorBrigthnessFactor));
 		}
-	
+
 	}
 
 }

@@ -26,6 +26,7 @@ import de.zintel.control.IKeyAction;
 import de.zintel.gfx.Coordination;
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
+import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.g2d.Chain2D;
 import de.zintel.gfx.g2d.ChainNet2D;
 import de.zintel.gfx.g2d.Cuboid2D;
@@ -55,8 +56,6 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
 
-	private static final int iterations = 40;
-
 	private static final int bobbleSize = 3;
 
 	private static final Vector2D GRAV_DOWN = new Vector2D(0, 0.8);
@@ -66,8 +65,6 @@ public class RagdollPhysics extends SimulationScreen {
 	private static final Vector2D GRAV_RIGHT = new Vector2D(0.8, 0);
 
 	private static final Vector2D GRAV_LEFT = new Vector2D(-0.8, 0);
-
-	private Vector2D gravity = GRAV_DOWN;
 
 	private final Random rnd = new Random(Instant.now().toEpochMilli());
 
@@ -91,9 +88,15 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private final static String TXT_ID_AIRSTREAMDEGREE = "airstreamdegree";
 
+	private final static String TXT_ID_ITERATIONS = "iterations";
+
 	private final static String TXT_ID_RATE_AIRSTREAMCHANGE = "rate_airstreamchange";
 
 	private final static String TXT_ID_WIND_PARTICLES = "windparticles";
+
+	private int iterations = 40;
+
+	private Vector2D gravity = GRAV_DOWN;
 
 	private volatile boolean mousePressed = false;
 
@@ -256,10 +259,14 @@ public class RagdollPhysics extends SimulationScreen {
 	@Override
 	protected void init(IGraphicsSubsystem graphicsSubsystem) {
 
+		System.out.println("initialising ...");
+
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		initScene(graphicsSubsystem);
 		windSimulator = new WindSimulator(initAirstreamField(), getCoordination()).setRateOfAirstreamChange(rateOfAirstreamChange);
 		initKeyActions();
+
+		System.out.println("initialised");
 
 	}
 
@@ -380,11 +387,8 @@ public class RagdollPhysics extends SimulationScreen {
 				final int windWidth = airstreamdimensions.get(0);
 				final int windHeight = airstreamdimensions.get(1);
 
-				for (int x = 0; x < windWidth; x++) {
-					for (int y = 0; y < windHeight; y++) {
-						windParticles.add(new Vertex2D(new Vector2D(x * width / windWidth, y * height / windHeight)));
-					}
-				}
+				windParticles.add(new Vertex2D(
+						new Vector2D(rnd.nextInt(windWidth) * width / windWidth, rnd.nextInt(windHeight) * height / windHeight)));
 			} else {
 
 				final Iterator<Vertex2D> iterator = windParticles.iterator();
@@ -392,7 +396,8 @@ public class RagdollPhysics extends SimulationScreen {
 
 					final Vertex2D windParticle = iterator.next();
 					final Vector2D newPosition = calculateNewPosition(windParticle, 1);
-					newPosition.add(windSimulator.calculateWind(windParticle.getCurrent()));
+					final Vector2D wind = windSimulator.calculateWind(windParticle.getCurrent());
+					newPosition.add(wind.mult(1 / wind.length()));
 
 					if (newPosition.x >= width || newPosition.x < 0 || newPosition.y >= height || newPosition.y < 0) {
 						iterator.remove();
@@ -402,7 +407,11 @@ public class RagdollPhysics extends SimulationScreen {
 				}
 			}
 
-			windParticleCnt++;
+			if (windParticleCnt == Long.MAX_VALUE) {
+				windParticleCnt = 0;
+			} else {
+				windParticleCnt++;
+			}
 		}
 
 		vertices.parallelStream().forEach(new Consumer<Vertex2D>() {
@@ -612,11 +621,15 @@ public class RagdollPhysics extends SimulationScreen {
 		}
 
 		if (useWind && useWindparticles) {
+
 			windParticles.stream().forEach(particle -> {
+				final int change = 50;
+				final Color centerColor = new Color(Color.RED.getRed() - rnd.nextInt(change), 0 + rnd.nextInt(change),
+						Color.BLUE.getBlue() - rnd.nextInt(change), 200);
+				final Color edgeColor = new Color(centerColor.getRed(), centerColor.getGreen(), centerColor.getBlue(), 1).brighter()
+						.brighter().brighter();
 				graphicsSubsystem.drawFilledCircle((int) particle.getCurrent().x, (int) particle.getCurrent().y, 2 * bobbleSize,
-						() -> new Color(Color.RED.getRed(), 0, Color.BLUE.getBlue(), 100).brighter());
-				graphicsSubsystem.drawFilledCircle((int) particle.getCurrent().x, (int) particle.getCurrent().y, bobbleSize,
-						() -> new Color(Color.RED.getRed(), 0, Color.BLUE.getBlue(), 100));
+						new CUtils.SphericalColorGenerator(centerColor, edgeColor));
 			});
 		}
 
@@ -1120,6 +1133,45 @@ public class RagdollPhysics extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return String.valueOf(useWindparticles);
+			}
+		});
+		addKeyAction(KeyEvent.VK_I, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return TXT_ID_ITERATIONS;
+			}
+
+			@Override
+			public String text() {
+				return "iterations";
+			}
+
+			@Override
+			public void plus() {
+				iterations++;
+			}
+
+			@Override
+			public void minus() {
+				if (iterations > 1) {
+					iterations--;
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(iterations);
 			}
 		});
 	}

@@ -63,31 +63,32 @@ public class Vector2D implements Serializable {
 	}
 
 	public Vector2D add(Vector2D vector) {
-		add(vector.x, vector.y);
-		return this;
+		return add(vector.x, vector.y);
 	}
 
 	public Vector2D substract(Vector2D vector) {
-		substract(vector.x, vector.y);
-		return this;
+		return substract(vector.x, vector.y);
 	}
 
-	public void mult(double value) {
+	public Vector2D mult(double value) {
 		this.x *= value;
 		this.y *= value;
 		length = -1;
+		return this;
 	}
 
-	public void add(double x, double y) {
+	public Vector2D add(double x, double y) {
 		this.x += x;
 		this.y += y;
 		length = -1;
+		return this;
 	}
 
-	public void substract(double x, double y) {
+	public Vector2D substract(double x, double y) {
 		this.x -= x;
 		this.y -= y;
 		length = -1;
+		return this;
 	}
 
 	public static Vector2D mult(double val, Vector2D vector) {
