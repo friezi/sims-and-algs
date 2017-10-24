@@ -3,6 +3,7 @@
  */
 package de.zintel.math;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -67,6 +68,17 @@ public class VectorField2D implements IVectorField {
 	@Override
 	public void setValue(VectorND pos, VectorND value) {
 		field[pos.get(0).intValue()][pos.get(1).intValue()] = value;
+	}
+
+	@Override
+	public List<VectorND> asList() {
+
+		final List<VectorND> vectors = new ArrayList<>(getDimensions().stream().reduce(1, (v1, v2) -> v1 * v2));
+		for (VectorND[] array : field) {
+			vectors.addAll(Arrays.asList(array));
+		}
+
+		return vectors;
 	}
 
 }

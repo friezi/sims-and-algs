@@ -21,6 +21,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.Coordination;
@@ -87,6 +88,8 @@ public class RagdollPhysics extends SimulationScreen {
 	private final static String TXT_ID_SHOWWIND = "showwind";
 
 	private final static String TXT_ID_AIRSTREAMDEGREE = "airstreamdegree";
+
+	private final static String TXT_ID_AIRSTREAMINTENSITY = "airstreamintensity";
 
 	private final static String TXT_ID_ITERATIONS = "iterations";
 
@@ -1172,6 +1175,56 @@ public class RagdollPhysics extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return String.valueOf(iterations);
+			}
+		});
+		addKeyAction(KeyEvent.VK_N, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return TXT_ID_AIRSTREAMINTENSITY;
+			}
+
+			@Override
+			public String text() {
+				return "airstream intensity";
+			}
+
+			@Override
+			public void plus() {
+				modifyAirstreamIntensity(1.1);
+			}
+
+			@Override
+			public void minus() {
+				modifyAirstreamIntensity(0.9);
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(windSimulator.getAirstreamField().asList().stream()
+						.collect(Collectors.summarizingDouble(VectorND::length)).getAverage());
+			}
+
+			private void modifyAirstreamIntensity(final double modificator) {
+
+				final VectorField2D airstreamField = windSimulator.getAirstreamField();
+				final List<Integer> dimensions = airstreamField.getDimensions();
+				for (int x = 0; x < dimensions.get(0); x++) {
+					for (int y = 0; y < dimensions.get(1); y++) {
+						final VectorND pos = new VectorND(Arrays.asList((double) x, (double) y));
+						airstreamField.setValue(pos, VectorND.mult(modificator, airstreamField.getValue(pos)));
+					}
+				}
 			}
 		});
 	}

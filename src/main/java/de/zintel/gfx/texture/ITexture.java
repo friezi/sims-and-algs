@@ -47,4 +47,17 @@ public interface ITexture extends IVectorField {
 	default void setValue(VectorND pos, VectorND value) {
 	}
 
+	@Override
+	default List<VectorND> asList() {
+
+		final List<VectorND> vectors = new ArrayList<>(getDimensions().stream().reduce(1, (v1, v2) -> v1 * v2));
+		for (int x = 0; x < getWidth(); x++) {
+			for (int y = 0; y < getHeight(); y++) {
+				vectors.add(getValue(new VectorND(Arrays.asList((double) x, (double) y))));
+			}
+		}
+
+		return vectors;
+	}
+
 }
