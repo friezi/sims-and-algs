@@ -169,7 +169,7 @@ public class VectorND implements Serializable {
 	}
 
 	public static VectorND normalize(VectorND vector) {
-		return mult(1 / vector.length(), vector);
+		return (vector.isNullVector() ? new VectorND(vector.getDim()) : mult(1 / vector.length(), vector));
 	}
 
 	public static VectorND max(VectorND v1, VectorND v2) {

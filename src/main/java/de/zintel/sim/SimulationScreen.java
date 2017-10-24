@@ -70,6 +70,8 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	private volatile boolean paused = false;
 
+	private volatile boolean shift = false;
+
 	private Map<Integer, IKeyAction> keyActions = new HashMap<>();
 
 	private Integer keyValue = null;
@@ -259,6 +261,8 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 						TEXT_TIMEOUT, keyAction.toggleComponent());
 
 			}
+		} else if (pressedKeyCode == KeyEvent.VK_SHIFT) {
+			shift = true;
 		}
 
 	}
@@ -348,6 +352,8 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 			stopped = true;
 		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_SPACE) {
 			paused ^= true;
+		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_SHIFT) {
+			shift = false;
 		}
 
 	}
@@ -379,6 +385,10 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	public Coordination getCoordination() {
 		return coordination;
+	}
+
+	public boolean isShift() {
+		return shift;
 	}
 
 }

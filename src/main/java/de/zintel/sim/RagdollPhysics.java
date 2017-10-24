@@ -704,19 +704,24 @@ public class RagdollPhysics extends SimulationScreen {
 
 		setMousePoint(meEvent);
 
-		for (Vertex2D vertex : vertices) {
-			if (isHit(mousePoint, vertex)) {
-				grabbedVertices.add(vertex);
+		if (isShift()) {
+
+		} else {
+
+			for (Vertex2D vertex : vertices) {
+				if (isHit(mousePoint, vertex)) {
+					grabbedVertices.add(vertex);
+				}
 			}
-		}
 
-		final Vector2D mPoint = new Vector2D(mousePoint);
-		for (Vertex2D vertex : grabbedVertices) {
+			final Vector2D mPoint = new Vector2D(mousePoint);
+			for (Vertex2D vertex : grabbedVertices) {
 
-			vertex.setPinned(true);
-			vertex.setCurrent(mPoint);
-			vertex.setPrevious(mPoint);
+				vertex.setPinned(true);
+				vertex.setCurrent(mPoint);
+				vertex.setPrevious(mPoint);
 
+			}
 		}
 
 		mousePressed = true;
@@ -729,33 +734,40 @@ public class RagdollPhysics extends SimulationScreen {
 		mousePressed = false;
 
 		setMousePoint(e);
-		final Vector2D mPoint = new Vector2D(mousePoint);
-		if (e.getButton() == MouseEvent.BUTTON1) {
-			// unpin
-			for (Vertex2D vertex : grabbedVertices) {
-				vertex.setPinned(false);
-				vertex.setCurrent(mPoint);
-			}
-		} else if (e.getButton() == MouseEvent.BUTTON3) {
-			// glue together
-			for (Vertex2D vertex : grabbedVertices) {
-				for (Edge2D edge : edges) {
-					if (isHit(vertex.getCurrent(), edge.getFirst())) {
-						if (!isHit(vertex.getCurrent(), edge.getSecond())) {
-							// hm, is it really necessary???
-							edge.setFirst(vertex);
+
+		if (isShift()) {
+
+		} else {
+
+			final Vector2D mPoint = new Vector2D(mousePoint);
+			if (e.getButton() == MouseEvent.BUTTON1) {
+				// unpin
+				for (Vertex2D vertex : grabbedVertices) {
+					vertex.setPinned(false);
+					vertex.setCurrent(mPoint);
+				}
+			} else if (e.getButton() == MouseEvent.BUTTON3) {
+				// glue together
+				for (Vertex2D vertex : grabbedVertices) {
+					for (Edge2D edge : edges) {
+						if (isHit(vertex.getCurrent(), edge.getFirst())) {
+							if (!isHit(vertex.getCurrent(), edge.getSecond())) {
+								// hm, is it really necessary???
+								edge.setFirst(vertex);
+							}
 						}
-					}
-					if (isHit(vertex.getCurrent(), edge.getSecond())) {
-						if (!isHit(vertex.getCurrent(), edge.getFirst())) {
-							edge.setSecond(vertex);
+						if (isHit(vertex.getCurrent(), edge.getSecond())) {
+							if (!isHit(vertex.getCurrent(), edge.getFirst())) {
+								edge.setSecond(vertex);
+							}
 						}
 					}
 				}
 			}
-		}
 
-		grabbedVertices.clear();
+			grabbedVertices.clear();
+
+		}
 	}
 
 	@Override
@@ -765,9 +777,35 @@ public class RagdollPhysics extends SimulationScreen {
 
 		if (mousePressed) {
 
-			final Vector2D mPoint = new Vector2D(mousePoint);
-			for (Vertex2D vertex : grabbedVertices) {
-				vertex.setCurrent(mPoint);
+			if (isShift()) {
+
+				if (showAirstream) {
+					final VectorField2D airstreamField = windSimulator.getAirstreamField();
+					final List<Integer> dimensions = airstreamField.getDimensions();
+					final Integer fieldwidth = dimensions.get(0);
+					final Integer fieldheight = dimensions.get(1);
+					for (int x = 0; x < fieldwidth; x++) {
+						for (int y = 0; y < fieldheight; y++) {
+
+							final VectorND fieldpos = new VectorND(Arrays.asList((double) x, (double) y));
+							final VectorND realpos = new VectorND(Arrays.asList(((double) x) * getCoordination().WIDTH / fieldwidth,
+									((double) y) * getCoordination().HEIGHT / fieldheight));
+							final VectorND diffVector = VectorND.substract(new VectorND(Arrays.asList(mousePoint.x, mousePoint.y)),
+									realpos);
+							VectorND dirVec = VectorND.normalize(diffVector);
+							dirVec = dirVec.isNullVector() ? dirVec : dirVec.mult(100 / Math.pow(diffVector.length(), 2));
+							airstreamField.setValue(fieldpos, VectorND.add(dirVec, airstreamField.getValue(fieldpos)));
+						}
+					}
+				}
+
+			} else {
+
+				final Vector2D mPoint = new Vector2D(mousePoint);
+				for (Vertex2D vertex : grabbedVertices) {
+					vertex.setCurrent(mPoint);
+				}
+
 			}
 		}
 	}
