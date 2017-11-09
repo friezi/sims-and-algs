@@ -21,7 +21,7 @@ public class VectorND implements Serializable {
 	 */
 	private static final long serialVersionUID = 5071024763655354475L;
 
-	private final int dim;
+	private int dim;
 
 	private final List<Double> coords;
 
@@ -200,6 +200,12 @@ public class VectorND implements Serializable {
 
 	public Double get(int index) {
 		return coords.get(index);
+	}
+
+	public void extend(final double coord) {
+		coords.add(coord);
+		dim++;
+		length = -1;
 	}
 
 	private static void assertProp(final boolean value) {
