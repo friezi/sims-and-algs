@@ -175,6 +175,11 @@ public class VectorND implements Serializable {
 	public static VectorND max(VectorND v1, VectorND v2) {
 		return (v1.length() >= v2.length() ? v1 : v2);
 	}
+//	
+//	public PolarND toPolar() {
+//		
+//	}
+	
 	//
 	// public Polar toPolar() {
 	// return new Polar(length(), x != 0 ? Math.acos(x / length()) : Math.asin(y
