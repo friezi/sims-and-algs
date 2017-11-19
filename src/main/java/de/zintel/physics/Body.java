@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.zintel.gfx.g2d.Vector2D;
+import de.zintel.math.Vector2D;
 import de.zintel.sim.nbodies.BodyProperty;
 
 /**

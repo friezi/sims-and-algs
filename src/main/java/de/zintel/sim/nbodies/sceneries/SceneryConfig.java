@@ -6,7 +6,7 @@ package de.zintel.sim.nbodies.sceneries;
 import java.util.Collection;
 import java.util.Random;
 
-import de.zintel.gfx.g2d.Vector2D;
+import de.zintel.math.Vector2D;
 import de.zintel.physics.Body;
 import de.zintel.physics.gravitation.Physics;
 

@@ -2,7 +2,7 @@ package de.zintel.physics;
 
 import java.io.Serializable;
 
-import de.zintel.gfx.g2d.Vector2D;
+import de.zintel.math.Vector2D;
 
 public class BodyParameters implements Serializable {
 

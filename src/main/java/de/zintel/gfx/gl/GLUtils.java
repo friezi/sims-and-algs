@@ -12,7 +12,7 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 
 import de.zintel.gfx.color.CUtils.ColorGenerator;
-import de.zintel.gfx.g2d.Vector2D;
+import de.zintel.math.Vector2D;
 
 /**
  * @author Friedemann

@@ -20,7 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import de.zintel.gfx.color.CUtils.ColorGenerator;
-import de.zintel.gfx.g2d.Vector2D;
+import de.zintel.math.Vector2D;
 
 /**
  * @author Friedemann

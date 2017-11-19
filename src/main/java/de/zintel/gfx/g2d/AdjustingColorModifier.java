@@ -2,6 +2,8 @@ package de.zintel.gfx.g2d;
 
 import java.awt.Color;
 
+import de.zintel.math.Vector2D;
+
 public class AdjustingColorModifier implements ColorModifier<Edge2D> {
 
 	private static final double RANGE = 1 - Color.DARK_GRAY.getRGBColorComponents(null)[0];

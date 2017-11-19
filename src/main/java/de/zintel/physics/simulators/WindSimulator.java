@@ -10,7 +10,7 @@ import java.util.Random;
 import java.util.function.Function;
 
 import de.zintel.gfx.Coordination;
-import de.zintel.gfx.g2d.Vector2D;
+import de.zintel.math.Vector2D;
 import de.zintel.math.VectorField2D;
 import de.zintel.math.VectorND;
 

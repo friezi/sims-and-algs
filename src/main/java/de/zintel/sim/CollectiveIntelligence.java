@@ -32,11 +32,11 @@ import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
 import de.zintel.gfx.g2d.IterationUnit2D;
-import de.zintel.gfx.g2d.Polar;
-import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.ContinuousInterpolatingValueProvider;
 import de.zintel.math.MathUtils;
+import de.zintel.math.Polar2D;
+import de.zintel.math.Vector2D;
 
 /**
  * @author Friedemann
@@ -909,8 +909,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 	 */
 	private Color calculateMovementDependentDeltaColor(final Color shine, Color color, final Boid boid) {
 
-		Polar polarDirection = boid.getDirectionPolar();
-		Polar polarPreviousDirection = boid.getPreviousDirectionPolar();
+		Polar2D polarDirection = boid.getDirectionPolar();
+		Polar2D polarPreviousDirection = boid.getPreviousDirectionPolar();
 
 		double deltaAngle = (Double.isNaN(polarDirection.getAngle()) || Double.isNaN(polarPreviousDirection.getAngle())) ? 0
 				: Math.abs(polarDirection.getAngle() - polarPreviousDirection.getAngle());

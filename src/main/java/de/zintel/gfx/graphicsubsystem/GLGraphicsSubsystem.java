@@ -34,9 +34,9 @@ import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
 import com.jogamp.opengl.util.awt.TextRenderer;
 
 import de.zintel.gfx.color.CUtils.ColorGenerator;
-import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.gfx.gl.GLUtils;
 import de.zintel.gfx.gl.GLUtils.CircleDrawer;
+import de.zintel.math.Vector2D;
 
 /**
  * @author Friedemann

@@ -3,8 +3,8 @@
  */
 package de.zintel.ci;
 
-import de.zintel.gfx.g2d.Polar;
-import de.zintel.gfx.g2d.Vector2D;
+import de.zintel.math.Polar2D;
+import de.zintel.math.Vector2D;
 
 /**
  * @author Friedemann
@@ -18,11 +18,11 @@ public class Boid {
 
 	private Vector2D direction = new Vector2D();
 
-	private Polar directionPolar = new Polar(1, 0);
+	private Polar2D directionPolar = new Polar2D(1, 0);
 
 	private Vector2D previousDirection = new Vector2D();
 
-	private Polar previousDirectionPolar = new Polar(1, 0);
+	private Polar2D previousDirectionPolar = new Polar2D(1, 0);
 
 	private Vector2D panic = new Vector2D();
 
@@ -130,11 +130,11 @@ public class Boid {
 		return this;
 	}
 
-	public Polar getDirectionPolar() {
+	public Polar2D getDirectionPolar() {
 		return directionPolar;
 	}
 
-	public Polar getPreviousDirectionPolar() {
+	public Polar2D getPreviousDirectionPolar() {
 		return previousDirectionPolar;
 	}
 

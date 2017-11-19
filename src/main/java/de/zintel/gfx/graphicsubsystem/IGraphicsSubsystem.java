@@ -13,7 +13,7 @@ import java.awt.event.MouseWheelListener;
 import java.util.Collection;
 
 import de.zintel.gfx.color.CUtils.ColorGenerator;
-import de.zintel.gfx.g2d.Vector2D;
+import de.zintel.math.Vector2D;
 
 /**
  * @author Friedemann

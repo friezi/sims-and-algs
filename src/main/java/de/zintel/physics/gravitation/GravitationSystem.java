@@ -10,8 +10,8 @@ import java.util.Random;
 import java.util.TreeSet;
 
 import de.zintel.gfx.g2d.Field;
-import de.zintel.gfx.g2d.Polar;
-import de.zintel.gfx.g2d.Vector2D;
+import de.zintel.math.Polar2D;
+import de.zintel.math.Vector2D;
 import de.zintel.physics.Body;
 import de.zintel.utils.Pair;
 import de.zintel.utils.CompositeCollection;
@@ -215,7 +215,7 @@ public class GravitationSystem implements IBodyProducer {
 	private Vector2D createExplosionParticleVelocity(Body body) {
 
 		double deltaAngle = RANDOM.nextInt(91) - 45;
-		Polar newVelocity = body.getVelocity().toPolar();
+		Polar2D newVelocity = body.getVelocity().toPolar();
 		newVelocity.angle += (deltaAngle * Math.PI) / 180;
 		newVelocity.radius /= physics.getParticleVelocityReduction();
 
@@ -229,7 +229,7 @@ public class GravitationSystem implements IBodyProducer {
 	private Vector2D createExplosionParticlePosition(Body body) {
 
 		Vector2D position = new Vector2D(body.getPosition());
-		Polar deltaPosition = new Polar((2 * RANDOM.nextDouble() + 0.5) * body.getSize(), RANDOM.nextDouble() * 2 * Math.PI);
+		Polar2D deltaPosition = new Polar2D((2 * RANDOM.nextDouble() + 0.5) * body.getSize(), RANDOM.nextDouble() * 2 * Math.PI);
 		position.add(deltaPosition.toCartesian());
 		return position;
 	}
@@ -273,7 +273,7 @@ public class GravitationSystem implements IBodyProducer {
 		}
 
 		Vector2D position = new Vector2D(body.getPosition());
-		Polar deltaPosition = new Polar((2 * RANDOM.nextDouble() + 0.5) * body.getSize(), deltaAngle);
+		Polar2D deltaPosition = new Polar2D((2 * RANDOM.nextDouble() + 0.5) * body.getSize(), deltaAngle);
 		position.add(deltaPosition.toCartesian());
 		return position;
 	}

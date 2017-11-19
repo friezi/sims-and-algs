@@ -1,19 +1,19 @@
 /**
  * 
  */
-package de.zintel.gfx.g2d;
+package de.zintel.math;
 
 /**
  * @author Friedemann
  *
  */
-public class Polar {
+public class Polar2D {
 
 	public double radius;
 
 	public double angle;
 
-	public Polar(double radius, double angle) {
+	public Polar2D(double radius, double angle) {
 		this.radius = radius;
 		this.angle = angle;
 	}

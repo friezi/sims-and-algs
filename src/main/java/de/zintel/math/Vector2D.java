@@ -1,10 +1,11 @@
 /**
  * 
  */
-package de.zintel.gfx.g2d;
+package de.zintel.math;
 
 import java.awt.Point;
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * @author Friedemann
@@ -125,8 +126,12 @@ public class Vector2D implements Serializable {
 		return (v1.length() >= v2.length() ? v1 : v2);
 	}
 
-	public Polar toPolar() {
-		return new Polar(length(), x != 0 ? Math.acos(x / length()) : Math.asin(y / length()));
+	public Polar2D toPolar() {
+		return new Polar2D(length(), Math.atan2(y, x));
+	}
+
+	public VectorND toND() {
+		return new VectorND(Arrays.asList(x, y));
 	}
 
 	@Override

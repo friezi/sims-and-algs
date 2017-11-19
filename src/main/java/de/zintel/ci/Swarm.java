@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import de.zintel.gfx.g2d.Vector2D;
 import de.zintel.math.MathUtils;
+import de.zintel.math.Vector2D;
 
 /**
  * @author Friedemann

@@ -3,6 +3,8 @@
  */
 package de.zintel.gfx.g2d;
 
+import de.zintel.math.Vector2D;
+
 /**
  * @author friedemann.zintel
  *

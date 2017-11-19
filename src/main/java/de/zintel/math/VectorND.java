@@ -5,6 +5,7 @@ package de.zintel.math;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -175,21 +176,24 @@ public class VectorND implements Serializable {
 	public static VectorND max(VectorND v1, VectorND v2) {
 		return (v1.length() >= v2.length() ? v1 : v2);
 	}
-//	
-//	public PolarND toPolar() {
-//		
-//	}
-	
-	//
-	// public Polar toPolar() {
-	// return new Polar(length(), x != 0 ? Math.acos(x / length()) : Math.asin(y
-	// / length()));
-	// }
-	//
-	// @Override
-	// public String toString() {
-	// return "Vector2D [x=" + x + ", y=" + y + "]";
-	// }
+
+	public PolarND toPolar() {
+
+		final Double[] angles = new Double[getDim() - 1];
+		final int dimAngles = getDim() - 1;
+		final double radius = length();
+
+		double sumSquares = 0;
+		for (int i = 0; i < dimAngles; i++) {
+
+			sumSquares += Math.pow(coords.get(i), 2);
+			angles[i] = Math.atan2(coords.get(i + 1), i == 0 ? coords.get(i) : Math.sqrt(sumSquares));
+
+		}
+
+		return new PolarND(radius, Arrays.asList(angles));
+
+	}
 
 	public static double distance(VectorND p1, VectorND p2) {
 		return substract(p2, p1).length();

@@ -44,9 +44,9 @@ public class PolarND {
 		final Double[] coords = new Double[angles.size() + 1];
 
 		double cosprod = 1;
-		for (int i = angles.size() - 1; i >= 0; i--) {
+		for (int i = angles.size(); i >= 0; i--) {
 
-			if (i < angles.size() - 1) {
+			if (i < angles.size()) {
 				cosprod *= Math.cos(angles.get(i));
 			}
 			final double coord = radius * (i == 0 ? 1 : Math.sin(angles.get(i - 1))) * cosprod;
