@@ -99,6 +99,25 @@ public final class MathUtils {
 		return distance(new Point(), vector);
 	}
 
+	/**
+	 * transformation of ranges
+	 * 
+	 * @param smin
+	 *            source-range minimum
+	 * @param smax
+	 *            source-range maximum
+	 * @param tmin
+	 *            target-range minimum
+	 * @param tmax
+	 *            target-range maximum
+	 * @param x
+	 *            value (MUST BE WITHIN [smin,smax], NO CHECK!!!
+	 * @return
+	 */
+	public static double transformRange(final double smin, final double smax, final double tmin, final double tmax, final double x) {
+		return (tmax - tmin) * (x - smin) / (smax - smin) + tmin;
+	}
+
 	public static Optional<Double> max(final Collection<Double> collection) {
 		return reduceDoubles(collection, Collectors.maxBy(DOUBLE_COMPARATOR));
 	}
