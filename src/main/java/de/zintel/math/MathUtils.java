@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -47,10 +48,14 @@ public final class MathUtils {
 		});
 	}
 
+//	public static double interpolateLinearReal(double start, double end, int iteration, int maxIterations) {
+//		return interpolateReal(start, end, iteration, maxIterations, (x, max) -> {
+//			return x;
+//		});
+//	}
+
 	public static double interpolateLinearReal(double start, double end, int iteration, int maxIterations) {
-		return interpolateReal(start, end, iteration, maxIterations, (x, max) -> {
-			return x;
-		});
+		return interpolateRealAlt(start, end, iteration, maxIterations, x -> morphRange(start, end, 0, 1, x));
 	}
 
 	public static int interpolateLinearMoreScattering(int start, int end, int iteration, int maxIterations) {
@@ -79,6 +84,32 @@ public final class MathUtils {
 		final int step = iteration - 1;
 		double projectedStep = Math.abs(p.project(step, maxSteps)) % (maxSteps + 1);
 		return (maxSteps <= 0 ? start : (start + (((projectedStep * (end - start))) / maxSteps)));
+	}
+
+	public static double interpolateRealAlt(double start, double end, int iteration, int maxIterations, final Function<Double, Double> fmorph) {
+
+		final int maxSteps = maxIterations - 1;
+		final int step = iteration - 1;
+		return maxSteps <= 0 ? start : morph(x -> start, x -> end, fmorph, start + (step * (end - start)) / maxSteps);
+	}
+
+	/**
+	 * @param fstart
+	 *            start-function
+	 * @param fend
+	 *            end-function
+	 * @param fmorph
+	 *            morph-function: if fmorph:double->[0;1] in such way, that
+	 *            fmorph(rangestart)=0 and fmorph(rangeend)=1 then a morph from
+	 *            fstart to fend well take place
+	 * @param x
+	 *            value x
+	 * @return morphed value
+	 */
+	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend, final Function<Double, Double> fmorph,
+			final double x) {
+		final Double start = fstart.apply(x);
+		return start + fmorph.apply(x) * (fend.apply(x) - start);
 	}
 
 	public static int interpolateMoreScattering(int start, int end, int iteration, int maxIterations, StepProjection p) {
@@ -114,8 +145,8 @@ public final class MathUtils {
 	 *            value (MUST BE WITHIN [smin,smax], NO CHECK!!!
 	 * @return
 	 */
-	public static double transformRange(final double smin, final double smax, final double tmin, final double tmax, final double x) {
-		return (tmax - tmin) * (x - smin) / (smax - smin) + tmin;
+	public static double morphRange(final double smin, final double smax, final double tmin, final double tmax, final double x) {
+		return smax == smin ? tmin : morph(t -> tmin, t -> tmax, t -> (t - smin) / (smax - smin), x);
 	}
 
 	public static Optional<Double> max(final Collection<Double> collection) {
