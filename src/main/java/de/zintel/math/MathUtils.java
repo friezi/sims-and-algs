@@ -48,14 +48,16 @@ public final class MathUtils {
 		});
 	}
 
-//	public static double interpolateLinearReal(double start, double end, int iteration, int maxIterations) {
-//		return interpolateReal(start, end, iteration, maxIterations, (x, max) -> {
-//			return x;
-//		});
-//	}
+	// public static double interpolateLinearReal(double start, double end, int
+	// iteration, int maxIterations) {
+	// return interpolateReal(start, end, iteration, maxIterations, (x, max) ->
+	// {
+	// return x;
+	// });
+	// }
 
 	public static double interpolateLinearReal(double start, double end, int iteration, int maxIterations) {
-		return interpolateRealAlt(start, end, iteration, maxIterations, x -> morphRange(start, end, 0, 1, x));
+		return interpolateRealMorph(start, end, iteration, maxIterations, x -> morphRange(start, end, 0, 1, x));
 	}
 
 	public static int interpolateLinearMoreScattering(int start, int end, int iteration, int maxIterations) {
@@ -83,10 +85,13 @@ public final class MathUtils {
 		final int maxSteps = maxIterations - 1;
 		final int step = iteration - 1;
 		double projectedStep = Math.abs(p.project(step, maxSteps)) % (maxSteps + 1);
-		return (maxSteps <= 0 ? start : (start + (((projectedStep * (end - start))) / maxSteps)));
+		return maxSteps <= 0 ? start : start + (projectedStep * (end - start) / maxSteps);
+		// funktioniert leider w. Rechenungenauigkeiten nicht
+		// return maxSteps <= 0 ? start : morph(x -> start, x -> end, x -> x /
+		// maxSteps, projectedStep);
 	}
 
-	public static double interpolateRealAlt(double start, double end, int iteration, int maxIterations, final Function<Double, Double> fmorph) {
+	public static double interpolateRealMorph(double start, double end, int iteration, int maxIterations, final Function<Double, Double> fmorph) {
 
 		final int maxSteps = maxIterations - 1;
 		final int step = iteration - 1;
