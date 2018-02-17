@@ -48,14 +48,6 @@ public final class MathUtils {
 		});
 	}
 
-	// public static double interpolateLinearReal(double start, double end, int
-	// iteration, int maxIterations) {
-	// return interpolateReal(start, end, iteration, maxIterations, (x, max) ->
-	// {
-	// return x;
-	// });
-	// }
-
 	public static double interpolateLinearReal(double start, double end, int iteration, int maxIterations) {
 		return interpolateRealMorph(start, end, iteration, maxIterations, x -> morphRange(start, end, 0, 1, x));
 	}
@@ -85,17 +77,21 @@ public final class MathUtils {
 		final int maxSteps = maxIterations - 1;
 		final int step = iteration - 1;
 		double projectedStep = Math.abs(p.project(step, maxSteps)) % (maxSteps + 1);
-		return maxSteps <= 0 ? start : start + (projectedStep * (end - start) / maxSteps);
-		// funktioniert leider w. Rechenungenauigkeiten nicht
-		// return maxSteps <= 0 ? start : morph(x -> start, x -> end, x -> x /
-		// maxSteps, projectedStep);
+
+		return maxSteps <= 0 ? start : morph(x -> start, x -> end, x -> x, x -> (double) maxSteps, projectedStep);
 	}
 
-	public static double interpolateRealMorph(double start, double end, int iteration, int maxIterations, final Function<Double, Double> fmorph) {
+	public static double interpolateRealMorph(double start, double end, int iteration, int maxIterations,
+			final Function<Double, Double> morphFactor) {
+
+		return interpolateRealMorph(start, end, iteration, maxIterations, morphFactor, (x, max) -> x);
+	}
+
+	public static double interpolateRealMorph(double start, double end, int iteration, int maxIterations, final Function<Double, Double> morphFactor,
+			StepProjection p) {
 
 		final int maxSteps = maxIterations - 1;
-		final int step = iteration - 1;
-		return maxSteps <= 0 ? start : morph(x -> start, x -> end, fmorph, start + (step * (end - start)) / maxSteps);
+		return maxSteps <= 0 ? start : morph(x -> start, x -> end, morphFactor, interpolateReal(start, end, iteration, maxIterations, p));
 	}
 
 	/**
@@ -103,7 +99,7 @@ public final class MathUtils {
 	 *            start-function
 	 * @param fend
 	 *            end-function
-	 * @param fmorph
+	 * @param morphFactor
 	 *            morph-function: if fmorph:double->[0;1] in such way, that
 	 *            fmorph(rangestart)=0 and fmorph(rangeend)=1 then a morph from
 	 *            fstart to fend well take place
@@ -111,10 +107,33 @@ public final class MathUtils {
 	 *            value x
 	 * @return morphed value
 	 */
-	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend, final Function<Double, Double> fmorph,
+	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend, final Function<Double, Double> morphFactor,
 			final double x) {
+		return morph(fstart, fend, morphFactor, d -> 1.0, x);
+	}
+
+	/**
+	 * @param fstart
+	 *            start-function
+	 * @param fend
+	 *            end-function
+	 * @param morphFactorDividend
+	 *            morph-function: if morphFactor:double->[0;1] in such way, that
+	 *            morphFactor(rangestart)=0 and morphFactor(rangeend)=1 then a
+	 *            morph from fstart to fend well take place
+	 * @param morphFactorDivisor
+	 *            for precision-reasons it's possible to split up the
+	 *            morphFactor-function into two functions, so that the
+	 *            calculation will be
+	 *            (morphFactor()*(...))/morphDivisor()=(morphFactor/morphDivisor)*(...)
+	 * @param x
+	 *            value x
+	 * @return morphed value
+	 */
+	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend,
+			final Function<Double, Double> morphFactorDividend, final Function<Double, Double> morphFactorDivisor, final double x) {
 		final Double start = fstart.apply(x);
-		return start + fmorph.apply(x) * (fend.apply(x) - start);
+		return start + (morphFactorDividend.apply(x) * (fend.apply(x) - start)) / morphFactorDivisor.apply(x);
 	}
 
 	public static int interpolateMoreScattering(int start, int end, int iteration, int maxIterations, StepProjection p) {
