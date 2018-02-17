@@ -130,7 +130,7 @@ public class RagdollPhysics extends SimulationScreen {
 
 	private boolean useWindparticles = false;
 
-	private final int windParticleFrequence = 10;
+	private final int windParticleFrequence = 2;
 
 	private long windParticleCnt = 0;
 
@@ -631,7 +631,7 @@ public class RagdollPhysics extends SimulationScreen {
 						Color.BLUE.getBlue() - rnd.nextInt(change), 200);
 				final Color edgeColor = new Color(centerColor.getRed(), centerColor.getGreen(), centerColor.getBlue(), 1).brighter()
 						.brighter().brighter();
-				graphicsSubsystem.drawFilledCircle((int) particle.getCurrent().x, (int) particle.getCurrent().y, 2 * bobbleSize,
+				graphicsSubsystem.drawFilledCircle((int) particle.getCurrent().x, (int) particle.getCurrent().y, 2,
 						new CUtils.SphericalColorGenerator(centerColor, edgeColor));
 			});
 		}

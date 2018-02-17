@@ -87,8 +87,8 @@ public final class MathUtils {
 		return interpolateRealMorph(start, end, iteration, maxIterations, morphFactor, (x, max) -> x);
 	}
 
-	public static double interpolateRealMorph(double start, double end, int iteration, int maxIterations, final Function<Double, Double> morphFactor,
-			StepProjection p) {
+	public static double interpolateRealMorph(double start, double end, int iteration, int maxIterations,
+			final Function<Double, Double> morphFactor, StepProjection p) {
 
 		final int maxSteps = maxIterations - 1;
 		return maxSteps <= 0 ? start : morph(x -> start, x -> end, morphFactor, interpolateReal(start, end, iteration, maxIterations, p));
@@ -107,8 +107,8 @@ public final class MathUtils {
 	 *            value x
 	 * @return morphed value
 	 */
-	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend, final Function<Double, Double> morphFactor,
-			final double x) {
+	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend,
+			final Function<Double, Double> morphFactor, final double x) {
 		return morph(fstart, fend, morphFactor, d -> 1.0, x);
 	}
 
@@ -269,6 +269,10 @@ public final class MathUtils {
 
 	public static boolean isSet(final long bitmask, final int bit) {
 		return ((bitmask >> bit) & 1L) == 1L;
+	}
+
+	public static double sigmoid(double x) {
+		return morphRange(-1, 1, 0, 1, Math.tanh(x));
 	}
 
 }

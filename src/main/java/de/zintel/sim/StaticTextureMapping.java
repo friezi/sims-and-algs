@@ -31,6 +31,7 @@ import de.zintel.gfx.g2d.View2D;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.gfx.texture.ImageTexture;
 import de.zintel.gfx.texture.InvertFilter;
+import de.zintel.gfx.texture.MorphTexture;
 import de.zintel.gfx.texture.BilinearFilter;
 import de.zintel.gfx.texture.TxCrd;
 import de.zintel.math.MathUtils;
@@ -128,6 +129,8 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 
 	private ITexture texture_inverted;
 
+	private ITexture texture_morphed;
+
 	private IterationUnit2D p11;
 	private IterationUnit2D p12;
 	private IterationUnit2D p21;
@@ -210,6 +213,7 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 				new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg")));
 		texture_inverted = new InvertFilter(
 				new BilinearFilter(new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"))));
+		texture_morphed = new MorphTexture(texture_interpolated, texture_inverted, x -> MathUtils.sigmoid(x), -8, 8);
 	}
 
 	private void drawTexture(Graphics g) {
@@ -375,12 +379,10 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 						graphics);
 
 		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)),
-				new Pin2D(new Point(0, texture_noninterpolated.getHeight() * factor), new TxCrd(0, 1)),
-				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, 0), new TxCrd(1, 0)),
-				new Pin2D(new Point(texture_noninterpolated.getWidth() * factor, texture_noninterpolated.getHeight() * factor),
-						new TxCrd(1, 1)),
-				texture_noninterpolated).draw(
-						new Point(2 * texture_noninterpolated.getWidth() * factor + 60, texture_noninterpolated.getHeight() * factor + 10),
+				new Pin2D(new Point(0, texture_morphed.getHeight() * factor), new TxCrd(0, 1)),
+				new Pin2D(new Point(texture_morphed.getWidth() * factor, 0), new TxCrd(1, 0)),
+				new Pin2D(new Point(texture_morphed.getWidth() * factor, texture_morphed.getHeight() * factor), new TxCrd(1, 1)),
+				texture_morphed).draw(new Point(2 * texture_morphed.getWidth() * factor + 60, texture_morphed.getHeight() * factor + 10),
 						graphics);
 
 		new Tetragon2D(new Pin2D(new Point(0, 0), new TxCrd(0, 0)),
