@@ -136,6 +136,30 @@ public final class MathUtils {
 		return start + (morphFactorDividend.apply(x) * (fend.apply(x) - start)) / morphFactorDivisor.apply(x);
 	}
 
+	/**
+	 * @param fstart
+	 *            start-function
+	 * @param fend
+	 *            end-function
+	 * @param morphFactorDividend
+	 *            morph-function: if morphFactor:double->[0;1] in such way, that
+	 *            morphFactor(rangestart)=0 and morphFactor(rangeend)=1 then a
+	 *            morph from fstart to fend well take place
+	 * @param morphFactorDivisor
+	 *            for precision-reasons it's possible to split up the
+	 *            morphFactor-function into two functions, so that the
+	 *            calculation will be
+	 *            (morphFactor()*(...))/morphDivisor()=(morphFactor/morphDivisor)*(...)
+	 * @param x
+	 *            value x
+	 * @return morphed value
+	 */
+	public static VectorND morph(final Function<VectorND, VectorND> fstart, final Function<VectorND, VectorND> fend,
+			final Function<VectorND, Double> morphFactorDividend, final Function<VectorND, Double> morphFactorDivisor, final VectorND x) {
+		final VectorND start = fstart.apply(x);
+		return fend.apply(x).substract(start).mult(morphFactorDividend.apply(x)).div(morphFactorDivisor.apply(x)).add(start);
+	}
+
 	public static int interpolateMoreScattering(int start, int end, int iteration, int maxIterations, StepProjection p) {
 
 		final int maxSteps = maxIterations - 1;
@@ -170,7 +194,7 @@ public final class MathUtils {
 	 * @return
 	 */
 	public static double morphRange(final double smin, final double smax, final double tmin, final double tmax, final double x) {
-		return smax == smin ? tmin : morph(t -> tmin, t -> tmax, t -> (t - smin) / (smax - smin), x);
+		return smax == smin ? tmin : morph(t -> tmin, t -> tmax, t -> (t - smin), t -> (smax - smin), x);
 	}
 
 	public static Optional<Double> max(final Collection<Double> collection) {

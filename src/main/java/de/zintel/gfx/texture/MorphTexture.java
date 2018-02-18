@@ -14,9 +14,9 @@ import de.zintel.math.MathUtils;
  */
 public class MorphTexture implements ITexture {
 
-	private final ITexture textureLeft;
+	private final ITexture textureZero;
 
-	private final ITexture textureRight;
+	private final ITexture textureOne;
 
 	private final Function<Double, Double> morphFactor;
 
@@ -24,15 +24,15 @@ public class MorphTexture implements ITexture {
 
 	private final double factorMax;
 
-	public MorphTexture(ITexture textureLeft, ITexture textureRight, Function<Double, Double> morphFactor, double factorMin,
+	public MorphTexture(ITexture textureZero, ITexture textureOne, Function<Double, Double> morphFactor, double factorMin,
 			double factorMax) {
-		this.textureLeft = textureLeft;
-		this.textureRight = textureRight;
+		this.textureZero = textureZero;
+		this.textureOne = textureOne;
 		this.morphFactor = morphFactor;
 		this.factorMin = factorMin;
 		this.factorMax = factorMax;
 
-		if (!(textureLeft.getHeight() == textureRight.getHeight() && textureLeft.getWidth() == textureRight.getWidth())) {
+		if (!(textureZero.getHeight() == textureOne.getHeight() && textureZero.getWidth() == textureOne.getWidth())) {
 			throw new RuntimeException("textures not matching!");
 		}
 
@@ -45,7 +45,7 @@ public class MorphTexture implements ITexture {
 	 */
 	@Override
 	public int getWidth() {
-		return textureLeft.getWidth();
+		return textureZero.getWidth();
 	}
 
 	/*
@@ -55,7 +55,7 @@ public class MorphTexture implements ITexture {
 	 */
 	@Override
 	public int getHeight() {
-		return textureRight.getHeight();
+		return textureOne.getHeight();
 	}
 
 	/*
@@ -70,9 +70,29 @@ public class MorphTexture implements ITexture {
 	}
 
 	private int morphColorValue(double x, double y, Function<Color, Integer> colorValueChooser) {
-		return (int) MathUtils.morph(x1 -> colorValueChooser.apply(textureLeft.getColor(x1, y)).doubleValue(),
-				x1 -> colorValueChooser.apply(textureRight.getColor(x1, y)).doubleValue(),
-				x1 -> morphFactor.apply(MathUtils.morphRange(0, textureLeft.getWidth() - 1, factorMin, factorMax, x1)), x);
+		return (int) MathUtils.morph(x1 -> colorValueChooser.apply(textureZero.getColor(x1, y)).doubleValue(),
+				x1 -> colorValueChooser.apply(textureOne.getColor(x1, y)).doubleValue(),
+				x1 -> morphFactor.apply(MathUtils.morphRange(0, textureZero.getWidth() - 1, factorMin, factorMax, x1)), x);
+	}
+
+	public ITexture getTextureZero() {
+		return textureZero;
+	}
+
+	public ITexture getTextureOne() {
+		return textureOne;
+	}
+
+	public Function<Double, Double> getMorphFactor() {
+		return morphFactor;
+	}
+
+	public double getFactorMin() {
+		return factorMin;
+	}
+
+	public double getFactorMax() {
+		return factorMax;
 	}
 
 }

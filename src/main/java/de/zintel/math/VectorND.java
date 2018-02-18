@@ -102,11 +102,17 @@ public class VectorND implements Serializable {
 	}
 
 	public VectorND mult(double value) {
+		return combine(value, (a, b) -> a * b);
+	}
 
-		assertProp(dim == coords.size());
+	public VectorND div(double value) {
+		return combine(value, (a, b) -> a / b);
+	}
+
+	public VectorND combine(double value, BiFunction<Double, Double, Double> combinator) {
 
 		for (int i = 0; i < dim; i++) {
-			this.coords.set(i, this.coords.get(i) * value);
+			this.coords.set(i, combinator.apply(this.coords.get(i), value));
 		}
 
 		length = -1;
@@ -115,16 +121,14 @@ public class VectorND implements Serializable {
 	}
 
 	public VectorND add(final List<Double> coords) {
-		combine(coords, (a, b) -> a + b);
-		return this;
+		return combine(coords, (a, b) -> a + b);
 	}
 
 	public VectorND substract(final List<Double> coords) {
-		combine(coords, (a, b) -> a - b);
-		return this;
+		return combine(coords, (a, b) -> a - b);
 	}
 
-	private void combine(final List<Double> coords, BiFunction<Double, Double, Double> combinator) {
+	private VectorND combine(final List<Double> coords, BiFunction<Double, Double, Double> combinator) {
 
 		assertProp(dim == coords.size());
 
@@ -133,6 +137,8 @@ public class VectorND implements Serializable {
 		}
 
 		length = -1;
+		
+		return this;
 	}
 
 	public static VectorND mult(double val, VectorND vector) {
