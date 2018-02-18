@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Random;
@@ -35,6 +36,7 @@ import de.zintel.gfx.texture.MorphTexture;
 import de.zintel.gfx.texture.BilinearFilter;
 import de.zintel.gfx.texture.TxCrd;
 import de.zintel.math.MathUtils;
+import de.zintel.math.VectorND;
 import de.zintel.utils.Processor;
 
 /**
@@ -213,7 +215,9 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 				new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg")));
 		texture_inverted = new InvertFilter(
 				new BilinearFilter(new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"))));
-		texture_morphed = new MorphTexture(texture_interpolated, texture_inverted, x -> MathUtils.sigmoid(x), -8, 8);
+		texture_morphed = new MorphTexture(texture_interpolated, texture_inverted,
+				xy -> MathUtils.sigmoid(xy.get(0)) * MathUtils.sigmoid(xy.get(1)), new VectorND(Arrays.asList(-8.0, 8.0)),
+				new VectorND(Arrays.asList(-8.0, 8.0)));
 	}
 
 	private void drawTexture(Graphics g) {

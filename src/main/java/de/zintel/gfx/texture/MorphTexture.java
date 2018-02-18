@@ -4,9 +4,11 @@
 package de.zintel.gfx.texture;
 
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.function.Function;
 
 import de.zintel.math.MathUtils;
+import de.zintel.math.VectorND;
 
 /**
  * @author friedemann.zintel
@@ -18,19 +20,19 @@ public class MorphTexture implements ITexture {
 
 	private final ITexture textureOne;
 
-	private final Function<Double, Double> morphFactor;
+	private final Function<VectorND, Double> morphFactor;
 
-	private final double factorMin;
+	private final VectorND factorXRange;
 
-	private final double factorMax;
+	private final VectorND factorYRange;
 
-	public MorphTexture(ITexture textureZero, ITexture textureOne, Function<Double, Double> morphFactor, double factorMin,
-			double factorMax) {
+	public MorphTexture(ITexture textureZero, ITexture textureOne, Function<VectorND, Double> morphFactor, VectorND factorXRange,
+			VectorND factorYRange) {
 		this.textureZero = textureZero;
 		this.textureOne = textureOne;
 		this.morphFactor = morphFactor;
-		this.factorMin = factorMin;
-		this.factorMax = factorMax;
+		this.factorXRange = factorXRange;
+		this.factorYRange = factorYRange;
 
 		if (!(textureZero.getHeight() == textureOne.getHeight() && textureZero.getWidth() == textureOne.getWidth())) {
 			throw new RuntimeException("textures not matching!");
@@ -65,14 +67,25 @@ public class MorphTexture implements ITexture {
 	 */
 	@Override
 	public Color getColor(double x, double y) {
-		return new Color(morphColorValue(x, y, c -> c.getRed()), morphColorValue(x, y, c -> c.getGreen()),
-				morphColorValue(x, y, c -> c.getBlue()));
+
+		final VectorND coords = new VectorND(Arrays.asList(x, y));
+		final VectorND colorValues = morphColorValue(coords);
+		return new Color(colorValues.get(0).intValue(), colorValues.get(1).intValue(), colorValues.get(2).intValue(),
+				colorValues.get(3).intValue());
 	}
 
-	private int morphColorValue(double x, double y, Function<Color, Integer> colorValueChooser) {
-		return (int) MathUtils.morph(x1 -> colorValueChooser.apply(textureZero.getColor(x1, y)).doubleValue(),
-				x1 -> colorValueChooser.apply(textureOne.getColor(x1, y)).doubleValue(),
-				x1 -> morphFactor.apply(MathUtils.morphRange(0, textureZero.getWidth() - 1, factorMin, factorMax, x1)), x);
+	private VectorND morphColorValue(VectorND coords) {
+		return MathUtils.morph(xy -> color2Vector(textureZero.getColor(xy.get(0), xy.get(1))),
+				xy -> color2Vector(textureOne.getColor(xy.get(0), xy.get(1))),
+				xy -> morphFactor.apply(new VectorND(Arrays.asList(
+						MathUtils.morphRange(0, textureZero.getWidth() - 1, factorXRange.get(0), factorXRange.get(1), xy.get(0)),
+						MathUtils.morphRange(0, textureZero.getHeight() - 1, factorYRange.get(0), factorYRange.get(1), xy.get(1))))),
+				xy -> 1.0, coords);
+	}
+
+	private VectorND color2Vector(final Color color) {
+		return new VectorND(
+				Arrays.asList((double) color.getRed(), (double) color.getGreen(), (double) color.getBlue(), (double) color.getAlpha()));
 	}
 
 	public ITexture getTextureZero() {
@@ -83,16 +96,16 @@ public class MorphTexture implements ITexture {
 		return textureOne;
 	}
 
-	public Function<Double, Double> getMorphFactor() {
+	public Function<VectorND, Double> getMorphFactor() {
 		return morphFactor;
 	}
 
-	public double getFactorMin() {
-		return factorMin;
+	public VectorND getFactorXRange() {
+		return factorXRange;
 	}
 
-	public double getFactorMax() {
-		return factorMax;
+	public VectorND getFactorYRange() {
+		return factorYRange;
 	}
 
 }
