@@ -14,9 +14,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -29,11 +31,11 @@ import de.zintel.gfx.g2d.LinearPointInterpolater2D;
 import de.zintel.gfx.g2d.Pin2D;
 import de.zintel.gfx.g2d.Tetragon2D;
 import de.zintel.gfx.g2d.View2D;
+import de.zintel.gfx.texture.BilinearFilter;
 import de.zintel.gfx.texture.ITexture;
 import de.zintel.gfx.texture.ImageTexture;
 import de.zintel.gfx.texture.InvertFilter;
 import de.zintel.gfx.texture.MorphTexture;
-import de.zintel.gfx.texture.BilinearFilter;
 import de.zintel.gfx.texture.TxCrd;
 import de.zintel.math.MathUtils;
 import de.zintel.math.VectorND;
@@ -49,6 +51,8 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 	private static Coordination coordination = new Coordination();
 
 	private static final int SPEED = 20;
+
+	private final Random rnd = new Random();
 
 	private static final int MAX_TEXTURE_X = 1000;
 	private static final int MAX_TEXTURE_Y = 260;
@@ -83,6 +87,34 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 		@Override
 		public Color getColor(double x, double y) {
 			return colors[(int) x][(int) y];
+		}
+
+	}
+
+	private static final class MorphFunctionSpec {
+
+		private final Function<VectorND, Double> morphFunction;
+
+		private final VectorND xRange;
+
+		private final VectorND yRange;
+
+		public MorphFunctionSpec(Function<VectorND, Double> morphFunction, double xMin, double xMax, double yMin, double yMax) {
+			this.morphFunction = morphFunction;
+			this.xRange = new VectorND(Arrays.asList(xMin, xMax));
+			this.yRange = new VectorND(Arrays.asList(yMin, yMax));
+		}
+
+		public Function<VectorND, Double> getMorphFunction() {
+			return morphFunction;
+		}
+
+		public VectorND getxRange() {
+			return xRange;
+		}
+
+		public VectorND getyRange() {
+			return yRange;
 		}
 
 	}
@@ -210,14 +242,30 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 	}
 
 	private void makeImageTexture() throws IOException {
+
 		texture_noninterpolated = new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"));
 		texture_interpolated = new BilinearFilter(
 				new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg")));
 		texture_inverted = new InvertFilter(
 				new BilinearFilter(new ImageTexture(getClass().getClassLoader().getResourceAsStream("pics/Schimpanse_klein.jpg"))));
-		texture_morphed = new MorphTexture(texture_interpolated, texture_inverted,
-				xy -> MathUtils.sigmoid(xy.get(0)) * MathUtils.sigmoid(xy.get(1)), new VectorND(Arrays.asList(-8.0, 8.0)),
-				new VectorND(Arrays.asList(-8.0, 8.0)));
+
+		final List<MorphFunctionSpec> morphFunctionSpecs = Arrays.asList(
+				new MorphFunctionSpec(xy -> Math.sin(xy.get(0)) * Math.sin(xy.get(1)), 0.0, Math.PI, 0.0, Math.PI),
+				new MorphFunctionSpec(xy -> MathUtils.sigmoid(xy.get(0)) * MathUtils.sigmoid(xy.get(1)), -8.0, 8.0, -8.0, 8.0),
+				new MorphFunctionSpec(xy -> (double) ((int) ((xy.get(0) + xy.get(1)))) % 2, 0.0, (double) texture_interpolated.getWidth(),
+						0.0, (double) texture_interpolated.getHeight()),
+
+				// Gauss'sche Normalverteilung:
+				new MorphFunctionSpec(
+						xy -> MathUtils.morphRange(0, 0.1, 0, 1.0, 1 / (2 * Math.PI) * Math.pow(Math.E, -0.5 * Math.pow(xy.get(0), 2)))
+								* MathUtils.morphRange(0, 0.1, 0, 1.0, 1 / (2 * Math.PI) * Math.pow(Math.E, -0.5 * Math.pow(xy.get(1), 2))),
+						-4, 4, -4, 4),
+				new MorphFunctionSpec(xy -> (double) rnd.nextInt(2), 0.0, (double) texture_interpolated.getWidth(), 0.0,
+						(double) texture_interpolated.getHeight()));
+		final MorphFunctionSpec morphFunctionSpec = morphFunctionSpecs.get(rnd.nextInt(morphFunctionSpecs.size()));
+
+		texture_morphed = new MorphTexture(texture_interpolated, texture_inverted, morphFunctionSpec.getMorphFunction(),
+				morphFunctionSpec.getxRange(), morphFunctionSpec.getyRange());
 	}
 
 	private void drawTexture(Graphics g) {

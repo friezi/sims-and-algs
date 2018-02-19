@@ -70,8 +70,11 @@ public class MorphTexture implements ITexture {
 
 		final VectorND coords = new VectorND(Arrays.asList(x, y));
 		final VectorND colorValues = morphColorValue(coords);
-		return new Color(colorValues.get(0).intValue(), colorValues.get(1).intValue(), colorValues.get(2).intValue(),
-				colorValues.get(3).intValue());
+		return new Color(fit(colorValues.get(0)), fit(colorValues.get(1)), fit(colorValues.get(2)), fit(colorValues.get(3)));
+	}
+
+	private int fit(final double value) {
+		return (int) Math.max(Math.min(value, 255), 0);
 	}
 
 	private VectorND morphColorValue(VectorND coords) {
