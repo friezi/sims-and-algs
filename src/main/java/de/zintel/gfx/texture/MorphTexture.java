@@ -68,8 +68,7 @@ public class MorphTexture implements ITexture {
 	@Override
 	public Color getColor(double x, double y) {
 
-		final VectorND coords = new VectorND(Arrays.asList(x, y));
-		final VectorND colorValues = morphColorValue(coords);
+		final VectorND colorValues = morphColorValue(new VectorND(Arrays.asList(x, y)));
 		return new Color(fit(colorValues.get(0)), fit(colorValues.get(1)), fit(colorValues.get(2)), fit(colorValues.get(3)));
 	}
 
@@ -78,17 +77,11 @@ public class MorphTexture implements ITexture {
 	}
 
 	private VectorND morphColorValue(VectorND coords) {
-		return MathUtils.morph(xy -> color2Vector(textureZero.getColor(xy.get(0), xy.get(1))),
-				xy -> color2Vector(textureOne.getColor(xy.get(0), xy.get(1))),
+		return MathUtils.morph(xy -> textureZero.getValue(xy), xy -> textureOne.getValue(xy),
 				xy -> morphFactor.apply(new VectorND(Arrays.asList(
 						MathUtils.morphRange(0, textureZero.getWidth() - 1, factorXRange.get(0), factorXRange.get(1), xy.get(0)),
 						MathUtils.morphRange(0, textureZero.getHeight() - 1, factorYRange.get(0), factorYRange.get(1), xy.get(1))))),
 				xy -> 1.0, coords);
-	}
-
-	private VectorND color2Vector(final Color color) {
-		return new VectorND(
-				Arrays.asList((double) color.getRed(), (double) color.getGreen(), (double) color.getBlue(), (double) color.getAlpha()));
 	}
 
 	public ITexture getTextureZero() {

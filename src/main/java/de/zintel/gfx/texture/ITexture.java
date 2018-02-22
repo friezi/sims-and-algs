@@ -34,13 +34,17 @@ public interface ITexture extends IVectorField {
 
 	@Override
 	default VectorND getValue(VectorND pos) {
-		final Color color = getColor(pos.getCoords().get(0), pos.getCoords().get(1));
-		return new VectorND(Arrays.asList((double) color.getRed(), (double) color.getGreen(), (double) color.getBlue()));
+		return color2Vector(getColor(pos.get(0), pos.get(1)));
+	}
+
+	default VectorND color2Vector(final Color color) {
+		return new VectorND(
+				Arrays.asList((double) color.getRed(), (double) color.getGreen(), (double) color.getBlue(), (double) color.getAlpha()));
 	}
 
 	@Override
 	default int getDimensionsCodomain() {
-		return 3; // colors
+		return 4; // colors
 	}
 
 	@Override
