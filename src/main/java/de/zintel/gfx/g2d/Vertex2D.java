@@ -67,4 +67,8 @@ public class Vertex2D {
 		return "Vertex2D [current=" + current + ", previous=" + previous + ", pinned=" + pinned + "]";
 	}
 
+	public Vertex2D dcopy() {
+		return new Vertex2D(new Vector2D(current), new Vector2D(previous)).setPinned(isPinned());
+	}
+
 }

@@ -6,6 +6,7 @@ package de.zintel.gfx.g2d;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector2D;
@@ -18,7 +19,7 @@ public class Chain2D implements IEdgeContainer2D {
 
 	private IRenderer<Chain2D> renderer;
 
-	private final List<Edge2D> edges = new LinkedList<>();
+	private List<Edge2D> edges = new LinkedList<>();
 
 	/**
 	 * 
@@ -55,6 +56,11 @@ public class Chain2D implements IEdgeContainer2D {
 
 	}
 
+	private Chain2D(List<Edge2D> edges, IRenderer<Chain2D> renderer) {
+		this.renderer = renderer;
+		this.edges = edges;
+	}
+
 	@Override
 	public void render() {
 		if (renderer != null) {
@@ -65,6 +71,11 @@ public class Chain2D implements IEdgeContainer2D {
 	@Override
 	public List<Edge2D> getEdges() {
 		return edges;
+	}
+
+	@Override
+	public IEdgeContainer2D dcopy() {
+		return new Chain2D(edges.stream().map(edge -> edge.dcopy()).collect(Collectors.toList()), renderer);
 	}
 
 }

@@ -39,6 +39,15 @@ public class Edge2D implements IEdgeContainer2D {
 		this.length = Vector2D.distance(first.getCurrent(), second.getCurrent());
 	}
 
+	private Edge2D(Vertex2D first, Vertex2D second, double length, Color color, IRenderer<Edge2D> renderer, ColorModifier<Edge2D> colorModifier) {
+		this.first = first;
+		this.second = second;
+		this.length = length;
+		this.color = color;
+		this.renderer = renderer;
+		this.colorModifier = colorModifier;
+	}
+
 	public Vertex2D getFirst() {
 		return first;
 	}
@@ -105,6 +114,11 @@ public class Edge2D implements IEdgeContainer2D {
 	@Override
 	public List<Edge2D> getEdges() {
 		return Arrays.asList(this);
+	}
+
+	@Override
+	public Edge2D dcopy() {
+		return new Edge2D(first.dcopy(), second.dcopy(), length, color, renderer, colorModifier);
 	}
 
 }

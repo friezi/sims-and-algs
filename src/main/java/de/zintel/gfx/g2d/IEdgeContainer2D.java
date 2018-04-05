@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface IEdgeContainer2D extends IRenderable {
 
-	public List<Edge2D> getEdges();
+	List<Edge2D> getEdges();
+
+	IEdgeContainer2D dcopy();
 
 }

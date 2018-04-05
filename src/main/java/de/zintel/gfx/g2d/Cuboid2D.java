@@ -5,6 +5,7 @@ package de.zintel.gfx.g2d;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author friedemann.zintel
@@ -14,7 +15,7 @@ public class Cuboid2D implements IEdgeContainer2D {
 
 	private IRenderer<Cuboid2D> renderer;
 
-	private final List<Edge2D> edges = new LinkedList<>();
+	private List<Edge2D> edges = new LinkedList<>();
 
 	/**
 	 * 
@@ -31,6 +32,11 @@ public class Cuboid2D implements IEdgeContainer2D {
 		edges.add(new Edge2D(v2, v4, edgeRenderer));
 	}
 
+	private Cuboid2D(IRenderer<Cuboid2D> renderer, List<Edge2D> edges) {
+		this.renderer = renderer;
+		this.edges = edges;
+	}
+
 	@Override
 	public void render() {
 		if (renderer != null) {
@@ -41,6 +47,11 @@ public class Cuboid2D implements IEdgeContainer2D {
 	@Override
 	public List<Edge2D> getEdges() {
 		return edges;
+	}
+
+	@Override
+	public IEdgeContainer2D dcopy() {
+		return new Cuboid2D(renderer, edges.stream().map(edge -> edge.dcopy()).collect(Collectors.toList()));
 	}
 
 }
