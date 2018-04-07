@@ -11,16 +11,16 @@ public class AdjustingColorModifier implements ColorModifier<Edge2D> {
 	@Override
 	public Color getColor(Edge2D edge) {
 
-		final Color origColor = edge.getOrigColor();
-		double ratio = edge.getLength() / Vector2D.distance(edge.getFirst().getCurrent(), edge.getSecond().getCurrent());
+		final Color color = edge.getColor();
+		double ratio = edge.getPreferredLength() / Vector2D.distance(edge.getFirst().getCurrent(), edge.getSecond().getCurrent());
 		if (ratio != 1) {
 
-			final float[] cValues = origColor.getRGBComponents(null);
+			final float[] cValues = color.getRGBComponents(null);
 			return new Color(adjustColor(cValues[0], ratio), adjustColor(cValues[1], ratio), adjustColor(cValues[2], ratio), cValues[3]);
 
 		}
 
-		return origColor;
+		return color;
 	}
 
 	private float adjustColor(final float value, double ratio) {

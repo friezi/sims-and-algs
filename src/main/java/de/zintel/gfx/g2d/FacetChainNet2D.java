@@ -14,9 +14,11 @@ import de.zintel.math.Vector2D;
  * @author friedemann.zintel
  *
  */
-public class ChainNet2D implements IEdgeContainer2D {
+public class FacetChainNet2D implements IEdgeContainer2D {
 
-	private IRenderer<ChainNet2D> renderer;
+	// TODO
+
+	private IRenderer<FacetChainNet2D> renderer;
 
 	private List<Edge2D> edges = new ArrayList<>();
 
@@ -28,8 +30,8 @@ public class ChainNet2D implements IEdgeContainer2D {
 	/**
 	 * 
 	 */
-	public ChainNet2D(Vertex2D topleft, Vertex2D topright, int height, int chainLinks, int dimHorizontal, int dimVertical,
-			IRenderer<ChainNet2D> renderer, IRenderer<Edge2D> edgeRenderer) {
+	public FacetChainNet2D(Vertex2D topleft, Vertex2D topright, int height, int chainLinks, int dimHorizontal, int dimVertical,
+			IRenderer<FacetChainNet2D> renderer, IRenderer<Edge2D> edgeRenderer) {
 
 		this.renderer = renderer;
 
@@ -98,7 +100,7 @@ public class ChainNet2D implements IEdgeContainer2D {
 
 	}
 
-	private ChainNet2D(IRenderer<ChainNet2D> renderer, List<Edge2D> edges, List<List<List<Edge2D>>> edgesH,
+	private FacetChainNet2D(IRenderer<FacetChainNet2D> renderer, List<Edge2D> edges, List<List<List<Edge2D>>> edgesH,
 			List<List<List<Edge2D>>> edgesV) {
 		this.renderer = renderer;
 		this.edges = edges;
@@ -106,7 +108,7 @@ public class ChainNet2D implements IEdgeContainer2D {
 		this.edgesV = edgesV;
 	}
 
-	public ChainNet2D setColor(Color color) {
+	public FacetChainNet2D setColor(Color color) {
 		for (Edge2D edge : getEdges()) {
 			edge.setColor(color);
 		}
@@ -133,11 +135,11 @@ public class ChainNet2D implements IEdgeContainer2D {
 		return edgesV;
 	}
 
-	public IRenderer<ChainNet2D> getRenderer() {
+	public IRenderer<FacetChainNet2D> getRenderer() {
 		return renderer;
 	}
 
-	public void setRenderer(IRenderer<ChainNet2D> renderer) {
+	public void setRenderer(IRenderer<FacetChainNet2D> renderer) {
 		this.renderer = renderer;
 	}
 
@@ -183,7 +185,7 @@ public class ChainNet2D implements IEdgeContainer2D {
 		addAllEdges(allEdges, newEdgesH);
 		addAllEdges(allEdges, newEdgesV);
 
-		return new ChainNet2D(renderer, allEdges, newEdgesH, newEdgesV);
+		return new FacetChainNet2D(renderer, allEdges, newEdgesH, newEdgesV);
 	}
 
 }

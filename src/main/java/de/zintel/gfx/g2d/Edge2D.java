@@ -19,13 +19,11 @@ public class Edge2D implements IEdgeContainer2D {
 
 	private Vertex2D second;
 
-	private double length;
+	private double preferredLength;
 
 	private Color color;
 
 	private IRenderer<Edge2D> renderer;
-
-	private ColorModifier<Edge2D> colorModifier = null;
 
 	public Edge2D(Vertex2D first, Vertex2D second, IRenderer<Edge2D> renderer) {
 		this(first, second, Color.WHITE, renderer);
@@ -36,16 +34,15 @@ public class Edge2D implements IEdgeContainer2D {
 		this.second = second;
 		this.color = color;
 		this.renderer = renderer;
-		this.length = Vector2D.distance(first.getCurrent(), second.getCurrent());
+		this.preferredLength = Vector2D.distance(first.getCurrent(), second.getCurrent());
 	}
 
-	private Edge2D(Vertex2D first, Vertex2D second, double length, Color color, IRenderer<Edge2D> renderer, ColorModifier<Edge2D> colorModifier) {
+	private Edge2D(Vertex2D first, Vertex2D second, double length, Color color, IRenderer<Edge2D> renderer) {
 		this.first = first;
 		this.second = second;
-		this.length = length;
+		this.preferredLength = length;
 		this.color = color;
 		this.renderer = renderer;
-		this.colorModifier = colorModifier;
 	}
 
 	public Vertex2D getFirst() {
@@ -56,8 +53,8 @@ public class Edge2D implements IEdgeContainer2D {
 		return second;
 	}
 
-	public double getLength() {
-		return length;
+	public double getPreferredLength() {
+		return preferredLength;
 	}
 
 	public void setFirst(Vertex2D first) {
@@ -68,21 +65,12 @@ public class Edge2D implements IEdgeContainer2D {
 		this.second = second;
 	}
 
-	public void setLength(double length) {
-		this.length = length;
-	}
-
-	public Color getOrigColor() {
-		return color;
+	public void setPreferredLength(double length) {
+		this.preferredLength = length;
 	}
 
 	public Color getColor() {
-
-		if (colorModifier != null) {
-			return colorModifier.getColor(this);
-		} else {
-			return color;
-		}
+		return color;
 	}
 
 	public Edge2D setColor(Color color) {
@@ -90,18 +78,9 @@ public class Edge2D implements IEdgeContainer2D {
 		return this;
 	}
 
-	public ColorModifier<Edge2D> getColorModifier() {
-		return colorModifier;
-	}
-
-	public Edge2D setColorModifier(ColorModifier<Edge2D> colorModifier) {
-		this.colorModifier = colorModifier;
-		return this;
-	}
-
 	@Override
 	public String toString() {
-		return "Edge2D [first=" + first + ", second=" + second + ", length=" + length + "]";
+		return "Edge2D [first=" + first + ", second=" + second + ", length=" + preferredLength + "]";
 	}
 
 	@Override
@@ -118,7 +97,15 @@ public class Edge2D implements IEdgeContainer2D {
 
 	@Override
 	public Edge2D dcopy() {
-		return new Edge2D(first.dcopy(), second.dcopy(), length, color, renderer, colorModifier);
+		return new Edge2D(first.dcopy(), second.dcopy(), preferredLength, color, renderer);
+	}
+
+	public IRenderer<Edge2D> getRenderer() {
+		return renderer;
+	}
+
+	public void setRenderer(IRenderer<Edge2D> renderer) {
+		this.renderer = renderer;
 	}
 
 }

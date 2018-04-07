@@ -186,8 +186,8 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	}
 
 	@Override
-	public void drawFilledPolygon(Collection<Vector2D> points, Color color) {
-		GLUtils.drawFilledPolygon(points, color, dimension, gl);
+	public void drawFilledPolygon(Collection<Vector2D> points, ColorGenerator colorGenerator) {
+		GLUtils.drawFilledPolygon(points, colorGenerator, dimension, gl);
 	}
 
 	/*

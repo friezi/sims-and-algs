@@ -241,8 +241,8 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 	}
 
 	@Override
-	public void drawFilledPolygon(Collection<Vector2D> points, Color color) {
-		graphics.setColor(color);
+	public void drawFilledPolygon(Collection<Vector2D> points, ColorGenerator colorGenerator) {
+		graphics.setColor(colorGenerator.generateColor());
 
 		final int x[] = new int[points.size()];
 		final int y[] = new int[points.size()];

@@ -158,22 +158,25 @@ public final class GLUtils {
 
 	}
 
-	public static void drawFilledPolygon(final Collection<Vector2D> points, Color color, final Dimension dimension, final GL2 gl) {
+	public static void drawFilledPolygon(final Collection<Vector2D> points, final ColorGenerator colorGenerator, final Dimension dimension,
+			final GL2 gl) {
 
 		final Collection<Vector2D> projectedPoints = new ArrayList<>(points.size());
 		for (Vector2D point : points) {
 			projectedPoints.add(new Vector2D(projectX((int) point.x, dimension), projectY((int) point.y, dimension)));
 		}
 
-		drawFilledPolygon(projectedPoints, color, gl);
+		drawFilledPolygon(projectedPoints, colorGenerator, gl);
 	}
 
-	public static void drawFilledPolygon(final Collection<Vector2D> hPoints, Color color, final GL2 gl) {
+	public static void drawFilledPolygon(final Collection<Vector2D> hPoints, final ColorGenerator colorGenerator, final GL2 gl) {
 
 		gl.glBegin(GL2.GL_POLYGON);
-		gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()), projectColorValue2GL(color.getBlue()),
-				projectColorValue2GL(color.getAlpha()));
 		for (Vector2D point : hPoints) {
+
+			final Color color = colorGenerator.generateColor();
+			gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()),
+					projectColorValue2GL(color.getBlue()), projectColorValue2GL(color.getAlpha()));
 			gl.glVertex2d(point.x, point.y);
 		}
 

@@ -33,7 +33,11 @@ public interface IGraphicsSubsystem {
 
 	void drawFilledTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3, final Color color);
 
-	void drawFilledPolygon(final Collection<Vector2D> points, final Color color);
+	default void drawFilledPolygon(final Collection<Vector2D> points, final Color color) {
+		drawFilledPolygon(points, () -> color);
+	}
+
+	void drawFilledPolygon(Collection<Vector2D> points, ColorGenerator colorGenerator);
 
 	void drawString(String str, final int x, final int y, final Color color);
 
