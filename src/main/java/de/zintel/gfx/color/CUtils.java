@@ -4,6 +4,7 @@
 package de.zintel.gfx.color;
 
 import java.awt.Color;
+import java.util.Collection;
 import java.util.Random;
 
 /**
@@ -75,8 +76,7 @@ public final class CUtils {
 	}
 
 	public static boolean equal(final Color c1, final Color c2) {
-		return (c1.getRed() == c2.getRed() && c1.getGreen() == c2.getGreen() && c1.getBlue() == c2.getBlue()
-				&& c1.getAlpha() == c2.getAlpha());
+		return (c1.getRed() == c2.getRed() && c1.getGreen() == c2.getGreen() && c1.getBlue() == c2.getBlue() && c1.getAlpha() == c2.getAlpha());
 	}
 
 	public static int brighten(final int cValue, double colorBrigthnessFactor) {
@@ -86,6 +86,28 @@ public final class CUtils {
 		} else {
 			return (int) (cValue + (colorBrigthnessFactor - 1) * ((255 - cValue) / colorBrigthnessFactor));
 		}
+
+	}
+
+	public static Color mean(final Collection<Color> colors) {
+
+		final int size = colors.size();
+
+		int red = 0;
+		int green = 0;
+		int blue = 0;
+		int alpha = 0;
+
+		for (Color color : colors) {
+
+			red += color.getRed();
+			green += color.getGreen();
+			blue += color.getBlue();
+			alpha += color.getAlpha();
+
+		}
+
+		return new Color(red / size, green / size, blue / size, alpha / size);
 
 	}
 
