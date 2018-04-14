@@ -302,7 +302,7 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 				false), stepUnit -> {
 					p11 = stepUnit;
 				});
-		l11.next();
+		l11.progress();
 		stepperInfos.add(new StepperInfo(l11, p11));
 
 		l12 = new Processor<IterationUnit2D>(new LinearPointInterpolater2D(
@@ -313,7 +313,7 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 				false), stepUnit -> {
 					p12 = stepUnit;
 				});
-		l12.next();
+		l12.progress();
 		stepperInfos.add(new StepperInfo(l12, p12));
 
 		l21 = new Processor<IterationUnit2D>(new LinearPointInterpolater2D(
@@ -324,7 +324,7 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 				false), stepUnit -> {
 					p21 = stepUnit;
 				});
-		l21.next();
+		l21.progress();
 		stepperInfos.add(new StepperInfo(l21, p21));
 
 		l22 = new Processor<IterationUnit2D>(new LinearPointInterpolater2D(
@@ -335,7 +335,7 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 				false), stepUnit -> {
 					p22 = stepUnit;
 				});
-		l22.next();
+		l22.progress();
 		stepperInfos.add(new StepperInfo(l22, p22));
 
 		Iterator<StepperInfo> iterator = stepperInfos.iterator();
@@ -361,15 +361,15 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 		isRendering = true;
 
 		for (int i = 1; i < SPEED; i++) {
-			if (mainStepperInfo.getStepper().hasNext()) {
-				mainStepperInfo.getStepper().next();
+			if (mainStepperInfo.getStepper().inProcess()) {
+				mainStepperInfo.getStepper().progress();
 
 				for (StepperInfo stepperInfo : stepperInfos) {
 					if (MathUtils.interpolateLinear(0, stepperInfo.getStepUnit().getMaxIterations(),
 							mainStepperInfo.getStepper().getCurrent().getIteration(),
 							mainStepperInfo.getStepper().getCurrent().getMaxIterations()) > stepperInfo.getStepUnit().getIteration()) {
 
-						stepperInfo.getStepper().next();
+						stepperInfo.getStepper().progress();
 						stepperInfo.setStepUnit(stepperInfo.getStepper().getCurrent());
 
 					}
@@ -378,7 +378,7 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 		}
 
 		repaint();
-		if (!mainStepperInfo.getStepper().hasNext()) {
+		if (!mainStepperInfo.getStepper().inProcess()) {
 
 			timer.stop();
 			isAnimation = false;

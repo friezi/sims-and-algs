@@ -117,8 +117,8 @@ public class Tetragon3D implements IObject3D {
 						ePoints.add(stepUnit.getPoint());
 					}) {
 				{
-					if (this.hasNext()) {
-						this.next();
+					if (this.inProcess()) {
+						this.progress();
 					}
 				}
 			};
@@ -131,9 +131,9 @@ public class Tetragon3D implements IObject3D {
 				int sStepMax = sStepUnit.getStepMax();
 
 				StepUnit3D eStepUnit = eITP.getCurrent();
-				if (MathUtils.interpolateLinear(0, eStepUnit.getStepMax(), sStep, sStepMax) > eStepUnit.getStep() && eITP.hasNext()) {
+				if (MathUtils.interpolateLinear(0, eStepUnit.getStepMax(), sStep, sStepMax) > eStepUnit.getStep() && eITP.inProcess()) {
 					ePoints.clear();
-					eITP.next();
+					eITP.progress();
 					eStepUnit = eITP.getCurrent();
 				}
 
@@ -198,17 +198,17 @@ public class Tetragon3D implements IObject3D {
 												graphics.drawLine(iPoint.x, iPoint.y, iPoint.x, iPoint.y);
 
 											}
-										}).iterate();
+										}).process();
 							}
 
 							lastpoint = planePoint;
 							lastTx = tx;
 							lastTy = ty;
 						}
-					}).iterate();
+					}).process();
 				}
 			}
-		}).iterate();
+		}).process();
 	}
 
 	private void interpolate2D(final Point3D point, Graphics graphics, final View3D view) {

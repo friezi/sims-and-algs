@@ -261,25 +261,25 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 		l11 = new Processor<IterationUnit2D>(makeRandomInterpolater(), stepUnit -> {
 			p11 = stepUnit;
 		});
-		l11.next();
+		l11.progress();
 		stepperInfos.add(new StepperInfo(l11, p11));
 
 		l12 = new Processor<IterationUnit2D>(makeRandomInterpolater(), stepUnit -> {
 			p12 = stepUnit;
 		});
-		l12.next();
+		l12.progress();
 		stepperInfos.add(new StepperInfo(l12, p12));
 
 		l21 = new Processor<IterationUnit2D>(makeRandomInterpolater(), stepUnit -> {
 			p21 = stepUnit;
 		});
-		l21.next();
+		l21.progress();
 		stepperInfos.add(new StepperInfo(l21, p21));
 
 		l22 = new Processor<IterationUnit2D>(makeRandomInterpolater(), stepUnit -> {
 			p22 = stepUnit;
 		});
-		l22.next();
+		l22.progress();
 		stepperInfos.add(new StepperInfo(l22, p22));
 
 		Iterator<StepperInfo> iterator = stepperInfos.iterator();
@@ -323,15 +323,15 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 		isRendering = true;
 
 		for (int i = 1; i < SPEED; i++) {
-			if (mainStepperInfo.getStepper().hasNext()) {
-				mainStepperInfo.getStepper().next();
+			if (mainStepperInfo.getStepper().inProcess()) {
+				mainStepperInfo.getStepper().progress();
 
 				for (StepperInfo stepperInfo : stepperInfos) {
 					if (MathUtils.interpolateLinear(0, stepperInfo.getStepUnit().getMaxIterations(),
 							mainStepperInfo.getStepper().getCurrent().getIteration(),
 							mainStepperInfo.getStepper().getCurrent().getMaxIterations()) > stepperInfo.getStepUnit().getIteration()) {
 
-						stepperInfo.getStepper().next();
+						stepperInfo.getStepper().progress();
 						stepperInfo.setStepUnit(stepperInfo.getStepper().getCurrent());
 
 					}
@@ -340,7 +340,7 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 		}
 
 		repaint();
-		if (!mainStepperInfo.getStepper().hasNext()) {
+		if (!mainStepperInfo.getStepper().inProcess()) {
 
 			timer.stop();
 			isAnimation = false;
@@ -386,7 +386,7 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 										MathUtils.interpolateLinear(ssColor.getGreen(), stColor.getGreen(), step, stepMax),
 										MathUtils.interpolateLinear(ssColor.getBlue(), stColor.getBlue(), step, stepMax))));
 					}
-				}).iterate();
+				}).process();
 
 		new Processor<IterationUnit2D>(new LinearPointInterpolater2D(p21.getPoint(), p22.getPoint(), false),
 				new Consumer<IterationUnit2D>() {
@@ -401,7 +401,7 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 										MathUtils.interpolateLinear(tsColor.getGreen(), ttColor.getGreen(), step, stepMax),
 										MathUtils.interpolateLinear(tsColor.getBlue(), ttColor.getBlue(), step, stepMax))));
 					}
-				}).iterate();
+				}).process();
 
 		List<ColorPoint> startpoints;
 		List<ColorPoint> endpoints;
@@ -438,7 +438,7 @@ public class TextureMapping2D extends JPanel implements MouseListener, ActionLis
 							graphics.drawLine(point.x, point.y, point.x, point.y);
 
 						}
-					}).iterate();
+					}).process();
 		}
 	}
 

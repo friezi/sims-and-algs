@@ -24,17 +24,23 @@ public class Processor<T> {
 		this.consumer = consumer;
 	}
 
-	public void iterate() {
-		while (hasNext()) {
-			next();
+	/**
+	 * does the whole processing of all remaining steps.
+	 */
+	public void process() {
+		while (inProcess()) {
+			progress();
 		}
 	}
 
-	public boolean hasNext() {
+	public boolean inProcess() {
 		return iterator.hasNext();
 	}
 
-	public void next() {
+	/**
+	 * will progress by one step.
+	 */
+	public void progress() {
 
 		current = iterator.next();
 		if (consumer != null) {

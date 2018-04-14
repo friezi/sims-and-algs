@@ -99,6 +99,10 @@ public class Tetragon2D implements IObject2D {
 		// Startrand interpolieren
 		new Processor<IterationUnit2D>(new AlternateLinearPointInterpolater2D(sP1, sP2, true), new Consumer<IterationUnit2D>() {
 
+			/*
+			 * Um Moiree-Effekte zu vermeiden, werden z. T. mehr als ein Punkt
+			 * pro Interpolationsschritt generiert.
+			 */
 			Collection<Point> ePoints = new ArrayList<>(2);
 
 			// Endrand interpolieren
@@ -121,14 +125,12 @@ public class Tetragon2D implements IObject2D {
 				 * nächste Step berechnet.
 				 */
 				IterationUnit2D eItUnit = eITP.getCurrent();
-				if ((eItUnit == null
-						|| MathUtils.interpolateLinear(0, eItUnit.getMaxIterations(), sStep, sStepMax) > eItUnit.getIteration())
-						&& eITP.hasNext()) {
+				if ((eItUnit == null || MathUtils.interpolateLinear(0, eItUnit.getMaxIterations(), sStep, sStepMax) > eItUnit.getIteration())
+						&& eITP.inProcess()) {
 					ePoints.clear();
-					while ((eItUnit == null
-							|| MathUtils.interpolateLinear(0, eItUnit.getMaxIterations(), sStep, sStepMax) > eItUnit.getIteration())
-							&& eITP.hasNext()) {
-						eITP.next();
+					while ((eItUnit == null || MathUtils.interpolateLinear(0, eItUnit.getMaxIterations(), sStep, sStepMax) > eItUnit.getIteration())
+							&& eITP.inProcess()) {
+						eITP.progress();
 						eItUnit = eITP.getCurrent();
 						ePoints.add(eItUnit.getPoint());
 					}
@@ -142,28 +144,26 @@ public class Tetragon2D implements IObject2D {
 
 				// Linie interpolieren
 				for (Point ePoint : ePoints) {
-					new Processor<IterationUnit2D>(new AlternateLinearPointInterpolater2D(sPoint, ePoint, true),
-							new Consumer<IterationUnit2D>() {
+					new Processor<IterationUnit2D>(new AlternateLinearPointInterpolater2D(sPoint, ePoint, true), new Consumer<IterationUnit2D>() {
 
-								@Override
-								public void accept(IterationUnit2D itUnit) {
+						@Override
+						public void accept(IterationUnit2D itUnit) {
 
-									int it = itUnit.getIteration();
-									int itMax = itUnit.getMaxIterations();
-									Point linepoint = itUnit.getPoint();
+							int it = itUnit.getIteration();
+							int itMax = itUnit.getMaxIterations();
+							Point linepoint = itUnit.getPoint();
 
-									double tx = MathUtils.interpolateReal(sTx, eTx, it, itMax, stepProjection);
-									double ty = MathUtils.interpolateReal(sTy, eTy, it, itMax, stepProjection);
+							double tx = MathUtils.interpolateReal(sTx, eTx, it, itMax, stepProjection);
+							double ty = MathUtils.interpolateReal(sTy, eTy, it, itMax, stepProjection);
 
-									graphics.setColor(texture.getColor(tx, ty));
-									graphics.drawLine(linepoint.x + point.x, linepoint.y + point.y, linepoint.x + point.x,
-											linepoint.y + point.y);
+							graphics.setColor(texture.getColor(tx, ty));
+							graphics.drawLine(linepoint.x + point.x, linepoint.y + point.y, linepoint.x + point.x, linepoint.y + point.y);
 
-								}
-							}).iterate();
+						}
+					}).process();
 				}
 			}
-		}).iterate();
+		}).process();
 	}
 
 }
