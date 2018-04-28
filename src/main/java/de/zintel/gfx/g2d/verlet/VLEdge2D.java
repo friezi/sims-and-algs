@@ -1,35 +1,38 @@
 /**
  * 
  */
-package de.zintel.gfx.g2d;
+package de.zintel.gfx.g2d.verlet;
 
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 
+import de.zintel.gfx.IRenderer;
 import de.zintel.math.Vector2D;
 
 /**
+ * Verlet Edge
+ * 
  * @author friedemann.zintel
  *
  */
-public class Edge2D implements IEdgeContainer2D {
+public class VLEdge2D implements IVLEdgeContainer2D {
 
-	private Vertex2D first;
+	private VLVertex2D first;
 
-	private Vertex2D second;
+	private VLVertex2D second;
 
 	private double preferredLength;
 
 	private Color color;
 
-	private IRenderer<Edge2D> renderer;
+	private IRenderer<VLEdge2D> renderer;
 
-	public Edge2D(Vertex2D first, Vertex2D second, IRenderer<Edge2D> renderer) {
+	public VLEdge2D(VLVertex2D first, VLVertex2D second, IRenderer<VLEdge2D> renderer) {
 		this(first, second, Color.WHITE, renderer);
 	}
 
-	public Edge2D(Vertex2D first, Vertex2D second, Color color, IRenderer<Edge2D> renderer) {
+	public VLEdge2D(VLVertex2D first, VLVertex2D second, Color color, IRenderer<VLEdge2D> renderer) {
 		this.first = first;
 		this.second = second;
 		this.color = color;
@@ -37,7 +40,7 @@ public class Edge2D implements IEdgeContainer2D {
 		this.preferredLength = Vector2D.distance(first.getCurrent(), second.getCurrent());
 	}
 
-	private Edge2D(Vertex2D first, Vertex2D second, double length, Color color, IRenderer<Edge2D> renderer) {
+	private VLEdge2D(VLVertex2D first, VLVertex2D second, double length, Color color, IRenderer<VLEdge2D> renderer) {
 		this.first = first;
 		this.second = second;
 		this.preferredLength = length;
@@ -45,11 +48,11 @@ public class Edge2D implements IEdgeContainer2D {
 		this.renderer = renderer;
 	}
 
-	public Vertex2D getFirst() {
+	public VLVertex2D getFirst() {
 		return first;
 	}
 
-	public Vertex2D getSecond() {
+	public VLVertex2D getSecond() {
 		return second;
 	}
 
@@ -57,11 +60,11 @@ public class Edge2D implements IEdgeContainer2D {
 		return preferredLength;
 	}
 
-	public void setFirst(Vertex2D first) {
+	public void setFirst(VLVertex2D first) {
 		this.first = first;
 	}
 
-	public void setSecond(Vertex2D second) {
+	public void setSecond(VLVertex2D second) {
 		this.second = second;
 	}
 
@@ -73,7 +76,7 @@ public class Edge2D implements IEdgeContainer2D {
 		return color;
 	}
 
-	public Edge2D setColor(Color color) {
+	public VLEdge2D setColor(Color color) {
 		this.color = color;
 		return this;
 	}
@@ -91,20 +94,20 @@ public class Edge2D implements IEdgeContainer2D {
 	}
 
 	@Override
-	public List<Edge2D> getEdges() {
+	public List<VLEdge2D> getEdges() {
 		return Arrays.asList(this);
 	}
 
 	@Override
-	public Edge2D dcopy() {
-		return new Edge2D(first.dcopy(), second.dcopy(), preferredLength, color, renderer);
+	public VLEdge2D dcopy() {
+		return new VLEdge2D(first.dcopy(), second.dcopy(), preferredLength, color, renderer);
 	}
 
-	public IRenderer<Edge2D> getRenderer() {
+	public IRenderer<VLEdge2D> getRenderer() {
 		return renderer;
 	}
 
-	public void setRenderer(IRenderer<Edge2D> renderer) {
+	public void setRenderer(IRenderer<VLEdge2D> renderer) {
 		this.renderer = renderer;
 	}
 

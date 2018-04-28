@@ -4,10 +4,10 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 
+import de.zintel.gfx.ColorModifier;
 import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.CUtils.ColorGenerator;
-import de.zintel.gfx.g2d.ColorModifier;
-import de.zintel.gfx.g2d.Edge2D;
+import de.zintel.gfx.g2d.verlet.VLEdge2D;
 
 /**
  * generates the mean color-value between each two connected edges.
@@ -17,16 +17,16 @@ import de.zintel.gfx.g2d.Edge2D;
  */
 public class EdgesMeanPointsColorBasedGenerator implements ColorGenerator {
 
-	private final List<Edge2D> edges;
-	private final ColorModifier<Edge2D> colorModifier;
+	private final List<VLEdge2D> edges;
+	private final ColorModifier<VLEdge2D> colorModifier;
 	private final int size;
 	private int idx = -1;
 
-	public EdgesMeanPointsColorBasedGenerator(List<Edge2D> edges) {
+	public EdgesMeanPointsColorBasedGenerator(List<VLEdge2D> edges) {
 		this(edges, null);
 	}
 
-	public EdgesMeanPointsColorBasedGenerator(List<Edge2D> edges, ColorModifier<Edge2D> colorModifier) {
+	public EdgesMeanPointsColorBasedGenerator(List<VLEdge2D> edges, ColorModifier<VLEdge2D> colorModifier) {
 		this.edges = edges;
 		this.colorModifier = colorModifier;
 		this.size = edges.size();
@@ -37,8 +37,8 @@ public class EdgesMeanPointsColorBasedGenerator implements ColorGenerator {
 
 		idx = nextIndex(idx);
 
-		Edge2D edge1 = edges.get(idx);
-		Edge2D edge2 = edges.get(nextIndex(idx));
+		VLEdge2D edge1 = edges.get(idx);
+		VLEdge2D edge2 = edges.get(nextIndex(idx));
 		return (colorModifier != null ? CUtils.mean(Arrays.asList(colorModifier.getColor(edge1), colorModifier.getColor(edge2)))
 				: CUtils.mean(Arrays.asList(edge1.getColor(), edge2.getColor())));
 	}

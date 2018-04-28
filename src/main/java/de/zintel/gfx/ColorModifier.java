@@ -1,4 +1,4 @@
-package de.zintel.gfx.g2d;
+package de.zintel.gfx;
 
 import java.awt.Color;
 

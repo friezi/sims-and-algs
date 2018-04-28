@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
-import de.zintel.gfx.Coordination;
+import de.zintel.gfx.ScreenParameters;
 import de.zintel.math.Vector2D;
 import de.zintel.math.VectorField2D;
 import de.zintel.math.VectorND;
@@ -24,7 +24,7 @@ public class WindSimulator {
 
 	private final VectorField2D airstreamField;
 
-	private final Coordination coordination;
+	private final ScreenParameters screenParameters;
 
 	private double windIntensity = 0.0;
 
@@ -36,10 +36,10 @@ public class WindSimulator {
 
 	private int rateOfAirstreamChange = 1;
 
-	public WindSimulator(VectorField2D airstreamField, Coordination coordination) {
+	public WindSimulator(VectorField2D airstreamField, ScreenParameters screenParameters) {
 		this.airstreamField = airstreamField;
 		randomAirstream();
-		this.coordination = coordination;
+		this.screenParameters = screenParameters;
 	}
 
 	public void progressWindflaw() {
@@ -64,8 +64,8 @@ public class WindSimulator {
 	public VectorND calculateAirstream(final Vector2D pos) {
 
 		final List<Integer> windfieldDimensions = airstreamField.getDimensions();
-		return airstreamField.interpolateLinear(new VectorND(Arrays.asList(pos.x * windfieldDimensions.get(0) / coordination.WIDTH,
-				pos.y * windfieldDimensions.get(1) / coordination.HEIGHT)));
+		return airstreamField.interpolateLinear(new VectorND(Arrays.asList(pos.x * windfieldDimensions.get(0) / screenParameters.WIDTH,
+				pos.y * windfieldDimensions.get(1) / screenParameters.HEIGHT)));
 	}
 
 	@SuppressWarnings("serial")

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.zintel.gfx.g2d;
+package de.zintel.gfx;
 
 /**
  * @author friedemann.zintel

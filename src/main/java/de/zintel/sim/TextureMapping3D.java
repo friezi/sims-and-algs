@@ -16,7 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import de.zintel.gfx.Coordination;
+import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.g3d.Component3D;
 import de.zintel.gfx.g3d.Line3D;
 import de.zintel.gfx.g3d.Pin3D;
@@ -37,12 +37,12 @@ import de.zintel.gfx.texture.TxCrd;
 @SuppressWarnings("serial")
 public class TextureMapping3D extends JPanel implements MouseListener, ActionListener {
 
-	private Coordination koordination = new Coordination();
+	private ScreenParameters screenParameters = new ScreenParameters();
 
-	private Point3D viewpoint = new Point3D(koordination.WIDTH * 2 / 3, 1420, -1000);
+	private Point3D viewpoint = new Point3D(screenParameters.WIDTH * 2 / 3, 1420, -1000);
 	private Point3D nullpoint = new Point3D(30, 200, 100);
 
-	private View3D view = new View3D(nullpoint, new Projector2D(viewpoint, koordination.HEIGHT));
+	private View3D view = new View3D(nullpoint, new Projector2D(viewpoint, screenParameters.HEIGHT));
 
 	private JFrame mainFrame;
 
@@ -70,7 +70,7 @@ public class TextureMapping3D extends JPanel implements MouseListener, ActionLis
 
 		mainFrame = new JFrame("Texture mapping and animation 3D");
 		mainFrame.addMouseListener(this);
-		mainFrame.setSize(koordination.WIDTH, koordination.HEIGHT);
+		mainFrame.setSize(screenParameters.WIDTH, screenParameters.HEIGHT);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel gfxPanel = this;
@@ -217,9 +217,9 @@ public class TextureMapping3D extends JPanel implements MouseListener, ActionLis
 	private void paintCross(Graphics graphics) {
 
 		Point3D p0 = new Point3D(0, 0, 0);
-		Line3D lineX = new Line3D(p0, new Point3D(koordination.WIDTH / 2, 0, 0));
-		Line3D lineY = new Line3D(p0, new Point3D(0, koordination.HEIGHT / 2, 0));
-		Line3D lineZ = new Line3D(p0, new Point3D(0, 0, 2 * koordination.WIDTH));
+		Line3D lineX = new Line3D(p0, new Point3D(screenParameters.WIDTH / 2, 0, 0));
+		Line3D lineY = new Line3D(p0, new Point3D(0, screenParameters.HEIGHT / 2, 0));
+		Line3D lineZ = new Line3D(p0, new Point3D(0, 0, 2 * screenParameters.WIDTH));
 
 		graphics.setColor(Color.orange);
 

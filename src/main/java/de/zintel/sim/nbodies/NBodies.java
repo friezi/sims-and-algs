@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
-import de.zintel.gfx.Coordination;
+import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.g2d.Field;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.physics.Body;
@@ -45,11 +45,11 @@ public class NBodies extends SimulationScreen {
 
 	private static final GfxUtils.EGraphicsSubsystem eGrapicsSubsystem = GfxUtils.EGraphicsSubsystem.GL;
 
-	private static final Coordination coordination = new Coordination();
+	private static final ScreenParameters screenParameters = new ScreenParameters();
 
-	private int width = coordination.WIDTH;
+	private int width = screenParameters.WIDTH;
 
-	private int height = coordination.HEIGHT;
+	private int height = screenParameters.HEIGHT;
 
 	private IRenderer renderer;
 
@@ -81,14 +81,14 @@ public class NBodies extends SimulationScreen {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		NBodies application = new NBodies(eGrapicsSubsystem, coordination, doRecord, recordFilename, recordingRate);
+		NBodies application = new NBodies(eGrapicsSubsystem, screenParameters, doRecord, recordFilename, recordingRate);
 		application.start();
 
 	}
 
-	public NBodies(EGraphicsSubsystem gfxSsystem, de.zintel.gfx.Coordination coordination, boolean doRecord, String recordFilename,
+	public NBodies(EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
 			int recordingRate) {
-		super("NBodies", gfxSsystem, coordination, doRecord, recordFilename, recordingRate);
+		super("NBodies", gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 	}
 
 	@Override

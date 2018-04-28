@@ -26,7 +26,7 @@ import de.zintel.ci.BoidType;
 import de.zintel.ci.FishSwarm;
 import de.zintel.ci.Swarm;
 import de.zintel.control.IKeyAction;
-import de.zintel.gfx.Coordination;
+import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.color.CUtils.ColorGenerator;
@@ -45,7 +45,7 @@ import de.zintel.math.Vector2D;
 @SuppressWarnings("serial")
 public class CollectiveIntelligence extends SimulationScreen {
 
-	private static Coordination koordination = new Coordination();
+	private static ScreenParameters screenParameters = new ScreenParameters();
 
 	private static final Random RANDOM = new Random();
 
@@ -205,10 +205,10 @@ public class CollectiveIntelligence extends SimulationScreen {
 		private BezierPointInterpolater newBezierPointInterpolater(Point start) {
 
 			BezierPointInterpolater interpolater = new BezierPointInterpolater(start,
-					makeRandomPoint(koordination.WIDTH, koordination.HEIGHT), false, false);
+					makeRandomPoint(screenParameters.WIDTH, screenParameters.HEIGHT), false, false);
 			int nmbControlPoints = RANDOM.nextInt(10);
 			for (int i = 0; i < nmbControlPoints; i++) {
-				interpolater.addControlPoint(makeRandomPoint(koordination.WIDTH, koordination.HEIGHT));
+				interpolater.addControlPoint(makeRandomPoint(screenParameters.WIDTH, screenParameters.HEIGHT));
 			}
 
 			return interpolater;
@@ -282,12 +282,12 @@ public class CollectiveIntelligence extends SimulationScreen {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		new CollectiveIntelligence(GFX_SSYSTEM, koordination, false, "", 1).start();
+		new CollectiveIntelligence(GFX_SSYSTEM, screenParameters, false, "", 1).start();
 	}
 
-	public CollectiveIntelligence(EGraphicsSubsystem gfxSsystem, Coordination coordination, boolean doRecord, String recordFilename,
+	public CollectiveIntelligence(EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
 			int recordingRate) {
-		super("Collective Intelligence", gfxSsystem, coordination, doRecord, recordFilename, recordingRate);
+		super("Collective Intelligence", gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 	}
 
 	@Override
@@ -299,7 +299,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 		swarm = new FishSwarm(
 				new Vector2D(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2))
 						.setUseLeader(true).setUsePredator(true)
-						.setPublicDistance(MathUtils.distance(new Point(), new Point(koordination.WIDTH, koordination.HEIGHT)) / 4)
+						.setPublicDistance(MathUtils.distance(new Point(), new Point(screenParameters.WIDTH, screenParameters.HEIGHT)) / 4)
 						.setLeaderAttraction(40000);
 
 		initKeyActions();
@@ -888,7 +888,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 	}
 
 	private Boid makeRandomBoid(String id) {
-		return new Boid(makeRandomVector2D(koordination.WIDTH, koordination.HEIGHT), id);
+		return new Boid(makeRandomVector2D(screenParameters.WIDTH, screenParameters.HEIGHT), id);
 	}
 
 	private static Vector2D makeRandomVector2D(int width, int height) {

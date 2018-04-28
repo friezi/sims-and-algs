@@ -23,7 +23,7 @@ import de.zintel.gfx.component.FadingText;
 import de.zintel.gfx.component.GfxState;
 import de.zintel.gfx.component.IGfxComponent;
 import de.zintel.control.IKeyAction;
-import de.zintel.gfx.Coordination;
+import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystemFactory;
 import de.zintel.gfx.graphicsubsystem.IRendererListener;
@@ -46,7 +46,7 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	private static final String ID_STATUS = "status";
 
-	private final Coordination coordination;
+	private final ScreenParameters screenParameters;
 
 	private final boolean doRecord;
 
@@ -78,15 +78,15 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	private Map<String, IGfxComponent> gfxComponents = new LinkedHashMap<>();
 
-	public SimulationScreen(String title, EGraphicsSubsystem gfxSsystem, Coordination coordination, boolean doRecord, String recordFilename,
+	public SimulationScreen(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
 			int recordingRate) {
-		this.coordination = coordination;
+		this.screenParameters = screenParameters;
 		this.doRecord = doRecord;
 		this.recordFilename = recordFilename;
 		this.recordingRate = recordingRate;
 
 		final IGraphicsSubsystemFactory graphicsSubsystemFactory = GfxUtils.graphicsSubsystemFactories.get(gfxSsystem);
-		graphicsSubsystem = graphicsSubsystemFactory.newGraphicsSubsystem(title, coordination.WIDTH, coordination.HEIGHT);
+		graphicsSubsystem = graphicsSubsystemFactory.newGraphicsSubsystem(title, screenParameters.WIDTH, screenParameters.HEIGHT);
 	}
 
 	public void start() throws Exception {
@@ -383,8 +383,8 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 		this.maxFrames = maxFrames;
 	}
 
-	public Coordination getCoordination() {
-		return coordination;
+	public ScreenParameters getScreenParameters() {
+		return screenParameters;
 	}
 
 	public boolean isShift() {

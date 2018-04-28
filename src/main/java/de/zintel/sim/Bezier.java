@@ -26,7 +26,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import de.zintel.gfx.Coordination;
+import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.g2d.LinearPointInterpolater2D;
 import de.zintel.gfx.g2d.Pin2D;
 import de.zintel.gfx.g2d.APointInterpolater2D;
@@ -66,7 +66,7 @@ public class Bezier extends JPanel implements MouseListener, ActionListener {
 
 	private int iterations = 0;
 
-	private Coordination koordination = new Coordination();
+	private ScreenParameters screenParameters = new ScreenParameters();
 
 	/**
 	 * @param args
@@ -85,7 +85,7 @@ public class Bezier extends JPanel implements MouseListener, ActionListener {
 
 		mainFrame = new JFrame("Static Texture mapping");
 		mainFrame.addMouseListener(this);
-		mainFrame.setSize(koordination.WIDTH, koordination.HEIGHT);
+		mainFrame.setSize(screenParameters.WIDTH, screenParameters.HEIGHT);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel gfxPanel = this;
@@ -114,8 +114,8 @@ public class Bezier extends JPanel implements MouseListener, ActionListener {
 	}
 
 	private Point makeRandomPoint() {
-		return new Point(RANDOM.nextInt(koordination.RENDER_MAX_RAND_X),
-				koordination.RENDER_STARTY + RANDOM.nextInt(koordination.RENDER_MAX_RAND_Y));
+		return new Point(RANDOM.nextInt(screenParameters.RENDER_MAX_RAND_X),
+				screenParameters.RENDER_STARTY + RANDOM.nextInt(screenParameters.RENDER_MAX_RAND_Y));
 	}
 
 	private void draw(Graphics graphics) {
