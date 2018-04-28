@@ -6,23 +6,23 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import de.zintel.gfx.g2d.verlet.AdjustingColorProvider;
+import de.zintel.gfx.g2d.verlet.IVLEdgeContainer2D;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
-import de.zintel.gfx.g2d.verlet.VLFacet2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.Vector2D;
 
-public class FilledFacetRenderer implements Consumer<VLFacet2D> {
+public class FilledConvexPolygonRenderer<T extends IVLEdgeContainer2D> implements Consumer<T> {
 
 	private final IGraphicsSubsystem graphicsSubsystem;
 
 	private final AdjustingColorProvider colorModifier = new AdjustingColorProvider();
 
-	public FilledFacetRenderer(IGraphicsSubsystem graphicsSubsystem) {
+	public FilledConvexPolygonRenderer(IGraphicsSubsystem graphicsSubsystem) {
 		this.graphicsSubsystem = graphicsSubsystem;
 	}
 
 	@Override
-	public void accept(VLFacet2D item) {
+	public void accept(T item) {
 
 		final List<VLEdge2D> edges = item.getEdges();
 		final Collection<Vector2D> points = edges.stream().map(edge -> edge.getFirst().getCurrent()).collect(Collectors.toList());
