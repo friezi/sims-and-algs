@@ -310,7 +310,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 		final Consumer<VLCuboid2D> cuboidRenderer = new WireMeshCuboidRenderer();
 		final Consumer<VLChain2D> chainRenderer = new WireMeshChainRenderer();
 		final Consumer<VLChainNet2D> chainNetRenderer = new WireMeshChainNetRenderer();
-		final Consumer<VLFacet2D> facetRenderer = new FilledConvexPolygonRenderer<VLFacet2D>(graphicsSubsystem);
+		final Consumer<VLFacet2D> facetRenderer = new FilledConvexPolygonGSRenderer<VLFacet2D>(graphicsSubsystem);
 
 		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(99, 100)), new VLVertex2D(new Vector2D(230, 120)),
 				plainEdgeRenderer));

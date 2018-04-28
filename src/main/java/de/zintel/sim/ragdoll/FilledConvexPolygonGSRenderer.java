@@ -11,13 +11,20 @@ import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.Vector2D;
 
-public class FilledConvexPolygonRenderer<T extends IVLEdgeContainer2D> implements Consumer<T> {
+/**
+ * draws a plygon by using the grafics subsystem.
+ * 
+ * @author friedo
+ *
+ * @param <T>
+ */
+public class FilledConvexPolygonGSRenderer<T extends IVLEdgeContainer2D> implements Consumer<T> {
 
 	private final IGraphicsSubsystem graphicsSubsystem;
 
 	private final AdjustingColorProvider colorModifier = new AdjustingColorProvider();
 
-	public FilledConvexPolygonRenderer(IGraphicsSubsystem graphicsSubsystem) {
+	public FilledConvexPolygonGSRenderer(IGraphicsSubsystem graphicsSubsystem) {
 		this.graphicsSubsystem = graphicsSubsystem;
 	}
 
