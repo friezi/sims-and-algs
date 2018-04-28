@@ -5,9 +5,8 @@ package de.zintel.gfx.g2d.verlet;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import de.zintel.gfx.IRenderer;
 
 /**
  * @author friedemann.zintel
@@ -15,14 +14,14 @@ import de.zintel.gfx.IRenderer;
  */
 public class VLCuboid2D implements IVLEdgeContainer2D {
 
-	private IRenderer<VLCuboid2D> renderer;
+	private Consumer<VLCuboid2D> renderer;
 
 	private List<VLEdge2D> edges = new LinkedList<>();
 
 	/**
 	 * 
 	 */
-	public VLCuboid2D(VLVertex2D v1, VLVertex2D v2, VLVertex2D v3, VLVertex2D v4, IRenderer<VLCuboid2D> renderer, IRenderer<VLEdge2D> edgeRenderer) {
+	public VLCuboid2D(VLVertex2D v1, VLVertex2D v2, VLVertex2D v3, VLVertex2D v4, Consumer<VLCuboid2D> renderer, Consumer<VLEdge2D> edgeRenderer) {
 
 		this.renderer = renderer;
 
@@ -34,7 +33,7 @@ public class VLCuboid2D implements IVLEdgeContainer2D {
 		edges.add(new VLEdge2D(v2, v4, edgeRenderer));
 	}
 
-	private VLCuboid2D(IRenderer<VLCuboid2D> renderer, List<VLEdge2D> edges) {
+	private VLCuboid2D(Consumer<VLCuboid2D> renderer, List<VLEdge2D> edges) {
 		this.renderer = renderer;
 		this.edges = edges;
 	}
@@ -42,7 +41,7 @@ public class VLCuboid2D implements IVLEdgeContainer2D {
 	@Override
 	public void render() {
 		if (renderer != null) {
-			renderer.render(this);
+			renderer.accept(this);
 		}
 	}
 

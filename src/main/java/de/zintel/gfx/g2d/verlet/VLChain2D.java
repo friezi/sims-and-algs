@@ -6,9 +6,9 @@ package de.zintel.gfx.g2d.verlet;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import de.zintel.gfx.IRenderer;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector2D;
 
@@ -18,14 +18,14 @@ import de.zintel.math.Vector2D;
  */
 public class VLChain2D implements IVLEdgeContainer2D {
 
-	private IRenderer<VLChain2D> renderer;
+	private Consumer<VLChain2D> renderer;
 
 	private List<VLEdge2D> edges = new LinkedList<>();
 
 	/**
 	 * 
 	 */
-	public VLChain2D(Collection<VLVertex2D> vertices, IRenderer<VLChain2D> renderer, IRenderer<VLEdge2D> edgeRenderer) {
+	public VLChain2D(Collection<VLVertex2D> vertices, Consumer<VLChain2D> renderer, Consumer<VLEdge2D> edgeRenderer) {
 
 		this.renderer = renderer;
 
@@ -38,7 +38,7 @@ public class VLChain2D implements IVLEdgeContainer2D {
 		}
 	}
 
-	public VLChain2D(VLVertex2D first, VLVertex2D last, int elements, IRenderer<VLChain2D> renderer, IRenderer<VLEdge2D> edgeRenderer) {
+	public VLChain2D(VLVertex2D first, VLVertex2D last, int elements, Consumer<VLChain2D> renderer, Consumer<VLEdge2D> edgeRenderer) {
 
 		this.renderer = renderer;
 
@@ -57,7 +57,7 @@ public class VLChain2D implements IVLEdgeContainer2D {
 
 	}
 
-	private VLChain2D(List<VLEdge2D> edges, IRenderer<VLChain2D> renderer) {
+	private VLChain2D(List<VLEdge2D> edges, Consumer<VLChain2D> renderer) {
 		this.renderer = renderer;
 		this.edges = edges;
 	}
@@ -65,7 +65,7 @@ public class VLChain2D implements IVLEdgeContainer2D {
 	@Override
 	public void render() {
 		if (renderer != null) {
-			renderer.render(this);
+			renderer.accept(this);
 		}
 	}
 

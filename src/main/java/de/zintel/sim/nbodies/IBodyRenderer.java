@@ -11,7 +11,7 @@ import de.zintel.physics.Body;
  * @author Friedemann
  *
  */
-public interface IRenderer {
+public interface IBodyRenderer {
 
 	void initGraphics();
 

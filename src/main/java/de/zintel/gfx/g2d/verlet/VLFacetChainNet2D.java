@@ -6,8 +6,8 @@ package de.zintel.gfx.g2d.verlet;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-import de.zintel.gfx.IRenderer;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector2D;
 
@@ -19,7 +19,7 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 
 	// TODO
 
-	private IRenderer<VLFacetChainNet2D> renderer;
+	private Consumer<VLFacetChainNet2D> renderer;
 
 	private List<VLEdge2D> edges = new ArrayList<>();
 
@@ -32,7 +32,7 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 	 * 
 	 */
 	public VLFacetChainNet2D(VLVertex2D topleft, VLVertex2D topright, int height, int chainLinks, int dimHorizontal, int dimVertical,
-			IRenderer<VLFacetChainNet2D> renderer, IRenderer<VLEdge2D> edgeRenderer) {
+			Consumer<VLFacetChainNet2D> renderer, Consumer<VLEdge2D> edgeRenderer) {
 
 		this.renderer = renderer;
 
@@ -101,7 +101,7 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 
 	}
 
-	private VLFacetChainNet2D(IRenderer<VLFacetChainNet2D> renderer, List<VLEdge2D> edges, List<List<List<VLEdge2D>>> edgesH,
+	private VLFacetChainNet2D(Consumer<VLFacetChainNet2D> renderer, List<VLEdge2D> edges, List<List<List<VLEdge2D>>> edgesH,
 			List<List<List<VLEdge2D>>> edgesV) {
 		this.renderer = renderer;
 		this.edges = edges;
@@ -119,7 +119,7 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 	@Override
 	public void render() {
 		if (renderer != null) {
-			renderer.render(this);
+			renderer.accept(this);
 		}
 	}
 
@@ -136,11 +136,11 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 		return edgesV;
 	}
 
-	public IRenderer<VLFacetChainNet2D> getRenderer() {
+	public Consumer<VLFacetChainNet2D> getRenderer() {
 		return renderer;
 	}
 
-	public void setRenderer(IRenderer<VLFacetChainNet2D> renderer) {
+	public void setRenderer(Consumer<VLFacetChainNet2D> renderer) {
 		this.renderer = renderer;
 	}
 

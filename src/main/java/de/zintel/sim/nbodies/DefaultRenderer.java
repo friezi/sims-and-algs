@@ -18,7 +18,7 @@ import de.zintel.sim.nbodies.sceneries.Scenery;
  * @author Friedemann
  *
  */
-public class DefaultRenderer implements IRenderer {
+public class DefaultRenderer implements IBodyRenderer {
 
 	private static final Random RANDOM = new Random();
 

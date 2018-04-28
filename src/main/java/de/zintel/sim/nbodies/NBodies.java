@@ -51,7 +51,7 @@ public class NBodies extends SimulationScreen {
 
 	private int height = screenParameters.HEIGHT;
 
-	private IRenderer renderer;
+	private IBodyRenderer renderer;
 
 	private IBodyProducer bodyProducer;
 

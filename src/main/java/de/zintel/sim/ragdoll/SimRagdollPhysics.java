@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.GfxUtils;
-import de.zintel.gfx.IRenderer;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.g2d.verlet.AdjustingColorProvider;
@@ -145,7 +144,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 	private boolean syncRendering = false;
 
-	private static class PlainEdgeRenderer implements IRenderer<VLEdge2D> {
+	private static class PlainEdgeRenderer implements Consumer<VLEdge2D> {
 
 		private final IGraphicsSubsystem graphicsSubsystem;
 
@@ -154,14 +153,14 @@ public class SimRagdollPhysics extends SimulationScreen {
 		}
 
 		@Override
-		public void render(VLEdge2D edge) {
+		public void accept(VLEdge2D edge) {
 			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
 					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, edge.getColor(), edge.getColor());
 		}
 
 	}
 
-	private static class AdjustingEdgeRenderer implements IRenderer<VLEdge2D> {
+	private static class AdjustingEdgeRenderer implements Consumer<VLEdge2D> {
 
 		private final IGraphicsSubsystem graphicsSubsystem;
 
@@ -172,7 +171,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 		}
 
 		@Override
-		public void render(VLEdge2D edge) {
+		public void accept(VLEdge2D edge) {
 
 			final Color color = colorProvider.apply(edge);
 			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
@@ -181,40 +180,40 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 	}
 
-	private static class WireMeshChainRenderer implements IRenderer<VLChain2D> {
+	private static class WireMeshChainRenderer implements Consumer<VLChain2D> {
 
 		@Override
-		public void render(VLChain2D item) {
+		public void accept(VLChain2D item) {
 			for (VLEdge2D edge : item.getEdges()) {
 				edge.render();
 			}
 		}
 	}
 
-	private static class WireMeshCuboidRenderer implements IRenderer<VLCuboid2D> {
+	private static class WireMeshCuboidRenderer implements Consumer<VLCuboid2D> {
 
 		@Override
-		public void render(VLCuboid2D item) {
+		public void accept(VLCuboid2D item) {
 			for (VLEdge2D edge : item.getEdges()) {
 				edge.render();
 			}
 		}
 	}
 
-	private static class WireMeshChainNetRenderer implements IRenderer<VLChainNet2D> {
+	private static class WireMeshChainNetRenderer implements Consumer<VLChainNet2D> {
 
 		@Override
-		public void render(VLChainNet2D item) {
+		public void accept(VLChainNet2D item) {
 			for (VLEdge2D edge : item.getEdges()) {
 				edge.render();
 			}
 		}
 	}
 
-	private static class WireMeshFacetRenderer implements IRenderer<VLFacet2D> {
+	private static class WireMeshFacetRenderer implements Consumer<VLFacet2D> {
 
 		@Override
-		public void render(VLFacet2D item) {
+		public void accept(VLFacet2D item) {
 			for (VLEdge2D edge : item.getEdges()) {
 				edge.render();
 			}
@@ -306,12 +305,12 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 	private void initScene(IGraphicsSubsystem graphicsSubsystem) {
 
-		final IRenderer<VLEdge2D> plainEdgeRenderer = new PlainEdgeRenderer(graphicsSubsystem);
-		final IRenderer<VLEdge2D> adjustingEdgeRenderer = new AdjustingEdgeRenderer(graphicsSubsystem);
-		final IRenderer<VLCuboid2D> cuboidRenderer = new WireMeshCuboidRenderer();
-		final IRenderer<VLChain2D> chainRenderer = new WireMeshChainRenderer();
-		final IRenderer<VLChainNet2D> chainNetRenderer = new WireMeshChainNetRenderer();
-		final IRenderer<VLFacet2D> facetRenderer = new FilledFacetRenderer(graphicsSubsystem);
+		final Consumer<VLEdge2D> plainEdgeRenderer = new PlainEdgeRenderer(graphicsSubsystem);
+		final Consumer<VLEdge2D> adjustingEdgeRenderer = new AdjustingEdgeRenderer(graphicsSubsystem);
+		final Consumer<VLCuboid2D> cuboidRenderer = new WireMeshCuboidRenderer();
+		final Consumer<VLChain2D> chainRenderer = new WireMeshChainRenderer();
+		final Consumer<VLChainNet2D> chainNetRenderer = new WireMeshChainNetRenderer();
+		final Consumer<VLFacet2D> facetRenderer = new FilledFacetRenderer(graphicsSubsystem);
 
 		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(99, 100)), new VLVertex2D(new Vector2D(230, 120)),
 				plainEdgeRenderer));

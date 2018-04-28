@@ -4,15 +4,15 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
-import de.zintel.gfx.IRenderer;
 import de.zintel.gfx.g2d.verlet.AdjustingColorProvider;
 import de.zintel.gfx.g2d.verlet.VLChainNet2D;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.Vector2D;
 
-public class MeanFilledChainNetRenderer implements IRenderer<VLChainNet2D> {
+public class MeanFilledChainNetRenderer implements Consumer<VLChainNet2D> {
 
 	private final IGraphicsSubsystem graphicsSubsystem;
 
@@ -23,7 +23,7 @@ public class MeanFilledChainNetRenderer implements IRenderer<VLChainNet2D> {
 	}
 
 	@Override
-	public void render(VLChainNet2D item) {
+	public void accept(VLChainNet2D item) {
 
 		final List<List<List<VLEdge2D>>> edgesH = item.getEdgesH();
 		final List<List<List<VLEdge2D>>> edgesV = item.getEdgesV();

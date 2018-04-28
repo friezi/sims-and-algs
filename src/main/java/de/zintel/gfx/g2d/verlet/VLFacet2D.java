@@ -6,8 +6,7 @@ package de.zintel.gfx.g2d.verlet;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
-
-import de.zintel.gfx.IRenderer;
+import java.util.function.Consumer;
 
 /**
  * @author friedemann.zintel
@@ -21,12 +20,12 @@ public class VLFacet2D implements IVLEdgeContainer2D {
 
 	private final VLEdge2D edge3;
 
-	private final IRenderer<VLFacet2D> renderer;
+	private final Consumer<VLFacet2D> renderer;
 
 	/**
 	 * 
 	 */
-	public VLFacet2D(final VLVertex2D v1, final VLVertex2D v2, final VLVertex2D v3, IRenderer<VLEdge2D> edgeRenderer, IRenderer<VLFacet2D> renderer) {
+	public VLFacet2D(final VLVertex2D v1, final VLVertex2D v2, final VLVertex2D v3, Consumer<VLEdge2D> edgeRenderer, Consumer<VLFacet2D> renderer) {
 
 		this.edge1 = new VLEdge2D(v1, v2, edgeRenderer);
 		this.edge2 = new VLEdge2D(v2, v3, edgeRenderer);
@@ -38,7 +37,7 @@ public class VLFacet2D implements IVLEdgeContainer2D {
 	/**
 	 * 
 	 */
-	private VLFacet2D(final VLEdge2D e1, final VLEdge2D e2, final VLEdge2D e3, IRenderer<VLFacet2D> renderer) {
+	private VLFacet2D(final VLEdge2D e1, final VLEdge2D e2, final VLEdge2D e3, Consumer<VLFacet2D> renderer) {
 
 		this.edge1 = e1;
 		this.edge2 = e2;
@@ -56,7 +55,7 @@ public class VLFacet2D implements IVLEdgeContainer2D {
 	public void render() {
 
 		if (renderer != null) {
-			renderer.render(this);
+			renderer.accept(this);
 		}
 
 	}
