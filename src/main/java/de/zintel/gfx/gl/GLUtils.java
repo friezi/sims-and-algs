@@ -7,11 +7,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 
-import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.math.Vector2D;
 
 /**
@@ -84,8 +84,8 @@ public final class GLUtils {
 		 * @param color
 		 * @param gl
 		 */
-		public void drawFilledEllipse(int x, int y, int radius, final ColorGenerator colorGenerator, final Dimension dimension,
-				double ratioYX, double angle, final GL2 gl) {
+		public void drawFilledEllipse(int x, int y, int radius, final Supplier<Color> colorGenerator, final Dimension dimension, double ratioYX,
+				double angle, final GL2 gl) {
 
 			double x1, y1, x2, y2;
 			double rx = projectX(radius, dimension) + 1;
@@ -94,11 +94,11 @@ public final class GLUtils {
 			x1 = projectX(x, dimension);
 			y1 = projectY(y, dimension);
 
-			final Color color = colorGenerator.generateColor();
+			final Color color = colorGenerator.get();
 
 			gl.glBegin(GL.GL_TRIANGLE_FAN);
-			gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()),
-					projectColorValue2GL(color.getBlue()), projectColorValue2GL(color.getAlpha()));
+			gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()), projectColorValue2GL(color.getBlue()),
+					projectColorValue2GL(color.getAlpha()));
 			gl.glVertex2d(x1, y1);
 			int angleIndex = (int) Math.round((steps / (2 * Math.PI / angle)));
 
@@ -122,7 +122,7 @@ public final class GLUtils {
 				x2 = (float) (x1 + sine[(i + dIdxSine) % nmbValues] * rx / (adjustSine ? ratioYX : 1));
 				y2 = (float) (y1 + cosine[(i + dIdxCosine) % nmbValues] * ry / (adjustCosine ? ratioYX : 1));
 
-				final Color nextColor = colorGenerator.generateColor();
+				final Color nextColor = colorGenerator.get();
 				gl.glColor4f(projectColorValue2GL(nextColor.getRed()), projectColorValue2GL(nextColor.getGreen()),
 						projectColorValue2GL(nextColor.getBlue()), projectColorValue2GL(nextColor.getAlpha()));
 
@@ -140,8 +140,7 @@ public final class GLUtils {
 	private GLUtils() {
 	}
 
-	public static void drawFilledTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Color color, final Dimension dimension,
-			final GL2 gl) {
+	public static void drawFilledTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Color color, final Dimension dimension, final GL2 gl) {
 		drawFilledTriangle(projectX(x1, dimension), projectY(y1, dimension), projectX(x2, dimension), projectY(y2, dimension),
 				projectX(x3, dimension), projectY(y3, dimension), color, gl);
 	}
@@ -158,7 +157,7 @@ public final class GLUtils {
 
 	}
 
-	public static void drawFilledPolygon(final Collection<Vector2D> points, final ColorGenerator colorGenerator, final Dimension dimension,
+	public static void drawFilledPolygon(final Collection<Vector2D> points, final Supplier<Color> colorGenerator, final Dimension dimension,
 			final GL2 gl) {
 
 		final Collection<Vector2D> projectedPoints = new ArrayList<>(points.size());
@@ -169,14 +168,14 @@ public final class GLUtils {
 		drawFilledPolygon(projectedPoints, colorGenerator, gl);
 	}
 
-	public static void drawFilledPolygon(final Collection<Vector2D> hPoints, final ColorGenerator colorGenerator, final GL2 gl) {
+	public static void drawFilledPolygon(final Collection<Vector2D> hPoints, final Supplier<Color> colorGenerator, final GL2 gl) {
 
 		gl.glBegin(GL2.GL_POLYGON);
 		for (Vector2D point : hPoints) {
 
-			final Color color = colorGenerator.generateColor();
-			gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()),
-					projectColorValue2GL(color.getBlue()), projectColorValue2GL(color.getAlpha()));
+			final Color color = colorGenerator.get();
+			gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()), projectColorValue2GL(color.getBlue()),
+					projectColorValue2GL(color.getAlpha()));
 			gl.glVertex2d(point.x, point.y);
 		}
 
@@ -186,8 +185,7 @@ public final class GLUtils {
 
 	public static void drawLine(final int x1, final int y1, final int x2, final int y2, final Color colorStart, Color colorEnd,
 			final Dimension dimension, final GL2 gl) {
-		drawLine(projectX(x1, dimension), projectY(y1, dimension), projectX(x2, dimension), projectY(y2, dimension), colorStart, colorEnd,
-				gl);
+		drawLine(projectX(x1, dimension), projectY(y1, dimension), projectX(x2, dimension), projectY(y2, dimension), colorStart, colorEnd, gl);
 	}
 
 	/**
@@ -209,8 +207,8 @@ public final class GLUtils {
 		gl.glVertex2d(x1, y1);
 
 		if (colorStart != colorEnd) {
-			gl.glColor4d(projectColorValue2GL(colorEnd.getRed()), projectColorValue2GL(colorEnd.getGreen()),
-					projectColorValue2GL(colorEnd.getBlue()), projectColorValue2GL(colorEnd.getAlpha()));
+			gl.glColor4d(projectColorValue2GL(colorEnd.getRed()), projectColorValue2GL(colorEnd.getGreen()), projectColorValue2GL(colorEnd.getBlue()),
+					projectColorValue2GL(colorEnd.getAlpha()));
 		}
 		gl.glVertex2d(x2, y2);
 		gl.glEnd();

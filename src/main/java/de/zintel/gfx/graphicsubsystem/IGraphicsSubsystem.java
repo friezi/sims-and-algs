@@ -11,8 +11,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import java.util.Collection;
+import java.util.function.Supplier;
 
-import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.math.Vector2D;
 
 /**
@@ -25,9 +25,9 @@ public interface IGraphicsSubsystem {
 
 	boolean supportsColorChange();
 
-	void drawFilledCircle(final int x, final int y, final int radius, final ColorGenerator colorGenerator);
+	void drawFilledCircle(final int x, final int y, final int radius, final Supplier<Color> colorGenerator);
 
-	void drawFilledEllipse(final int x, final int y, final int radius, double ratioYX, double angle, final ColorGenerator colorGenerator);
+	void drawFilledEllipse(final int x, final int y, final int radius, double ratioYX, double angle, final Supplier<Color> colorGenerator);
 
 	void drawLine(final int x1, final int y1, final int x2, final int y2, final Color colorStart, Color colorEnd);
 
@@ -37,7 +37,7 @@ public interface IGraphicsSubsystem {
 		drawFilledPolygon(points, () -> color);
 	}
 
-	void drawFilledPolygon(Collection<Vector2D> points, ColorGenerator colorGenerator);
+	void drawFilledPolygon(Collection<Vector2D> points, Supplier<Color> colorGenerator);
 
 	void drawString(String str, final int x, final int y, final Color color);
 

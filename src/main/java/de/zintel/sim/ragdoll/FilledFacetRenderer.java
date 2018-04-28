@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import de.zintel.gfx.IRenderer;
-import de.zintel.gfx.g2d.verlet.AdjustingColorModifier;
+import de.zintel.gfx.g2d.verlet.AdjustingColorProvider;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLFacet2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
@@ -15,7 +15,7 @@ public class FilledFacetRenderer implements IRenderer<VLFacet2D> {
 
 	private final IGraphicsSubsystem graphicsSubsystem;
 
-	private final AdjustingColorModifier colorModifier = new AdjustingColorModifier();
+	private final AdjustingColorProvider colorModifier = new AdjustingColorProvider();
 
 	public FilledFacetRenderer(IGraphicsSubsystem graphicsSubsystem) {
 		this.graphicsSubsystem = graphicsSubsystem;

@@ -1,16 +1,16 @@
 package de.zintel.gfx.g2d.verlet;
 
 import java.awt.Color;
+import java.util.function.Function;
 
-import de.zintel.gfx.ColorModifier;
 import de.zintel.math.Vector2D;
 
-public class AdjustingColorModifier implements ColorModifier<VLEdge2D> {
+public class AdjustingColorProvider implements Function<VLEdge2D, Color> {
 
 	private static final double RANGE = 1 - Color.DARK_GRAY.getRGBColorComponents(null)[0];
 
 	@Override
-	public Color getColor(VLEdge2D edge) {
+	public Color apply(VLEdge2D edge) {
 
 		final Color color = edge.getColor();
 		double ratio = edge.getPreferredLength() / Vector2D.distance(edge.getFirst().getCurrent(), edge.getSecond().getCurrent());
@@ -25,8 +25,7 @@ public class AdjustingColorModifier implements ColorModifier<VLEdge2D> {
 	}
 
 	private float adjustColor(final float value, double ratio) {
-		return (float) (ratio > 1 ? (value + (1 - 1 / ratio) * Math.min(1 - value, RANGE))
-				: (value - (1 - ratio) * Math.min(value, RANGE)));
+		return (float) (ratio > 1 ? (value + (1 - 1 / ratio) * Math.min(1 - value, RANGE)) : (value - (1 - ratio) * Math.min(value, RANGE)));
 	}
 
 }

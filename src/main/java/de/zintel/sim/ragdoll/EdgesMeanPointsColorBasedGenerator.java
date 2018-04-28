@@ -3,10 +3,10 @@ package de.zintel.sim.ragdoll;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-import de.zintel.gfx.ColorModifier;
 import de.zintel.gfx.color.CUtils;
-import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 
 /**
@@ -15,10 +15,10 @@ import de.zintel.gfx.g2d.verlet.VLEdge2D;
  * @author friedo
  *
  */
-public class EdgesMeanPointsColorBasedGenerator implements ColorGenerator {
+public class EdgesMeanPointsColorBasedGenerator implements Supplier<Color> {
 
 	private final List<VLEdge2D> edges;
-	private final ColorModifier<VLEdge2D> colorModifier;
+	private final Function<VLEdge2D, Color> colorProvider;
 	private final int size;
 	private int idx = -1;
 
@@ -26,20 +26,20 @@ public class EdgesMeanPointsColorBasedGenerator implements ColorGenerator {
 		this(edges, null);
 	}
 
-	public EdgesMeanPointsColorBasedGenerator(List<VLEdge2D> edges, ColorModifier<VLEdge2D> colorModifier) {
+	public EdgesMeanPointsColorBasedGenerator(List<VLEdge2D> edges, Function<VLEdge2D, Color> colorProvider) {
 		this.edges = edges;
-		this.colorModifier = colorModifier;
+		this.colorProvider = colorProvider;
 		this.size = edges.size();
 	}
 
 	@Override
-	public Color generateColor() {
+	public Color get() {
 
 		idx = nextIndex(idx);
 
 		VLEdge2D edge1 = edges.get(idx);
 		VLEdge2D edge2 = edges.get(nextIndex(idx));
-		return (colorModifier != null ? CUtils.mean(Arrays.asList(colorModifier.getColor(edge1), colorModifier.getColor(edge2)))
+		return (colorProvider != null ? CUtils.mean(Arrays.asList(colorProvider.apply(edge1), colorProvider.apply(edge2)))
 				: CUtils.mean(Arrays.asList(edge1.getColor(), edge2.getColor())));
 	}
 

@@ -14,12 +14,12 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.math.Vector2D;
 
 /**
@@ -91,13 +91,13 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 	 * java.awt.Color)
 	 */
 	@Override
-	public void drawFilledCircle(int x, int y, int radius, ColorGenerator colorGenerator) {
-		graphics.setColor(colorGenerator.generateColor());
+	public void drawFilledCircle(int x, int y, int radius, Supplier<Color> colorGenerator) {
+		graphics.setColor(colorGenerator.get());
 		graphics.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
 	}
 
 	@Override
-	public void drawFilledEllipse(int x, int y, int radius, double ratioYX, double angle, ColorGenerator colorGenerator) {
+	public void drawFilledEllipse(int x, int y, int radius, double ratioYX, double angle, Supplier<Color> colorGenerator) {
 		drawFilledCircle(x, y, radius, colorGenerator);
 	}
 
@@ -241,8 +241,8 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 	}
 
 	@Override
-	public void drawFilledPolygon(Collection<Vector2D> points, ColorGenerator colorGenerator) {
-		graphics.setColor(colorGenerator.generateColor());
+	public void drawFilledPolygon(Collection<Vector2D> points, Supplier<Color> colorGenerator) {
+		graphics.setColor(colorGenerator.get());
 
 		final int x[] = new int[points.size()];
 		final int y[] = new int[points.size()];

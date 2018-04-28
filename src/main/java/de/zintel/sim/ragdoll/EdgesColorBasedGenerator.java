@@ -2,15 +2,15 @@ package de.zintel.sim.ragdoll;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-import de.zintel.gfx.ColorModifier;
-import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 
-public class EdgesColorBasedGenerator implements ColorGenerator {
+public class EdgesColorBasedGenerator implements Supplier<Color> {
 
 	private final List<VLEdge2D> edges;
-	private final ColorModifier<VLEdge2D> colorModifier;
+	private final Function<VLEdge2D, Color> colorProvider;
 	private final int size;
 	private int idx = -1;
 
@@ -18,14 +18,14 @@ public class EdgesColorBasedGenerator implements ColorGenerator {
 		this(edges, null);
 	}
 
-	public EdgesColorBasedGenerator(List<VLEdge2D> edges, ColorModifier<VLEdge2D> colorModifier) {
+	public EdgesColorBasedGenerator(List<VLEdge2D> edges, Function<VLEdge2D, Color> colorProvider) {
 		this.edges = edges;
-		this.colorModifier = colorModifier;
+		this.colorProvider = colorProvider;
 		this.size = edges.size();
 	}
 
 	@Override
-	public Color generateColor() {
+	public Color get() {
 
 		idx++;
 		if (idx >= size || idx < 0) {
@@ -33,7 +33,7 @@ public class EdgesColorBasedGenerator implements ColorGenerator {
 		}
 
 		VLEdge2D edge = edges.get(idx);
-		return (colorModifier != null ? colorModifier.getColor(edge) : edge.getColor());
+		return (colorProvider != null ? colorProvider.apply(edge) : edge.getColor());
 	}
 
 }

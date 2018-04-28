@@ -18,6 +18,7 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import de.zintel.ci.Boid;
@@ -29,7 +30,6 @@ import de.zintel.control.IKeyAction;
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
-import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
 import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
@@ -296,11 +296,10 @@ public class CollectiveIntelligence extends SimulationScreen {
 		this.graphicsSubsystem = graphicsSubsystem;
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 
-		swarm = new FishSwarm(
-				new Vector2D(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2))
-						.setUseLeader(true).setUsePredator(true)
-						.setPublicDistance(MathUtils.distance(new Point(), new Point(screenParameters.WIDTH, screenParameters.HEIGHT)) / 4)
-						.setLeaderAttraction(40000);
+		swarm = new FishSwarm(new Vector2D(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2))
+				.setUseLeader(true).setUsePredator(true)
+				.setPublicDistance(MathUtils.distance(new Point(), new Point(screenParameters.WIDTH, screenParameters.HEIGHT)) / 4)
+				.setLeaderAttraction(40000);
 
 		initKeyActions();
 		initBoids();
@@ -340,8 +339,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 			// detect clusters
 			final BiFunction<Boid, Boid, Double> distanceOp = (b1, b2) -> Vector2D.distance(b1.getPosition(), b2.getPosition());
-			final Collection<Boid> memberBoids = boids.stream().filter(boid -> boid.getType() == BoidType.MEMBER)
-					.collect(Collectors.toList());
+			final Collection<Boid> memberBoids = boids.stream().filter(boid -> boid.getType() == BoidType.MEMBER).collect(Collectors.toList());
 
 			final Set<Collection<Boid>> boidClusters = MathUtils.getClusters(memberBoids, 2.5, distanceOp);
 
@@ -381,12 +379,12 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 			final Color effectiveColor = color;
 
-			ColorGenerator colorGenerator = new ColorGenerator() {
+			Supplier<Color> colorGenerator = new Supplier<Color>() {
 
 				boolean center = true;
 
 				@Override
-				public Color generateColor() {
+				public Color get() {
 
 					if (center == true) {
 
@@ -400,8 +398,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 			};
 
 			graphicsSubsystem.drawFilledEllipse((int) boid.getPosition().x, (int) boid.getPosition().y,
-					graphicsSubsystem.supportsColorChange() ? BOID_SIZE : BOID_SIZE / 2, 2,
-					Math.PI / 2 - boid.getDirectionPolar().getAngle(), colorGenerator);
+					graphicsSubsystem.supportsColorChange() ? BOID_SIZE : BOID_SIZE / 2, 2, Math.PI / 2 - boid.getDirectionPolar().getAngle(),
+					colorGenerator);
 
 			if (SHIVERING && !graphicsSubsystem.supportsColorChange()) {
 				graphicsSubsystem.drawFilledEllipse((int) boid.getPosition().x, (int) boid.getPosition().y, BOID_SIZE, 2,

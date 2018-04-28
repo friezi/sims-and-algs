@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import de.zintel.gfx.IRenderer;
-import de.zintel.gfx.g2d.verlet.AdjustingColorModifier;
+import de.zintel.gfx.g2d.verlet.AdjustingColorProvider;
 import de.zintel.gfx.g2d.verlet.VLChainNet2D;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
@@ -16,7 +16,7 @@ public class MeanFilledChainNetRenderer implements IRenderer<VLChainNet2D> {
 
 	private final IGraphicsSubsystem graphicsSubsystem;
 
-	private final AdjustingColorModifier colorModifier = new AdjustingColorModifier();
+	private final AdjustingColorProvider colorProvider = new AdjustingColorProvider();
 
 	public MeanFilledChainNetRenderer(IGraphicsSubsystem graphicsSubsystem) {
 		this.graphicsSubsystem = graphicsSubsystem;
@@ -58,10 +58,10 @@ public class MeanFilledChainNetRenderer implements IRenderer<VLChainNet2D> {
 					final VLEdge2D edge = vLeft.get(i);
 					points.add(edge.getSecond().getCurrent());
 				}
-				final Color hTopColor = colorModifier.getColor(hTop.iterator().next());
-				final Color vRightColor = colorModifier.getColor(vRight.iterator().next());
-				final Color hBottomColor = colorModifier.getColor(hBottom.iterator().next());
-				final Color vLeftColor = colorModifier.getColor(vLeft.iterator().next());
+				final Color hTopColor = colorProvider.apply(hTop.iterator().next());
+				final Color vRightColor = colorProvider.apply(vRight.iterator().next());
+				final Color hBottomColor = colorProvider.apply(hBottom.iterator().next());
+				final Color vLeftColor = colorProvider.apply(vLeft.iterator().next());
 				graphicsSubsystem.drawFilledPolygon(points,
 						new Color((hTopColor.getRed() + vRightColor.getRed() + hBottomColor.getRed() + vLeftColor.getRed()) / 4,
 								(hTopColor.getGreen() + vRightColor.getGreen() + hBottomColor.getGreen() + vLeftColor.getGreen()) / 4,

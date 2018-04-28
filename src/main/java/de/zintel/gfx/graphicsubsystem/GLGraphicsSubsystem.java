@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import javax.swing.JFrame;
 
@@ -33,7 +34,6 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
 import com.jogamp.opengl.util.awt.TextRenderer;
 
-import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.gfx.gl.GLUtils;
 import de.zintel.gfx.gl.GLUtils.CircleDrawer;
 import de.zintel.math.Vector2D;
@@ -159,12 +159,12 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	 * int, de.zintel.gfx.color.CUtils.ColorGenerator)
 	 */
 	@Override
-	public void drawFilledCircle(int x, int y, int radius, ColorGenerator colorGenerator) {
+	public void drawFilledCircle(int x, int y, int radius, Supplier<Color> colorGenerator) {
 		circleDrawer.drawFilledEllipse(x, y, radius, colorGenerator, dimension, 1, 0, gl);
 	}
 
 	@Override
-	public void drawFilledEllipse(int x, int y, int radius, double ratioYX, double angle, ColorGenerator colorGenerator) {
+	public void drawFilledEllipse(int x, int y, int radius, double ratioYX, double angle, Supplier<Color> colorGenerator) {
 		circleDrawer.drawFilledEllipse(x, y, radius, colorGenerator, dimension, ratioYX, angle, gl);
 	}
 
@@ -186,7 +186,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	}
 
 	@Override
-	public void drawFilledPolygon(Collection<Vector2D> points, ColorGenerator colorGenerator) {
+	public void drawFilledPolygon(Collection<Vector2D> points, Supplier<Color> colorGenerator) {
 		GLUtils.drawFilledPolygon(points, colorGenerator, dimension, gl);
 	}
 

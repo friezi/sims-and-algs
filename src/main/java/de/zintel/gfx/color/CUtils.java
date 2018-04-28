@@ -6,6 +6,7 @@ package de.zintel.gfx.color;
 import java.awt.Color;
 import java.util.Collection;
 import java.util.Random;
+import java.util.function.Supplier;
 
 /**
  * @author Friedemann
@@ -13,12 +14,7 @@ import java.util.Random;
  */
 public final class CUtils {
 
-	@FunctionalInterface
-	public static interface ColorGenerator {
-		Color generateColor();
-	}
-
-	public static class SphericalColorGenerator implements ColorGenerator {
+	public static class SphericalColorGenerator implements Supplier<Color> {
 
 		private boolean center = true;
 
@@ -32,7 +28,7 @@ public final class CUtils {
 		}
 
 		@Override
-		public Color generateColor() {
+		public Color get() {
 
 			if (center) {
 

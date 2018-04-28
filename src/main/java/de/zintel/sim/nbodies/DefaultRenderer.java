@@ -6,9 +6,9 @@ package de.zintel.sim.nbodies;
 import java.awt.Color;
 import java.util.Collection;
 import java.util.Random;
+import java.util.function.Supplier;
 
 import de.zintel.gfx.color.CUtils;
-import de.zintel.gfx.color.CUtils.ColorGenerator;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.physics.Body;
 import de.zintel.physics.gravitation.Physics;
@@ -55,20 +55,19 @@ public class DefaultRenderer implements IRenderer {
 		final SwingBodyProperty property = getProperty(body);
 
 		final Color newColor = CUtils.makeRandomStarColor();
-		final Color innercolor = (scenery.getSceneryConfig().isStarfield() ? makeChangedColor(newColor, newColor)
-				: property.getBodyColor());
+		final Color innercolor = (scenery.getSceneryConfig().isStarfield() ? makeChangedColor(newColor, newColor) : property.getBodyColor());
 		property.setCurrentBodyColor(innercolor);
 
 		// sorgt bei entsprechender Hardwareunterstützung für changierenden
 		// Körper
-		final ColorGenerator colorGenerator = new ColorGenerator() {
+		final Supplier<Color> colorGenerator = new Supplier<Color>() {
 
 			private boolean center = true;
 
 			private final Color rimColor = new Color(Color.WHITE.getRed(), Color.WHITE.getGreen(), Color.WHITE.getBlue(), 200);
 
 			@Override
-			public Color generateColor() {
+			public Color get() {
 
 				if (center) {
 					center = false;
@@ -82,8 +81,7 @@ public class DefaultRenderer implements IRenderer {
 
 		double size = Math.ceil(body.getSize());
 		graphicsSubsystem.drawFilledCircle((int) project(body.getPosition().x, graphicsSubsystem.getDimension().getWidth()),
-				(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()), (int) Math.max(scale(size), 1),
-				colorGenerator);
+				(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()), (int) Math.max(scale(size), 1), colorGenerator);
 
 	}
 
@@ -158,14 +156,14 @@ public class DefaultRenderer implements IRenderer {
 				final double scaledSize = scale(size + size * factor);
 
 				// sorgt bei entsprechender Hardwareunterstützung für Strahlen
-				final ColorGenerator colorGenerator = new ColorGenerator() {
+				final Supplier<Color> colorGenerator = new Supplier<Color>() {
 
 					private int i = -1;
 
 					private Color basecolor = makeChangedColor(property.getBodyColor(), property.getCurrentCoronaColor());
 
 					@Override
-					public Color generateColor() {
+					public Color get() {
 
 						float divisor;
 
@@ -191,8 +189,7 @@ public class DefaultRenderer implements IRenderer {
 				};
 
 				graphicsSubsystem.drawFilledCircle((int) project(body.getPosition().x, graphicsSubsystem.getDimension().getWidth()),
-						(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()), (int) scaledSize,
-						colorGenerator);
+						(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()), (int) scaledSize, colorGenerator);
 
 			} else {
 
@@ -205,14 +202,14 @@ public class DefaultRenderer implements IRenderer {
 
 					// sorgt bei entsprechender Hardwareunterstützung für
 					// Strahlen
-					final ColorGenerator colorGenerator = new ColorGenerator() {
+					final Supplier<Color> colorGenerator = new Supplier<Color>() {
 
 						private int i = -1;
 
 						private Color basecolor = makeChangedColor(property.getBodyColor(), property.getCurrentCoronaColor());
 
 						@Override
-						public Color generateColor() {
+						public Color get() {
 
 							float divisor;
 
@@ -236,8 +233,7 @@ public class DefaultRenderer implements IRenderer {
 						}
 					};
 					graphicsSubsystem.drawFilledCircle((int) project(body.getPosition().x, graphicsSubsystem.getDimension().getWidth()),
-							(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()), (int) scaledSize,
-							colorGenerator);
+							(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()), (int) scaledSize, colorGenerator);
 				}
 			}
 		}
@@ -251,9 +247,8 @@ public class DefaultRenderer implements IRenderer {
 	 * @return
 	 */
 	private Color makeChangedColor(final Color baseColor, final Color currentColor) {
-		return RANDOM.nextDouble() <= CVARIANCE_PROB
-				? new Color(modifyCValue(baseColor.getRed(), CVARIANCE), modifyCValue(baseColor.getGreen(), CVARIANCE),
-						modifyCValue(baseColor.getBlue(), CVARIANCE))
+		return RANDOM.nextDouble() <= CVARIANCE_PROB ? new Color(modifyCValue(baseColor.getRed(), CVARIANCE),
+				modifyCValue(baseColor.getGreen(), CVARIANCE), modifyCValue(baseColor.getBlue(), CVARIANCE))
 				: (RANDOM.nextDouble() <= CVARIANCE_PROB ? Color.WHITE : currentColor);
 	}
 
@@ -263,8 +258,7 @@ public class DefaultRenderer implements IRenderer {
 		graphicsSubsystem.drawLine((int) project(body.getPosition().x, graphicsSubsystem.getDimension().getWidth()),
 				(int) project(body.getPosition().y, graphicsSubsystem.getDimension().getHeight()),
 				(int) project(body.getPosition().x + 10 * body.getVelocity().x, graphicsSubsystem.getDimension().getWidth()),
-				(int) project(body.getPosition().y + 10 * body.getVelocity().y, graphicsSubsystem.getDimension().getHeight()), color,
-				color);
+				(int) project(body.getPosition().y + 10 * body.getVelocity().y, graphicsSubsystem.getDimension().getHeight()), color, color);
 
 	}
 
@@ -310,10 +304,8 @@ public class DefaultRenderer implements IRenderer {
 
 			} else {
 
-				endx = (int) project(body.getPosition().x - 10 * body.getVelocity().x / (max - i),
-						graphicsSubsystem.getDimension().getWidth());
-				endy = (int) project(body.getPosition().y - 10 * body.getVelocity().y / (max - i),
-						graphicsSubsystem.getDimension().getHeight());
+				endx = (int) project(body.getPosition().x - 10 * body.getVelocity().x / (max - i), graphicsSubsystem.getDimension().getWidth());
+				endy = (int) project(body.getPosition().y - 10 * body.getVelocity().y / (max - i), graphicsSubsystem.getDimension().getHeight());
 				final int red = CUtils.brighten(color.getRed(), colorBrigthnessFactor);
 				final int green = CUtils.brighten(color.getGreen(), colorBrigthnessFactor);
 				final int blue = CUtils.brighten(color.getBlue(), 2 * colorBrigthnessFactor);

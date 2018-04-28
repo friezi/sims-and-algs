@@ -29,7 +29,7 @@ import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.IRenderer;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.color.CUtils;
-import de.zintel.gfx.g2d.verlet.AdjustingColorModifier;
+import de.zintel.gfx.g2d.verlet.AdjustingColorProvider;
 import de.zintel.gfx.g2d.verlet.IVLEdgeContainer2D;
 import de.zintel.gfx.g2d.verlet.VLChain2D;
 import de.zintel.gfx.g2d.verlet.VLChainNet2D;
@@ -165,7 +165,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 		private final IGraphicsSubsystem graphicsSubsystem;
 
-		private final AdjustingColorModifier colorModifier = new AdjustingColorModifier();
+		private final AdjustingColorProvider colorProvider = new AdjustingColorProvider();
 
 		public AdjustingEdgeRenderer(IGraphicsSubsystem graphicsSubsystem) {
 			this.graphicsSubsystem = graphicsSubsystem;
@@ -174,7 +174,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 		@Override
 		public void render(VLEdge2D edge) {
 
-			final Color color = colorModifier.getColor(edge);
+			final Color color = colorProvider.apply(edge);
 			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
 					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, color, color);
 		}
