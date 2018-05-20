@@ -10,7 +10,7 @@ import java.util.Iterator;
  * @author Friedemann
  *
  */
-public abstract class APointInterpolater2D implements Iterator<IterationUnit2D> {
+public abstract class APointInterpolater2D implements Iterator<IterationUnit2D>, Iterable<IterationUnit2D> {
 
 	private final Point start;
 
@@ -27,6 +27,11 @@ public abstract class APointInterpolater2D implements Iterator<IterationUnit2D> 
 
 	public Point getEnd() {
 		return end;
+	}
+
+	@Override
+	public Iterator<IterationUnit2D> iterator() {
+		return this;
 	}
 
 }

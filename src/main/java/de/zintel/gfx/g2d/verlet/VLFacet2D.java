@@ -20,18 +20,19 @@ public class VLFacet2D implements IVLEdgeContainer2D {
 
 	private final VLEdge2D edge3;
 
+	private final VLVertex2D vertex1;
+
+	private final VLVertex2D vertex2;
+
+	private final VLVertex2D vertex3;
+
 	private final Consumer<VLFacet2D> renderer;
 
 	/**
 	 * 
 	 */
-	public VLFacet2D(final VLVertex2D v1, final VLVertex2D v2, final VLVertex2D v3, Consumer<VLEdge2D> edgeRenderer, Consumer<VLFacet2D> renderer) {
-
-		this.edge1 = new VLEdge2D(v1, v2, edgeRenderer);
-		this.edge2 = new VLEdge2D(v2, v3, edgeRenderer);
-		this.edge3 = new VLEdge2D(v3, v1, edgeRenderer);
-		this.renderer = renderer;
-
+	public VLFacet2D(final VLVertex2D v1, final VLVertex2D v2, final VLVertex2D v3, Consumer<VLFacet2D> renderer) {
+		this(new VLEdge2D(v1, v2, null), new VLEdge2D(v2, v3, null), new VLEdge2D(v3, v1, null), renderer);
 	}
 
 	/**
@@ -42,6 +43,9 @@ public class VLFacet2D implements IVLEdgeContainer2D {
 		this.edge1 = e1;
 		this.edge2 = e2;
 		this.edge3 = e3;
+		this.vertex1 = e1.getFirst();
+		this.vertex2 = e2.getFirst();
+		this.vertex3 = e3.getFirst();
 		this.renderer = renderer;
 
 	}
@@ -85,6 +89,34 @@ public class VLFacet2D implements IVLEdgeContainer2D {
 	@Override
 	public IVLEdgeContainer2D dcopy() {
 		return new VLFacet2D(edge1.dcopy(), edge2.dcopy(), edge3.dcopy(), renderer).setColor(edge1.getColor());
+	}
+
+	public VLEdge2D getEdge1() {
+		return edge1;
+	}
+
+	public VLEdge2D getEdge2() {
+		return edge2;
+	}
+
+	public VLEdge2D getEdge3() {
+		return edge3;
+	}
+
+	public VLVertex2D getVertex1() {
+		return vertex1;
+	}
+
+	public VLVertex2D getVertex2() {
+		return vertex2;
+	}
+
+	public VLVertex2D getVertex3() {
+		return vertex3;
+	}
+
+	public Consumer<VLFacet2D> getRenderer() {
+		return renderer;
 	}
 
 }

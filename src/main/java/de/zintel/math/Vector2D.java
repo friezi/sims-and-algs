@@ -134,6 +134,10 @@ public class Vector2D implements Serializable {
 		return new VectorND(Arrays.asList(x, y));
 	}
 
+	public Point toPoint() {
+		return new Point((int) x, (int) y);
+	}
+
 	@Override
 	public String toString() {
 		return "Vector2D [x=" + x + ", y=" + y + "]";

@@ -31,6 +31,10 @@ public interface IGraphicsSubsystem {
 
 	void drawLine(final int x1, final int y1, final int x2, final int y2, final Color colorStart, Color colorEnd);
 
+	default void drawPoint(final int x, final int y, final Color color) {
+		drawLine(x, y, x, y, color, color);
+	}
+
 	void drawFilledTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3, final Color color);
 
 	default void drawFilledPolygon(final Collection<Vector2D> points, final Color color) {

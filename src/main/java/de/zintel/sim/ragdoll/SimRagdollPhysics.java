@@ -311,6 +311,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 		final Consumer<VLChain2D> chainRenderer = new WireMeshChainRenderer();
 		final Consumer<VLChainNet2D> chainNetRenderer = new WireMeshChainNetRenderer();
 		final Consumer<VLFacet2D> facetRenderer = new FilledConvexPolygonGSRenderer<VLFacet2D>(graphicsSubsystem);
+		final Consumer<VLFacet2D> facetAdjustingRenderer = new FilledFacetAdjustingRenderer(graphicsSubsystem);
 
 		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(99, 100)), new VLVertex2D(new Vector2D(230, 120)),
 				plainEdgeRenderer));
@@ -332,10 +333,10 @@ public class SimRagdollPhysics extends SimulationScreen {
 		edgeContainers.add(new VLChain2D(new VLVertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60, chainRenderer, plainEdgeRenderer));
 
 		edgeContainers.add(new VLFacet2D(new VLVertex2D(new Vector2D(250, 150)), new VLVertex2D(new Vector2D(400, 160)),
-				new VLVertex2D(new Vector2D(320, 170)), plainEdgeRenderer, facetRenderer).setColor(colors[0]));
+				new VLVertex2D(new Vector2D(320, 170)), facetRenderer).setColor(colors[0]));
 
 		edgeContainers.add(new VLFacet2D(new VLVertex2D(new Vector2D(250, 150)), new VLVertex2D(new Vector2D(400, 160)),
-				new VLVertex2D(new Vector2D(360, 170)), plainEdgeRenderer, facetRenderer).setColor(colors[0]));
+				new VLVertex2D(new Vector2D(360, 170)), facetAdjustingRenderer).setColor(colors[0]));
 
 		chainNet = new VLChainNet2D(new VLVertex2D(new Vector2D(900, 15)).setPinned(true), new VLVertex2D(new Vector2D(1400, 15)).setPinned(true), 30,
 				10, 15, 16, chainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);
