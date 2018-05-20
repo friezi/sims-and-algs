@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import de.zintel.gfx.color.CUtils;
+import de.zintel.gfx.g2d.verlet.PlainColorProvider;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 
 /**
@@ -28,7 +29,7 @@ public class EdgesMeanPointsColorBasedGenerator implements Supplier<Color> {
 
 	public EdgesMeanPointsColorBasedGenerator(List<VLEdge2D> edges, Function<VLEdge2D, Color> colorProvider) {
 		this.edges = edges;
-		this.colorProvider = colorProvider;
+		this.colorProvider = (colorProvider == null ? new PlainColorProvider() : colorProvider);
 		this.size = edges.size();
 	}
 
@@ -39,8 +40,7 @@ public class EdgesMeanPointsColorBasedGenerator implements Supplier<Color> {
 
 		VLEdge2D edge1 = edges.get(idx);
 		VLEdge2D edge2 = edges.get(nextIndex(idx));
-		return (colorProvider != null ? CUtils.mean(Arrays.asList(colorProvider.apply(edge1), colorProvider.apply(edge2)))
-				: CUtils.mean(Arrays.asList(edge1.getColor(), edge2.getColor())));
+		return CUtils.mean(Arrays.asList(colorProvider.apply(edge1), colorProvider.apply(edge2)));
 	}
 
 	private int nextIndex(int idx) {

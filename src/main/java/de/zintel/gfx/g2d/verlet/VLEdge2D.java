@@ -111,4 +111,8 @@ public class VLEdge2D implements IVLEdgeContainer2D {
 		this.renderer = renderer;
 	}
 
+	public Vector2D currentToVector2D() {
+		return Vector2D.substract(second.getCurrent(), first.getCurrent());
+	}
+
 }
