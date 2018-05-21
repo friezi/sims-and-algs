@@ -38,7 +38,7 @@ public class VLFacet2D implements IVLEdgeContainer2D {
 	/**
 	 * 
 	 */
-	private VLFacet2D(final VLEdge2D e1, final VLEdge2D e2, final VLEdge2D e3, Consumer<VLFacet2D> renderer) {
+	VLFacet2D(final VLEdge2D e1, final VLEdge2D e2, final VLEdge2D e3, Consumer<VLFacet2D> renderer) {
 
 		this.edge1 = e1;
 		this.edge2 = e2;
@@ -87,7 +87,7 @@ public class VLFacet2D implements IVLEdgeContainer2D {
 	 * @see de.zintel.gfx.g2d.IEdgeContainer2D#dcopy()
 	 */
 	@Override
-	public IVLEdgeContainer2D dcopy() {
+	public VLFacet2D dcopy() {
 		return new VLFacet2D(edge1.dcopy(), edge2.dcopy(), edge3.dcopy(), renderer).setColor(edge1.getColor());
 	}
 

@@ -35,6 +35,7 @@ import de.zintel.gfx.g2d.verlet.VLChainNet2D;
 import de.zintel.gfx.g2d.verlet.VLCuboid2D;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLFacet2D;
+import de.zintel.gfx.g2d.verlet.VLTetragon2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.Vector2D;
@@ -337,6 +338,9 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 		edgeContainers.add(new VLFacet2D(new VLVertex2D(new Vector2D(250, 150)), new VLVertex2D(new Vector2D(400, 160)),
 				new VLVertex2D(new Vector2D(360, 170)), facetInterpolatingRenderer).setColor(colors[0]));
+//
+//		edgeContainers.add(new VLTetragon2D(new VLVertex2D(new Vector2D(253, 128)), new VLVertex2D(new Vector2D(553, 126)),
+//				new VLVertex2D(new Vector2D(552, 228)), new VLVertex2D(new Vector2D(253, 238)), facetInterpolatingRenderer).setColor(colors[0]));
 
 		chainNet = new VLChainNet2D(new VLVertex2D(new Vector2D(900, 15)).setPinned(true), new VLVertex2D(new Vector2D(1400, 15)).setPinned(true), 30,
 				10, 15, 16, chainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);

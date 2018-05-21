@@ -40,10 +40,10 @@ public class FacetInterpolatingRenderer implements Consumer<VLFacet2D> {
 		Point pivot = facet.getVertex1().getCurrent().toPoint();
 
 		final LinearPointInterpolater2D baselineInterpolater = new LinearPointInterpolater2D(facet.getVertex2().getCurrent().toPoint(),
-				facet.getVertex3().getCurrent().toPoint(), false);
+				facet.getVertex3().getCurrent().toPoint(), true);
 		for (IterationUnit2D baseunit : baselineInterpolater) {
 
-			final LinearPointInterpolater2D lineInterpolater = new LinearPointInterpolater2D(pivot, baseunit.getPoint(), false);
+			final LinearPointInterpolater2D lineInterpolater = new LinearPointInterpolater2D(pivot, baseunit.getPoint(), true);
 			for (IterationUnit2D unit : lineInterpolater) {
 
 				Point point = unit.getPoint();
