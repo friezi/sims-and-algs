@@ -30,6 +30,7 @@ import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.g2d.verlet.AdjustingColorProvider;
 import de.zintel.gfx.g2d.verlet.IVLEdgeContainer2D;
+import de.zintel.gfx.g2d.verlet.IVLPolygon2D;
 import de.zintel.gfx.g2d.verlet.VLChain2D;
 import de.zintel.gfx.g2d.verlet.VLChainNet2D;
 import de.zintel.gfx.g2d.verlet.VLCuboid2D;
@@ -312,7 +313,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 		final Consumer<VLChain2D> chainRenderer = new WireMeshChainRenderer();
 		final Consumer<VLChainNet2D> chainNetRenderer = new WireMeshChainNetRenderer();
 		final Consumer<VLFacet2D> facetRenderer = new FilledConvexPolygonGSRenderer<VLFacet2D>(graphicsSubsystem);
-		final Consumer<VLFacet2D> facetInterpolatingRenderer = new FacetInterpolatingRenderer(graphicsSubsystem, new AdjustingColorProvider());
+		final Consumer<VLFacet2D> facetInterpolatingRenderer = new PolygonInterpolatingRenderer<VLFacet2D>(graphicsSubsystem, new AdjustingColorProvider());
 
 		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(99, 100)), new VLVertex2D(new Vector2D(230, 120)),
 				plainEdgeRenderer));
@@ -338,9 +339,9 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 		edgeContainers.add(new VLFacet2D(new VLVertex2D(new Vector2D(250, 150)), new VLVertex2D(new Vector2D(400, 160)),
 				new VLVertex2D(new Vector2D(360, 170)), facetInterpolatingRenderer).setColor(colors[0]));
-//
-//		edgeContainers.add(new VLTetragon2D(new VLVertex2D(new Vector2D(253, 128)), new VLVertex2D(new Vector2D(553, 126)),
-//				new VLVertex2D(new Vector2D(552, 228)), new VLVertex2D(new Vector2D(253, 238)), facetInterpolatingRenderer).setColor(colors[0]));
+
+		edgeContainers.add(new VLTetragon2D(new VLVertex2D(new Vector2D(253, 128)), new VLVertex2D(new Vector2D(553, 126)),
+				new VLVertex2D(new Vector2D(552, 228)), new VLVertex2D(new Vector2D(253, 238)), facetInterpolatingRenderer).setColor(colors[0]));
 
 		chainNet = new VLChainNet2D(new VLVertex2D(new Vector2D(900, 15)).setPinned(true), new VLVertex2D(new Vector2D(1400, 15)).setPinned(true), 30,
 				10, 15, 16, chainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);

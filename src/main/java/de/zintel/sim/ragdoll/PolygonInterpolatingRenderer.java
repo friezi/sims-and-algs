@@ -14,41 +14,63 @@ import java.util.stream.Collectors;
 import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.LinearPointInterpolater2D;
 import de.zintel.gfx.g2d.verlet.IVLEdgeContainer2D;
+import de.zintel.gfx.g2d.verlet.IVLPolygon2D;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
-import de.zintel.gfx.g2d.verlet.VLFacet2D;
+import de.zintel.gfx.g2d.verlet.VLVertex2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.Vector2D;
+import de.zintel.utils.IterableIterator;
 
 /**
  * @author friedemann.zintel
  *
  */
-public class FacetInterpolatingRenderer implements Consumer<VLFacet2D> {
+public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Consumer<T> {
 
 	private final IGraphicsSubsystem graphicsSubsystem;
 
 	private final Function<VLEdge2D, Color> colorModifier;
 
-	public FacetInterpolatingRenderer(IGraphicsSubsystem graphicsSubsystem, Function<VLEdge2D, Color> colorModifier) {
+	public PolygonInterpolatingRenderer(IGraphicsSubsystem graphicsSubsystem, Function<VLEdge2D, Color> colorModifier) {
 		this.graphicsSubsystem = graphicsSubsystem;
 		this.colorModifier = colorModifier;
 	}
 
 	@Override
-	public void accept(VLFacet2D facet) {
+	public void accept(T facet) {
 
-		Point pivot = facet.getVertex1().getCurrent().toPoint();
+		IterableIterator<VLVertex2D> vertexIterator = new IterableIterator<>(facet.getVertices().iterator());
+		if (!vertexIterator.hasNext()) {
+			// zero vertices
+			return;
+		}
 
-		final LinearPointInterpolater2D baselineInterpolater = new LinearPointInterpolater2D(facet.getVertex2().getCurrent().toPoint(),
-				facet.getVertex3().getCurrent().toPoint(), true);
-		for (IterationUnit2D baseunit : baselineInterpolater) {
+		Point pivot = vertexIterator.next().getCurrent().toPoint();
+		if (!vertexIterator.hasNext()) {
+			// only one vertex in total
+			return;
+		}
 
-			final LinearPointInterpolater2D lineInterpolater = new LinearPointInterpolater2D(pivot, baseunit.getPoint(), true);
-			for (IterationUnit2D unit : lineInterpolater) {
+		VLVertex2D start = vertexIterator.next();
 
-				Point point = unit.getPoint();
-				graphicsSubsystem.drawPoint(point.x, point.y, calculateColor(new Vector2D(point), facet));
+		while (vertexIterator.hasNext()) {
+
+			VLVertex2D end = vertexIterator.next();
+
+			final LinearPointInterpolater2D baselineInterpolater = new LinearPointInterpolater2D(start.getCurrent().toPoint(),
+					end.getCurrent().toPoint(), true);
+			for (IterationUnit2D baseunit : baselineInterpolater) {
+
+				final LinearPointInterpolater2D lineInterpolater = new LinearPointInterpolater2D(pivot, baseunit.getPoint(), true);
+				for (IterationUnit2D unit : lineInterpolater) {
+
+					Point point = unit.getPoint();
+					graphicsSubsystem.drawPoint(point.x, point.y, calculateColor(new Vector2D(point), facet));
+				}
 			}
+
+			start = end;
+
 		}
 	}
 

@@ -5,6 +5,7 @@ package de.zintel.gfx.g2d.verlet;
 
 import java.awt.Color;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -12,7 +13,7 @@ import java.util.function.Consumer;
  * @author friedemann.zintel
  *
  */
-public class VLFacet2D implements IVLEdgeContainer2D {
+public class VLFacet2D implements IVLEdgeContainer2D, IVLPolygon2D {
 
 	private final VLEdge2D edge1;
 
@@ -117,6 +118,11 @@ public class VLFacet2D implements IVLEdgeContainer2D {
 
 	public Consumer<VLFacet2D> getRenderer() {
 		return renderer;
+	}
+
+	@Override
+	public Collection<VLVertex2D> getVertices() {
+		return Arrays.asList(vertex1, vertex2, vertex3);
 	}
 
 }
