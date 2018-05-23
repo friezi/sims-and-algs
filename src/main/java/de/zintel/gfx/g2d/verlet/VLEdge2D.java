@@ -18,9 +18,9 @@ import de.zintel.math.Vector2D;
  */
 public class VLEdge2D implements IVLEdgeContainer2D {
 
-	private VLVertex2D first;
+	private VLVertexSkid first;
 
-	private VLVertex2D second;
+	private VLVertexSkid second;
 
 	private double preferredLength;
 
@@ -28,19 +28,19 @@ public class VLEdge2D implements IVLEdgeContainer2D {
 
 	private Consumer<VLEdge2D> renderer;
 
-	public VLEdge2D(VLVertex2D first, VLVertex2D second, Consumer<VLEdge2D> renderer) {
-		this(first, second, Color.WHITE, renderer);
+	public VLEdge2D(VLVertex2D first, VLVertex2D second, Color color, Consumer<VLEdge2D> renderer) {
+		this(new VLVertexSkid(first), new VLVertexSkid(second), color, renderer);
 	}
 
-	public VLEdge2D(VLVertex2D first, VLVertex2D second, Color color, Consumer<VLEdge2D> renderer) {
+	public VLEdge2D(VLVertexSkid first, VLVertexSkid second, Color color, Consumer<VLEdge2D> renderer) {
 		this.first = first;
 		this.second = second;
 		this.color = color;
 		this.renderer = renderer;
-		this.preferredLength = Vector2D.distance(first.getCurrent(), second.getCurrent());
+		this.preferredLength = Vector2D.distance(first.getVertex().getCurrent(), second.getVertex().getCurrent());
 	}
 
-	private VLEdge2D(VLVertex2D first, VLVertex2D second, double length, Color color, Consumer<VLEdge2D> renderer) {
+	private VLEdge2D(VLVertexSkid first, VLVertexSkid second, double length, Color color, Consumer<VLEdge2D> renderer) {
 		this.first = first;
 		this.second = second;
 		this.preferredLength = length;
@@ -48,11 +48,11 @@ public class VLEdge2D implements IVLEdgeContainer2D {
 		this.renderer = renderer;
 	}
 
-	public VLVertex2D getFirst() {
+	public VLVertexSkid getFirst() {
 		return first;
 	}
 
-	public VLVertex2D getSecond() {
+	public VLVertexSkid getSecond() {
 		return second;
 	}
 
@@ -60,11 +60,11 @@ public class VLEdge2D implements IVLEdgeContainer2D {
 		return preferredLength;
 	}
 
-	public void setFirst(VLVertex2D first) {
+	public void setFirst(VLVertexSkid first) {
 		this.first = first;
 	}
 
-	public void setSecond(VLVertex2D second) {
+	public void setSecond(VLVertexSkid second) {
 		this.second = second;
 	}
 
@@ -112,7 +112,7 @@ public class VLEdge2D implements IVLEdgeContainer2D {
 	}
 
 	public Vector2D currentToVector2D() {
-		return Vector2D.substract(second.getCurrent(), first.getCurrent());
+		return Vector2D.substract(second.getVertex().getCurrent(), first.getVertex().getCurrent());
 	}
 
 }

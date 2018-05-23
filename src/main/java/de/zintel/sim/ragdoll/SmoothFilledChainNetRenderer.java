@@ -46,22 +46,22 @@ public class SmoothFilledChainNetRenderer implements Consumer<VLChainNet2D> {
 				for (int i = 0; i < hTop.size(); i++) {
 					final VLEdge2D edge = hTop.get(i);
 					polygonEdges.add(edge);
-					points.add(edge.getFirst().getCurrent());
+					points.add(edge.getFirst().getVertex().getCurrent());
 				}
 				for (int i = 0; i < vRight.size(); i++) {
 					final VLEdge2D edge = vRight.get(i);
 					polygonEdges.add(edge);
-					points.add(edge.getFirst().getCurrent());
+					points.add(edge.getFirst().getVertex().getCurrent());
 				}
 				for (int i = hBottom.size() - 1; i >= 0; i--) {
 					final VLEdge2D edge = hBottom.get(i);
 					polygonEdges.add(edge);
-					points.add(edge.getSecond().getCurrent());
+					points.add(edge.getSecond().getVertex().getCurrent());
 				}
 				for (int i = vLeft.size() - 1; i >= 0; i--) {
 					final VLEdge2D edge = vLeft.get(i);
 					polygonEdges.add(edge);
-					points.add(edge.getSecond().getCurrent());
+					points.add(edge.getSecond().getVertex().getCurrent());
 				}
 
 				graphicsSubsystem.drawFilledPolygon(points, new EdgesColorBasedGenerator(polygonEdges, colorModifier));

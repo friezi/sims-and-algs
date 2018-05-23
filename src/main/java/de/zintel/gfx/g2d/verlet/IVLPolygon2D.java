@@ -11,6 +11,6 @@ import java.util.Collection;
  */
 public interface IVLPolygon2D extends IVLEdgeContainer2D {
 
-	Collection<VLVertex2D> getVertices();
+	Collection<VLVertexSkid> getVertices();
 
 }

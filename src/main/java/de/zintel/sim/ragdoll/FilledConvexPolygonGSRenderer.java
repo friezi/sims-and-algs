@@ -32,7 +32,8 @@ public class FilledConvexPolygonGSRenderer<T extends IVLEdgeContainer2D> impleme
 	public void accept(T item) {
 
 		final List<VLEdge2D> edges = item.getEdges();
-		final Collection<Vector2D> points = edges.stream().map(edge -> edge.getFirst().getCurrent()).collect(Collectors.toList());
+		final Collection<Vector2D> points = edges.stream().map(edge -> edge.getFirst().getVertex().getCurrent())
+				.collect(Collectors.toList());
 
 		graphicsSubsystem.drawFilledPolygon(points, new EdgesMeanPointsColorBasedGenerator(edges, colorModifier));
 

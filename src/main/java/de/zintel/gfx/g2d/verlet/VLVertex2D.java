@@ -22,8 +22,6 @@ public class VLVertex2D {
 
 	private Vector2D previous;
 
-	private boolean pinned = false;
-
 	/**
 	 * 
 	 */
@@ -55,22 +53,13 @@ public class VLVertex2D {
 		this.previous = previous;
 	}
 
-	public boolean isPinned() {
-		return pinned;
-	}
-
-	public VLVertex2D setPinned(boolean pinned) {
-		this.pinned = pinned;
-		return this;
-	}
-
 	@Override
 	public String toString() {
-		return "Vertex2D [current=" + current + ", previous=" + previous + ", pinned=" + pinned + "]";
+		return "Vertex2D [current=" + current + ", previous=" + previous + "]";
 	}
 
 	public VLVertex2D dcopy() {
-		return new VLVertex2D(new Vector2D(current), new Vector2D(previous)).setPinned(isPinned());
+		return new VLVertex2D(new Vector2D(current), new Vector2D(previous));
 	}
 
 }

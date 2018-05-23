@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLFacet2D;
 import de.zintel.gfx.g2d.verlet.VLTetragon2D;
-import de.zintel.gfx.g2d.verlet.VLVertex2D;
+import de.zintel.gfx.g2d.verlet.VLVertexSkid;
 
 public class TetragonFullInterpolatingFacetRenderer implements Consumer<VLTetragon2D> {
 
@@ -53,7 +53,7 @@ public class TetragonFullInterpolatingFacetRenderer implements Consumer<VLTetrag
 		}
 
 		@Override
-		public Collection<VLVertex2D> getVertices() {
+		public Collection<VLVertexSkid> getVertices() {
 			return facet.getVertices();
 		}
 

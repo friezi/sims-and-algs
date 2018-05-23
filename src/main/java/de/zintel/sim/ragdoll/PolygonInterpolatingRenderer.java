@@ -17,6 +17,7 @@ import de.zintel.gfx.g2d.verlet.IVLEdgeContainer2D;
 import de.zintel.gfx.g2d.verlet.IVLPolygon2D;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
+import de.zintel.gfx.g2d.verlet.VLVertexSkid;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.Vector2D;
 import de.zintel.utils.IterableIterator;
@@ -39,23 +40,23 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 	@Override
 	public void accept(T polygon) {
 
-		IterableIterator<VLVertex2D> vertexIterator = new IterableIterator<>(polygon.getVertices().iterator());
+		IterableIterator<VLVertexSkid> vertexIterator = new IterableIterator<>(polygon.getVertices().iterator());
 		if (!vertexIterator.hasNext()) {
 			// zero vertices
 			return;
 		}
 
-		Point pivot = vertexIterator.next().getCurrent().toPoint();
+		Point pivot = vertexIterator.next().getVertex().getCurrent().toPoint();
 		if (!vertexIterator.hasNext()) {
 			// only one vertex in total
 			return;
 		}
 
-		VLVertex2D start = vertexIterator.next();
+		VLVertex2D start = vertexIterator.next().getVertex();
 
 		while (vertexIterator.hasNext()) {
 
-			VLVertex2D end = vertexIterator.next();
+			VLVertex2D end = vertexIterator.next().getVertex();
 
 			final LinearPointInterpolater2D baselineInterpolater = new LinearPointInterpolater2D(start.getCurrent().toPoint(),
 					end.getCurrent().toPoint(), true);
@@ -103,7 +104,7 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 	private double distance(final Vector2D point, final VLEdge2D edge) {
 
 		final Vector2D edgeV = edge.currentToVector2D();
-		final Vector2D edgeS = edge.getFirst().getCurrent();
+		final Vector2D edgeS = edge.getFirst().getVertex().getCurrent();
 		return Vector2D.mult((Vector2D.mult(point, edgeV) - Vector2D.mult(edgeS, edgeV)) / Vector2D.mult(edgeV, edgeV), edgeV).add(edgeS)
 				.substract(point).length();
 

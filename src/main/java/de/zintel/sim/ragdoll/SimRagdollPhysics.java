@@ -37,6 +37,7 @@ import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLFacet2D;
 import de.zintel.gfx.g2d.verlet.VLTetragon2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
+import de.zintel.gfx.g2d.verlet.VLVertexSkid;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.Vector2D;
 import de.zintel.math.VectorField2D;
@@ -110,7 +111,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 	private volatile boolean mousePressed = false;
 
-	private final Collection<VLVertex2D> grabbedVertices = Collections.synchronizedCollection(new ArrayList<>());
+	private final Collection<VLVertexSkid> grabbedVertices = Collections.synchronizedCollection(new ArrayList<>());
 
 	private Vector2D mousePoint = new Vector2D();
 
@@ -163,8 +164,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 		@Override
 		public void accept(VLEdge2D edge) {
-			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
-					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, edge.getColor(), edge.getColor());
+			graphicsSubsystem.drawLine((int) edge.getFirst().getVertex().getCurrent().x, (int) edge.getFirst().getVertex().getCurrent().y,
+					(int) edge.getSecond().getVertex().getCurrent().x, (int) edge.getSecond().getVertex().getCurrent().y, edge.getColor(), edge.getColor());
 		}
 
 	}
@@ -183,8 +184,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 		public void accept(VLEdge2D edge) {
 
 			final Color color = colorProvider.apply(edge);
-			graphicsSubsystem.drawLine((int) edge.getFirst().getCurrent().x, (int) edge.getFirst().getCurrent().y,
-					(int) edge.getSecond().getCurrent().x, (int) edge.getSecond().getCurrent().y, color, color);
+			graphicsSubsystem.drawLine((int) edge.getFirst().getVertex().getCurrent().x, (int) edge.getFirst().getVertex().getCurrent().y,
+					(int) edge.getSecond().getVertex().getCurrent().x, (int) edge.getSecond().getVertex().getCurrent().y, color, color);
 		}
 
 	}
@@ -237,7 +238,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 	private Collection<VLEdge2D> edges = new ArrayList<>();
 
-	private Collection<VLVertex2D> vertices = new LinkedHashSet<>();
+	private Collection<VLVertexSkid> vertices = new LinkedHashSet<>();
 
 	private final Collection<VLVertex2D> windParticles = new ConcurrentLinkedQueue<>();
 
@@ -278,10 +279,10 @@ public class SimRagdollPhysics extends SimulationScreen {
 //
 //		calculatePhysics(dimension);
 
-		for (VLVertex2D vertex : vertices) {
-			if (Double.isNaN(vertex.getCurrent().x) || Double.isNaN(vertex.getCurrent().y) || Double.isNaN(vertex.getPrevious().x)
-					|| Double.isNaN(vertex.getPrevious().y) || Double.isInfinite(vertex.getCurrent().x) || Double.isInfinite(vertex.getCurrent().y)
-					|| Double.isInfinite(vertex.getPrevious().x) || Double.isInfinite(vertex.getPrevious().y)) {
+		for (VLVertexSkid vertex : vertices) {
+			if (Double.isNaN(vertex.getVertex().getCurrent().x) || Double.isNaN(vertex.getVertex().getCurrent().y) || Double.isNaN(vertex.getVertex().getPrevious().x)
+					|| Double.isNaN(vertex.getVertex().getPrevious().y) || Double.isInfinite(vertex.getVertex().getCurrent().x) || Double.isInfinite(vertex.getVertex().getCurrent().y)
+					|| Double.isInfinite(vertex.getVertex().getPrevious().x) || Double.isInfinite(vertex.getVertex().getPrevious().y)) {
 				System.out.println(vertex);
 			}
 		}
@@ -338,26 +339,30 @@ public class SimRagdollPhysics extends SimulationScreen {
 		final Consumer<VLTetragon2D> tetragonFacetInterpolatingRenderer = new TetragonFacetInterpolatingRenderer(facetInterpolatingRenderer);
 		final Consumer<VLTetragon2D> tetragonFullInterpolatingFacetRenderer = new TetragonFullInterpolatingFacetRenderer(
 				facetInterpolatingRenderer);
-		
-		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(99, 100)), new VLVertex2D(new Vector2D(230, 120)),
-				plainEdgeRenderer));
-		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(101, 100)), new VLVertex2D(new Vector2D(230, 120)),
-				plainEdgeRenderer));
-		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(100, 101)), new VLVertex2D(new Vector2D(230, 120)),
-				plainEdgeRenderer));
 
-		final VLVertex2D cuboidHook = new VLVertex2D(new Vector2D(400, 100), new Vector2D(380, 95));
-		edgeContainers.add(new VLCuboid2D(cuboidHook, new VLVertex2D(new Vector2D(430, 100)), new VLVertex2D(new Vector2D(430, 130)),
-				new VLVertex2D(new Vector2D(400, 130)), cuboidRenderer, plainEdgeRenderer));
-		edgeContainers.add(new VLCuboid2D(new VLVertex2D(new Vector2D(450, 100), new Vector2D(410, 105)), new VLVertex2D(new Vector2D(490, 100)),
-				new VLVertex2D(new Vector2D(490, 140)), new VLVertex2D(new Vector2D(450, 140)), cuboidRenderer, plainEdgeRenderer));
-		edgeContainers.add(new VLCuboid2D(new VLVertex2D(new Vector2D(600, 10), new Vector2D(605, 105)), new VLVertex2D(new Vector2D(700, 10)),
-				new VLVertex2D(new Vector2D(700, 140)), new VLVertex2D(new Vector2D(600, 140)), cuboidRenderer, plainEdgeRenderer));
+		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(99, 100)),
+				new VLVertex2D(new Vector2D(230, 120)), Color.WHITE, plainEdgeRenderer));
+		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(101, 100)),
+				new VLVertex2D(new Vector2D(230, 120)), Color.WHITE, plainEdgeRenderer));
+		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(100, 101)),
+				new VLVertex2D(new Vector2D(230, 120)), Color.WHITE, plainEdgeRenderer));
 
-		edgeContainers.add(new VLChain2D(new VLVertex2D(new Vector2D(500, 15)).setPinned(true), new VLVertex2D(new Vector2D(800, 100)), 40,
+		final VLVertexSkid cuboidHook = new VLVertexSkid(new VLVertex2D(new Vector2D(400, 100), new Vector2D(380, 95)));
+		edgeContainers.add(new VLCuboid2D(cuboidHook, new VLVertexSkid(new VLVertex2D(new Vector2D(430, 100))),
+				new VLVertexSkid(new VLVertex2D(new Vector2D(430, 130))), new VLVertexSkid(new VLVertex2D(new Vector2D(400, 130))),
+				cuboidRenderer, plainEdgeRenderer));
+		edgeContainers
+				.add(new VLCuboid2D(new VLVertex2D(new Vector2D(450, 100), new Vector2D(410, 105)), new VLVertex2D(new Vector2D(490, 100)),
+						new VLVertex2D(new Vector2D(490, 140)), new VLVertex2D(new Vector2D(450, 140)), cuboidRenderer, plainEdgeRenderer));
+		edgeContainers
+				.add(new VLCuboid2D(new VLVertex2D(new Vector2D(600, 10), new Vector2D(605, 105)), new VLVertex2D(new Vector2D(700, 10)),
+						new VLVertex2D(new Vector2D(700, 140)), new VLVertex2D(new Vector2D(600, 140)), cuboidRenderer, plainEdgeRenderer));
+
+		edgeContainers.add(new VLChain2D(new VLVertexSkid(new VLVertex2D(new Vector2D(500, 15))).setSticky(true),
+				new VLVertexSkid(new VLVertex2D(new Vector2D(800, 100))), 40, chainRenderer, plainEdgeRenderer));
+		edgeContainers.add(new VLChain2D(new VLVertexSkid(new VLVertex2D(new Vector2D(850, 15))).setSticky(true), cuboidHook, 60,
 				chainRenderer, plainEdgeRenderer));
-		edgeContainers.add(new VLChain2D(new VLVertex2D(new Vector2D(850, 15)).setPinned(true), cuboidHook, 60, chainRenderer, plainEdgeRenderer));
-//
+		//
 //		edgeContainers.add(new VLFacet2D(new VLVertex2D(new Vector2D(250, 150)), new VLVertex2D(new Vector2D(400, 160)),
 //				new VLVertex2D(new Vector2D(320, 170)), facetRenderer).setColor(colors[0]));
 //
@@ -368,8 +373,9 @@ public class SimRagdollPhysics extends SimulationScreen {
 //				new VLVertex2D(new Vector2D(552, 228)), new VLVertex2D(new Vector2D(253, 238)), tetragonFullInterpolatingFacetRenderer)
 //						.setColor(colors[0]));
 
-		chainNet = new VLChainNet2D(new VLVertex2D(new Vector2D(900, 15)).setPinned(true), new VLVertex2D(new Vector2D(1400, 15)).setPinned(true), 30,
-				10, 15, 16, chainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);
+		chainNet = new VLChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(900, 15))).setSticky(true),
+				new VLVertexSkid(new VLVertex2D(new Vector2D(1400, 15))).setSticky(true), 30, 10, 15, 16, chainNetRenderer,
+				adjustingEdgeRenderer).setColor(colors[0]);
 		edgeContainers.add(chainNet);
 
 		for (IVLEdgeContainer2D edgeContainer : edgeContainers) {
@@ -382,195 +388,195 @@ public class SimRagdollPhysics extends SimulationScreen {
 		}
 
 	}
-
-	private void calculatePhysics(Dimension dimension) {
-
-		if (useWind) {
-			windSimulator.progressWindflaw();
-		}
-
-		final double width = dimension.getWidth();
-		final double height = dimension.getHeight();
-
-		if (useWind && useWindparticles) {
-
-			if (windParticleCnt == 0) {
-				windParticles.clear();
-			}
-
-			final VectorField2D airstreamField = windSimulator.getAirstreamField();
-
-			if (windParticleCnt % windParticleFrequence == 0) {
-
-				final List<Integer> airstreamdimensions = airstreamField.getDimensions();
-				final int windWidth = airstreamdimensions.get(0);
-				final int windHeight = airstreamdimensions.get(1);
-
-				windParticles
-						.add(new VLVertex2D(new Vector2D(rnd.nextInt(windWidth) * width / windWidth, rnd.nextInt(windHeight) * height / windHeight)));
-			} else {
-
-				final Iterator<VLVertex2D> iterator = windParticles.iterator();
-				while (iterator.hasNext()) {
-
-					final VLVertex2D windParticle = iterator.next();
-					final Vector2D newPosition = calculateNewPosition(windParticle, 1);
-					final Vector2D wind = windSimulator.calculateWind(windParticle.getCurrent());
-					newPosition.add(wind.mult(1 / wind.length()));
-
-					if (newPosition.x >= width || newPosition.x < 0 || newPosition.y >= height || newPosition.y < 0) {
-						iterator.remove();
-					} else {
-						repositionVertex(windParticle, newPosition);
-					}
-				}
-			}
-
-			if (windParticleCnt == Long.MAX_VALUE) {
-				windParticleCnt = 0;
-			} else {
-				windParticleCnt++;
-			}
-		}
-
-		synchronized (edgeContainers) {
-
-			vertices.parallelStream().forEach(new Consumer<VLVertex2D>() {
-
-				@Override
-				public void accept(VLVertex2D vertex) {
-
-					if (vertex.isPinned()) {
-						vertex.setPrevious(vertex.getCurrent());
-						return;
-					}
-
-					double frictionFac = 1;
-					// friction
-					if (vertex.getCurrent().y == height - 1) {
-						frictionFac = friction;
-					}
-
-					final Vector2D newCurrent = calculateNewPosition(vertex, frictionFac);
-
-					if (useGravity) {
-						newCurrent.add(gravity);
-					}
-
-					if (useWind) {
-						newCurrent.add(windSimulator.calculateWind(vertex.getCurrent()));
-					}
-
-					repositionVertex(vertex, newCurrent);
-
-				}
-			});
-
-			for (int i = 0; i < iterations; i++) {
-				handleConstraints(dimension);
-			}
-
-		}
-	}
-
-	/**
-	 * calculates the new position. Uses verlet integration.
-	 * 
-	 * @param vertex
-	 * @param friction
-	 * @return
-	 */
-	public Vector2D calculateNewPosition(VLVertex2D vertex, double friction) {
-		return Vector2D.add(vertex.getCurrent(), Vector2D.mult(friction, Vector2D.substract(vertex.getCurrent(), vertex.getPrevious())));
-	}
-
-	/**
-	 * sets the vertex to the new position
-	 * 
-	 * @param vertex
-	 * @param newCurrent
-	 */
-	public void repositionVertex(VLVertex2D vertex, final Vector2D newCurrent) {
-		vertex.setPrevious(vertex.getCurrent());
-		vertex.setCurrent(newCurrent);
-	}
-
-	private void handleConstraints(Dimension dimension) {
-
-		vertices.parallelStream().forEach(vertex -> handleBorderConstraints(vertex, dimension));
-
-		// here parallelisation should not be done because some edges access the
-		// same vertex
-		for (final VLEdge2D edge : edges) {
-			handleStickConstraints(edge);
-		}
-
-	}
-
-	private void handleStickConstraints(final VLEdge2D edge) {
-
-		final Vector2D cFirst = edge.getFirst().getCurrent();
-		final Vector2D cSecond = edge.getSecond().getCurrent();
-		Vector2D dV = Vector2D.substract(cFirst, cSecond);
-		if (dV.isNullVector()) {
-			// Problem!!! no line anymore
-			// System.out.println("Nullvector! edge: " + edge);
-			// do no adjustment to prevent NaN
-			return;
-			// dV =
-			// Vector2D.max(Vector2D.substract(edge.getFirst().getPrevious(),
-			// edge.getSecond().getCurrent()),
-			// Vector2D.substract(edge.getSecond().getPrevious(),
-			// edge.getFirst().getCurrent()));
-			// dV.mult(0.001);
-		}
-
-		if (dV.length() != edge.getPreferredLength()) {
-
-			double diff = dV.length() - edge.getPreferredLength();
-			Vector2D slackV = Vector2D.mult(diff / (2 * dV.length()), dV);
-
-			if (!edge.getFirst().isPinned()) {
-				if (edge.getSecond().isPinned()) {
-					cFirst.substract(Vector2D.mult(2, slackV));
-				} else {
-					cFirst.substract(slackV);
-				}
-			}
-			if (!edge.getSecond().isPinned()) {
-				if (edge.getFirst().isPinned()) {
-					cSecond.add(Vector2D.mult(2, slackV));
-				} else {
-					cSecond.add(slackV);
-				}
-			}
-		}
-
-	}
-
-	private void handleBorderConstraints(final VLVertex2D vertex, Dimension dimension) {
-
-		final Vector2D current = vertex.getCurrent();
-		final Vector2D previous = vertex.getPrevious();
-
-		// bounce
-		if (current.x > dimension.getWidth() - 1) {
-			current.x = dimension.getWidth() - 1 - ((current.x - (dimension.getWidth() - 1)) * decay);
-			previous.x = dimension.getWidth() - 1 - (previous.x - (dimension.getWidth() - 1));
-		} else if (current.x < 0) {
-			current.x = -current.x * decay;
-			previous.x = -previous.x;
-		}
-
-		if (current.y > dimension.getHeight() - 1) {
-			current.y = dimension.getHeight() - 1 - ((current.y - (dimension.getHeight() - 1)) * decay);
-			previous.y = dimension.getHeight() - 1 - (previous.y - (dimension.getHeight() - 1));
-		} else if (current.y < 0) {
-			current.y = -current.y * decay;
-			previous.y = -previous.y;
-		}
-
-	}
+//
+//	private void calculatePhysics(Dimension dimension) {
+//
+//		if (useWind) {
+//			windSimulator.progressWindflaw();
+//		}
+//
+//		final double width = dimension.getWidth();
+//		final double height = dimension.getHeight();
+//
+//		if (useWind && useWindparticles) {
+//
+//			if (windParticleCnt == 0) {
+//				windParticles.clear();
+//			}
+//
+//			final VectorField2D airstreamField = windSimulator.getAirstreamField();
+//
+//			if (windParticleCnt % windParticleFrequence == 0) {
+//
+//				final List<Integer> airstreamdimensions = airstreamField.getDimensions();
+//				final int windWidth = airstreamdimensions.get(0);
+//				final int windHeight = airstreamdimensions.get(1);
+//
+//				windParticles
+//						.add(new VLVertex2D(new Vector2D(rnd.nextInt(windWidth) * width / windWidth, rnd.nextInt(windHeight) * height / windHeight)));
+//			} else {
+//
+//				final Iterator<VLVertex2D> iterator = windParticles.iterator();
+//				while (iterator.hasNext()) {
+//
+//					final VLVertex2D windParticle = iterator.next();
+//					final Vector2D newPosition = calculateNewPosition(windParticle, 1);
+//					final Vector2D wind = windSimulator.calculateWind(windParticle.getCurrent());
+//					newPosition.add(wind.mult(1 / wind.length()));
+//
+//					if (newPosition.x >= width || newPosition.x < 0 || newPosition.y >= height || newPosition.y < 0) {
+//						iterator.remove();
+//					} else {
+//						repositionVertex(windParticle, newPosition);
+//					}
+//				}
+//			}
+//
+//			if (windParticleCnt == Long.MAX_VALUE) {
+//				windParticleCnt = 0;
+//			} else {
+//				windParticleCnt++;
+//			}
+//		}
+//
+//		synchronized (edgeContainers) {
+//
+//			vertices.parallelStream().forEach(new Consumer<VLVertexSkid>() {
+//
+//				@Override
+//				public void accept(VLVertexSkid vertex) {
+//
+//					if (vertex.isSticky()) {
+//						vertex.getVertex().setPrevious(vertex.getVertex().getCurrent());
+//						return;
+//					}
+//
+//					double frictionFac = 1;
+//					// friction
+//					if (vertex.getVertex().getCurrent().y == height - 1) {
+//						frictionFac = friction;
+//					}
+//
+//					final Vector2D newCurrent = calculateNewPosition(vertex, frictionFac);
+//
+//					if (useGravity) {
+//						newCurrent.add(gravity);
+//					}
+//
+//					if (useWind) {
+//						newCurrent.add(windSimulator.calculateWind(vertex.getVertex().getCurrent()));
+//					}
+//
+//					repositionVertex(vertex, newCurrent);
+//
+//				}
+//			});
+//
+//			for (int i = 0; i < iterations; i++) {
+//				handleConstraints(dimension);
+//			}
+//
+//		}
+//	}
+//
+//	/**
+//	 * calculates the new position. Uses verlet integration.
+//	 * 
+//	 * @param vertex
+//	 * @param friction
+//	 * @return
+//	 */
+//	public Vector2D calculateNewPosition(VLVertex2D vertex, double friction) {
+//		return Vector2D.add(vertex.getCurrent(), Vector2D.mult(friction, Vector2D.substract(vertex.getCurrent(), vertex.getPrevious())));
+//	}
+//
+//	/**
+//	 * sets the vertex to the new position
+//	 * 
+//	 * @param vertex
+//	 * @param newCurrent
+//	 */
+//	public void repositionVertex(VLVertex2D vertex, final Vector2D newCurrent) {
+//		vertex.setPrevious(vertex.getCurrent());
+//		vertex.setCurrent(newCurrent);
+//	}
+//
+//	private void handleConstraints(Dimension dimension) {
+//
+//		vertices.parallelStream().forEach(vertex -> handleBorderConstraints(vertex, dimension));
+//
+//		// here parallelisation should not be done because some edges access the
+//		// same vertex
+//		for (final VLEdge2D edge : edges) {
+//			handleStickConstraints(edge);
+//		}
+//
+//	}
+//
+//	private void handleStickConstraints(final VLEdge2D edge) {
+//
+//		final Vector2D cFirst = edge.getFirst().getVertex().getCurrent();
+//		final Vector2D cSecond = edge.getSecond().getVertex().getCurrent();
+//		Vector2D dV = Vector2D.substract(cFirst, cSecond);
+//		if (dV.isNullVector()) {
+//			// Problem!!! no line anymore
+//			// System.out.println("Nullvector! edge: " + edge);
+//			// do no adjustment to prevent NaN
+//			return;
+//			// dV =
+//			// Vector2D.max(Vector2D.substract(edge.getFirst().getPrevious(),
+//			// edge.getSecond().getCurrent()),
+//			// Vector2D.substract(edge.getSecond().getPrevious(),
+//			// edge.getFirst().getCurrent()));
+//			// dV.mult(0.001);
+//		}
+//
+//		if (dV.length() != edge.getPreferredLength()) {
+//
+//			double diff = dV.length() - edge.getPreferredLength();
+//			Vector2D slackV = Vector2D.mult(diff / (2 * dV.length()), dV);
+//
+//			if (!edge.getFirst().isSticky()) {
+//				if (edge.getSecond().isSticky()) {
+//					cFirst.substract(Vector2D.mult(2, slackV));
+//				} else {
+//					cFirst.substract(slackV);
+//				}
+//			}
+//			if (!edge.getSecond().isSticky()) {
+//				if (edge.getFirst().isSticky()) {
+//					cSecond.add(Vector2D.mult(2, slackV));
+//				} else {
+//					cSecond.add(slackV);
+//				}
+//			}
+//		}
+//
+//	}
+//
+//	private void handleBorderConstraints(final VLVertex2D vertex, Dimension dimension) {
+//
+//		final Vector2D current = vertex.getCurrent();
+//		final Vector2D previous = vertex.getPrevious();
+//
+//		// bounce
+//		if (current.x > dimension.getWidth() - 1) {
+//			current.x = dimension.getWidth() - 1 - ((current.x - (dimension.getWidth() - 1)) * decay);
+//			previous.x = dimension.getWidth() - 1 - (previous.x - (dimension.getWidth() - 1));
+//		} else if (current.x < 0) {
+//			current.x = -current.x * decay;
+//			previous.x = -previous.x;
+//		}
+//
+//		if (current.y > dimension.getHeight() - 1) {
+//			current.y = dimension.getHeight() - 1 - ((current.y - (dimension.getHeight() - 1)) * decay);
+//			previous.y = dimension.getHeight() - 1 - (previous.y - (dimension.getHeight() - 1));
+//		} else if (current.y < 0) {
+//			current.y = -current.y * decay;
+//			previous.y = -previous.y;
+//		}
+//
+//	}
 
 	@Override
 	public void renderSim(IGraphicsSubsystem graphicsSubsystem) {
@@ -658,8 +664,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 		(syncRendering ? dcopyEdgeContainers() : edgeContainers).stream().forEach(IVLEdgeContainer2D::render);
 
 		// show "grab" on vertices
-		vertices.stream().filter(vertex -> isHit(mousePoint, vertex) && !isGrabbed(vertex)).forEach(
-				vertex -> graphicsSubsystem.drawFilledCircle((int) vertex.getCurrent().x, (int) vertex.getCurrent().y, bobbleSize, () -> Color.RED));
+		vertices.stream().filter(vertex -> isHit(mousePoint, vertex.getVertex()) && !isGrabbed(vertex.getVertex())).forEach(
+				vertex -> graphicsSubsystem.drawFilledCircle((int) vertex.getVertex().getCurrent().x, (int) vertex.getVertex().getCurrent().y, bobbleSize, () -> Color.RED));
 
 	}
 
@@ -736,18 +742,18 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 		} else {
 
-			for (VLVertex2D vertex : vertices) {
-				if (isHit(mousePoint, vertex)) {
+			for (VLVertexSkid vertex : vertices) {
+				if (isHit(mousePoint, vertex.getVertex())) {
 					grabbedVertices.add(vertex);
 				}
 			}
 
 			final Vector2D mPoint = new Vector2D(mousePoint);
-			for (VLVertex2D vertex : grabbedVertices) {
+			for (VLVertexSkid vertex : grabbedVertices) {
 
-				vertex.setPinned(true);
-				vertex.setCurrent(mPoint);
-				vertex.setPrevious(mPoint);
+				vertex.setSticky(true);
+				vertex.getVertex().setCurrent(mPoint);
+				vertex.getVertex().setPrevious(mPoint);
 
 			}
 		}
@@ -770,22 +776,22 @@ public class SimRagdollPhysics extends SimulationScreen {
 			final Vector2D mPoint = new Vector2D(mousePoint);
 			if (e.getButton() == MouseEvent.BUTTON1) {
 				// unpin
-				for (VLVertex2D vertex : grabbedVertices) {
-					vertex.setPinned(false);
-					vertex.setCurrent(mPoint);
+				for (VLVertexSkid vertex : grabbedVertices) {
+					vertex.setSticky(false);
+					vertex.getVertex().setCurrent(mPoint);
 				}
 			} else if (e.getButton() == MouseEvent.BUTTON3) {
 				// glue together
-				for (VLVertex2D vertex : grabbedVertices) {
+				for (VLVertexSkid vertex : grabbedVertices) {
 					for (VLEdge2D edge : edges) {
-						if (isHit(vertex.getCurrent(), edge.getFirst())) {
-							if (!isHit(vertex.getCurrent(), edge.getSecond())) {
+						if (isHit(vertex.getVertex().getCurrent(), edge.getFirst().getVertex())) {
+							if (!isHit(vertex.getVertex().getCurrent(), edge.getSecond().getVertex())) {
 								// hm, is it really necessary???
 								edge.setFirst(vertex);
 							}
 						}
-						if (isHit(vertex.getCurrent(), edge.getSecond())) {
-							if (!isHit(vertex.getCurrent(), edge.getFirst())) {
+						if (isHit(vertex.getVertex().getCurrent(), edge.getSecond().getVertex())) {
+							if (!isHit(vertex.getVertex().getCurrent(), edge.getFirst().getVertex())) {
 								edge.setSecond(vertex);
 							}
 						}
@@ -829,8 +835,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 			} else {
 
 				final Vector2D mPoint = new Vector2D(mousePoint);
-				for (VLVertex2D vertex : grabbedVertices) {
-					vertex.setCurrent(mPoint);
+				for (VLVertexSkid vertex : grabbedVertices) {
+					vertex.getVertex().setCurrent(mPoint);
 				}
 
 			}
@@ -1227,19 +1233,19 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				iterations++;
+				verletProcessor.setIterations(verletProcessor.getIterations() + 1);
 			}
 
 			@Override
 			public void minus() {
-				if (iterations > 1) {
-					iterations--;
+				if (verletProcessor.getIterations() > 1) {
+					verletProcessor.setIterations(verletProcessor.getIterations() - 1);
 				}
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(iterations);
+				return String.valueOf(verletProcessor.getIterations());
 			}
 		});
 		addKeyAction(KeyEvent.VK_Y, new IKeyAction() {

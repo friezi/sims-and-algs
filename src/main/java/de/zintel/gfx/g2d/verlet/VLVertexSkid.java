@@ -32,4 +32,8 @@ public class VLVertexSkid {
 		this.sticky = sticky;
 		return this;
 	}
+
+	public VLVertexSkid dcopy() {
+		return new VLVertexSkid(vertex.dcopy()).setSticky(sticky);
+	}
 }

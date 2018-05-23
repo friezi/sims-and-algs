@@ -44,19 +44,19 @@ public class MeanFilledChainNetRenderer implements Consumer<VLChainNet2D> {
 				final Collection<Vector2D> points = new ArrayList<>(hTop.size() + vRight.size() + hBottom.size() + vLeft.size());
 				for (int i = 0; i < hTop.size(); i++) {
 					final VLEdge2D edge = hTop.get(i);
-					points.add(edge.getFirst().getCurrent());
+					points.add(edge.getFirst().getVertex().getCurrent());
 				}
 				for (int i = 0; i < vRight.size(); i++) {
 					final VLEdge2D edge = vRight.get(i);
-					points.add(edge.getFirst().getCurrent());
+					points.add(edge.getFirst().getVertex().getCurrent());
 				}
 				for (int i = hBottom.size() - 1; i >= 0; i--) {
 					final VLEdge2D edge = hBottom.get(i);
-					points.add(edge.getSecond().getCurrent());
+					points.add(edge.getSecond().getVertex().getCurrent());
 				}
 				for (int i = vLeft.size() - 1; i >= 0; i--) {
 					final VLEdge2D edge = vLeft.get(i);
-					points.add(edge.getSecond().getCurrent());
+					points.add(edge.getSecond().getVertex().getCurrent());
 				}
 				final Color hTopColor = colorProvider.apply(hTop.iterator().next());
 				final Color vRightColor = colorProvider.apply(vRight.iterator().next());

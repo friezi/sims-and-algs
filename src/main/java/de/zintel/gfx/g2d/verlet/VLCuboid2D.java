@@ -3,6 +3,7 @@
  */
 package de.zintel.gfx.g2d.verlet;
 
+import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -21,16 +22,25 @@ public class VLCuboid2D implements IVLEdgeContainer2D {
 	/**
 	 * 
 	 */
-	public VLCuboid2D(VLVertex2D v1, VLVertex2D v2, VLVertex2D v3, VLVertex2D v4, Consumer<VLCuboid2D> renderer, Consumer<VLEdge2D> edgeRenderer) {
+	public VLCuboid2D(VLVertex2D v1, VLVertex2D v2, VLVertex2D v3, VLVertex2D v4, Consumer<VLCuboid2D> renderer,
+			Consumer<VLEdge2D> edgeRenderer) {
+		this(new VLVertexSkid(v1), new VLVertexSkid(v2), new VLVertexSkid(v3), new VLVertexSkid(v4), renderer, edgeRenderer);
+	}
+
+	/**
+	 * 
+	 */
+	public VLCuboid2D(VLVertexSkid v1, VLVertexSkid v2, VLVertexSkid v3, VLVertexSkid v4, Consumer<VLCuboid2D> renderer,
+			Consumer<VLEdge2D> edgeRenderer) {
 
 		this.renderer = renderer;
 
-		edges.add(new VLEdge2D(v1, v2, edgeRenderer));
-		edges.add(new VLEdge2D(v2, v3, edgeRenderer));
-		edges.add(new VLEdge2D(v3, v4, edgeRenderer));
-		edges.add(new VLEdge2D(v4, v1, edgeRenderer));
-		edges.add(new VLEdge2D(v1, v3, edgeRenderer));
-		edges.add(new VLEdge2D(v2, v4, edgeRenderer));
+		edges.add(new VLEdge2D(v1, v2, Color.WHITE, edgeRenderer));
+		edges.add(new VLEdge2D(v2, v3, Color.WHITE, edgeRenderer));
+		edges.add(new VLEdge2D(v3, v4, Color.WHITE, edgeRenderer));
+		edges.add(new VLEdge2D(v4, v1, Color.WHITE, edgeRenderer));
+		edges.add(new VLEdge2D(v1, v3, Color.WHITE, edgeRenderer));
+		edges.add(new VLEdge2D(v2, v4, Color.WHITE, edgeRenderer));
 	}
 
 	private VLCuboid2D(Consumer<VLCuboid2D> renderer, List<VLEdge2D> edges) {

@@ -21,19 +21,20 @@ public class VLFacet2D implements IVLPolygon2D {
 
 	private final VLEdge2D edge3;
 
-	private final VLVertex2D vertex1;
+	private final VLVertexSkid vertex1;
 
-	private final VLVertex2D vertex2;
+	private final VLVertexSkid vertex2;
 
-	private final VLVertex2D vertex3;
+	private final VLVertexSkid vertex3;
 
-	private  Consumer<VLFacet2D> renderer;
+	private Consumer<VLFacet2D> renderer;
 
 	/**
 	 * 
 	 */
-	public VLFacet2D(final VLVertex2D v1, final VLVertex2D v2, final VLVertex2D v3, Consumer<VLFacet2D> renderer) {
-		this(new VLEdge2D(v1, v2, null), new VLEdge2D(v2, v3, null), new VLEdge2D(v3, v1, null), renderer);
+	public VLFacet2D(final VLVertexSkid v1, final VLVertexSkid v2, final VLVertexSkid v3, Consumer<VLFacet2D> renderer) {
+		this(new VLEdge2D(v1, v2, Color.WHITE, null), new VLEdge2D(v2, v3, Color.WHITE, null), new VLEdge2D(v3, v1, Color.WHITE, null),
+				renderer);
 	}
 
 	/**
@@ -104,15 +105,15 @@ public class VLFacet2D implements IVLPolygon2D {
 		return edge3;
 	}
 
-	public VLVertex2D getVertex1() {
+	public VLVertexSkid getVertex1() {
 		return vertex1;
 	}
 
-	public VLVertex2D getVertex2() {
+	public VLVertexSkid getVertex2() {
 		return vertex2;
 	}
 
-	public VLVertex2D getVertex3() {
+	public VLVertexSkid getVertex3() {
 		return vertex3;
 	}
 
@@ -125,7 +126,7 @@ public class VLFacet2D implements IVLPolygon2D {
 	}
 
 	@Override
-	public Collection<VLVertex2D> getVertices() {
+	public Collection<VLVertexSkid> getVertices() {
 		return Arrays.asList(vertex1, vertex2, vertex3);
 	}
 

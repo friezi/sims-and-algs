@@ -29,14 +29,14 @@ public class VLChainNet2D implements IVLEdgeContainer2D {
 	/**
 	 * 
 	 */
-	public VLChainNet2D(VLVertex2D topleft, VLVertex2D topright, int height, int chainLinks, int dimHorizontal, int dimVertical,
+	public VLChainNet2D(VLVertexSkid topleft, VLVertexSkid topright, int height, int chainLinks, int dimHorizontal, int dimVertical,
 			Consumer<VLChainNet2D> renderer, Consumer<VLEdge2D> edgeRenderer) {
 
 		this.renderer = renderer;
 
-		List<VLVertex2D> verticesV = new ArrayList<>();
-		List<VLVertex2D> verticesH = new ArrayList<>();
-		VLVertex2D current = null;
+		List<VLVertexSkid> verticesV = new ArrayList<>();
+		List<VLVertexSkid> verticesH = new ArrayList<>();
+		VLVertexSkid current = null;
 		for (int h = 0; h < dimHorizontal; h++) {
 			// generate the initial horizontal node-vertices.
 
@@ -46,10 +46,9 @@ public class VLChainNet2D implements IVLEdgeContainer2D {
 				current = topright;
 			} else {
 
-				current = new VLVertex2D(
-						new Vector2D(MathUtils.interpolateLinearReal(topleft.getCurrent().x, topright.getCurrent().x, h + 1, dimHorizontal),
-								topleft.getCurrent().y));
-				current.setPinned(topleft.isPinned());
+				current = new VLVertexSkid(new VLVertex2D(new Vector2D(MathUtils.interpolateLinearReal(topleft.getVertex().getCurrent().x,
+						topright.getVertex().getCurrent().x, h + 1, dimHorizontal), topleft.getVertex().getCurrent().y)));
+				current.setSticky(topleft.isSticky());
 			}
 
 			verticesH.add(current);
@@ -71,8 +70,9 @@ public class VLChainNet2D implements IVLEdgeContainer2D {
 				for (int h = 0; h < dimHorizontal; h++) {
 
 					List<List<VLEdge2D>> currentChainsV = edgesV.get(h);
-					final VLVertex2D top = verticesV.get(h);
-					VLVertex2D bottom = new VLVertex2D(new Vector2D(top.getCurrent().x, top.getCurrent().y + height));
+					final VLVertexSkid top = verticesV.get(h);
+					VLVertexSkid bottom = new VLVertexSkid(
+							new VLVertex2D(new Vector2D(top.getVertex().getCurrent().x, top.getVertex().getCurrent().y + height)));
 					final VLChain2D chainV = new VLChain2D(top, bottom, chainLinks, null, edgeRenderer);
 					edges.addAll(chainV.getEdges());
 					currentChainsV.add(chainV.getEdges());
@@ -81,10 +81,10 @@ public class VLChainNet2D implements IVLEdgeContainer2D {
 				}
 			}
 
-			VLVertex2D left = null;
+			VLVertexSkid left = null;
 			for (int h = 0; h < dimHorizontal; h++) {
 
-				VLVertex2D right = verticesH.get(h);
+				VLVertexSkid right = verticesH.get(h);
 				if (h > 0) {
 
 					final VLChain2D chain = new VLChain2D(left, right, chainLinks, null, edgeRenderer);

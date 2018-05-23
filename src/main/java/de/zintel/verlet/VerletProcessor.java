@@ -31,10 +31,8 @@ public class VerletProcessor {
 	private final Set<BiFunction<Vector2D,Vector2D, Vector2D>> influenceVectorProviders = new LinkedHashSet<>();
 	
 	private final Set<VerletProcessor> processors=new LinkedHashSet<>();
-//	
-//	private final Collection<VLVertexSkid> vertexSkids;
 	
-	private final Collection<VLVertex2D> vertices;
+	private final Collection<VLVertexSkid> vertexSkids;
 
 	private final Collection<VLEdge2D> edges;
 	
@@ -43,19 +41,10 @@ public class VerletProcessor {
 	private int iterations;
 	
 	private final double decay;
-//	
-//	public VerletProcessor(Collection<VLVertexSkid> vertexSkids, Collection<VLEdge2D> edges, Object syncObject, int iterations,
-//			double decay) {
-//		this.vertexSkids = vertexSkids;
-//		this.edges = edges;
-//		this.syncObject = syncObject;
-//		this.iterations = iterations;
-//		this.decay = decay;
-//	}
 	
-	public VerletProcessor(Collection<VLVertex2D> vertices, Collection<VLEdge2D> edges, Object syncObject, int iterations,
+	public VerletProcessor(Collection<VLVertexSkid> vertexSkids, Collection<VLEdge2D> edges, Object syncObject, int iterations,
 			double decay) {
-		this.vertices = vertices;
+		this.vertexSkids = vertexSkids;
 		this.edges = edges;
 		this.syncObject = syncObject;
 		this.iterations = iterations;
@@ -118,28 +107,28 @@ public class VerletProcessor {
 //		}
 
 		synchronized (syncObject) {
-//
-//			vertexSkids.parallelStream().forEach(new Consumer<VLVertexSkid>() {
-//
-//				@Override
-//				public void accept(VLVertexSkid vertexSkid) {
-//
-//					VLVertex2D vertex = vertexSkid.getVertex();
-//
-//					if (vertexSkid.isSticky()) {
-//						vertex.setPrevious(vertex.getCurrent());
-//						return;
-//					}
 
-			vertices.parallelStream().forEach(new Consumer<VLVertex2D>() {
+			vertexSkids.parallelStream().forEach(new Consumer<VLVertexSkid>() {
 
 				@Override
-				public void accept(VLVertex2D vertex) {
+				public void accept(VLVertexSkid vertexSkid) {
 
-					if (vertex.isPinned()) {
+					VLVertex2D vertex = vertexSkid.getVertex();
+
+					if (vertexSkid.isSticky()) {
 						vertex.setPrevious(vertex.getCurrent());
 						return;
 					}
+//
+//			vertices.parallelStream().forEach(new Consumer<VLVertex2D>() {
+//
+//				@Override
+//				public void accept(VLVertex2D vertex) {
+//
+//					if (vertex.isPinned()) {
+//						vertex.setPrevious(vertex.getCurrent());
+//						return;
+//					}
 					
 //
 //					double frictionFac = 1;
@@ -203,8 +192,7 @@ public class VerletProcessor {
 
 	private void handleConstraints(Dimension dimension) {
 
-//		vertexSkids.parallelStream().map(skid->skid.getVertex()).forEach(vertex -> handleBorderConstraints(vertex, dimension));
-		vertices.parallelStream().forEach(vertex -> handleBorderConstraints(vertex, dimension));
+		vertexSkids.parallelStream().map(skid->skid.getVertex()).forEach(vertex -> handleBorderConstraints(vertex, dimension));
 
 		// here parallelisation should not be done because some edges access the
 		// same vertex
@@ -216,8 +204,8 @@ public class VerletProcessor {
 
 	private void handleStickConstraints(final VLEdge2D edge) {
 
-		final Vector2D cFirst = edge.getFirst().getCurrent();
-		final Vector2D cSecond = edge.getSecond().getCurrent();
+		final Vector2D cFirst = edge.getFirst().getVertex().getCurrent();
+		final Vector2D cSecond = edge.getSecond().getVertex().getCurrent();
 		Vector2D dV = Vector2D.substract(cFirst, cSecond);
 		if (dV.isNullVector()) {
 			// Problem!!! no line anymore
@@ -237,15 +225,15 @@ public class VerletProcessor {
 			double diff = dV.length() - edge.getPreferredLength();
 			Vector2D slackV = Vector2D.mult(diff / dV.length() / 2, dV);
 
-			if (!edge.getFirst().isPinned()) {
-				if (edge.getSecond().isPinned()) {
+			if (!edge.getFirst().isSticky()) {
+				if (edge.getSecond().isSticky()) {
 					cFirst.substract(Vector2D.mult(2, slackV));
 				} else {
 					cFirst.substract(slackV);
 				}
 			}
-			if (!edge.getSecond().isPinned()) {
-				if (edge.getFirst().isPinned()) {
+			if (!edge.getSecond().isSticky()) {
+				if (edge.getFirst().isSticky()) {
 					cSecond.add(Vector2D.mult(2, slackV));
 				} else {
 					cSecond.add(slackV);

@@ -33,15 +33,15 @@ public class VLTetragon2D implements IVLEdgeContainer2D {
 	/**
 	 * 
 	 */
-	public VLTetragon2D(VLVertex2D v1, VLVertex2D v2, VLVertex2D v3, VLVertex2D v4, Consumer<VLTetragon2D> renderer) {
+	public VLTetragon2D(VLVertexSkid v1, VLVertexSkid v2, VLVertexSkid v3, VLVertexSkid v4, Consumer<VLTetragon2D> renderer) {
 
-		this.edge1 = new VLEdge2D(v1, v2, null);
-		this.edge2 = new VLEdge2D(v2, v3, null);
+		this.edge1 = new VLEdge2D(v1, v2, Color.WHITE, null);
+		this.edge2 = new VLEdge2D(v2, v3, Color.WHITE, null);
 
-		this.diagonal = new VLEdge2D(v3, v1, null);
+		this.diagonal = new VLEdge2D(v3, v1, Color.WHITE, null);
 
-		this.edge3 = new VLEdge2D(v1, v4, null);
-		this.edge4 = new VLEdge2D(v4, v3, null);
+		this.edge3 = new VLEdge2D(v1, v4, Color.WHITE, null);
+		this.edge4 = new VLEdge2D(v4, v3, Color.WHITE, null);
 
 		this.facet1 = new VLFacet2D(edge1, edge2, diagonal, null);
 		this.facet2 = new VLFacet2D(diagonal, edge3, edge4, null);
