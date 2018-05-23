@@ -13,7 +13,7 @@ import java.util.function.Consumer;
  * @author friedemann.zintel
  *
  */
-public class VLFacet2D implements IVLEdgeContainer2D, IVLPolygon2D {
+public class VLFacet2D implements IVLPolygon2D {
 
 	private final VLEdge2D edge1;
 
@@ -27,7 +27,7 @@ public class VLFacet2D implements IVLEdgeContainer2D, IVLPolygon2D {
 
 	private final VLVertex2D vertex3;
 
-	private final Consumer<VLFacet2D> renderer;
+	private  Consumer<VLFacet2D> renderer;
 
 	/**
 	 * 
@@ -118,6 +118,10 @@ public class VLFacet2D implements IVLEdgeContainer2D, IVLPolygon2D {
 
 	public Consumer<VLFacet2D> getRenderer() {
 		return renderer;
+	}
+
+	public void setRenderer(Consumer<VLFacet2D> renderer) {
+		this.renderer = renderer;
 	}
 
 	@Override

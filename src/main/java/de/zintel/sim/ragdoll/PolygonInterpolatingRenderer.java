@@ -37,9 +37,9 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 	}
 
 	@Override
-	public void accept(T facet) {
+	public void accept(T polygon) {
 
-		IterableIterator<VLVertex2D> vertexIterator = new IterableIterator<>(facet.getVertices().iterator());
+		IterableIterator<VLVertex2D> vertexIterator = new IterableIterator<>(polygon.getVertices().iterator());
 		if (!vertexIterator.hasNext()) {
 			// zero vertices
 			return;
@@ -65,7 +65,7 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 				for (IterationUnit2D unit : lineInterpolater) {
 
 					Point point = unit.getPoint();
-					graphicsSubsystem.drawPoint(point.x, point.y, calculateColor(new Vector2D(point), facet));
+					graphicsSubsystem.drawPoint(point.x, point.y, calculateColor(new Vector2D(point), polygon));
 				}
 			}
 
@@ -74,10 +74,10 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 		}
 	}
 
-	private Color calculateColor(final Vector2D point, final IVLEdgeContainer2D facet) {
+	private Color calculateColor(final Vector2D point, final IVLEdgeContainer2D polygon) {
 
 		final Collection<EdgeValue> values = new ArrayList<>(3);
-		for (VLEdge2D edge : facet.getEdges()) {
+		for (VLEdge2D edge : polygon.getEdges()) {
 			values.add(new EdgeValue(1 / (distance(point, edge) + 1.0), edge));
 		}
 

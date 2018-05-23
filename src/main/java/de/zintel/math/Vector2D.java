@@ -18,6 +18,8 @@ public class Vector2D implements Serializable {
 	 */
 	private static final long serialVersionUID = -5754883813412571661L;
 
+	public static final Vector2D NULL_VECTOR = new Vector2D();
+
 	public double x;
 
 	public double y;
