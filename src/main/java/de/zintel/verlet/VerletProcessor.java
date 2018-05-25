@@ -3,12 +3,8 @@
  */
 package de.zintel.verlet;
 
-import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -18,7 +14,7 @@ import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
 import de.zintel.gfx.g2d.verlet.VLVertexSkid;
 import de.zintel.math.Vector2D;
-import de.zintel.math.VectorField2D;
+import de.zintel.utils.Pair;
 
 /**
  * @author friedemann.zintel
@@ -27,33 +23,31 @@ import de.zintel.math.VectorField2D;
 public class VerletProcessor {
 
 	private final Set<Runnable> progressors = new LinkedHashSet<>();
-	
-	private final Set<BiFunction<Vector2D,Vector2D, Vector2D>> influenceVectorProviders = new LinkedHashSet<>();
-	
-	private final Set<VerletProcessor> processors=new LinkedHashSet<>();
-	
+
+	private final Set<BiFunction<Vector2D, Vector2D, Vector2D>> influenceVectorProviders = new LinkedHashSet<>();
+
+	private final Set<VerletProcessor> processors = new LinkedHashSet<>();
+
+	private Function<VLVertexSkid, Pair<Vector2D, Vector2D>> vertexConstraintHandler = null;
+
 	private final Collection<VLVertexSkid> vertexSkids;
 
 	private final Collection<VLEdge2D> edges;
-	
+
 	private final Object syncObject;
-	
+
 	private int iterations;
-	
-	private final double decay;
-	
-	public VerletProcessor(Collection<VLVertexSkid> vertexSkids, Collection<VLEdge2D> edges, Object syncObject, int iterations,
-			double decay) {
+
+	public VerletProcessor(Collection<VLVertexSkid> vertexSkids, Collection<VLEdge2D> edges, Object syncObject, int iterations) {
 		this.vertexSkids = vertexSkids;
 		this.edges = edges;
 		this.syncObject = syncObject;
 		this.iterations = iterations;
-		this.decay = decay;
 	}
 
-	public void progress(Dimension dimension) {
-		
-		for (Runnable progressor :progressors) {
+	public void progress() {
+
+		for (Runnable progressor : progressors) {
 			progressor.run();
 		}
 		
@@ -119,37 +113,12 @@ public class VerletProcessor {
 						vertex.setPrevious(vertex.getCurrent());
 						return;
 					}
-//
-//			vertices.parallelStream().forEach(new Consumer<VLVertex2D>() {
-//
-//				@Override
-//				public void accept(VLVertex2D vertex) {
-//
-//					if (vertex.isPinned()) {
-//						vertex.setPrevious(vertex.getCurrent());
-//						return;
-//					}
-					
-//
-//					double frictionFac = 1;
-//					// friction
-//					if (vertex.getCurrent().y == height - 1) {
-//						frictionFac = friction;
-//					}
 
 					final Vector2D newCurrent = calculateNewPosition(vertex);
-					
-					for (BiFunction<Vector2D,Vector2D,Vector2D> provider:influenceVectorProviders) {
-						newCurrent.add(provider.apply(vertex.getCurrent(),newCurrent));
+
+					for (BiFunction<Vector2D, Vector2D, Vector2D> provider : influenceVectorProviders) {
+						newCurrent.add(provider.apply(vertex.getCurrent(), newCurrent));
 					}
-//
-//					if (useGravity) {
-//						newCurrent.add(gravity);
-//					}
-//
-//					if (useWind) {
-//						newCurrent.add(windSimulator.calculateWind(vertex.getCurrent()));
-//					}
 
 					repositionVertex(vertex, newCurrent);
 
@@ -157,11 +126,11 @@ public class VerletProcessor {
 			});
 
 			for (int i = 0; i < iterations; i++) {
-				handleConstraints(dimension);
+				handleConstraints();
 			}
-			
-			for (VerletProcessor processor:processors) {
-				processor.progress(dimension);
+
+			for (VerletProcessor processor : processors) {
+				processor.progress();
 			}
 
 		}
@@ -175,7 +144,6 @@ public class VerletProcessor {
 	 * @return
 	 */
 	public Vector2D calculateNewPosition(VLVertex2D vertex) {
-//		return Vector2D.add(vertex.getCurrent(), Vector2D.mult(friction, Vector2D.substract(vertex.getCurrent(), vertex.getPrevious())));
 		return Vector2D.add(vertex.getCurrent(), Vector2D.substract(vertex.getCurrent(), vertex.getPrevious()));
 	}
 
@@ -190,15 +158,24 @@ public class VerletProcessor {
 		vertex.setCurrent(newCurrent);
 	}
 
-	private void handleConstraints(Dimension dimension) {
+	private void handleConstraints() {
 
-		vertexSkids.parallelStream().map(skid->skid.getVertex()).forEach(vertex -> handleBorderConstraints(vertex, dimension));
+		if (vertexConstraintHandler != null) {
+			vertexSkids.parallelStream().forEach(vertex -> adjust(vertex.getVertex(), vertexConstraintHandler.apply(vertex)));
+		}
 
 		// here parallelisation should not be done because some edges access the
 		// same vertex
 		for (final VLEdge2D edge : edges) {
 			handleStickConstraints(edge);
 		}
+
+	}
+
+	private void adjust(final VLVertex2D vertex, Pair<Vector2D, Vector2D> delta) {
+
+		vertex.getCurrent().add(delta.getFirst());
+		vertex.getPrevious().add(delta.getSecond());
 
 	}
 
@@ -223,7 +200,7 @@ public class VerletProcessor {
 		if (dV.length() != edge.getPreferredLength()) {
 
 			double diff = dV.length() - edge.getPreferredLength();
-			Vector2D slackV = Vector2D.mult(diff / dV.length() / 2, dV);
+			Vector2D slackV = Vector2D.mult(diff / (2*dV.length()), dV);
 
 			if (!edge.getFirst().isSticky()) {
 				if (edge.getSecond().isSticky()) {
@@ -239,30 +216,6 @@ public class VerletProcessor {
 					cSecond.add(slackV);
 				}
 			}
-		}
-
-	}
-
-	private void handleBorderConstraints(final VLVertex2D vertex, Dimension dimension) {
-
-		final Vector2D current = vertex.getCurrent();
-		final Vector2D previous = vertex.getPrevious();
-
-		// bounce
-		if (current.x > dimension.getWidth() - 1) {
-			current.x = dimension.getWidth() - 1 - ((current.x - (dimension.getWidth() - 1)) * decay);
-			previous.x = dimension.getWidth() - 1 - (previous.x - (dimension.getWidth() - 1));
-		} else if (current.x < 0) {
-			current.x = -current.x * decay;
-			previous.x = -previous.x;
-		}
-
-		if (current.y > dimension.getHeight() - 1) {
-			current.y = dimension.getHeight() - 1 - ((current.y - (dimension.getHeight() - 1)) * decay);
-			previous.y = dimension.getHeight() - 1 - (previous.y - (dimension.getHeight() - 1));
-		} else if (current.y < 0) {
-			current.y = -current.y * decay;
-			previous.y = -previous.y;
 		}
 
 	}
@@ -303,6 +256,19 @@ public class VerletProcessor {
 
 	public VerletProcessor setIterations(int iterations) {
 		this.iterations = iterations;
+		return this;
+	}
+
+	public Function<VLVertexSkid, Pair<Vector2D, Vector2D>> getVertexConstraintHandler() {
+		return vertexConstraintHandler;
+	}
+
+	/**
+	 * @param vertexConstraintHandler
+	 * @return <delta_current,delta_previous>
+	 */
+	public VerletProcessor setVertexConstraintHandler(Function<VLVertexSkid, Pair<Vector2D, Vector2D>> vertexConstraintHandler) {
+		this.vertexConstraintHandler = vertexConstraintHandler;
 		return this;
 	}
 

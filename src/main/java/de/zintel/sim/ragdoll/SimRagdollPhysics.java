@@ -46,6 +46,7 @@ import de.zintel.physics.simulators.WindController;
 import de.zintel.physics.simulators.WindSimulator;
 import de.zintel.sim.SimulationScreen;
 import de.zintel.verlet.VerletProcessor;
+import de.zintel.verlet.VertexBorderConstraintHandler;
 
 /**
  * @author friedemann.zintel
@@ -149,6 +150,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 	private int rateOfAirstreamChange = 1;
 
 	private boolean syncRendering = false;
+
+	private VertexBorderConstraintHandler vertexConstraintHandler;
 	
 	private VerletProcessor verletProcessor;
 	
@@ -257,12 +260,15 @@ public class SimRagdollPhysics extends SimulationScreen {
 		windSimulator = new WindSimulator(initAirstreamField(), getScreenParameters()).setRateOfAirstreamChange(rateOfAirstreamChange);
 		windController = new WindController(windSimulator).setDoWind(useWind);
 
-		verletProcessor = new VerletProcessor(vertices, edges, edgeContainers, iterations, decay);
+		verletProcessor = new VerletProcessor(vertices, edges, edgeContainers, iterations);
 		verletProcessor.addProgressor(windController);
 		verletProcessor.addInfluenceVectorProvider(
 				(c, n) -> (c.y == dimension.height - 1 ? Vector2D.mult(1 - friction, Vector2D.substract(c, n)) : Vector2D.NULL_VECTOR));
 		verletProcessor.addInfluenceVectorProvider(windController);
 		verletProcessor.addInfluenceVectorProvider((c, n) -> gravity);
+
+		vertexConstraintHandler = new VertexBorderConstraintHandler(dimension, decay);
+		verletProcessor.setVertexConstraintHandler(vertexConstraintHandler);
 
 		initKeyActions();
 
@@ -274,7 +280,9 @@ public class SimRagdollPhysics extends SimulationScreen {
 	protected void calculate(Dimension dimension) throws Exception {
 
 		this.dimension = dimension;
-		verletProcessor.progress(dimension);
+		vertexConstraintHandler.setDimension(dimension);
+		
+		verletProcessor.progress();
 		
 //
 //		calculatePhysics(dimension);
