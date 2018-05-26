@@ -20,13 +20,13 @@ import de.zintel.utils.Pair;
  * @author friedemann.zintel
  *
  */
-public class VerletProcessor {
+public class VerletEngine {
 
 	private final Set<Runnable> progressors = new LinkedHashSet<>();
 
 	private final Set<BiFunction<Vector2D, Vector2D, Vector2D>> influenceVectorProviders = new LinkedHashSet<>();
 
-	private final Set<VerletProcessor> processors = new LinkedHashSet<>();
+	private final Set<VerletEngine> processors = new LinkedHashSet<>();
 
 	private Function<VLVertexSkid, Pair<Vector2D, Vector2D>> vertexConstraintHandler = null;
 
@@ -38,7 +38,7 @@ public class VerletProcessor {
 
 	private int iterations;
 
-	public VerletProcessor(Collection<VLVertexSkid> vertexSkids, Collection<VLEdge2D> edges, Object syncObject, int iterations) {
+	public VerletEngine(Collection<VLVertexSkid> vertexSkids, Collection<VLEdge2D> edges, Object syncObject, int iterations) {
 		this.vertexSkids = vertexSkids;
 		this.edges = edges;
 		this.syncObject = syncObject;
@@ -129,7 +129,7 @@ public class VerletProcessor {
 				handleConstraints();
 			}
 
-			for (VerletProcessor processor : processors) {
+			for (VerletEngine processor : processors) {
 				processor.progress();
 			}
 
@@ -200,7 +200,7 @@ public class VerletProcessor {
 		if (dV.length() != edge.getPreferredLength()) {
 
 			double diff = dV.length() - edge.getPreferredLength();
-			Vector2D slackV = Vector2D.mult(diff / (2*dV.length()), dV);
+			Vector2D slackV = Vector2D.mult(diff / (2 * dV.length()), dV);
 
 			if (!edge.getFirst().isSticky()) {
 				if (edge.getSecond().isSticky()) {
@@ -220,32 +220,32 @@ public class VerletProcessor {
 
 	}
 
-	public VerletProcessor addInfluenceVectorProvider(final BiFunction<Vector2D, Vector2D, Vector2D> provider) {
+	public VerletEngine addInfluenceVectorProvider(final BiFunction<Vector2D, Vector2D, Vector2D> provider) {
 		influenceVectorProviders.add(provider);
 		return this;
 	}
 
-	public VerletProcessor removeInfluenceVectorProvider(final BiFunction<Vector2D, Vector2D, Vector2D> provider) {
+	public VerletEngine removeInfluenceVectorProvider(final BiFunction<Vector2D, Vector2D, Vector2D> provider) {
 		influenceVectorProviders.remove(provider);
 		return this;
 	}
 
-	public VerletProcessor addProgressor(final Runnable progressor) {
+	public VerletEngine addProgressor(final Runnable progressor) {
 		progressors.add(progressor);
 		return this;
 	}
 
-	public VerletProcessor removeProgressor(final Runnable progressor) {
+	public VerletEngine removeProgressor(final Runnable progressor) {
 		progressors.remove(progressor);
 		return this;
 	}
 
-	public VerletProcessor addProcressor(final VerletProcessor processor) {
+	public VerletEngine addProcressor(final VerletEngine processor) {
 		processors.add(processor);
 		return this;
 	}
 
-	public VerletProcessor removeProcessor(final VerletProcessor processor) {
+	public VerletEngine removeProcessor(final VerletEngine processor) {
 		processors.remove(processor);
 		return this;
 	}
@@ -254,7 +254,7 @@ public class VerletProcessor {
 		return iterations;
 	}
 
-	public VerletProcessor setIterations(int iterations) {
+	public VerletEngine setIterations(int iterations) {
 		this.iterations = iterations;
 		return this;
 	}
@@ -267,7 +267,7 @@ public class VerletProcessor {
 	 * @param vertexConstraintHandler
 	 * @return <delta_current,delta_previous>
 	 */
-	public VerletProcessor setVertexConstraintHandler(Function<VLVertexSkid, Pair<Vector2D, Vector2D>> vertexConstraintHandler) {
+	public VerletEngine setVertexConstraintHandler(Function<VLVertexSkid, Pair<Vector2D, Vector2D>> vertexConstraintHandler) {
 		this.vertexConstraintHandler = vertexConstraintHandler;
 		return this;
 	}
