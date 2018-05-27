@@ -34,6 +34,7 @@ import de.zintel.gfx.g2d.verlet.VLChainNet2D;
 import de.zintel.gfx.g2d.verlet.VLCuboid2D;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLFacet2D;
+import de.zintel.gfx.g2d.verlet.VLFacetChainNet2D;
 import de.zintel.gfx.g2d.verlet.VLTetragon2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
 import de.zintel.gfx.g2d.verlet.VLVertexSkid;
@@ -116,6 +117,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 	private Vector2D mousePoint = new Vector2D();
 
 	private VLChainNet2D chainNet;
+
+	private VLFacetChainNet2D facetChainNet;
 
 	private final Color[] colors = { Color.ORANGE, Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW, Color.GRAY, Color.CYAN, Color.MAGENTA,
 			Color.PINK };
@@ -223,6 +226,42 @@ public class SimRagdollPhysics extends SimulationScreen {
 		}
 	}
 
+	private static class WireMeshFacetChainNetRenderer implements Consumer<VLFacetChainNet2D> {
+
+		@Override
+		public void accept(VLFacetChainNet2D item) {
+			for (VLEdge2D edge : item.getEdges()) {
+				edge.render();
+			}
+			for (Collection<VLEdge2D> subedges : item.getSublayerEdges()) {
+				for (VLEdge2D edge : subedges) {
+					edge.render();
+				}
+			}
+		}
+	}
+
+	private static class FilledFacetChainNetRenderer implements Consumer<VLFacetChainNet2D> {
+
+		private final Consumer<VLFacet2D> facetRenderer;
+
+		public FilledFacetChainNetRenderer(IGraphicsSubsystem graphicsSubsystem) {
+			facetRenderer = new FilledConvexPolygonGSRenderer<VLFacet2D>(graphicsSubsystem);
+			// facetRenderer = new
+			// PolygonInterpolatingRenderer<VLFacet2D>(graphicsSubsystem, new
+			// AdjustingColorProvider());
+		}
+
+		@Override
+		public void accept(VLFacetChainNet2D item) {
+
+			for (VLFacet2D facet : item.getFacets()) {
+				facet.setRenderer(facetRenderer);
+				facet.render();
+			}
+		}
+	}
+
 	private static class WireMeshFacetRenderer implements Consumer<VLFacet2D> {
 
 		@Override
@@ -256,7 +295,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 		System.out.println("initialising ...");
 
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
-		initScene(graphicsSubsystem);
+		Collection<VerletEngine> sublayerEngines = initScene(graphicsSubsystem);
 		windSimulator = new WindSimulator(initAirstreamField(), getScreenParameters()).setRateOfAirstreamChange(rateOfAirstreamChange);
 		windController = new WindController(windSimulator).setDoWind(useWind);
 
@@ -269,6 +308,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 		vertexConstraintHandler = new VertexBorderConstraintHandler(0, dimension.getWidth() - 1, 0, dimension.getHeight() - 1, decay);
 		verletEngine.setVertexConstraintHandler(vertexConstraintHandler);
+		verletEngine.addEngines(sublayerEngines);
 
 		initKeyActions();
 
@@ -283,15 +323,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 		vertexConstraintHandler.setXmax(dimension.getWidth() - 1).setYmax(dimension.getHeight() - 1);
 
 		verletEngine.progress();
-
-		for (VLVertexSkid vertex : vertices) {
-			if (Double.isNaN(vertex.getVertex().getCurrent().x) || Double.isNaN(vertex.getVertex().getCurrent().y)
-					|| Double.isNaN(vertex.getVertex().getPrevious().x) || Double.isNaN(vertex.getVertex().getPrevious().y)
-					|| Double.isInfinite(vertex.getVertex().getCurrent().x) || Double.isInfinite(vertex.getVertex().getCurrent().y)
-					|| Double.isInfinite(vertex.getVertex().getPrevious().x) || Double.isInfinite(vertex.getVertex().getPrevious().y)) {
-				System.out.println(vertex);
-			}
-		}
+		// Thread.sleep(5000);
 
 	}
 
@@ -332,13 +364,16 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 	}
 
-	private void initScene(IGraphicsSubsystem graphicsSubsystem) {
+	private Collection<VerletEngine> initScene(IGraphicsSubsystem graphicsSubsystem) {
+
+		final Collection<VerletEngine> sublayerEngines = new LinkedList<>();
 
 		final Consumer<VLEdge2D> plainEdgeRenderer = new PlainEdgeRenderer(graphicsSubsystem);
 		final Consumer<VLEdge2D> adjustingEdgeRenderer = new AdjustingEdgeRenderer(graphicsSubsystem);
 		final Consumer<VLCuboid2D> cuboidRenderer = new WireMeshCuboidRenderer();
 		final Consumer<VLChain2D> chainRenderer = new WireMeshChainRenderer();
 		final Consumer<VLChainNet2D> chainNetRenderer = new WireMeshChainNetRenderer();
+		final Consumer<VLFacetChainNet2D> facetChainNetRenderer = new WireMeshFacetChainNetRenderer();
 		final Consumer<VLFacet2D> facetRenderer = new FilledConvexPolygonGSRenderer<VLFacet2D>(graphicsSubsystem);
 		final Consumer<VLFacet2D> facetInterpolatingRenderer = new PolygonInterpolatingRenderer<VLFacet2D>(graphicsSubsystem,
 				new AdjustingColorProvider());
@@ -369,27 +404,52 @@ public class SimRagdollPhysics extends SimulationScreen {
 				new VLVertexSkid(new VLVertex2D(new Vector2D(800, 100))), 40, chainRenderer, plainEdgeRenderer));
 		edgeContainers.add(new VLChain2D(new VLVertexSkid(new VLVertex2D(new Vector2D(850, 15))).setSticky(true), cuboidHook, 60,
 				chainRenderer, plainEdgeRenderer));
+
+		edgeContainers.add(new VLFacet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(250, 150))),
+				new VLVertexSkid(new VLVertex2D(new Vector2D(400, 160))), new VLVertexSkid(new VLVertex2D(new Vector2D(320, 170))),
+				facetRenderer).setColor(colors[0]));
 		//
-		// edgeContainers.add(new VLFacet2D(new VLVertex2D(new Vector2D(250,
-		// 150)), new VLVertex2D(new Vector2D(400, 160)),
-		// new VLVertex2D(new Vector2D(320, 170)),
-		// facetRenderer).setColor(colors[0]));
-		//
-		// edgeContainers.add(new VLFacet2D(new VLVertex2D(new Vector2D(250,
-		// 150)), new VLVertex2D(new Vector2D(400, 160)),
-		// new VLVertex2D(new Vector2D(360, 170)),
+		// edgeContainers.add(new VLFacet2D(new VLVertexSkid(new VLVertex2D(new
+		// Vector2D(250, 150))),
+		// new VLVertexSkid(new VLVertex2D(new Vector2D(400, 160))), new
+		// VLVertexSkid(new VLVertex2D(new Vector2D(360, 170))),
 		// facetInterpolatingRenderer).setColor(colors[0]));
 		//
-		// edgeContainers.add(new VLTetragon2D(new VLVertex2D(new Vector2D(253,
-		// 128)), new VLVertex2D(new Vector2D(553, 126)),
-		// new VLVertex2D(new Vector2D(552, 228)), new VLVertex2D(new
-		// Vector2D(253, 238)), tetragonFullInterpolatingFacetRenderer)
-		// .setColor(colors[0]));
+		// edgeContainers.add(new VLTetragon2D(new VLVertexSkid(new
+		// VLVertex2D(new Vector2D(253, 128))),
+		// new VLVertexSkid(new VLVertex2D(new Vector2D(553, 126))), new
+		// VLVertexSkid(new VLVertex2D(new Vector2D(552, 228))),
+		// new VLVertexSkid(new VLVertex2D(new Vector2D(253, 238))),
+		// tetragonFullInterpolatingFacetRenderer).setColor(colors[0]));
 
-		chainNet = new VLChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(900, 15))).setSticky(true),
-				new VLVertexSkid(new VLVertex2D(new Vector2D(1400, 15))).setSticky(true), 30, 10, 15, 16, chainNetRenderer,
-				adjustingEdgeRenderer).setColor(colors[0]);
-		edgeContainers.add(chainNet);
+		// chainNet = new VLChainNet2D(new VLVertexSkid(new VLVertex2D(new
+		// Vector2D(900, 15))).setSticky(true),
+		// new VLVertexSkid(new VLVertex2D(new Vector2D(1400,
+		// 15))).setSticky(true), 30,
+		// 10, 15, 16, chainNetRenderer,
+		// adjustingEdgeRenderer).setColor(colors[0]);
+		// edgeContainers.add(chainNet);
+		facetChainNet = new VLFacetChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(900, 15))).setSticky(true),
+				new VLVertexSkid(new VLVertex2D(new Vector2D(1400, 15))).setSticky(true), 30,
+				/* 10 */4, 15, 16, facetChainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);
+		edgeContainers.add(facetChainNet);
+		{
+
+			Collection<Collection<VLEdge2D>> sublayerEdges = facetChainNet.getSublayerEdges();
+			Collection<VLEdge2D> inneredges = new ArrayList<>();
+			for (Collection<VLEdge2D> edges : sublayerEdges) {
+				inneredges.addAll(edges);
+			}
+
+			Collection<VLVertexSkid> innerVertices = new ArrayList<>();
+
+			for (final VLEdge2D edge : inneredges) {
+				innerVertices.add(edge.getFirst());
+				innerVertices.add(edge.getSecond());
+			}
+			sublayerEngines.add(new VerletEngine(innerVertices, inneredges, edgeContainers,
+					5)/* .addInfluenceVectorProvider((c, n) -> gravity) */);
+		}
 
 		for (IVLEdgeContainer2D edgeContainer : edgeContainers) {
 			edges.addAll(edgeContainer.getEdges());
@@ -399,6 +459,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 			vertices.add(edge.getFirst());
 			vertices.add(edge.getSecond());
 		}
+
+		return sublayerEngines;
 
 	}
 
@@ -423,9 +485,9 @@ public class SimRagdollPhysics extends SimulationScreen {
 					int ypos = (int) (((double) y) * getScreenParameters().HEIGHT / windHeight);
 					final int xend = xpos + (int) (scale * windvector.get(0));
 					final int yend = ypos + (int) (scale * windvector.get(1));
-					final Color lineColor = transparent(Color.RED, alpha);
+					final Color lineColor = CUtils.transparent(Color.RED, alpha);
 					graphicsSubsystem.drawLine(xpos, ypos, xend, yend, lineColor, Color.GREEN);
-					graphicsSubsystem.drawFilledCircle(xend, yend, 2, () -> transparent(Color.ORANGE, alpha));
+					graphicsSubsystem.drawFilledCircle(xend, yend, 2, () -> CUtils.transparent(Color.ORANGE, alpha));
 				}
 			}
 		}
@@ -502,10 +564,6 @@ public class SimRagdollPhysics extends SimulationScreen {
 		}
 	}
 
-	private Color transparent(final Color color, final int alpha) {
-		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
-	}
-
 	@Override
 	public void keyPressed(KeyEvent ke) {
 
@@ -526,7 +584,12 @@ public class SimRagdollPhysics extends SimulationScreen {
 				colorCycleCnt = 0;
 			}
 
-			chainNet.setColor(colors[colorCycleCnt]);
+			if (chainNet != null) {
+				chainNet.setColor(colors[colorCycleCnt]);
+			}
+			if (facetChainNet != null) {
+				facetChainNet.setColor(colors[colorCycleCnt]);
+			}
 		}
 
 	}
@@ -755,13 +818,23 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				chainNet.setRenderer(new SmoothFilledChainNetRenderer(getGraphicsSubsystem()));
+				if (chainNet != null) {
+					chainNet.setRenderer(new SmoothFilledChainNetRenderer(getGraphicsSubsystem()));
+				}
+				if (facetChainNet != null) {
+					facetChainNet.setRenderer(new FilledFacetChainNetRenderer(getGraphicsSubsystem()));
+				}
 				filled = true;
 			}
 
 			@Override
 			public void minus() {
-				chainNet.setRenderer(new WireMeshChainNetRenderer());
+				if (chainNet != null) {
+					chainNet.setRenderer(new WireMeshChainNetRenderer());
+				}
+				if (facetChainNet != null) {
+					facetChainNet.setRenderer(new WireMeshFacetChainNetRenderer());
+				}
 				filled = false;
 			}
 

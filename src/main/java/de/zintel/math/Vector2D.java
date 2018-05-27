@@ -76,6 +76,7 @@ public class Vector2D implements Serializable {
 	public Vector2D mult(double value) {
 		this.x *= value;
 		this.y *= value;
+		checkForNaN();
 		length = -1;
 		return this;
 	}
@@ -83,6 +84,7 @@ public class Vector2D implements Serializable {
 	public Vector2D add(double x, double y) {
 		this.x += x;
 		this.y += y;
+		checkForNaN();
 		length = -1;
 		return this;
 	}
@@ -90,6 +92,7 @@ public class Vector2D implements Serializable {
 	public Vector2D substract(double x, double y) {
 		this.x -= x;
 		this.y -= y;
+		checkForNaN();
 		length = -1;
 		return this;
 	}
@@ -138,6 +141,18 @@ public class Vector2D implements Serializable {
 
 	public Point toPoint() {
 		return new Point((int) x, (int) y);
+	}
+
+	private void checkForNaN() throws RuntimeException {
+		if (Double.isNaN(x) || Double.isInfinite(x)) {
+			x = 0.0;
+//			System.out.println("WARNING: adjusted x to 0.0 due to Nan or infinity!");
+		}
+		if (Double.isNaN(y) || Double.isInfinite(y)) {
+			y = 0.0;
+//			System.out.println("WARNING: adjusted y to 0.0 due to Nan or infinity!");
+
+		}
 	}
 
 	@Override

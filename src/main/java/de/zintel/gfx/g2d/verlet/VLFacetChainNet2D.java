@@ -5,6 +5,7 @@ package de.zintel.gfx.g2d.verlet;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -17,8 +18,6 @@ import de.zintel.math.Vector2D;
  */
 public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 
-	// TODO
-
 	private Consumer<VLFacetChainNet2D> renderer;
 
 	private List<VLEdge2D> edges = new ArrayList<>();
@@ -27,6 +26,10 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 	private List<List<List<VLEdge2D>>> edgesH = new ArrayList<>();
 	// for each horizontal position all vertical chains
 	private List<List<List<VLEdge2D>>> edgesV = new ArrayList<>();
+
+	private Collection<VLFacet2D> facets = new ArrayList<>();
+
+	private Collection<Collection<VLEdge2D>> sublayerEdges = new ArrayList<>();
 
 	/**
 	 * 
@@ -57,6 +60,7 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 
 		}
 
+		// create edgeList for all horizontal nodes;
 		for (int h = 0; h < dimHorizontal; h++) {
 			edgesV.add(new ArrayList<>());
 		}
@@ -99,6 +103,109 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 			verticesV = verticesH;
 		}
 
+		createSublayerEdges(edgeRenderer);
+
+	}
+
+	public void createSublayerEdges(Consumer<VLEdge2D> edgeRenderer) {
+
+		for (int row = 0; row < edgesH.size() - 1; row++) {
+
+			List<List<VLEdge2D>> topChains = edgesH.get(row);
+			List<List<VLEdge2D>> bottomChains = edgesH.get(row + 1);
+
+			for (int column = 0; column < edgesV.size() - 1; column++) {
+
+				List<List<VLEdge2D>> leftChains = edgesV.get(column);
+				List<List<VLEdge2D>> rightChains = edgesV.get(column + 1);
+
+				facets.addAll(mesh2facets(topChains.get(column), bottomChains.get(column), leftChains.get(row), rightChains.get(row),
+						edgeRenderer));
+
+			}
+		}
+
+		Collection<VLEdge2D> subedges = new ArrayList<>();
+		for (VLFacet2D facet : facets) {
+			subedges.addAll(facet.getEdges());
+		}
+
+		sublayerEdges.add(subedges);
+	}
+
+	private Collection<VLFacet2D> mesh2facets(List<VLEdge2D> topChain, List<VLEdge2D> bottomChain, List<VLEdge2D> leftChain,
+			List<VLEdge2D> rightChain, Consumer<VLEdge2D> edgeRenderer) {
+
+		final int rows = leftChain.size();
+		final int columns = topChain.size();
+
+		final Collection<VLFacet2D> facets = new ArrayList<>();
+		final Square[][] innerSquares = new Square[rows][columns];
+
+		for (int row = 0; row < rows; row++) {
+			for (int column = 0; column < columns; column++) {
+
+				VLEdge2D e1;
+				if (row == 0) {
+					// lediglich neue VLVertexSkids und Edge erzeugen
+					e1 = createInnerEdge(topChain.get(column), edgeRenderer);
+				} else {
+					e1 = innerSquares[row - 1][column].e3;
+				}
+
+				VLEdge2D e2;
+				if (column == columns - 1) {
+					e2 = createInnerEdge(rightChain.get(row), edgeRenderer);
+				} else {
+					if (row == rows - 1) {
+						e2 = newEdge(e1.getSecond(),
+								new VLVertexSkid(bottomChain.get(column).getSecond().getVertex()).setSticky(true).setDependent(true),
+								edgeRenderer);
+					} else {
+						e2 = newEdge(e1.getSecond(), new VLVertexSkid(new VLVertex2D(new Vector2D(e1.getSecond().getVertex().getCurrent().x,
+								leftChain.get(row).getSecond().getVertex().getCurrent().y))), edgeRenderer);
+					}
+				}
+
+				VLEdge2D e3;
+				if (row == rows - 1) {
+					e3 = createInnerEdge(bottomChain.get(column), edgeRenderer);
+				} else {
+					if (column == 0) {
+						e3 = newEdge(new VLVertexSkid(leftChain.get(row).getSecond().getVertex()).setSticky(true).setDependent(true),
+								e2.getSecond(), edgeRenderer);
+					} else {
+						e3 = newEdge(innerSquares[row][column - 1].e2.getSecond(), e2.getSecond(), edgeRenderer);
+					}
+				}
+
+				VLEdge2D e4;
+				if (column == 0) {
+					e4 = createInnerEdge(leftChain.get(row), edgeRenderer);
+				} else {
+					e4 = newEdge(innerSquares[row][column - 1].e2.getSecond(), innerSquares[row][column - 1].e2.getFirst(), edgeRenderer);
+				}
+
+				innerSquares[row][column] = new Square(e1, e2, e3, e4);
+
+				// create facets
+				VLEdge2D diagonal = newEdge(e1.getSecond(), e3.getFirst(), edgeRenderer);
+				facets.add(new VLFacet2D(e1, diagonal, e4, null));
+				facets.add(new VLFacet2D(diagonal, e3, e2, null));
+			}
+		}
+
+		return facets;
+
+	}
+
+	private VLEdge2D createInnerEdge(final VLEdge2D baseEdge, Consumer<VLEdge2D> edgeRenderer) {
+		return new VLEdge2D(new VLVertexSkid(baseEdge.getFirst().getVertex()).setSticky(true).setDependent(true),
+				new VLVertexSkid(baseEdge.getSecond().getVertex()).setSticky(true).setDependent(true), Color.WHITE, edgeRenderer);
+	}
+
+	private VLEdge2D newEdge(VLVertexSkid first, VLVertexSkid second, Consumer<VLEdge2D> edgeRenderer) {
+		return new VLEdge2D(first, second, Color.WHITE, edgeRenderer);
 	}
 
 	private VLFacetChainNet2D(Consumer<VLFacetChainNet2D> renderer, List<VLEdge2D> edges, List<List<List<VLEdge2D>>> edgesH,
@@ -110,9 +217,10 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 	}
 
 	public VLFacetChainNet2D setColor(Color color) {
-		for (VLEdge2D edge : getEdges()) {
-			edge.setColor(color);
-		}
+
+		getEdges().stream().forEach(edge -> edge.setColor(color));
+		sublayerEdges.stream().forEach(edges -> edges.stream().forEach(edge -> edge.setColor(color)));
+
 		return this;
 	}
 
@@ -186,7 +294,54 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 		addAllEdges(allEdges, newEdgesH);
 		addAllEdges(allEdges, newEdgesV);
 
-		return new VLFacetChainNet2D(renderer, allEdges, newEdgesH, newEdgesV);
+		final Collection<Collection<VLEdge2D>> copySublayerEdges = new ArrayList<>();
+		for (Collection<VLEdge2D> edges : sublayerEdges) {
+
+			final Collection<VLEdge2D> copyEdges = new ArrayList<>();
+			copySublayerEdges.add(copyEdges);
+			edges.stream().forEach(edge -> copyEdges.add(edge.dcopy()));
+
+		}
+
+		Collection<VLFacet2D> facetsCopy = new ArrayList<>(facets.size());
+		for (VLFacet2D facet : facets) {
+			facetsCopy.add(facet.dcopy());
+		}
+
+		return new VLFacetChainNet2D(renderer, allEdges, newEdgesH, newEdgesV).setSublayerEdges(copySublayerEdges).setFacets(facetsCopy);
+	}
+
+	public Collection<Collection<VLEdge2D>> getSublayerEdges() {
+		return sublayerEdges;
+	}
+
+	public VLFacetChainNet2D setSublayerEdges(Collection<Collection<VLEdge2D>> sublayerEdges) {
+		this.sublayerEdges = sublayerEdges;
+		return this;
+	}
+
+	private static class Square {
+
+		public VLEdge2D e1;
+		public VLEdge2D e2;
+		public VLEdge2D e3;
+		public VLEdge2D e4;
+
+		public Square(VLEdge2D e1, VLEdge2D e2, VLEdge2D e3, VLEdge2D e4) {
+			this.e1 = e1;
+			this.e2 = e2;
+			this.e3 = e3;
+			this.e4 = e4;
+		}
+	}
+
+	public Collection<VLFacet2D> getFacets() {
+		return facets;
+	}
+
+	public VLFacetChainNet2D setFacets(Collection<VLFacet2D> facets) {
+		this.facets = facets;
+		return this;
 	}
 
 }

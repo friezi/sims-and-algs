@@ -55,6 +55,7 @@ public class VLChainNet2D implements IVLEdgeContainer2D {
 
 		}
 
+		// create edgeList for all horizontal nodes;
 		for (int h = 0; h < dimHorizontal; h++) {
 			edgesV.add(new ArrayList<>());
 		}
@@ -108,9 +109,9 @@ public class VLChainNet2D implements IVLEdgeContainer2D {
 	}
 
 	public VLChainNet2D setColor(Color color) {
-		for (VLEdge2D edge : getEdges()) {
-			edge.setColor(color);
-		}
+
+		getEdges().stream().forEach(edge -> edge.setColor(color));
+
 		return this;
 	}
 

@@ -6,14 +6,30 @@ package de.zintel.gfx.g2d.verlet;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Consumer;
+
+import de.zintel.math.Vector2D;
 
 /**
  * @author friedemann.zintel
  *
  */
 public class VLFacet2D implements IVLPolygon2D {
+
+	private final static Comparator<VLVertexSkid> vertexComparator = new Comparator<VLVertexSkid>() {
+
+		@Override
+		public int compare(VLVertexSkid o1, VLVertexSkid o2) {
+			Vector2D left = o1.getVertex().getCurrent();
+			Vector2D right = o2.getVertex().getCurrent();
+			return (left.x == right.x && left.y == right.y) ? 0 : -1;
+		}
+	};
 
 	private final VLEdge2D edge1;
 
@@ -45,6 +61,24 @@ public class VLFacet2D implements IVLPolygon2D {
 		this.edge1 = e1;
 		this.edge2 = e2;
 		this.edge3 = e3;
+//		Set<VLVertexSkid> vertices = new TreeSet<>(vertexComparator);
+//		vertices.add(e1.getFirst());
+//		vertices.add(e1.getSecond());
+//		vertices.add(e2.getFirst());
+//		vertices.add(e2.getSecond());
+//		vertices.add(e3.getFirst());
+//		vertices.add(e3.getSecond());
+//
+//		if (vertices.size() != 3) {
+//			throw new RuntimeException("not 3 vertices! : "+vertices.size());
+//		}
+//
+//		Iterator<VLVertexSkid> iterator = vertices.iterator();
+
+//		this.vertex1 = iterator.next();
+//		this.vertex2 = iterator.next();
+//		this.vertex3 = iterator.next();
+
 		this.vertex1 = e1.getFirst();
 		this.vertex2 = e2.getFirst();
 		this.vertex3 = e3.getFirst();

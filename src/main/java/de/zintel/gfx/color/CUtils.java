@@ -107,4 +107,8 @@ public final class CUtils {
 
 	}
 
+	public static Color transparent(final Color color, final int alpha) {
+		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+	}
+
 }

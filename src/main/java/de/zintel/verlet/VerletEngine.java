@@ -10,6 +10,8 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.management.RuntimeErrorException;
+
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
 import de.zintel.gfx.g2d.verlet.VLVertexSkid;
@@ -26,7 +28,7 @@ public class VerletEngine {
 
 	private final Set<BiFunction<Vector2D, Vector2D, Vector2D>> influenceVectorProviders = new LinkedHashSet<>();
 
-	private final Set<VerletEngine> processors = new LinkedHashSet<>();
+	private final Set<VerletEngine> engines = new LinkedHashSet<>();
 
 	private Function<VLVertexSkid, Pair<Vector2D, Vector2D>> vertexConstraintHandler = null;
 
@@ -50,55 +52,60 @@ public class VerletEngine {
 		for (Runnable progressor : progressors) {
 			progressor.run();
 		}
-		
-//
-//		if (useWind) {
-//			windSimulator.progressWindflaw();
-//		}
-//
-//		final double width = dimension.getWidth();
-//		final double height = dimension.getHeight();
-//
-//		if (useWind && useWindparticles) {
-//
-//			if (windParticleCnt == 0) {
-//				windParticles.clear();
-//			}
-//
-//			final VectorField2D airstreamField = windSimulator.getAirstreamField();
-//
-//			if (windParticleCnt % windParticleFrequence == 0) {
-//
-//				final List<Integer> airstreamdimensions = airstreamField.getDimensions();
-//				final int windWidth = airstreamdimensions.get(0);
-//				final int windHeight = airstreamdimensions.get(1);
-//
-//				windParticles.add(new VLVertex2D(
-//						new Vector2D(rnd.nextInt(windWidth) * width / windWidth, rnd.nextInt(windHeight) * height / windHeight)));
-//			} else {
-//
-//				final Iterator<VLVertex2D> iterator = windParticles.iterator();
-//				while (iterator.hasNext()) {
-//
-//					final VLVertex2D windParticle = iterator.next();
-//					final Vector2D newPosition = calculateNewPosition(windParticle, 1);
-//					final Vector2D wind = windSimulator.calculateWind(windParticle.getCurrent());
-//					newPosition.add(wind.mult(1 / wind.length()));
-//
-//					if (newPosition.x >= width || newPosition.x < 0 || newPosition.y >= height || newPosition.y < 0) {
-//						iterator.remove();
-//					} else {
-//						repositionVertex(windParticle, newPosition);
-//					}
-//				}
-//			}
-//
-//			if (windParticleCnt == Long.MAX_VALUE) {
-//				windParticleCnt = 0;
-//			} else {
-//				windParticleCnt++;
-//			}
-//		}
+
+		//
+		// if (useWind) {
+		// windSimulator.progressWindflaw();
+		// }
+		//
+		// final double width = dimension.getWidth();
+		// final double height = dimension.getHeight();
+		//
+		// if (useWind && useWindparticles) {
+		//
+		// if (windParticleCnt == 0) {
+		// windParticles.clear();
+		// }
+		//
+		// final VectorField2D airstreamField =
+		// windSimulator.getAirstreamField();
+		//
+		// if (windParticleCnt % windParticleFrequence == 0) {
+		//
+		// final List<Integer> airstreamdimensions =
+		// airstreamField.getDimensions();
+		// final int windWidth = airstreamdimensions.get(0);
+		// final int windHeight = airstreamdimensions.get(1);
+		//
+		// windParticles.add(new VLVertex2D(
+		// new Vector2D(rnd.nextInt(windWidth) * width / windWidth,
+		// rnd.nextInt(windHeight) * height / windHeight)));
+		// } else {
+		//
+		// final Iterator<VLVertex2D> iterator = windParticles.iterator();
+		// while (iterator.hasNext()) {
+		//
+		// final VLVertex2D windParticle = iterator.next();
+		// final Vector2D newPosition = calculateNewPosition(windParticle, 1);
+		// final Vector2D wind =
+		// windSimulator.calculateWind(windParticle.getCurrent());
+		// newPosition.add(wind.mult(1 / wind.length()));
+		//
+		// if (newPosition.x >= width || newPosition.x < 0 || newPosition.y >=
+		// height || newPosition.y < 0) {
+		// iterator.remove();
+		// } else {
+		// repositionVertex(windParticle, newPosition);
+		// }
+		// }
+		// }
+		//
+		// if (windParticleCnt == Long.MAX_VALUE) {
+		// windParticleCnt = 0;
+		// } else {
+		// windParticleCnt++;
+		// }
+		// }
 
 		synchronized (syncObject) {
 
@@ -110,7 +117,9 @@ public class VerletEngine {
 					VLVertex2D vertex = vertexSkid.getVertex();
 
 					if (vertexSkid.isSticky()) {
-						vertex.setPrevious(vertex.getCurrent());
+						if (!vertexSkid.isDependent()) {
+							vertex.setPrevious(vertex.getCurrent());
+						}
 						return;
 					}
 
@@ -129,8 +138,8 @@ public class VerletEngine {
 				handleConstraints();
 			}
 
-			for (VerletEngine processor : processors) {
-				processor.progress();
+			for (VerletEngine engine : engines) {
+				engine.progress();
 			}
 
 		}
@@ -185,10 +194,11 @@ public class VerletEngine {
 		final Vector2D cSecond = edge.getSecond().getVertex().getCurrent();
 		Vector2D dV = Vector2D.substract(cFirst, cSecond);
 		if (dV.isNullVector()) {
+			dV = Vector2D.substract(edge.getFirst().getVertex().getPrevious(), edge.getSecond().getVertex().getPrevious());
 			// Problem!!! no line anymore
-			// System.out.println("Nullvector! edge: " + edge);
-			// do no adjustment to prevent NaN
-			return;
+//			System.out.println("WARNING: Nullvector! edge: " + edge);
+			// // do no adjustment to prevent NaN
+			// return;
 			// dV =
 			// Vector2D.max(Vector2D.substract(edge.getFirst().getPrevious(),
 			// edge.getSecond().getCurrent()),
@@ -197,10 +207,14 @@ public class VerletEngine {
 			// dV.mult(0.001);
 		}
 
-		if (dV.length() != edge.getPreferredLength()) {
+		double length = dV.length();
+		if (Double.isInfinite(length)) {
+			length = Double.MAX_VALUE / 2 - 1;
+		}
+		if (length != edge.getPreferredLength()) {
 
-			double diff = dV.length() - edge.getPreferredLength();
-			Vector2D slackV = Vector2D.mult(diff / (2 * dV.length()), dV);
+			double diff = length - edge.getPreferredLength();
+			Vector2D slackV = Vector2D.mult((diff / length) / 2, dV);
 
 			if (!edge.getFirst().isSticky()) {
 				if (edge.getSecond().isSticky()) {
@@ -240,13 +254,20 @@ public class VerletEngine {
 		return this;
 	}
 
-	public VerletEngine addProcressor(final VerletEngine processor) {
-		processors.add(processor);
+	public VerletEngine addEngine(final VerletEngine engine) {
+		engines.add(engine);
 		return this;
 	}
 
-	public VerletEngine removeProcessor(final VerletEngine processor) {
-		processors.remove(processor);
+	public VerletEngine addEngines(final Collection<VerletEngine> engines) {
+		for (VerletEngine engine : engines) {
+			addEngine(engine);
+		}
+		return this;
+	}
+
+	public VerletEngine removeEngine(final VerletEngine engine) {
+		engines.remove(engine);
 		return this;
 	}
 

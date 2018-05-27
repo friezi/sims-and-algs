@@ -14,7 +14,9 @@ public class VLVertexSkid {
 
 	private final VLVertex2D vertex;
 
-	private boolean sticky;
+	private boolean sticky = false;
+
+	private boolean dependent = false;
 
 	public VLVertexSkid(VLVertex2D vertex) {
 		this.vertex = vertex;
@@ -33,7 +35,21 @@ public class VLVertexSkid {
 		return this;
 	}
 
+	public boolean isDependent() {
+		return dependent;
+	}
+
+	public VLVertexSkid setDependent(boolean dependent) {
+		this.dependent = dependent;
+		return this;
+	}
+
 	public VLVertexSkid dcopy() {
 		return new VLVertexSkid(vertex.dcopy()).setSticky(sticky);
+	}
+
+	@Override
+	public String toString() {
+		return "VLVertexSkid [vertex=" + vertex + ", sticky=" + sticky + ", dependent=" + dependent + "]";
 	}
 }
