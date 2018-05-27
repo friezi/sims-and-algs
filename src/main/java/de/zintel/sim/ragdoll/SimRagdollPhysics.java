@@ -431,7 +431,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 		// edgeContainers.add(chainNet);
 		facetChainNet = new VLFacetChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(900, 15))).setSticky(true),
 				new VLVertexSkid(new VLVertex2D(new Vector2D(1400, 15))).setSticky(true), 30,
-				/* 10 */4, 15, 16, facetChainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);
+				/* 10 */4, 15, 24, facetChainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);
 		edgeContainers.add(facetChainNet);
 		{
 
