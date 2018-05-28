@@ -10,8 +10,6 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import javax.management.RuntimeErrorException;
-
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
 import de.zintel.gfx.g2d.verlet.VLVertexSkid;
@@ -135,7 +133,7 @@ public class VerletEngine {
 			});
 
 			for (int i = 0; i < iterations; i++) {
-				handleConstraints();
+				handleConstraints(i + 1);
 			}
 
 			for (VerletEngine engine : engines) {
@@ -167,7 +165,7 @@ public class VerletEngine {
 		vertex.setCurrent(newCurrent);
 	}
 
-	private void handleConstraints() {
+	private void handleConstraints(final int iteration) {
 
 		if (vertexConstraintHandler != null) {
 			vertexSkids.parallelStream().forEach(vertex -> adjust(vertex.getVertex(), vertexConstraintHandler.apply(vertex)));
@@ -176,7 +174,7 @@ public class VerletEngine {
 		// here parallelisation should not be done because some edges access the
 		// same vertex
 		for (final VLEdge2D edge : edges) {
-			handleStickConstraints(edge);
+			handleStickConstraints(edge, iteration);
 		}
 
 	}
@@ -188,7 +186,7 @@ public class VerletEngine {
 
 	}
 
-	private void handleStickConstraints(final VLEdge2D edge) {
+	private void handleStickConstraints(final VLEdge2D edge, final int iteration) {
 
 		final Vector2D cFirst = edge.getFirst().getVertex().getCurrent();
 		final Vector2D cSecond = edge.getSecond().getVertex().getCurrent();
@@ -196,7 +194,7 @@ public class VerletEngine {
 		if (dV.isNullVector()) {
 			dV = Vector2D.substract(edge.getFirst().getVertex().getPrevious(), edge.getSecond().getVertex().getPrevious());
 			// Problem!!! no line anymore
-//			System.out.println("WARNING: Nullvector! edge: " + edge);
+			// System.out.println("WARNING: Nullvector! edge: " + edge);
 			// // do no adjustment to prevent NaN
 			// return;
 			// dV =

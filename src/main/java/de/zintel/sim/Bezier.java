@@ -10,36 +10,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Consumer;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
 import de.zintel.gfx.ScreenParameters;
-import de.zintel.gfx.g2d.LinearPointInterpolater2D;
-import de.zintel.gfx.g2d.Pin2D;
-import de.zintel.gfx.g2d.APointInterpolater2D;
-import de.zintel.gfx.g2d.AlternateLinearPointInterpolater2D;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
-import de.zintel.gfx.g2d.IterationUnit2D;
-import de.zintel.gfx.g2d.Tetragon2D;
-import de.zintel.gfx.g2d.View2D;
-import de.zintel.gfx.texture.ITexture;
-import de.zintel.gfx.texture.ImageTexture;
-import de.zintel.gfx.texture.TxCrd;
-import de.zintel.math.MathUtils;
-import de.zintel.utils.Processor;
 
 /**
  * @author Friedemann

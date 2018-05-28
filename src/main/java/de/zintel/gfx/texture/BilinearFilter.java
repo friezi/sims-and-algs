@@ -4,9 +4,6 @@
 package de.zintel.gfx.texture;
 
 import java.awt.Color;
-import java.util.Arrays;
-
-import de.zintel.math.VectorND;
 
 /**
  * @author friedemann.zintel

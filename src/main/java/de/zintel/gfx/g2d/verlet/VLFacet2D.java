@@ -7,10 +7,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import de.zintel.math.Vector2D;
