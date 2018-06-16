@@ -7,13 +7,14 @@ import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.g2d.LinearPointInterpolater2D;
-import de.zintel.gfx.g2d.verlet.IVLEdgeContainer2D;
 import de.zintel.gfx.g2d.verlet.IVLPolygon2D;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
@@ -23,6 +24,8 @@ import de.zintel.math.Vector2D;
 import de.zintel.utils.IterableIterator;
 
 /**
+ * alert! set contextEdgesProvider!
+ * 
  * @author friedemann.zintel
  *
  */
@@ -31,6 +34,12 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 	private final IGraphicsSubsystem graphicsSubsystem;
 
 	private final Function<VLEdge2D, Color> colorModifier;
+
+	/**
+	 * provides the context-edges on which basis the color-interpolation takes
+	 * place.
+	 */
+	private Function<T, List<VLEdge2D>> contextEdgesProvider;
 
 	public PolygonInterpolatingRenderer(IGraphicsSubsystem graphicsSubsystem, Function<VLEdge2D, Color> colorModifier) {
 		this.graphicsSubsystem = graphicsSubsystem;
@@ -75,10 +84,10 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 		}
 	}
 
-	private Color calculateColor(final Vector2D point, final IVLEdgeContainer2D polygon) {
+	private Color calculateColor(final Vector2D point, final T polygon) {
 
 		final Collection<EdgeValue> values = new ArrayList<>(3);
-		for (VLEdge2D edge : polygon.getEdges()) {
+		for (VLEdge2D edge : (contextEdgesProvider != null ? contextEdgesProvider.apply(polygon) : Collections.<VLEdge2D> emptyList())) {
 			values.add(new EdgeValue(1 / (distance(point, edge) + 1.0), edge));
 		}
 
@@ -129,6 +138,15 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 			return edge;
 		}
 
+	}
+
+	public Function<T, List<VLEdge2D>> getContextEdgesProvider() {
+		return contextEdgesProvider;
+	}
+
+	public PolygonInterpolatingRenderer<T> setContextEdgesProvider(Function<T, List<VLEdge2D>> contextEdgesProvider) {
+		this.contextEdgesProvider = contextEdgesProvider;
+		return this;
 	}
 
 }

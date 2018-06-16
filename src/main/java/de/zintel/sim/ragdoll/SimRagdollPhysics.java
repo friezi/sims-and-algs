@@ -376,11 +376,11 @@ public class SimRagdollPhysics extends SimulationScreen {
 		final Consumer<VLFacetChainNet2D> facetChainNetRenderer = new WireMeshFacetChainNetRenderer();
 		final Consumer<VLFacet2D> facetRenderer = new FilledConvexPolygonGSRenderer<VLFacet2D>(graphicsSubsystem);
 		final Consumer<VLFacet2D> facetInterpolatingRenderer = new PolygonInterpolatingRenderer<VLFacet2D>(graphicsSubsystem,
-				new AdjustingColorProvider());
+				new AdjustingColorProvider()).setContextEdgesProvider(facet -> facet.getEdges());
 		final Consumer<VLTetragon2D> tetragonFacetInterpolatingRenderer = new TetragonFacetInterpolatingRenderer(
 				facetInterpolatingRenderer);
-		final Consumer<VLTetragon2D> tetragonFullInterpolatingFacetRenderer = new TetragonFullInterpolatingFacetRenderer(
-				facetInterpolatingRenderer);
+		final Consumer<VLTetragon2D> tetragonFullInterpolatingFacetRenderer = new TetragonFullInterpolatingFacetRenderer(graphicsSubsystem,
+				new AdjustingColorProvider());
 
 		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(99, 100)),
 				new VLVertex2D(new Vector2D(230, 120)), Color.WHITE, plainEdgeRenderer));
@@ -408,48 +408,48 @@ public class SimRagdollPhysics extends SimulationScreen {
 		edgeContainers.add(new VLFacet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(250, 150))),
 				new VLVertexSkid(new VLVertex2D(new Vector2D(400, 160))), new VLVertexSkid(new VLVertex2D(new Vector2D(320, 170))),
 				facetRenderer).setColor(colors[0]));
-		//
-		// edgeContainers.add(new VLFacet2D(new VLVertexSkid(new VLVertex2D(new
-		// Vector2D(250, 150))),
-		// new VLVertexSkid(new VLVertex2D(new Vector2D(400, 160))), new
-		// VLVertexSkid(new VLVertex2D(new Vector2D(360, 170))),
-		// facetInterpolatingRenderer).setColor(colors[0]));
-		//
-		// edgeContainers.add(new VLTetragon2D(new VLVertexSkid(new
-		// VLVertex2D(new Vector2D(253, 128))),
-		// new VLVertexSkid(new VLVertex2D(new Vector2D(553, 126))), new
-		// VLVertexSkid(new VLVertex2D(new Vector2D(552, 228))),
-		// new VLVertexSkid(new VLVertex2D(new Vector2D(253, 238))),
-		// tetragonFullInterpolatingFacetRenderer).setColor(colors[0]));
+//		
+//		 edgeContainers.add(new VLFacet2D(new VLVertexSkid(new VLVertex2D(new
+//		 Vector2D(250, 150))),
+//		 new VLVertexSkid(new VLVertex2D(new Vector2D(400, 160))), new
+//		 VLVertexSkid(new VLVertex2D(new Vector2D(360, 170))),
+//		 facetInterpolatingRenderer).setColor(colors[0]));
+//		
+//		 edgeContainers.add(new VLTetragon2D(new VLVertexSkid(new
+//		 VLVertex2D(new Vector2D(253, 128))),
+//		 new VLVertexSkid(new VLVertex2D(new Vector2D(553, 126))), new
+//		 VLVertexSkid(new VLVertex2D(new Vector2D(552, 228))),
+//		 new VLVertexSkid(new VLVertex2D(new Vector2D(253, 238))),
+//		 tetragonFullInterpolatingFacetRenderer).setColor(colors[0]));
 
-		// chainNet = new VLChainNet2D(new VLVertexSkid(new VLVertex2D(new
-		// Vector2D(900, 15))).setSticky(true),
-		// new VLVertexSkid(new VLVertex2D(new Vector2D(1400,
-		// 15))).setSticky(true), 30,
-		// 10, 15, 16, chainNetRenderer,
-		// adjustingEdgeRenderer).setColor(colors[0]);
-		// edgeContainers.add(chainNet);
-		facetChainNet = new VLFacetChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(900, 15))).setSticky(true),
-				new VLVertexSkid(new VLVertex2D(new Vector2D(1400, 15))).setSticky(true), 30,
-				/* 10 */4, 15, 24, facetChainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);
-		edgeContainers.add(facetChainNet);
-		{
-
-			Collection<Collection<VLEdge2D>> sublayerEdges = facetChainNet.getSublayerEdges();
-			Collection<VLEdge2D> inneredges = new ArrayList<>();
-			for (Collection<VLEdge2D> edges : sublayerEdges) {
-				inneredges.addAll(edges);
-			}
-
-			Collection<VLVertexSkid> innerVertices = new ArrayList<>();
-
-			for (final VLEdge2D edge : inneredges) {
-				innerVertices.add(edge.getFirst());
-				innerVertices.add(edge.getSecond());
-			}
-			sublayerEngines.add(new VerletEngine(innerVertices, inneredges, edgeContainers,
-					5)/* .addInfluenceVectorProvider((c, n) -> gravity) */);
-		}
+		 chainNet = new VLChainNet2D(new VLVertexSkid(new VLVertex2D(new
+		 Vector2D(300, 15))).setSticky(true),
+		 new VLVertexSkid(new VLVertex2D(new Vector2D(800,
+		 15))).setSticky(true), 30,
+		 10, 15, 16, chainNetRenderer,
+		 adjustingEdgeRenderer).setColor(colors[0]);
+		 edgeContainers.add(chainNet);
+//		facetChainNet = new VLFacetChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(900, 15))).setSticky(true),
+//				new VLVertexSkid(new VLVertex2D(new Vector2D(1400, 15))).setSticky(true), 30,
+//				/* 10 */4, 15, 24, facetChainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);
+//		edgeContainers.add(facetChainNet);
+//		{
+//
+//			Collection<Collection<VLEdge2D>> sublayerEdges = facetChainNet.getSublayerEdges();
+//			Collection<VLEdge2D> inneredges = new ArrayList<>();
+//			for (Collection<VLEdge2D> edges : sublayerEdges) {
+//				inneredges.addAll(edges);
+//			}
+//
+//			Collection<VLVertexSkid> innerVertices = new ArrayList<>();
+//
+//			for (final VLEdge2D edge : inneredges) {
+//				innerVertices.add(edge.getFirst());
+//				innerVertices.add(edge.getSecond());
+//			}
+//			sublayerEngines.add(new VerletEngine(innerVertices, inneredges, edgeContainers,
+//					5)/* .addInfluenceVectorProvider((c, n) -> gravity) */);
+//		}
 
 		for (IVLEdgeContainer2D edgeContainer : edgeContainers) {
 			edges.addAll(edgeContainer.getEdges());

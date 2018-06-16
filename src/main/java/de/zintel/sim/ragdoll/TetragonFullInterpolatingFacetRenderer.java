@@ -1,61 +1,55 @@
 package de.zintel.sim.ragdoll;
 
-import java.util.Collection;
+import java.awt.Color;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLFacet2D;
 import de.zintel.gfx.g2d.verlet.VLTetragon2D;
-import de.zintel.gfx.g2d.verlet.VLVertexSkid;
+import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 
 public class TetragonFullInterpolatingFacetRenderer implements Consumer<VLTetragon2D> {
 
-	private final Consumer<VLFacet2D> facetRenderer;
+	final PolygonInterpolatingRenderer<VLFacet2D> facetRenderer;
 
-	public TetragonFullInterpolatingFacetRenderer(Consumer<VLFacet2D> facetRenderer) {
-		this.facetRenderer = facetRenderer;
+	final TetragonEdgesProvider edgesProvider = new TetragonEdgesProvider();
+
+	public TetragonFullInterpolatingFacetRenderer(IGraphicsSubsystem graphicsSubsystem, Function<VLEdge2D, Color> colorProvider) {
+		facetRenderer = new PolygonInterpolatingRenderer<VLFacet2D>(graphicsSubsystem, colorProvider)
+				.setContextEdgesProvider(edgesProvider);
+	}
+
+	private static class TetragonEdgesProvider implements Function<VLFacet2D, List<VLEdge2D>> {
+
+		private VLTetragon2D tetragon;
+
+		@Override
+		public List<VLEdge2D> apply(VLFacet2D t) {
+			return getTetragon() != null ? tetragon.getEdges() : Collections.emptyList();
+		}
+
+		public VLTetragon2D getTetragon() {
+			return tetragon;
+		}
+
+		public void setTetragon(VLTetragon2D tetragon) {
+			this.tetragon = tetragon;
+		}
+
 	}
 
 	@Override
 	public void accept(VLTetragon2D tetragon) {
 
-		new TetragonEdgesFacetWrapper(tetragon, tetragon.getFacet1(), facetRenderer).render();
-		new TetragonEdgesFacetWrapper(tetragon, tetragon.getFacet2(), facetRenderer).render();
+		edgesProvider.setTetragon(tetragon);
+		tetragon.getFacet1().setRenderer(facetRenderer);
+		tetragon.getFacet2().setRenderer(facetRenderer);
 
-	}
-
-	private static class TetragonEdgesFacetWrapper extends VLFacet2D {
-
-		private final VLTetragon2D tetragon;
-
-		private final VLFacet2D facet;
-
-		private final Consumer<VLFacet2D> facetRenderer;
-
-		public TetragonEdgesFacetWrapper(VLTetragon2D tetragon, VLFacet2D facet, Consumer<VLFacet2D> facetRenderer) {
-			super(facet.getVertex1(), facet.getVertex2(), facet.getVertex3(), null);
-			this.tetragon = tetragon;
-			this.facet = facet;
-			this.facetRenderer = facetRenderer;
-		}
-
-		@Override
-		public void render() {
-			if (facetRenderer != null) {
-				facetRenderer.accept(this);
-			}
-		}
-
-		@Override
-		public List<VLEdge2D> getEdges() {
-			return tetragon.getEdges();
-		}
-
-		@Override
-		public Collection<VLVertexSkid> getVertices() {
-			return facet.getVertices();
-		}
+		tetragon.getFacet1().render();
+		tetragon.getFacet2().render();
 
 	}
 

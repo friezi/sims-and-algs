@@ -3,8 +3,11 @@
  */
 package de.zintel.verlet;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -171,11 +174,35 @@ public class VerletEngine {
 			vertexSkids.parallelStream().forEach(vertex -> adjust(vertex.getVertex(), vertexConstraintHandler.apply(vertex)));
 		}
 
+		Map<VLVertex2D, Collection<Vector2D>> modMap = new HashMap<>();
 		// here parallelisation should not be done because some edges access the
 		// same vertex
 		for (final VLEdge2D edge : edges) {
-			handleStickConstraints(edge, iteration);
+			handleStickConstraints(edge,modMap, iteration);
 		}
+//		for (Map.Entry<VLVertex2D, Collection<Vector2D>> entry:modMap.entrySet()) {
+//			
+//			Vector2D dv=new Vector2D();
+//			for (Vector2D v:entry.getValue()) {
+//				dv.add(v);
+//			}
+//			dv.mult(1.0/entry.getValue().size());
+//			entry.getKey().getCurrent().add(dv);
+//		}
+
+	}
+
+	private void add(final VLVertex2D vertex, final Vector2D vector, final Map<VLVertex2D, Collection<Vector2D>> map) {
+
+		Collection<Vector2D> collection = map.get(vertex);
+		if (collection == null) {
+
+			collection = new ArrayList<>();
+			map.put(vertex, collection);
+
+		}
+
+		collection.add(vector);
 
 	}
 
@@ -186,13 +213,15 @@ public class VerletEngine {
 
 	}
 
-	private void handleStickConstraints(final VLEdge2D edge, final int iteration) {
+	private void handleStickConstraints(final VLEdge2D edge,Map<VLVertex2D, Collection<Vector2D>> modMap, final int iteration) {
 
-		final Vector2D cFirst = edge.getFirst().getVertex().getCurrent();
-		final Vector2D cSecond = edge.getSecond().getVertex().getCurrent();
+		VLVertex2D vFirst = edge.getFirst().getVertex();
+		VLVertex2D vSecond = edge.getSecond().getVertex();
+		final Vector2D cFirst = vFirst.getCurrent();
+		final Vector2D cSecond = vSecond.getCurrent();
 		Vector2D dV = Vector2D.substract(cFirst, cSecond);
 		if (dV.isNullVector()) {
-			dV = Vector2D.substract(edge.getFirst().getVertex().getPrevious(), edge.getSecond().getVertex().getPrevious());
+			dV = Vector2D.substract(vFirst.getPrevious(), vSecond.getPrevious());
 			// Problem!!! no line anymore
 			// System.out.println("WARNING: Nullvector! edge: " + edge);
 			// // do no adjustment to prevent NaN
@@ -215,18 +244,28 @@ public class VerletEngine {
 			Vector2D slackV = Vector2D.mult((diff / length) / 2, dV);
 
 			if (!edge.getFirst().isSticky()) {
+				
+				Vector2D dVector;
 				if (edge.getSecond().isSticky()) {
 					cFirst.substract(Vector2D.mult(2, slackV));
+//					dVector=Vector2D.mult(-2, slackV);
 				} else {
 					cFirst.substract(slackV);
+//					dVector=Vector2D.mult(-1, slackV);
 				}
+//				add(vFirst,dVector,modMap);
 			}
 			if (!edge.getSecond().isSticky()) {
+
+				Vector2D dVector;
 				if (edge.getFirst().isSticky()) {
 					cSecond.add(Vector2D.mult(2, slackV));
+//					dVector=Vector2D.mult(2, slackV);
 				} else {
 					cSecond.add(slackV);
+//					dVector=slackV;
 				}
+//				add(vSecond,dVector,modMap);
 			}
 		}
 
