@@ -112,10 +112,13 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 
 	private double distance(final Vector2D point, final VLEdge2D edge) {
 
-		final Vector2D edgeV = edge.currentToVector2D();
-		final Vector2D edgeS = edge.getFirst().getVertex().getCurrent();
-		return Vector2D.mult((Vector2D.mult(point, edgeV) - Vector2D.mult(edgeS, edgeV)) / Vector2D.mult(edgeV, edgeV), edgeV).add(edgeS)
-				.substract(point).length();
+		final Vector2D start = edge.getFirst().getVertex().getCurrent();
+		final Vector2D end = edge.getSecond().getVertex().getCurrent();
+		final Vector2D edgeV = Vector2D.substract(end, start);
+		final double lambda = (Vector2D.mult(point, edgeV) - Vector2D.mult(start, edgeV)) / Vector2D.mult(edgeV, edgeV);
+		// check for exceeding the line
+		final Vector2D referencePoint = lambda > 1 ? end : lambda < 0 ? start : Vector2D.mult(lambda, edgeV).add(start);
+		return Vector2D.substract(referencePoint, point).length();
 
 	}
 
