@@ -31,6 +31,8 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 
 	private Collection<Collection<VLEdge2D>> sublayerEdges = new ArrayList<>();
 
+	private Collection<Mesh> meshes = new ArrayList<>();
+
 	/**
 	 * 
 	 */
@@ -119,8 +121,13 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 				List<List<VLEdge2D>> leftChains = edgesV.get(column);
 				List<List<VLEdge2D>> rightChains = edgesV.get(column + 1);
 
-				facets.addAll(mesh2facets(topChains.get(column), bottomChains.get(column), leftChains.get(row), rightChains.get(row),
-						edgeRenderer));
+				List<VLEdge2D> topChain = topChains.get(column);
+				List<VLEdge2D> bottomChain = bottomChains.get(column);
+				List<VLEdge2D> leftChain = leftChains.get(row);
+				List<VLEdge2D> rightChain = rightChains.get(row);
+				Collection<VLFacet2D> meshFacets = mesh2facets(topChain, bottomChain, leftChain, rightChain, edgeRenderer);
+				facets.addAll(meshFacets);
+				meshes.add(new Mesh(topChain, bottomChain, leftChain, rightChain, meshFacets));
 
 			}
 		}
@@ -342,6 +349,53 @@ public class VLFacetChainNet2D implements IVLEdgeContainer2D {
 	public VLFacetChainNet2D setFacets(Collection<VLFacet2D> facets) {
 		this.facets = facets;
 		return this;
+	}
+
+	private static class Mesh {
+
+		private final Collection<VLEdge2D> topChain;
+
+		private final Collection<VLEdge2D> bottomChain;
+
+		private final Collection<VLEdge2D> leftChain;
+
+		private final Collection<VLEdge2D> rightChain;
+
+		private final Collection<VLFacet2D> facets;
+
+		public Mesh(Collection<VLEdge2D> topChain, Collection<VLEdge2D> bottomChain, Collection<VLEdge2D> leftChain,
+				Collection<VLEdge2D> rightChain, Collection<VLFacet2D> facets) {
+			this.topChain = topChain;
+			this.bottomChain = bottomChain;
+			this.leftChain = leftChain;
+			this.rightChain = rightChain;
+			this.facets = facets;
+		}
+
+		public Collection<VLEdge2D> getTopChain() {
+			return topChain;
+		}
+
+		public Collection<VLEdge2D> getBottomChain() {
+			return bottomChain;
+		}
+
+		public Collection<VLEdge2D> getLeftChain() {
+			return leftChain;
+		}
+
+		public Collection<VLEdge2D> getRightChain() {
+			return rightChain;
+		}
+
+		public Collection<VLFacet2D> getFacets() {
+			return facets;
+		}
+
+	}
+
+	public Collection<Mesh> getMeshes() {
+		return meshes;
 	}
 
 }

@@ -247,9 +247,9 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 		public FilledFacetChainNetRenderer(IGraphicsSubsystem graphicsSubsystem) {
 			facetRenderer = new FilledConvexPolygonGSRenderer<VLFacet2D>(graphicsSubsystem);
-			// facetRenderer = new
-			// PolygonInterpolatingRenderer<VLFacet2D>(graphicsSubsystem, new
-			// AdjustingColorProvider());
+//			 facetRenderer = new
+//			 PolygonInterpolatingRenderer<VLFacet2D>(graphicsSubsystem, new
+//			 AdjustingColorProvider()).setContextEdgesProvider(facet->facet.getEdges());
 		}
 
 		@Override
@@ -429,27 +429,27 @@ public class SimRagdollPhysics extends SimulationScreen {
 		 10, 15, 16, chainNetRenderer,
 		 adjustingEdgeRenderer).setColor(colors[0]);
 		 edgeContainers.add(chainNet);
-//		facetChainNet = new VLFacetChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(900, 15))).setSticky(true),
-//				new VLVertexSkid(new VLVertex2D(new Vector2D(1400, 15))).setSticky(true), 30,
-//				/* 10 */4, 15, 24, facetChainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);
-//		edgeContainers.add(facetChainNet);
-//		{
-//
-//			Collection<Collection<VLEdge2D>> sublayerEdges = facetChainNet.getSublayerEdges();
-//			Collection<VLEdge2D> inneredges = new ArrayList<>();
-//			for (Collection<VLEdge2D> edges : sublayerEdges) {
-//				inneredges.addAll(edges);
-//			}
-//
-//			Collection<VLVertexSkid> innerVertices = new ArrayList<>();
-//
-//			for (final VLEdge2D edge : inneredges) {
-//				innerVertices.add(edge.getFirst());
-//				innerVertices.add(edge.getSecond());
-//			}
-//			sublayerEngines.add(new VerletEngine(innerVertices, inneredges, edgeContainers,
-//					5)/* .addInfluenceVectorProvider((c, n) -> gravity) */);
-//		}
+		facetChainNet = new VLFacetChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(900, 15))).setSticky(true),
+				new VLVertexSkid(new VLVertex2D(new Vector2D(1400, 15))).setSticky(true), 30,
+				/* 10 */4, 15, 24, facetChainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);
+		edgeContainers.add(facetChainNet);
+		{
+
+			Collection<Collection<VLEdge2D>> sublayerEdges = facetChainNet.getSublayerEdges();
+			Collection<VLEdge2D> inneredges = new ArrayList<>();
+			for (Collection<VLEdge2D> edges : sublayerEdges) {
+				inneredges.addAll(edges);
+			}
+
+			Collection<VLVertexSkid> innerVertices = new ArrayList<>();
+
+			for (final VLEdge2D edge : inneredges) {
+				innerVertices.add(edge.getFirst());
+				innerVertices.add(edge.getSecond());
+			}
+			sublayerEngines.add(new VerletEngine(innerVertices, inneredges, edgeContainers,
+					5)/* .addInfluenceVectorProvider((c, n) -> gravity) */);
+		}
 
 		for (IVLEdgeContainer2D edgeContainer : edgeContainers) {
 			edges.addAll(edgeContainer.getEdges());
