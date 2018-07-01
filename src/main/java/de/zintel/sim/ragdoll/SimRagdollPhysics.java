@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -45,6 +46,7 @@ import de.zintel.math.VectorND;
 import de.zintel.physics.simulators.WindController;
 import de.zintel.physics.simulators.WindSimulator;
 import de.zintel.sim.SimulationScreen;
+import de.zintel.verlet.DfltStickConstraintHandler;
 import de.zintel.verlet.VerletEngine;
 import de.zintel.verlet.VertexBorderConstraintHandler;
 
@@ -155,6 +157,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 	private VertexBorderConstraintHandler vertexConstraintHandler;
 
+	private BiConsumer<Collection<VLEdge2D>, Integer> edgesHandler = new DfltStickConstraintHandler();
+
 	private VerletEngine verletEngine;
 
 	private Dimension dimension = new Dimension();
@@ -247,9 +251,9 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 		public FilledFacetChainNetRenderer(IGraphicsSubsystem graphicsSubsystem) {
 			facetRenderer = new FilledConvexPolygonGSRenderer<VLFacet2D>(graphicsSubsystem);
-//			 facetRenderer = new
-//			 PolygonInterpolatingRenderer<VLFacet2D>(graphicsSubsystem, new
-//			 AdjustingColorProvider()).setContextEdgesProvider(facet->facet.getEdges());
+			// facetRenderer = new
+			// PolygonInterpolatingRenderer<VLFacet2D>(graphicsSubsystem, new
+			// AdjustingColorProvider()).setContextEdgesProvider(facet->facet.getEdges());
 		}
 
 		@Override
@@ -309,6 +313,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 		vertexConstraintHandler = new VertexBorderConstraintHandler(0, dimension.getWidth() - 1, 0, dimension.getHeight() - 1, decay);
 		verletEngine.setVertexConstraintHandler(vertexConstraintHandler);
 		verletEngine.addEngines(sublayerEngines);
+		verletEngine.setEdgesHandler(edgesHandler);
 
 		initKeyActions();
 
@@ -408,27 +413,24 @@ public class SimRagdollPhysics extends SimulationScreen {
 		edgeContainers.add(new VLFacet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(250, 150))),
 				new VLVertexSkid(new VLVertex2D(new Vector2D(400, 160))), new VLVertexSkid(new VLVertex2D(new Vector2D(320, 170))),
 				facetRenderer).setColor(colors[0]));
-//		
-//		 edgeContainers.add(new VLFacet2D(new VLVertexSkid(new VLVertex2D(new
-//		 Vector2D(250, 150))),
-//		 new VLVertexSkid(new VLVertex2D(new Vector2D(400, 160))), new
-//		 VLVertexSkid(new VLVertex2D(new Vector2D(360, 170))),
-//		 facetInterpolatingRenderer).setColor(colors[0]));
-//		
-//		 edgeContainers.add(new VLTetragon2D(new VLVertexSkid(new
-//		 VLVertex2D(new Vector2D(253, 128))),
-//		 new VLVertexSkid(new VLVertex2D(new Vector2D(553, 126))), new
-//		 VLVertexSkid(new VLVertex2D(new Vector2D(552, 228))),
-//		 new VLVertexSkid(new VLVertex2D(new Vector2D(253, 238))),
-//		 tetragonFullInterpolatingFacetRenderer).setColor(colors[0]));
+		//
+		// edgeContainers.add(new VLFacet2D(new VLVertexSkid(new VLVertex2D(new
+		// Vector2D(250, 150))),
+		// new VLVertexSkid(new VLVertex2D(new Vector2D(400, 160))), new
+		// VLVertexSkid(new VLVertex2D(new Vector2D(360, 170))),
+		// facetInterpolatingRenderer).setColor(colors[0]));
+		//
+		// edgeContainers.add(new VLTetragon2D(new VLVertexSkid(new
+		// VLVertex2D(new Vector2D(253, 128))),
+		// new VLVertexSkid(new VLVertex2D(new Vector2D(553, 126))), new
+		// VLVertexSkid(new VLVertex2D(new Vector2D(552, 228))),
+		// new VLVertexSkid(new VLVertex2D(new Vector2D(253, 238))),
+		// tetragonFullInterpolatingFacetRenderer).setColor(colors[0]));
 
-		 chainNet = new VLChainNet2D(new VLVertexSkid(new VLVertex2D(new
-		 Vector2D(300, 15))).setSticky(true),
-		 new VLVertexSkid(new VLVertex2D(new Vector2D(800,
-		 15))).setSticky(true), 30,
-		 10, 15, 16, chainNetRenderer,
-		 adjustingEdgeRenderer).setColor(colors[0]);
-		 edgeContainers.add(chainNet);
+		chainNet = new VLChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(300, 15))).setSticky(true),
+				new VLVertexSkid(new VLVertex2D(new Vector2D(800, 15))).setSticky(true), 30, 10, 15, 16, chainNetRenderer,
+				adjustingEdgeRenderer).setColor(colors[0]);
+		edgeContainers.add(chainNet);
 		facetChainNet = new VLFacetChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(900, 15))).setSticky(true),
 				new VLVertexSkid(new VLVertex2D(new Vector2D(1400, 15))).setSticky(true), 30,
 				/* 10 */4, 15, 24, facetChainNetRenderer, adjustingEdgeRenderer).setColor(colors[0]);
@@ -447,8 +449,11 @@ public class SimRagdollPhysics extends SimulationScreen {
 				innerVertices.add(edge.getFirst());
 				innerVertices.add(edge.getSecond());
 			}
-			sublayerEngines.add(new VerletEngine(innerVertices, inneredges, edgeContainers,
-					5)/* .addInfluenceVectorProvider((c, n) -> gravity) */);
+			sublayerEngines.add(new VerletEngine(innerVertices, inneredges, edgeContainers, 5)
+					.setEdgesHandler(edgesHandler)/*
+													 * .addInfluenceVectorProvider
+													 * ((c, n) -> gravity)
+													 */);
 		}
 
 		for (IVLEdgeContainer2D edgeContainer : edgeContainers) {
