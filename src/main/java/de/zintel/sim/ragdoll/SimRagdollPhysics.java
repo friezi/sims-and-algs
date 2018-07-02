@@ -47,6 +47,8 @@ import de.zintel.physics.simulators.WindController;
 import de.zintel.physics.simulators.WindSimulator;
 import de.zintel.sim.SimulationScreen;
 import de.zintel.verlet.DfltStickConstraintHandler;
+import de.zintel.verlet.MeanAdjustingStickConstraintHandler;
+import de.zintel.verlet.MeanAdjustingStickConstraintHandlerNoMap;
 import de.zintel.verlet.VerletEngine;
 import de.zintel.verlet.VertexBorderConstraintHandler;
 
@@ -68,13 +70,15 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 	private static final int bobbleSize = 3;
 
-	private static final Vector2D GRAV_DOWN = new Vector2D(0, 0.8);
+	private static final double GRAV_INFLUENCE = 0.8;
 
-	private static final Vector2D GRAV_UP = new Vector2D(0, -0.8);
+	private static final Vector2D GRAV_DOWN = new Vector2D(0, GRAV_INFLUENCE);
 
-	private static final Vector2D GRAV_RIGHT = new Vector2D(0.8, 0);
+	private static final Vector2D GRAV_UP = new Vector2D(0, -GRAV_INFLUENCE);
 
-	private static final Vector2D GRAV_LEFT = new Vector2D(-0.8, 0);
+	private static final Vector2D GRAV_RIGHT = new Vector2D(GRAV_INFLUENCE, 0);
+
+	private static final Vector2D GRAV_LEFT = new Vector2D(-GRAV_INFLUENCE, 0);
 
 	private final Random rnd = new Random(Instant.now().toEpochMilli());
 
@@ -127,6 +131,17 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 	private int colorCycleCnt = 0;
 
+	@SuppressWarnings("serial")
+	private final List<BiConsumer<Collection<VLEdge2D>, Integer>> stickConstraintHandlers = new ArrayList<BiConsumer<Collection<VLEdge2D>, Integer>>() {
+		{
+			add(new DfltStickConstraintHandler());
+			add(new MeanAdjustingStickConstraintHandler());
+			add(new MeanAdjustingStickConstraintHandlerNoMap());
+		}
+	};
+
+	private int stickConstraintHandlerCount = 0;
+
 	private WindSimulator windSimulator;
 
 	private WindController windController;
@@ -157,7 +172,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 	private VertexBorderConstraintHandler vertexConstraintHandler;
 
-	private BiConsumer<Collection<VLEdge2D>, Integer> edgesHandler = new DfltStickConstraintHandler();
+	private BiConsumer<Collection<VLEdge2D>, Integer> edgesHandler = stickConstraintHandlers.get(stickConstraintHandlerCount);
 
 	private VerletEngine verletEngine;
 
@@ -582,19 +597,6 @@ public class SimRagdollPhysics extends SimulationScreen {
 			gravity = GRAV_RIGHT;
 		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_LEFT) {
 			gravity = GRAV_LEFT;
-		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_C) {
-
-			colorCycleCnt++;
-			if (colorCycleCnt >= colors.length) {
-				colorCycleCnt = 0;
-			}
-
-			if (chainNet != null) {
-				chainNet.setColor(colors[colorCycleCnt]);
-			}
-			if (facetChainNet != null) {
-				facetChainNet.setColor(colors[colorCycleCnt]);
-			}
 		}
 
 	}
@@ -1112,6 +1114,114 @@ public class SimRagdollPhysics extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return String.valueOf(useWindparticles);
+			}
+		});
+		addKeyAction(KeyEvent.VK_C, new IKeyAction() {
+
+			private final static String ID = "stick constraint handler";
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return ID;
+			}
+
+			@Override
+			public String text() {
+				return ID;
+			}
+
+			@Override
+			public void plus() {
+				stickConstraintHandlerCount++;
+				if (stickConstraintHandlerCount >= stickConstraintHandlers.size()) {
+					stickConstraintHandlerCount = 0;
+				}
+				verletEngine.setEdgesHandlerForAll(stickConstraintHandlers.get(stickConstraintHandlerCount));
+			}
+
+			@Override
+			public void minus() {
+				stickConstraintHandlerCount--;
+				if (stickConstraintHandlerCount < 0) {
+					stickConstraintHandlerCount = stickConstraintHandlers.size() - 1;
+				}
+				verletEngine.setEdgesHandlerForAll(stickConstraintHandlers.get(stickConstraintHandlerCount));
+			}
+
+			@Override
+			public String getValue() {
+				return stickConstraintHandlers.get(stickConstraintHandlerCount).getClass().getSimpleName();
+			}
+		});
+		addKeyAction(KeyEvent.VK_L, new IKeyAction() {
+
+			private final static String ID = "color";
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return ID;
+			}
+
+			@Override
+			public String text() {
+				return ID;
+			}
+
+			@Override
+			public void plus() {
+
+				colorCycleCnt++;
+				if (colorCycleCnt >= colors.length) {
+					colorCycleCnt = 0;
+				}
+
+				if (chainNet != null) {
+					chainNet.setColor(colors[colorCycleCnt]);
+				}
+				if (facetChainNet != null) {
+					facetChainNet.setColor(colors[colorCycleCnt]);
+				}
+			}
+
+			@Override
+			public void minus() {
+
+				colorCycleCnt--;
+				if (colorCycleCnt < 0) {
+					colorCycleCnt = colors.length - 1;
+				}
+
+				if (chainNet != null) {
+					chainNet.setColor(colors[colorCycleCnt]);
+				}
+				if (facetChainNet != null) {
+					facetChainNet.setColor(colors[colorCycleCnt]);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return CUtils.toString(colors[colorCycleCnt]);
 			}
 		});
 		addKeyAction(KeyEvent.VK_I, new IKeyAction() {

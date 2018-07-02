@@ -58,6 +58,7 @@ public class DfltStickConstraintHandler implements BiConsumer<Collection<VLEdge2
 		if (Double.isInfinite(length)) {
 			length = Double.MAX_VALUE / 2 - 1;
 		}
+		
 		if (length != edge.getPreferredLength()) {
 
 			double diff = length - edge.getPreferredLength();
@@ -80,7 +81,6 @@ public class DfltStickConstraintHandler implements BiConsumer<Collection<VLEdge2
 				}
 			}
 		}
-
 	}
 
 }

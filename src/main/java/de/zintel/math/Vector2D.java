@@ -42,6 +42,7 @@ public class Vector2D implements Serializable {
 		super();
 		this.x = x;
 		this.y = y;
+		checkForNaN();
 	}
 
 	/**
@@ -144,14 +145,13 @@ public class Vector2D implements Serializable {
 	}
 
 	private void checkForNaN() throws RuntimeException {
-		if (Double.isNaN(x) || Double.isInfinite(x)) {
-			x = 0.0;
+		if (!Double.isFinite(x)) {
+			x = Double.MAX_VALUE;
 //			System.out.println("WARNING: adjusted x to 0.0 due to Nan or infinity!");
 		}
-		if (Double.isNaN(y) || Double.isInfinite(y)) {
-			y = 0.0;
+		if (!Double.isFinite(y)) {
+			y = Double.MAX_VALUE;
 //			System.out.println("WARNING: adjusted y to 0.0 due to Nan or infinity!");
-
 		}
 	}
 

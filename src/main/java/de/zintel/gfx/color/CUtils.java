@@ -72,7 +72,8 @@ public final class CUtils {
 	}
 
 	public static boolean equal(final Color c1, final Color c2) {
-		return (c1.getRed() == c2.getRed() && c1.getGreen() == c2.getGreen() && c1.getBlue() == c2.getBlue() && c1.getAlpha() == c2.getAlpha());
+		return (c1.getRed() == c2.getRed() && c1.getGreen() == c2.getGreen() && c1.getBlue() == c2.getBlue()
+				&& c1.getAlpha() == c2.getAlpha());
 	}
 
 	public static int brighten(final int cValue, double colorBrigthnessFactor) {
@@ -109,6 +110,10 @@ public final class CUtils {
 
 	public static Color transparent(final Color color, final int alpha) {
 		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+	}
+
+	public static String toString(final Color color) {
+		return "[r=" + color.getRed() + ",g=" + color.getGreen() + ",b=" + color.getBlue() + ",a=" + color.getAlpha() + "]";
 	}
 
 }

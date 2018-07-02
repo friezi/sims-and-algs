@@ -255,4 +255,12 @@ public class VerletEngine {
 		return this;
 	}
 
+	public VerletEngine setEdgesHandlerForAll(BiConsumer<Collection<VLEdge2D>, Integer> edgesHandler) {
+		this.edgesHandler = edgesHandler;
+		for (VerletEngine engine : engines) {
+			engine.setEdgesHandlerForAll(edgesHandler);
+		}
+		return this;
+	}
+
 }
