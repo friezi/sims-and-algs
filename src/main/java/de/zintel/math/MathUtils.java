@@ -99,17 +99,17 @@ public final class MathUtils {
 	 *            start-function
 	 * @param fend
 	 *            end-function
-	 * @param morphFactor
-	 *            morph-function: if fmorph:double->[0;1] in such way, that
-	 *            fmorph(rangestart)=0 and fmorph(rangeend)=1 then a morph from
+	 * @param ftrans
+	 *            transition-function: if ftrans:double->[0;1] in such way, that
+	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a morph from
 	 *            fstart to fend well take place
 	 * @param x
 	 *            value x
 	 * @return morphed value
 	 */
 	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend,
-			final Function<Double, Double> morphFactor, final double x) {
-		return morph(fstart, fend, morphFactor, d -> 1.0, x);
+			final Function<Double, Double> ftrans, final double x) {
+		return morph(fstart, fend, ftrans, d -> 1.0, x);
 	}
 
 	/**
@@ -117,23 +117,23 @@ public final class MathUtils {
 	 *            start-function
 	 * @param fend
 	 *            end-function
-	 * @param morphFactorDividend
-	 *            morph-function: if morphFactor:double->[0;1] in such way, that
-	 *            morphFactor(rangestart)=0 and morphFactor(rangeend)=1 then a
+	 * @param ftransDividend
+	 *            transition-function: if ftrans:double->[0;1] in such way, that
+	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a
 	 *            morph from fstart to fend well take place
-	 * @param morphFactorDivisor
+	 * @param ftransDivisor
 	 *            for precision-reasons it's possible to split up the
-	 *            morphFactor-function into two functions, so that the
+	 *            ftrans-function into two functions, so that the
 	 *            calculation will be
-	 *            (morphFactor()*(...))/morphDivisor()=(morphFactor/morphDivisor)*(...)
+	 *            (ftransDividend()*(...))/ftransDivisor()=(ftransDividend/ftransDivisor)*(...)
 	 * @param x
 	 *            value x
 	 * @return morphed value
 	 */
 	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend,
-			final Function<Double, Double> morphFactorDividend, final Function<Double, Double> morphFactorDivisor, final double x) {
+			final Function<Double, Double> ftransDividend, final Function<Double, Double> ftransDivisor, final double x) {
 		final Double start = fstart.apply(x);
-		return start + (morphFactorDividend.apply(x) * (fend.apply(x) - start)) / morphFactorDivisor.apply(x);
+		return start + (ftransDividend.apply(x) * (fend.apply(x) - start)) / ftransDivisor.apply(x);
 	}
 
 	/**
@@ -141,23 +141,23 @@ public final class MathUtils {
 	 *            start-function
 	 * @param fend
 	 *            end-function
-	 * @param morphFactorDividend
-	 *            morph-function: if morphFactor:double->[0;1] in such way, that
-	 *            morphFactor(rangestart)=0 and morphFactor(rangeend)=1 then a
+	 * @param ftransDividend
+	 *            transition-function: if ftrans:double->[0;1] in such way, that
+	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a
 	 *            morph from fstart to fend well take place
-	 * @param morphFactorDivisor
+	 * @param ftransDivisor
 	 *            for precision-reasons it's possible to split up the
-	 *            morphFactor-function into two functions, so that the
+	 *            ftrans-function into two functions, so that the
 	 *            calculation will be
-	 *            (morphFactor()*(...))/morphDivisor()=(morphFactor/morphDivisor)*(...)
+	 *            (ftransDividend()*(...))/ftransDivisor()=(ftransDividend/ftransDivisor)*(...)
 	 * @param x
 	 *            value x
 	 * @return morphed value
 	 */
 	public static VectorND morph(final Function<VectorND, VectorND> fstart, final Function<VectorND, VectorND> fend,
-			final Function<VectorND, Double> morphFactorDividend, final Function<VectorND, Double> morphFactorDivisor, final VectorND x) {
+			final Function<VectorND, Double> ftransDividend, final Function<VectorND, Double> ftransDivisor, final VectorND x) {
 		final VectorND start = fstart.apply(x);
-		return fend.apply(x).substract(start).mult(morphFactorDividend.apply(x)).div(morphFactorDivisor.apply(x)).add(start);
+		return fend.apply(x).substract(start).mult(ftransDividend.apply(x)).div(ftransDivisor.apply(x)).add(start);
 	}
 
 	public static int interpolateMoreScattering(int start, int end, int iteration, int maxIterations, StepProjection p) {
