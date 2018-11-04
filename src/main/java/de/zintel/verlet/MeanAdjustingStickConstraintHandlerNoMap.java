@@ -51,7 +51,11 @@ public class MeanAdjustingStickConstraintHandlerNoMap implements BiConsumer<Coll
 
 			Vector2D dv = new Vector2D();
 			for (Vector2D delta : vertex.getDeltas()) {
-				dv.add(Vector2D.mult(1.0 / size, delta));
+				double fac = 1.0 / size;
+				if (!Double.isFinite(fac)) {
+					System.out.println("dfac is not finite!");
+				}
+				dv.add(Vector2D.mult(fac, delta));
 			}
 			vertex.getCurrent().add(dv);
 
@@ -70,50 +74,43 @@ public class MeanAdjustingStickConstraintHandlerNoMap implements BiConsumer<Coll
 		VLVertex2D vSecond = edge.getSecond().getVertex();
 		final Vector2D cFirst = vFirst.getCurrent();
 		final Vector2D cSecond = vSecond.getCurrent();
-		Vector2D dV = Vector2D.substract(cFirst, cSecond);
-		if (dV.isNullVector()) {
-			dV = Vector2D.substract(vFirst.getPrevious(), vSecond.getPrevious());
+		Vector2D vDistance = Vector2D.substract(cFirst, cSecond);
+		if (vDistance.isNullVector()) {
+			vDistance = Vector2D.substract(vFirst.getPrevious(), vSecond.getPrevious());
 			// Problem!!! no line anymore
 			// System.out.println("WARNING: Nullvector! edge: " + edge);
 			// // do no adjustment to prevent NaN
 			// return;
-			// dV =
+			// vDistance =
 			// Vector2D.max(Vector2D.substract(edge.getFirst().getPrevious(),
 			// edge.getSecond().getCurrent()),
 			// Vector2D.substract(edge.getSecond().getPrevious(),
 			// edge.getFirst().getCurrent()));
-			// dV.mult(0.001);
+			// vDistance.mult(0.001);
 		}
 
-		double length = dV.length();
-		if (Double.isInfinite(length)) {
-			length = Double.MAX_VALUE / 2 - 1;
+		double distance = vDistance.length();
+		if (Double.isInfinite(distance)) {
+			distance = Double.MAX_VALUE / 2 - 1;
+		} else if (distance == 0) {
+			distance = 0.000001;
 		}
 
-		if (length != edge.getPreferredLength()) {
+		if (distance != edge.getPreferredLength()) {
 
-			double diff = length - edge.getPreferredLength();
-			Vector2D slackV = Vector2D.mult((diff / length) / 2, dV);
+			double diff = distance - edge.getPreferredLength();
+			double fac = (diff / distance) / 2;
+			if (!Double.isFinite(fac)) {
+				System.out.println(
+						"fac is not finite! diff: " + diff + " length: " + distance + " preferredLength: " + edge.getPreferredLength());
+			}
+			Vector2D vSlack = Vector2D.mult(fac, vDistance);
 
 			if (!edge.getFirst().isSticky()) {
-
-				Vector2D dVector;
-				if (edge.getSecond().isSticky()) {
-					dVector = Vector2D.mult(-2, slackV);
-				} else {
-					dVector = Vector2D.mult(-1, slackV);
-				}
-				add(vFirst, dVector);
+				add(vFirst, edge.getSecond().isSticky() ? Vector2D.mult(-2, vSlack) : Vector2D.mult(-1, vSlack));
 			}
 			if (!edge.getSecond().isSticky()) {
-
-				Vector2D dVector;
-				if (edge.getFirst().isSticky()) {
-					dVector = Vector2D.mult(2, slackV);
-				} else {
-					dVector = slackV;
-				}
-				add(vSecond, dVector);
+				add(vSecond, edge.getFirst().isSticky() ? Vector2D.mult(2, vSlack) : vSlack);
 			}
 		}
 	}
