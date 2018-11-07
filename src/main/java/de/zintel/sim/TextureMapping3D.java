@@ -135,21 +135,13 @@ public class TextureMapping3D extends JPanel implements MouseListener, ActionLis
 				new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), texture.getWidth()),
 						new TxCrd(0.4, 0.2)),
 				texture));
-		house.add(
-				new Tetragon3D(
-						new Pin3D(
-								new Point3D(
-										0, texture
-												.getHeight(),
-										texture.getWidth()
-												+ 1),
-								new TxCrd(1, 1.5)),
-						new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), texture.getWidth() + 1),
-								new TxCrd(5.3, 3.2)),
-						new Pin3D(new Point3D(0, texture.getHeight(), 2 * texture.getWidth()), new TxCrd(1.8, 8.1)),
-						new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), 2 * texture.getWidth()),
-								new TxCrd(0.1, 1.2)),
-						texture));
+		house.add(new Tetragon3D(new Pin3D(new Point3D(0, texture.getHeight(), texture.getWidth() + 1), new TxCrd(1, 1.5)),
+				new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), texture.getWidth() + 1),
+						new TxCrd(5.3, 3.2)),
+				new Pin3D(new Point3D(0, texture.getHeight(), 2 * texture.getWidth()), new TxCrd(1.8, 8.1)),
+				new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), 2 * texture.getWidth()),
+						new TxCrd(0.1, 1.2)),
+				texture));
 		house.add(new Tetragon3D(
 				new Pin3D(new Point3D((2 * texture.getHeight() / 3), (3 * texture.getHeight() / 2), 0), new TxCrd(0.9, 0.4)),
 				new Pin3D(new Point3D(texture.getHeight(), texture.getHeight(), 0), new TxCrd(0.2, 0.5)),

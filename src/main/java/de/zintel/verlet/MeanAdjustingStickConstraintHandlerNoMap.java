@@ -93,6 +93,7 @@ public class MeanAdjustingStickConstraintHandlerNoMap implements BiConsumer<Coll
 		if (Double.isInfinite(distance)) {
 			distance = Double.MAX_VALUE / 2 - 1;
 		} else if (distance == 0) {
+			System.out.println("distance is zero!");
 			distance = 0.000001;
 		}
 

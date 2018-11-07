@@ -27,10 +27,8 @@ public class Projector2D {
 		if (diffZ == 0) {
 			return new Point(0, 0);
 		}
-		return new Point((point.x * viewpoint.z - point.z * viewpoint.x)
-				/ diffZ, translateY((point.y * viewpoint.z - point.z
-				* viewpoint.y)
-				/ diffZ));
+		return new Point((point.x * viewpoint.z - point.z * viewpoint.x) / diffZ,
+				translateY((point.y * viewpoint.z - point.z * viewpoint.y) / diffZ));
 
 	}
 
