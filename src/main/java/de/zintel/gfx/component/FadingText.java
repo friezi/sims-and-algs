@@ -26,7 +26,7 @@ public class FadingText implements IGfxComponent {
 
 	private static final int MAX_FONT_SIZE = 50;
 
-	private static final int MIN_FONT_SIZE = 20;
+	private static final int MIN_FONT_SIZE = 15;
 
 	private static final int MAX_X = 200;
 

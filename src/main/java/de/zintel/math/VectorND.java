@@ -137,7 +137,7 @@ public class VectorND implements Serializable {
 		}
 
 		length = -1;
-		
+
 		return this;
 	}
 
@@ -215,6 +215,11 @@ public class VectorND implements Serializable {
 
 	public Double get(int index) {
 		return coords.get(index);
+	}
+
+	public VectorND set(int index, double value) {
+		coords.set(index, value);
+		return this;
 	}
 
 	public void extend(final double coord) {
