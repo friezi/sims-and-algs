@@ -48,8 +48,8 @@ public class TestingSim extends SimulationScreen {
 	 * @param recordFilename
 	 * @param recordingRate
 	 */
-	public TestingSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord,
-			String recordFilename, int recordingRate) {
+	public TestingSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
+			int recordingRate) {
 		super(title, gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 		// TODO Auto-generated constructor stub
 	}
@@ -189,11 +189,15 @@ public class TestingSim extends SimulationScreen {
 	@Override
 	protected void renderSim(IGraphicsSubsystem graphicsSubsystem) {
 
-		final double meshz = 1500;
-		final double meshy = graphicsSubsystem.getDimension().getHeight();
+		final double gridz = 1500;
+		final double gridy = graphicsSubsystem.getDimension().getHeight();
 		for (int i = 0; i < graphicsSubsystem.getDimension().getWidth(); i += 50) {
-			graphicsSubsystem.drawLine((int) projectX(i, 0, vp), (int) projectY(meshy, 0, vp), (int) projectX(i, meshz, vp),
-					(int) projectY(meshy, meshz, vp), bubblecolor, adjustColor(bubblecolor, meshz));
+			graphicsSubsystem.drawLine((int) projectX(i, 0, vp), (int) projectY(0, 0, vp), (int) projectX(i, gridz, vp), (int) projectY(0, gridz, vp),
+					adjustColor(bubblecolor, gridz), adjustColor(bubblecolor, gridz));
+			graphicsSubsystem.drawLine((int) projectX(i, 0, vp), (int) projectY(gridy, 0, vp), (int) projectX(i, gridz, vp),
+					(int) projectY(gridy, gridz, vp), adjustColor(bubblecolor, gridz), adjustColor(bubblecolor, gridz));
+			graphicsSubsystem.drawLine((int) projectX(i, gridz, vp), (int) projectY(0, gridz, vp), (int) projectX(i, gridz, vp),
+					(int) projectY(gridy, gridz, vp), adjustColor(bubblecolor, gridz), adjustColor(bubblecolor, gridz));
 		}
 
 		double x = projectX(point.x(), point.z(), vp);
@@ -223,7 +227,7 @@ public class TestingSim extends SimulationScreen {
 		if (z > rc.z()) {
 
 			float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
-			final float h = (float) (hsb[2] * (1 - Math.tanh(z - rc.z()) / 2));
+			final float h = (float) (hsb[2] * (1 - Math.tanh(z - rc.z()) / 2.5));
 			return Color.getHSBColor(hsb[0], hsb[1], h);
 
 		} else {
@@ -287,7 +291,7 @@ public class TestingSim extends SimulationScreen {
 	}
 
 	private void initKeyActions() {
-		addKeyAction(KeyEvent.VK_V, new IKeyAction() {
+		addKeyAction(KeyEvent.VK_X, new IKeyAction() {
 
 			@Override
 			public boolean withAction() {
@@ -301,12 +305,86 @@ public class TestingSim extends SimulationScreen {
 
 			@Override
 			public String textID() {
-				return "VP";
+				return "VPX";
 			}
 
 			@Override
 			public String text() {
-				return "Viewpoint";
+				return "Viewpoint x";
+			}
+
+			@Override
+			public void plus() {
+				vp.setX(vp.x() + VP_STEP);
+			}
+
+			@Override
+			public void minus() {
+				vp.setX(vp.x() - VP_STEP);
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(vp.x());
+			}
+		});
+		addKeyAction(KeyEvent.VK_Y, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "VPY";
+			}
+
+			@Override
+			public String text() {
+				return "Viewpoint y";
+			}
+
+			@Override
+			public void plus() {
+				vp.setY(vp.y() + VP_STEP);
+			}
+
+			@Override
+			public void minus() {
+				vp.setY(vp.y() - VP_STEP);
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(vp.y());
+			}
+		});
+		addKeyAction(KeyEvent.VK_Z, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "VPZ";
+			}
+
+			@Override
+			public String text() {
+				return "Viewpoint z";
 			}
 
 			@Override
