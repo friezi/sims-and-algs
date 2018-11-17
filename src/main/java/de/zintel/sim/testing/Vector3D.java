@@ -3,7 +3,7 @@
  */
 package de.zintel.sim.testing;
 
-import java.util.Collection;
+import java.util.Arrays;
 
 import de.zintel.math.VectorND;
 
@@ -29,8 +29,8 @@ public class Vector3D extends VectorND {
 		super(3);
 	}
 
-	public Vector3D(Collection<Double> coords) {
-		super(3, coords);
+	public Vector3D(final double x, final double y, final double z) {
+		super(3, Arrays.asList(x, y, z));
 	}
 
 	public double x() {

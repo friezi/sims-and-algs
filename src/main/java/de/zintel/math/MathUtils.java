@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
  *
  */
 public final class MathUtils {
+
+	public static final Random RANDOM = new Random();
 
 	@FunctionalInterface
 	public static interface StepProjection {
@@ -87,8 +90,8 @@ public final class MathUtils {
 		return interpolateRealMorph(start, end, iteration, maxIterations, morphFactor, (x, max) -> x);
 	}
 
-	public static double interpolateRealMorph(double start, double end, int iteration, int maxIterations,
-			final Function<Double, Double> morphFactor, StepProjection p) {
+	public static double interpolateRealMorph(double start, double end, int iteration, int maxIterations, final Function<Double, Double> morphFactor,
+			StepProjection p) {
 
 		final int maxSteps = maxIterations - 1;
 		return maxSteps <= 0 ? start : morph(x -> start, x -> end, morphFactor, interpolateReal(start, end, iteration, maxIterations, p));
@@ -107,8 +110,8 @@ public final class MathUtils {
 	 *            value x
 	 * @return morphed value
 	 */
-	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend,
-			final Function<Double, Double> ftrans, final double x) {
+	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend, final Function<Double, Double> ftrans,
+			final double x) {
 		return morph(fstart, fend, ftrans, d -> 1.0, x);
 	}
 
@@ -119,12 +122,12 @@ public final class MathUtils {
 	 *            end-function
 	 * @param ftransDividend
 	 *            transition-function: if ftrans:double->[0;1] in such way, that
-	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a
-	 *            morph from fstart to fend well take place
+	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a morph from
+	 *            fstart to fend well take place
 	 * @param ftransDivisor
 	 *            for precision-reasons it's possible to split up the
-	 *            ftrans-function into two functions, so that the
-	 *            calculation will be
+	 *            ftrans-function into two functions, so that the calculation
+	 *            will be
 	 *            (ftransDividend()*(...))/ftransDivisor()=(ftransDividend/ftransDivisor)*(...)
 	 * @param x
 	 *            value x
@@ -143,12 +146,12 @@ public final class MathUtils {
 	 *            end-function
 	 * @param ftransDividend
 	 *            transition-function: if ftrans:double->[0;1] in such way, that
-	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a
-	 *            morph from fstart to fend well take place
+	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a morph from
+	 *            fstart to fend well take place
 	 * @param ftransDivisor
 	 *            for precision-reasons it's possible to split up the
-	 *            ftrans-function into two functions, so that the
-	 *            calculation will be
+	 *            ftrans-function into two functions, so that the calculation
+	 *            will be
 	 *            (ftransDividend()*(...))/ftransDivisor()=(ftransDividend/ftransDivisor)*(...)
 	 * @param x
 	 *            value x
@@ -211,6 +214,10 @@ public final class MathUtils {
 
 	private static <T> T reduceDoubles(final Collection<Double> collection, final Collector<Double, ?, T> collector) {
 		return collection.stream().collect(collector);
+	}
+
+	public static int makeRandom(int min, int max) {
+		return (int) morphRange(0, max - min, min, max, RANDOM.nextInt(max - min + 1));
 	}
 
 	/**
