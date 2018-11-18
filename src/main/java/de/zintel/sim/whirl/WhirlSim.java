@@ -106,7 +106,6 @@ public class WhirlSim extends SimulationScreen {
 			int recordingRate) {
 		super(title, gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 		particlesmaxy = getGraphicsSubsystem().getDimension().getHeight();
-		getGraphicsSubsystem().setColorMixture(colorMixture);
 	}
 
 	public static void main(String args[]) throws Exception {
@@ -122,12 +121,9 @@ public class WhirlSim extends SimulationScreen {
 	@Override
 	protected void init(IGraphicsSubsystem graphicsSubsystem) {
 
-		System.out.println("initialising ...");
-
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
+		graphicsSubsystem.setColorMixture(colorMixture);
 		initKeyActions();
-
-		System.out.println("initialised");
 
 	}
 

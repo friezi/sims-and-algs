@@ -311,8 +311,6 @@ public class SimRagdollPhysics extends SimulationScreen {
 	@Override
 	protected void init(IGraphicsSubsystem graphicsSubsystem) {
 
-		System.out.println("initialising ...");
-
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		Collection<VerletEngine> sublayerEngines = initScene(graphicsSubsystem);
 		windSimulator = new WindSimulator(initAirstreamField(), getScreenParameters()).setRateOfAirstreamChange(rateOfAirstreamChange);
@@ -331,8 +329,6 @@ public class SimRagdollPhysics extends SimulationScreen {
 		verletEngine.setEdgesHandler(edgesHandler);
 
 		initKeyActions();
-
-		System.out.println("initialised");
 
 	}
 
@@ -397,37 +393,34 @@ public class SimRagdollPhysics extends SimulationScreen {
 		final Consumer<VLFacet2D> facetRenderer = new FilledConvexPolygonGSRenderer<VLFacet2D>(graphicsSubsystem);
 		final Consumer<VLFacet2D> facetInterpolatingRenderer = new PolygonInterpolatingRenderer<VLFacet2D>(graphicsSubsystem,
 				new AdjustingColorProvider()).setContextEdgesProvider(facet -> facet.getEdges());
-		final Consumer<VLTetragon2D> tetragonFacetInterpolatingRenderer = new TetragonFacetInterpolatingRenderer(
-				facetInterpolatingRenderer);
+		final Consumer<VLTetragon2D> tetragonFacetInterpolatingRenderer = new TetragonFacetInterpolatingRenderer(facetInterpolatingRenderer);
 		final Consumer<VLTetragon2D> tetragonFullInterpolatingFacetRenderer = new TetragonFullInterpolatingFacetRenderer(graphicsSubsystem,
 				new AdjustingColorProvider());
 
-		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(99, 100)),
-				new VLVertex2D(new Vector2D(230, 120)), Color.WHITE, plainEdgeRenderer));
-		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(101, 100)),
-				new VLVertex2D(new Vector2D(230, 120)), Color.WHITE, plainEdgeRenderer));
-		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(100, 101)),
-				new VLVertex2D(new Vector2D(230, 120)), Color.WHITE, plainEdgeRenderer));
+		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(99, 100)), new VLVertex2D(new Vector2D(230, 120)),
+				Color.WHITE, plainEdgeRenderer));
+		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(101, 100)), new VLVertex2D(new Vector2D(230, 120)),
+				Color.WHITE, plainEdgeRenderer));
+		edgeContainers.add(new VLEdge2D(new VLVertex2D(new Vector2D(100, 100), new Vector2D(100, 101)), new VLVertex2D(new Vector2D(230, 120)),
+				Color.WHITE, plainEdgeRenderer));
 
 		final VLVertexSkid cuboidHook = new VLVertexSkid(new VLVertex2D(new Vector2D(400, 100), new Vector2D(380, 95)));
 		edgeContainers.add(new VLCuboid2D(cuboidHook, new VLVertexSkid(new VLVertex2D(new Vector2D(430, 100))),
-				new VLVertexSkid(new VLVertex2D(new Vector2D(430, 130))), new VLVertexSkid(new VLVertex2D(new Vector2D(400, 130))),
-				cuboidRenderer, plainEdgeRenderer));
-		edgeContainers
-				.add(new VLCuboid2D(new VLVertex2D(new Vector2D(450, 100), new Vector2D(410, 105)), new VLVertex2D(new Vector2D(490, 100)),
-						new VLVertex2D(new Vector2D(490, 140)), new VLVertex2D(new Vector2D(450, 140)), cuboidRenderer, plainEdgeRenderer));
-		edgeContainers
-				.add(new VLCuboid2D(new VLVertex2D(new Vector2D(600, 10), new Vector2D(605, 105)), new VLVertex2D(new Vector2D(700, 10)),
-						new VLVertex2D(new Vector2D(700, 140)), new VLVertex2D(new Vector2D(600, 140)), cuboidRenderer, plainEdgeRenderer));
+				new VLVertexSkid(new VLVertex2D(new Vector2D(430, 130))), new VLVertexSkid(new VLVertex2D(new Vector2D(400, 130))), cuboidRenderer,
+				plainEdgeRenderer));
+		edgeContainers.add(new VLCuboid2D(new VLVertex2D(new Vector2D(450, 100), new Vector2D(410, 105)), new VLVertex2D(new Vector2D(490, 100)),
+				new VLVertex2D(new Vector2D(490, 140)), new VLVertex2D(new Vector2D(450, 140)), cuboidRenderer, plainEdgeRenderer));
+		edgeContainers.add(new VLCuboid2D(new VLVertex2D(new Vector2D(600, 10), new Vector2D(605, 105)), new VLVertex2D(new Vector2D(700, 10)),
+				new VLVertex2D(new Vector2D(700, 140)), new VLVertex2D(new Vector2D(600, 140)), cuboidRenderer, plainEdgeRenderer));
 
 		edgeContainers.add(new VLChain2D(new VLVertexSkid(new VLVertex2D(new Vector2D(500, 15))).setSticky(true),
 				new VLVertexSkid(new VLVertex2D(new Vector2D(800, 100))), 40, chainRenderer, plainEdgeRenderer));
-		edgeContainers.add(new VLChain2D(new VLVertexSkid(new VLVertex2D(new Vector2D(850, 15))).setSticky(true), cuboidHook, 60,
-				chainRenderer, plainEdgeRenderer));
+		edgeContainers.add(new VLChain2D(new VLVertexSkid(new VLVertex2D(new Vector2D(850, 15))).setSticky(true), cuboidHook, 60, chainRenderer,
+				plainEdgeRenderer));
 
-		edgeContainers.add(new VLFacet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(250, 150))),
-				new VLVertexSkid(new VLVertex2D(new Vector2D(400, 160))), new VLVertexSkid(new VLVertex2D(new Vector2D(320, 170))),
-				facetRenderer).setColor(colors[0]));
+		edgeContainers
+				.add(new VLFacet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(250, 150))), new VLVertexSkid(new VLVertex2D(new Vector2D(400, 160))),
+						new VLVertexSkid(new VLVertex2D(new Vector2D(320, 170))), facetRenderer).setColor(colors[0]));
 		//
 		// edgeContainers.add(new VLFacet2D(new VLVertexSkid(new VLVertex2D(new
 		// Vector2D(250, 150))),
@@ -443,8 +436,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 		// tetragonFullInterpolatingFacetRenderer).setColor(colors[0]));
 
 		chainNet = new VLChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(300, 15))).setSticky(true),
-				new VLVertexSkid(new VLVertex2D(new Vector2D(800, 15))).setSticky(true), 30, 10, 15, 16, chainNetRenderer,
-				adjustingEdgeRenderer).setColor(colors[0]);
+				new VLVertexSkid(new VLVertex2D(new Vector2D(800, 15))).setSticky(true), 30, 10, 15, 16, chainNetRenderer, adjustingEdgeRenderer)
+						.setColor(colors[0]);
 		edgeContainers.add(chainNet);
 		facetChainNet = new VLFacetChainNet2D(new VLVertexSkid(new VLVertex2D(new Vector2D(900, 15))).setSticky(true),
 				new VLVertexSkid(new VLVertex2D(new Vector2D(1400, 15))).setSticky(true), 30,
@@ -498,8 +491,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 			for (int x = 0; x < windWidth; x++) {
 				for (int y = 0; y < windHeight; y++) {
 
-					final VectorND windvector = windSimulator.getAirstreamField()
-							.getValue(new VectorND(Arrays.asList((double) x, (double) y)));
+					final VectorND windvector = windSimulator.getAirstreamField().getValue(new VectorND(Arrays.asList((double) x, (double) y)));
 
 					int xpos = (int) (((double) x) * getScreenParameters().WIDTH / windWidth);
 					int ypos = (int) (((double) y) * getScreenParameters().HEIGHT / windHeight);
@@ -547,8 +539,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 							final Integer value = ccv.apply(windlength);
 							Color colorStart = new Color(value, value, Color.BLUE.getBlue(), alpha);
 							Color colorEnd = new Color(value, Color.GREEN.getGreen(), value, alpha);
-							graphicsSubsystem.drawLine(x, y, (int) (x + scaleWind * windvector.x), (int) (y + scaleWind * windvector.y),
-									colorStart, colorEnd);
+							graphicsSubsystem.drawLine(x, y, (int) (x + scaleWind * windvector.x), (int) (y + scaleWind * windvector.y), colorStart,
+									colorEnd);
 						}
 					}
 				}
@@ -561,8 +553,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 				final int change = 50;
 				final Color centerColor = new Color(Color.RED.getRed() - rnd.nextInt(change), 0 + rnd.nextInt(change),
 						Color.BLUE.getBlue() - rnd.nextInt(change), 200);
-				final Color edgeColor = new Color(centerColor.getRed(), centerColor.getGreen(), centerColor.getBlue(), 1).brighter()
-						.brighter().brighter();
+				final Color edgeColor = new Color(centerColor.getRed(), centerColor.getGreen(), centerColor.getBlue(), 1).brighter().brighter()
+						.brighter();
 				graphicsSubsystem.drawFilledCircle((int) particle.getCurrent().x, (int) particle.getCurrent().y, 2,
 						new CUtils.SphericalColorGenerator(centerColor, edgeColor));
 			});
@@ -720,8 +712,7 @@ public class SimRagdollPhysics extends SimulationScreen {
 							final VectorND fieldpos = new VectorND(Arrays.asList((double) x, (double) y));
 							final VectorND realpos = new VectorND(Arrays.asList(((double) x) * getScreenParameters().WIDTH / fieldwidth,
 									((double) y) * getScreenParameters().HEIGHT / fieldheight));
-							final VectorND diffVector = VectorND.substract(new VectorND(Arrays.asList(mousePoint.x, mousePoint.y)),
-									realpos);
+							final VectorND diffVector = VectorND.substract(new VectorND(Arrays.asList(mousePoint.x, mousePoint.y)), realpos);
 							VectorND dirVec = VectorND.normalize(diffVector);
 							dirVec = dirVec.isNullVector() ? dirVec : dirVec.mult(100 / Math.pow(diffVector.length(), 2));
 							airstreamField.setValue(fieldpos, VectorND.add(dirVec, airstreamField.getValue(fieldpos)));
@@ -1334,8 +1325,8 @@ public class SimRagdollPhysics extends SimulationScreen {
 
 			@Override
 			public String getValue() {
-				return String.valueOf(windSimulator.getAirstreamField().asList().stream()
-						.collect(Collectors.summarizingDouble(VectorND::length)).getAverage());
+				return String.valueOf(
+						windSimulator.getAirstreamField().asList().stream().collect(Collectors.summarizingDouble(VectorND::length)).getAverage());
 			}
 
 			private void modifyAirstreamIntensity(final double modificator) {

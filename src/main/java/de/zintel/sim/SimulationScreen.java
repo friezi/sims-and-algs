@@ -100,8 +100,12 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 		graphicsSubsystem.addKeyListener(this);
 		graphicsSubsystem.addRendererListener(this);
 
+		System.out.println("initialising ...");
+
 		init(graphicsSubsystem);
 		initBaseKeyActions();
+
+		System.out.println("initialised");
 
 		graphicsSubsystem.display();
 
