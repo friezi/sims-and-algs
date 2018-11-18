@@ -45,8 +45,8 @@ public class TestingSim extends SimulationScreen {
 			this.position = new Vector3D(x, y, z);
 			this.initialPosition = new Vector3D(x, y, z);
 			this.color = color;
-			this.velocity = MathUtils.makeRandom(4, 12);
-			this.radius = MathUtils.makeRandom(4, 13);
+			this.velocity = MathUtils.makeRandom(4, 10);
+			this.radius = MathUtils.makeRandom(4, 15);
 
 		}
 
@@ -56,7 +56,7 @@ public class TestingSim extends SimulationScreen {
 
 	private final static ScreenParameters SCREENPARAMETERS = new ScreenParameters();
 
-	private static final Color COLOR_BACKGROUND = new Color(0, 0, 40);
+	private static final Color COLOR_BACKGROUND = new Color(0, 0, 20);
 
 	private static final double VP_STEP = 10;
 
@@ -250,7 +250,7 @@ public class TestingSim extends SimulationScreen {
 
 			graphicsSubsystem.drawFilledCircle((int) x, (int) y, (int) bubbleRadius,
 					() -> CUtils.transparent(adjustColor(bubble.color, point.z()),
-							(int) MathUtils.morphRange(0, dimension.getWidth() + 200, bubble.color.getAlpha(), 30, bubble.position.x())));
+							(int) MathUtils.morphRange(0, dimension.getWidth() + 200, bubble.color.getAlpha(), 0, bubble.position.x())));
 		}
 	}
 
@@ -259,8 +259,8 @@ public class TestingSim extends SimulationScreen {
 		if (z > rc.z()) {
 
 			float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
-			final float h = (float) (hsb[2] * 170 / (170 + z));
-			return Color.getHSBColor(hsb[0], hsb[1], h);
+			final float brightness = (float) (hsb[2] * rc.z() / (2 * z));
+			return Color.getHSBColor(hsb[0], hsb[1], brightness);
 
 		} else {
 			return color;
@@ -326,7 +326,7 @@ public class TestingSim extends SimulationScreen {
 
 		if (MathUtils.RANDOM.nextInt(frequency) == frequency - 1) {
 			newbubbles.add(
-					new Bubble(1, MathUtils.makeRandom(1, (int) height + 200), rc.z(), CUtils.transparent(CUtils.makeRandomColor(), 200)));
+					new Bubble(-200, MathUtils.makeRandom(1, (int) height + 200), rc.z(), CUtils.transparent(CUtils.makeRandomColor(), 200)));
 		}
 
 		bubbles = newbubbles;
