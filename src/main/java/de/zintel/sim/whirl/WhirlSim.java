@@ -42,13 +42,13 @@ public class WhirlSim extends SimulationScreen {
 
 		private final double radius;
 
-		public Particle(final double x, final double y, final double z, Color color) {
+		public Particle(final double x, final double y, final double z, Color color, double velocity, double radius) {
 
 			this.position = new Vector3D(x, y, z);
 			this.initialPosition = new Vector3D(x, y, z);
 			this.color = color;
-			this.velocity = MathUtils.makeRandom(2, 7);
-			this.radius = MathUtils.makeRandom(3, 9);
+			this.velocity = velocity;
+			this.radius = radius;
 
 		}
 
@@ -89,6 +89,10 @@ public class WhirlSim extends SimulationScreen {
 	private boolean showgrid = true;
 
 	private EColorMixture colorMixture = EColorMixture.ADDITIVE;
+
+	private int minParticleRadius = 3;
+
+	private int maxParticleRadius = 9;
 
 	/**
 	 * @param title
@@ -144,12 +148,10 @@ public class WhirlSim extends SimulationScreen {
 			// grid
 			final double gridy = dimension.getHeight();
 			for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
-				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(0, 0, viewpoint),
-						(int) projectX(i, gridz, viewpoint), (int) projectY(0, gridz, viewpoint), adjustColor(gridcolor, 0),
-						adjustColor(gridcolor, gridz));
-				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(gridy, 0, viewpoint),
-						(int) projectX(i, gridz, viewpoint), (int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, 0),
-						adjustColor(gridcolor, gridz));
+				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(0, 0, viewpoint), (int) projectX(i, gridz, viewpoint),
+						(int) projectY(0, gridz, viewpoint), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(gridy, 0, viewpoint), (int) projectX(i, gridz, viewpoint),
+						(int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
 				graphicsSubsystem.drawLine((int) projectX(i, gridz, viewpoint), (int) projectY(0, gridz, viewpoint),
 						(int) projectX(i, gridz, viewpoint), (int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, gridz),
 						adjustColor(gridcolor, gridz));
@@ -165,11 +167,8 @@ public class WhirlSim extends SimulationScreen {
 
 			double rcx = projectX(point.x(), rotcenter.z(), viewpoint);
 
-			double bubbleRadius = Math.abs(x - projectX(
-					point.x() + MathUtils.morph(v -> particle.radius, v -> finalBubbleRadius,
-							v -> MathUtils.sigmoid(
-									MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, particle.position.x())),
-							rcx),
+			double bubbleRadius = Math.abs(x - projectX(point.x() + MathUtils.morph(v -> particle.radius, v -> finalBubbleRadius,
+					v -> MathUtils.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, particle.position.x())), rcx),
 					point.z(), viewpoint));
 
 			final Function<Double, Double> colortrans = v -> MathUtils
@@ -238,8 +237,8 @@ public class WhirlSim extends SimulationScreen {
 			final Function<Double, Double> rottrans = x -> MathUtils
 					.sigmoid(MathUtils.morphRange(0, width, rotationTransitionLeft, rotationTransitionRight, particle.position.x()));
 
-			particle.position.setX(particle.position.x()
-					+ MathUtils.morph(v -> particle.velocity, v -> particle.velocity + 10, rottrans, particle.position.x()));
+			particle.position.setX(
+					particle.position.x() + MathUtils.morph(v -> particle.velocity, v -> particle.velocity + 10, rottrans, particle.position.x()));
 
 			if (particle.position.x() > width) {
 
@@ -248,20 +247,21 @@ public class WhirlSim extends SimulationScreen {
 
 			}
 
-			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
-					rottrans, particle.position.x());
+			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius, rottrans,
+					particle.position.x());
 
 			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, particle.position.x());
 
 			particle.position.setZ(Math.sin(theta(particle.angle)) * cradius + rotcenter.z());
-			particle.position.setY(
-					rotcenter.y() + (particle.initialPosition.y() < rotcenter.y() ? -1 : 1) * Math.cos(theta(particle.angle)) * cradius);
+			particle.position
+					.setY(rotcenter.y() + (particle.initialPosition.y() < rotcenter.y() ? -1 : 1) * Math.cos(theta(particle.angle)) * cradius);
 
 		}
 
 		if (validByFrequency(frequency)) {
 			newparticles.add(new Particle(deltaxmin, MathUtils.makeRandom((int) particlesminy, (int) particlesmaxy), rotcenter.z(),
-					CUtils.transparent(CUtils.makeRandomColor(), 200)));
+					CUtils.transparent(CUtils.makeRandomColor(), 200), MathUtils.makeRandom(2, 7),
+					MathUtils.makeRandom(minParticleRadius, maxParticleRadius)));
 		}
 
 		particles = newparticles;
@@ -707,6 +707,45 @@ public class WhirlSim extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return String.valueOf(colorMixture.name());
+			}
+		});
+		addKeyAction(KeyEvent.VK_S, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "MPR";
+			}
+
+			@Override
+			public String text() {
+				return "max particle radius";
+			}
+
+			@Override
+			public void plus() {
+				maxParticleRadius++;
+			}
+
+			@Override
+			public void minus() {
+				if (maxParticleRadius > minParticleRadius) {
+					maxParticleRadius--;
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(maxParticleRadius);
 			}
 		});
 	}
