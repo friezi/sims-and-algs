@@ -45,8 +45,8 @@ public class TestingSim extends SimulationScreen {
 			this.position = new Vector3D(x, y, z);
 			this.initialPosition = new Vector3D(x, y, z);
 			this.color = color;
-			this.velocity = MathUtils.makeRandom(4, 10);
-			this.radius = MathUtils.makeRandom(4, 15);
+			this.velocity = MathUtils.makeRandom(2, 7);
+			this.radius = MathUtils.makeRandom(3, 9);
 
 		}
 
@@ -62,15 +62,19 @@ public class TestingSim extends SimulationScreen {
 
 	private Set<Bubble> bubbles = new LinkedHashSet<>();
 
-	private Vector3D vp = new Vector3D(950.0, 140.0, -1000.0);
+	private Vector3D viewpoint = new Vector3D(950.0, 140.0, -1000.0);
 
-	private Vector3D rc = new Vector3D(0.0, 540.0, 200.0);
+	private Vector3D rotcenter = new Vector3D(0.0, 540.0, 200.0);
 
-	private final int frequency = 2;
+	private final int frequency = 1;
 
 	private final double finalBubbleRadius = 3D;
 
 	private final double finalCircleRadius = 5.0;
+
+	private final double deltaxmin = -200;
+
+	private final double deltaxmax = 200;
 
 	/**
 	 * @param title
@@ -80,8 +84,8 @@ public class TestingSim extends SimulationScreen {
 	 * @param recordFilename
 	 * @param recordingRate
 	 */
-	public TestingSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord,
-			String recordFilename, int recordingRate) {
+	public TestingSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
+			int recordingRate) {
 		super(title, gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 		// TODO Auto-generated constructor stub
 	}
@@ -224,42 +228,52 @@ public class TestingSim extends SimulationScreen {
 		final double gridz = 1500;
 		final Dimension dimension = graphicsSubsystem.getDimension();
 
+		// grid
 		final double gridy = dimension.getHeight();
-		for (int i = 0; i < dimension.getWidth(); i += 50) {
-			graphicsSubsystem.drawLine((int) projectX(i, 0, vp), (int) projectY(0, 0, vp), (int) projectX(i, gridz, vp),
-					(int) projectY(0, gridz, vp), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
-			graphicsSubsystem.drawLine((int) projectX(i, 0, vp), (int) projectY(gridy, 0, vp), (int) projectX(i, gridz, vp),
-					(int) projectY(gridy, gridz, vp), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
-			graphicsSubsystem.drawLine((int) projectX(i, gridz, vp), (int) projectY(0, gridz, vp), (int) projectX(i, gridz, vp),
-					(int) projectY(gridy, gridz, vp), adjustColor(gridcolor, gridz), adjustColor(gridcolor, gridz));
+		for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
+			graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(0, 0, viewpoint), (int) projectX(i, gridz, viewpoint),
+					(int) projectY(0, gridz, viewpoint), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+			graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(gridy, 0, viewpoint), (int) projectX(i, gridz, viewpoint),
+					(int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+			graphicsSubsystem.drawLine((int) projectX(i, gridz, viewpoint), (int) projectY(0, gridz, viewpoint), (int) projectX(i, gridz, viewpoint),
+					(int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, gridz), adjustColor(gridcolor, gridz));
 		}
 
 		for (Bubble bubble : bubbles) {
 
 			final Vector3D point = bubble.position;
 
-			double x = projectX(point.x(), point.z(), vp);
-			double y = projectY(point.y(), point.z(), vp);
+			double x = projectX(point.x(), point.z(), viewpoint);
+			double y = projectY(point.y(), point.z(), viewpoint);
 
-			double rcx = projectX(point.x(), rc.z(), vp);
+			double rcx = projectX(point.x(), rotcenter.z(), viewpoint);
 
-			double bubbleRadius = Math.abs(x - projectX(
-					point.x() + MathUtils.morph(v -> bubble.radius, v -> finalBubbleRadius,
-							v -> MathUtils.sigmoid(MathUtils.morphRange(1, dimension.getWidth(), -3, 4, bubble.position.x())), rcx),
-					point.z(), vp));
+			double bubbleRadius = Math.abs(x - projectX(point.x() + MathUtils.morph(v -> bubble.radius, v -> finalBubbleRadius,
+					v -> MathUtils.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, bubble.position.x())), rcx),
+					point.z(), viewpoint));
 
+			final Function<Double, Double> colortrans = v -> MathUtils
+					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -7, 1.4, bubble.position.x()));
+			final Function<Double, Double> alphatrans = v -> MathUtils
+					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -18, 1.4, bubble.position.x()));
 			graphicsSubsystem.drawFilledCircle((int) x, (int) y, (int) bubbleRadius,
-					() -> CUtils.transparent(adjustColor(bubble.color, point.z()),
-							(int) MathUtils.morphRange(0, dimension.getWidth() + 200, bubble.color.getAlpha(), 0, bubble.position.x())));
+					() -> CUtils.transparent(adjustColor(enlighten(bubble.color, colortrans, bubble.position.x()), point.z()),
+							(int) MathUtils.morph(v -> (double) bubble.color.getAlpha(), v -> 0D, alphatrans, bubble.position.x())));
 		}
+	}
+
+	private Color enlighten(final Color color, final Function<Double, Double> ftrans, final double value) {
+		return new Color((int) MathUtils.morph(x -> (double) color.getRed(), x -> 255D, ftrans, value),
+				(int) MathUtils.morph(x -> (double) color.getGreen(), x -> 255D, ftrans, value),
+				(int) MathUtils.morph(x -> (double) color.getBlue(), x -> 255D, ftrans, value), color.getAlpha());
 	}
 
 	private Color adjustColor(final Color color, final double z) {
 
-		if (z > rc.z()) {
+		if (z > rotcenter.z()) {
 
 			float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
-			final float brightness = (float) (hsb[2] * rc.z() / (2 * z));
+			final float brightness = (float) (hsb[2] * rotcenter.z() / (2 * z));
 			return Color.getHSBColor(hsb[0], hsb[1], brightness);
 
 		} else {
@@ -268,22 +282,20 @@ public class TestingSim extends SimulationScreen {
 	}
 
 	private double projectX(final double x, final double z, final Vector3D vp) {
-
-		double diffZ = vp.z() - z;
-		if (diffZ == 0) {
-			return 0;
-		}
-		return (x * vp.z() - z * vp.x()) / diffZ;
-
+		return projectXY(x, z, vp, Vector3D::x);
 	}
 
 	private double projectY(final double y, final double z, final Vector3D vp) {
+		return projectXY(y, z, vp, Vector3D::y);
+	}
+
+	private double projectXY(final double xy, final double z, final Vector3D vp, Function<Vector3D, Double> vpxy) {
 
 		double diffZ = vp.z() - z;
 		if (diffZ == 0) {
 			return 0;
 		}
-		return (y * vp.z() - z * vp.y()) / diffZ;
+		return (xy * vp.z() - z * vpxy.apply(vp)) / diffZ;
 
 	}
 
@@ -295,7 +307,7 @@ public class TestingSim extends SimulationScreen {
 	@Override
 	protected void calculate(Dimension dimension) throws Exception {
 
-		final double width = dimension.getWidth() + 200;
+		final double width = dimension.getWidth() + deltaxmax;
 		final double height = dimension.getHeight();
 
 		Set<Bubble> newbubbles = new LinkedHashSet<>(bubbles);
@@ -303,8 +315,10 @@ public class TestingSim extends SimulationScreen {
 		while (iterator.hasNext()) {
 
 			final Bubble bubble = iterator.next();
+			final Function<Double, Double> rottrans = x -> MathUtils.sigmoid(MathUtils.morphRange(0, width, -3, 4, bubble.position.x()));
 
-			bubble.position.setX(bubble.position.x() + bubble.velocity);
+			bubble.position
+					.setX(bubble.position.x() + MathUtils.morph(v -> bubble.velocity, v -> bubble.velocity + 10, rottrans, bubble.position.x()));
 
 			if (bubble.position.x() > width) {
 
@@ -313,20 +327,19 @@ public class TestingSim extends SimulationScreen {
 
 			}
 
-			final Function<Double, Double> rottrans = x -> MathUtils.sigmoid(MathUtils.morphRange(0, width, -3, 4, bubble.position.x()));
-			final double cradius = MathUtils.morph(x -> Math.abs(rc.y() - bubble.initialPosition.y()), x -> finalCircleRadius, rottrans,
+			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - bubble.initialPosition.y()), x -> finalCircleRadius, rottrans,
 					bubble.position.x());
 
 			bubble.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, bubble.position.x());
 
-			bubble.position.setZ(Math.sin(theta(bubble.angle)) * cradius + rc.z());
-			bubble.position.setY(rc.y() + (bubble.initialPosition.y() < rc.y() ? -1 : 1) * Math.cos(theta(bubble.angle)) * cradius);
+			bubble.position.setZ(Math.sin(theta(bubble.angle)) * cradius + rotcenter.z());
+			bubble.position.setY(rotcenter.y() + (bubble.initialPosition.y() < rotcenter.y() ? -1 : 1) * Math.cos(theta(bubble.angle)) * cradius);
 
 		}
 
 		if (MathUtils.RANDOM.nextInt(frequency) == frequency - 1) {
 			newbubbles.add(
-					new Bubble(-200, MathUtils.makeRandom(1, (int) height + 200), rc.z(), CUtils.transparent(CUtils.makeRandomColor(), 200)));
+					new Bubble(deltaxmin, MathUtils.makeRandom(1, (int) height), rotcenter.z(), CUtils.transparent(CUtils.makeRandomColor(), 200)));
 		}
 
 		bubbles = newbubbles;
@@ -372,17 +385,17 @@ public class TestingSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				vp.setX(vp.x() + VP_STEP);
+				viewpoint.setX(viewpoint.x() + VP_STEP);
 			}
 
 			@Override
 			public void minus() {
-				vp.setX(vp.x() - VP_STEP);
+				viewpoint.setX(viewpoint.x() - VP_STEP);
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(vp.x());
+				return String.valueOf(viewpoint.x());
 			}
 		});
 		addKeyAction(KeyEvent.VK_Y, new IKeyAction() {
@@ -409,17 +422,17 @@ public class TestingSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				vp.setY(vp.y() + VP_STEP);
+				viewpoint.setY(viewpoint.y() + VP_STEP);
 			}
 
 			@Override
 			public void minus() {
-				vp.setY(vp.y() - VP_STEP);
+				viewpoint.setY(viewpoint.y() - VP_STEP);
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(vp.y());
+				return String.valueOf(viewpoint.y());
 			}
 		});
 		addKeyAction(KeyEvent.VK_Z, new IKeyAction() {
@@ -446,19 +459,19 @@ public class TestingSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				if (vp.z() + VP_STEP < 0) {
-					vp.setZ(vp.z() + VP_STEP);
+				if (viewpoint.z() + VP_STEP < 0) {
+					viewpoint.setZ(viewpoint.z() + VP_STEP);
 				}
 			}
 
 			@Override
 			public void minus() {
-				vp.setZ(vp.z() - VP_STEP);
+				viewpoint.setZ(viewpoint.z() - VP_STEP);
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(vp.z());
+				return String.valueOf(viewpoint.z());
 			}
 		});
 	}
