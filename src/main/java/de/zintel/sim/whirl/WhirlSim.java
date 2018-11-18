@@ -89,6 +89,8 @@ public class WhirlSim extends SimulationScreen {
 
 	private double particlesmaxy = 0;
 
+	private boolean showgrid = true;
+
 	/**
 	 * @param title
 	 * @param gfxSsystem
@@ -138,15 +140,18 @@ public class WhirlSim extends SimulationScreen {
 		final double gridz = 1500;
 		final Dimension dimension = graphicsSubsystem.getDimension();
 
-		// grid
-		final double gridy = dimension.getHeight();
-		for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
-			graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(0, 0, viewpoint), (int) projectX(i, gridz, viewpoint),
-					(int) projectY(0, gridz, viewpoint), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
-			graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(gridy, 0, viewpoint), (int) projectX(i, gridz, viewpoint),
-					(int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
-			graphicsSubsystem.drawLine((int) projectX(i, gridz, viewpoint), (int) projectY(0, gridz, viewpoint), (int) projectX(i, gridz, viewpoint),
-					(int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, gridz), adjustColor(gridcolor, gridz));
+		if (showgrid) {
+			// grid
+			final double gridy = dimension.getHeight();
+			for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
+				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(0, 0, viewpoint), (int) projectX(i, gridz, viewpoint),
+						(int) projectY(0, gridz, viewpoint), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(gridy, 0, viewpoint), (int) projectX(i, gridz, viewpoint),
+						(int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+				graphicsSubsystem.drawLine((int) projectX(i, gridz, viewpoint), (int) projectY(0, gridz, viewpoint),
+						(int) projectX(i, gridz, viewpoint), (int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, gridz),
+						adjustColor(gridcolor, gridz));
+			}
 		}
 
 		for (Particle particle : particles) {
@@ -218,7 +223,6 @@ public class WhirlSim extends SimulationScreen {
 	protected void calculate(Dimension dimension) throws Exception {
 
 		final double width = dimension.getWidth() + deltaxmax;
-		final double height = dimension.getHeight();
 
 		Set<Particle> newparticles = swapBuffer.next();
 		newparticles.clear();
@@ -567,6 +571,43 @@ public class WhirlSim extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return String.valueOf(particlesmaxy);
+			}
+		});
+		addKeyAction(KeyEvent.VK_G, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "GRID";
+			}
+
+			@Override
+			public String text() {
+				return "show grid";
+			}
+
+			@Override
+			public void plus() {
+				showgrid = true;
+			}
+
+			@Override
+			public void minus() {
+				showgrid = false;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(showgrid);
 			}
 		});
 	}
