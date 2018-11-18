@@ -29,8 +29,6 @@ public class TestingSim extends SimulationScreen {
 
 	private static class Bubble {
 
-		public double cnt = 0;
-
 		public final double velocity;
 
 		public double angle = 0;
@@ -82,8 +80,8 @@ public class TestingSim extends SimulationScreen {
 	 * @param recordFilename
 	 * @param recordingRate
 	 */
-	public TestingSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
-			int recordingRate) {
+	public TestingSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord,
+			String recordFilename, int recordingRate) {
 		super(title, gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 		// TODO Auto-generated constructor stub
 	}
@@ -228,8 +226,8 @@ public class TestingSim extends SimulationScreen {
 
 		final double gridy = dimension.getHeight();
 		for (int i = 0; i < dimension.getWidth(); i += 50) {
-			graphicsSubsystem.drawLine((int) projectX(i, 0, vp), (int) projectY(0, 0, vp), (int) projectX(i, gridz, vp), (int) projectY(0, gridz, vp),
-					adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+			graphicsSubsystem.drawLine((int) projectX(i, 0, vp), (int) projectY(0, 0, vp), (int) projectX(i, gridz, vp),
+					(int) projectY(0, gridz, vp), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
 			graphicsSubsystem.drawLine((int) projectX(i, 0, vp), (int) projectY(gridy, 0, vp), (int) projectX(i, gridz, vp),
 					(int) projectY(gridy, gridz, vp), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
 			graphicsSubsystem.drawLine((int) projectX(i, gridz, vp), (int) projectY(0, gridz, vp), (int) projectX(i, gridz, vp),
@@ -245,14 +243,14 @@ public class TestingSim extends SimulationScreen {
 
 			double rcx = projectX(point.x(), rc.z(), vp);
 
-			double bubbleRadius = Math
-					.abs(x - projectX(
-							point.x() + MathUtils.morph(v -> bubble.radius, v -> finalBubbleRadius,
-									v -> MathUtils.sigmoid(MathUtils.morphRange(1, dimension.getWidth(), -3, 4, bubble.position.x())), rcx),
-							point.z(), vp));
+			double bubbleRadius = Math.abs(x - projectX(
+					point.x() + MathUtils.morph(v -> bubble.radius, v -> finalBubbleRadius,
+							v -> MathUtils.sigmoid(MathUtils.morphRange(1, dimension.getWidth(), -3, 4, bubble.position.x())), rcx),
+					point.z(), vp));
 
-			graphicsSubsystem.drawFilledCircle((int) x, (int) y, (int) bubbleRadius, () -> CUtils.transparent(adjustColor(bubble.color, point.z()),
-					(int) MathUtils.morphRange(0, dimension.getWidth() + 200, bubble.color.getAlpha(), 30, bubble.position.x())));
+			graphicsSubsystem.drawFilledCircle((int) x, (int) y, (int) bubbleRadius,
+					() -> CUtils.transparent(adjustColor(bubble.color, point.z()),
+							(int) MathUtils.morphRange(0, dimension.getWidth() + 200, bubble.color.getAlpha(), 30, bubble.position.x())));
 		}
 	}
 
@@ -305,18 +303,17 @@ public class TestingSim extends SimulationScreen {
 		while (iterator.hasNext()) {
 
 			final Bubble bubble = iterator.next();
-			bubble.cnt += bubble.velocity;
 
-			if (bubble.cnt > width) {
+			bubble.position.setX(bubble.position.x() + bubble.velocity);
+
+			if (bubble.position.x() > width) {
 
 				iterator.remove();
 				continue;
 
 			}
 
-			bubble.position.setX(bubble.cnt % width);
-
-			final Function<Double, Double> rottrans = x -> MathUtils.sigmoid(MathUtils.morphRange(1, width, -3, 4, bubble.position.x()));
+			final Function<Double, Double> rottrans = x -> MathUtils.sigmoid(MathUtils.morphRange(0, width, -3, 4, bubble.position.x()));
 			final double cradius = MathUtils.morph(x -> Math.abs(rc.y() - bubble.initialPosition.y()), x -> finalCircleRadius, rottrans,
 					bubble.position.x());
 
@@ -328,7 +325,8 @@ public class TestingSim extends SimulationScreen {
 		}
 
 		if (MathUtils.RANDOM.nextInt(frequency) == frequency - 1) {
-			newbubbles.add(new Bubble(1, MathUtils.makeRandom(1, (int) (height + 100)), rc.z(), CUtils.transparent(CUtils.makeRandomColor(), 200)));
+			newbubbles.add(
+					new Bubble(1, MathUtils.makeRandom(1, (int) height + 200), rc.z(), CUtils.transparent(CUtils.makeRandomColor(), 200)));
 		}
 
 		bubbles = newbubbles;
