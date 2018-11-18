@@ -12,9 +12,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
+import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
+import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.g2d.Field;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.physics.Body;
@@ -57,6 +59,8 @@ public class NBodies extends SimulationScreen {
 
 	private final Collection<BodyConsumer> bodyConsumers = new ArrayList<>();
 
+	private EColorMixture colorMixture = EColorMixture.ADDITIVE;
+
 	private static final int IDX_SCENERY = 2;
 
 	@SuppressWarnings("serial")
@@ -89,11 +93,13 @@ public class NBodies extends SimulationScreen {
 	public NBodies(EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
 			int recordingRate) throws Exception {
 		super("NBodies", gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
-//		bodyConsumers.add(new BodySerializer("c:/tmp/grav1.dat"));
+		// bodyConsumers.add(new BodySerializer("c:/tmp/grav1.dat"));
 	}
 
 	@Override
 	protected void init(IGraphicsSubsystem graphicsSubsystem) {
+
+		graphicsSubsystem.setColorMixture(colorMixture);
 
 		bodyProducer = scenery.createGravitationSystem();
 
@@ -104,6 +110,8 @@ public class NBodies extends SimulationScreen {
 		renderer.initBodyProperties(bodies);
 
 		setMaxFrames(maxFrames);
+
+		initKeyActions();
 
 	}
 
@@ -211,6 +219,49 @@ public class NBodies extends SimulationScreen {
 		// new Vector2D(0, 0)));
 		// gravitationSystem.addBody(new Body("3", 50, 1, new Vector2D(50, 651),
 		// new Vector2D(0, 0)));
+
+	}
+
+	private void initKeyActions() {
+		addKeyAction(KeyEvent.VK_M, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "CMIX";
+			}
+
+			@Override
+			public String text() {
+				return "color mixture";
+			}
+
+			@Override
+			public void plus() {
+				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.TRANSPARENT : EColorMixture.ADDITIVE;
+				getGraphicsSubsystem().setColorMixture(colorMixture);
+			}
+
+			@Override
+			public void minus() {
+				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.TRANSPARENT : EColorMixture.ADDITIVE;
+				getGraphicsSubsystem().setColorMixture(colorMixture);
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(colorMixture.name());
+			}
+		});
 
 	}
 
