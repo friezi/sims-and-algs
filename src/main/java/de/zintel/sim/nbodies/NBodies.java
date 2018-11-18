@@ -87,8 +87,9 @@ public class NBodies extends SimulationScreen {
 	}
 
 	public NBodies(EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
-			int recordingRate) {
+			int recordingRate) throws Exception {
 		super("NBodies", gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
+//		bodyConsumers.add(new BodySerializer("c:/tmp/grav1.dat"));
 	}
 
 	@Override
