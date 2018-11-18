@@ -8,7 +8,6 @@ import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -21,7 +20,6 @@ import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.MathUtils;
 import de.zintel.sim.SimulationScreen;
-import de.zintel.utils.Swap;
 
 /**
  * @author friedemann.zintel
@@ -63,9 +61,7 @@ public class WhirlSim extends SimulationScreen {
 
 	private static final double VP_STEP = 10;
 
-	private Set<Particle> particles = Collections.emptySet();
-
-	private Swap<Set<Particle>> swapBuffer = new Swap<Set<Particle>>(new LinkedHashSet<>(), new LinkedHashSet<>());
+	private Set<Particle> particles = new LinkedHashSet<>();
 
 	private Vector3D viewpoint = new Vector3D(950.0, 140.0, -1000.0);
 
@@ -224,9 +220,7 @@ public class WhirlSim extends SimulationScreen {
 
 		final double width = dimension.getWidth() + deltaxmax;
 
-		Set<Particle> newparticles = swapBuffer.next();
-		newparticles.clear();
-		newparticles.addAll(particles);
+		Set<Particle> newparticles = new LinkedHashSet<>(particles);
 
 		final Iterator<Particle> iterator = newparticles.iterator();
 		while (iterator.hasNext()) {
