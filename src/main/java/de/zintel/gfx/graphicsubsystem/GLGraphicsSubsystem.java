@@ -34,6 +34,7 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
 import com.jogamp.opengl.util.awt.TextRenderer;
 
+import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.gl.GLUtils;
 import de.zintel.gfx.gl.GLUtils.CircleDrawer;
 import de.zintel.math.Vector2D;
@@ -99,6 +100,8 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	private TextRenderer textRenderer = null;
 
 	private boolean synchronizzed = false;
+
+	private EColorMixture colorMixture = EColorMixture.TRANSPARENT;
 
 	public GLGraphicsSubsystem(String title, int width, int height) {
 		this.title = title;
@@ -339,7 +342,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 
 		// enable transparency
 		gl.glEnable(GL.GL_BLEND);
-		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+		gl.glBlendFunc(GL.GL_SRC_ALPHA, (colorMixture == EColorMixture.ADDITIVE ? GL.GL_ONE : GL.GL_ONE_MINUS_SRC_ALPHA));
 
 		for (IRendererListener renderer : rendererListeners) {
 			renderer.render(this);
@@ -487,6 +490,11 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	@Override
 	public void synchronize(boolean value) {
 		this.synchronizzed = value;
+	}
+
+	@Override
+	public void setColorMixture(EColorMixture colorMixture) {
+		this.colorMixture = colorMixture;
 	}
 
 }

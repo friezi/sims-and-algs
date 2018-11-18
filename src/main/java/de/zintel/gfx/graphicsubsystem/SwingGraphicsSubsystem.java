@@ -20,6 +20,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import de.zintel.gfx.color.EColorMixture;
 import de.zintel.math.Vector2D;
 
 /**
@@ -254,6 +255,11 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 		}
 
 		graphics.drawPolygon(x, y, points.size());
+	}
+
+	@Override
+	public void setColorMixture(EColorMixture colorMixture) {
+		// not supported
 	}
 
 }

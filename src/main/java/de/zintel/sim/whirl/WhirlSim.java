@@ -17,6 +17,7 @@ import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.color.CUtils;
+import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.MathUtils;
 import de.zintel.sim.SimulationScreen;
@@ -87,6 +88,8 @@ public class WhirlSim extends SimulationScreen {
 
 	private boolean showgrid = true;
 
+	private EColorMixture colorMixture = EColorMixture.ADDITIVE;
+
 	/**
 	 * @param title
 	 * @param gfxSsystem
@@ -99,6 +102,7 @@ public class WhirlSim extends SimulationScreen {
 			int recordingRate) {
 		super(title, gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 		particlesmaxy = getGraphicsSubsystem().getDimension().getHeight();
+		getGraphicsSubsystem().setColorMixture(colorMixture);
 	}
 
 	public static void main(String args[]) throws Exception {
@@ -512,6 +516,8 @@ public class WhirlSim extends SimulationScreen {
 		});
 		addKeyAction(KeyEvent.VK_T, new IKeyAction() {
 
+			private final int delta = 2;
+
 			@Override
 			public boolean withAction() {
 				return true;
@@ -534,12 +540,14 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				particlesminy += 1;
+				if (particlesminy + delta <= particlesmaxy) {
+					particlesminy += delta;
+				}
 			}
 
 			@Override
 			public void minus() {
-				particlesminy -= 1;
+				particlesminy -= delta;
 			}
 
 			@Override
@@ -548,6 +556,8 @@ public class WhirlSim extends SimulationScreen {
 			}
 		});
 		addKeyAction(KeyEvent.VK_B, new IKeyAction() {
+
+			private final int delta = 2;
 
 			@Override
 			public boolean withAction() {
@@ -571,12 +581,14 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				particlesmaxy += 1;
+				particlesmaxy += delta;
 			}
 
 			@Override
 			public void minus() {
-				particlesmaxy -= 1;
+				if (particlesmaxy - delta >= particlesminy) {
+					particlesmaxy -= delta;
+				}
 			}
 
 			@Override
@@ -656,6 +668,45 @@ public class WhirlSim extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return String.valueOf(frequency >= 0 ? (double) frequency : (1 / (double) -frequency));
+			}
+		});
+		addKeyAction(KeyEvent.VK_M, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "CMIX";
+			}
+
+			@Override
+			public String text() {
+				return "color mixture";
+			}
+
+			@Override
+			public void plus() {
+				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.TRANSPARENT : EColorMixture.ADDITIVE;
+				getGraphicsSubsystem().setColorMixture(colorMixture);
+			}
+
+			@Override
+			public void minus() {
+				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.TRANSPARENT : EColorMixture.ADDITIVE;
+				getGraphicsSubsystem().setColorMixture(colorMixture);
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(colorMixture.name());
 			}
 		});
 	}

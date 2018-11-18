@@ -13,6 +13,7 @@ import java.awt.event.MouseWheelListener;
 import java.util.Collection;
 import java.util.function.Supplier;
 
+import de.zintel.gfx.color.EColorMixture;
 import de.zintel.math.Vector2D;
 
 /**
@@ -78,5 +79,7 @@ public interface IGraphicsSubsystem {
 	void shutdown();
 
 	void synchronize(boolean value);
+
+	void setColorMixture(EColorMixture colorMixture);
 
 }
