@@ -5,4 +5,4 @@
  * @author friedemann.zintel
  *
  */
-package de.zintel.sim.testing;
+package de.zintel.sim.whirl;

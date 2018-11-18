@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.zintel.sim.testing;
+package de.zintel.sim.whirl;
 
 import java.util.Arrays;
 

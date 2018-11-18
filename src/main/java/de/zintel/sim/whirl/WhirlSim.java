@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.zintel.sim.testing;
+package de.zintel.sim.whirl;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -25,7 +25,7 @@ import de.zintel.sim.SimulationScreen;
  * @author friedemann.zintel
  *
  */
-public class TestingSim extends SimulationScreen {
+public class WhirlSim extends SimulationScreen {
 
 	private static class Bubble {
 
@@ -84,14 +84,14 @@ public class TestingSim extends SimulationScreen {
 	 * @param recordFilename
 	 * @param recordingRate
 	 */
-	public TestingSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
+	public WhirlSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
 			int recordingRate) {
 		super(title, gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 		// TODO Auto-generated constructor stub
 	}
 
 	public static void main(String args[]) throws Exception {
-		new TestingSim("Testing", GFX_SSYSTEM, SCREENPARAMETERS, false, "", 0).start();
+		new WhirlSim("Testing", GFX_SSYSTEM, SCREENPARAMETERS, false, "", 0).start();
 	}
 
 	/*
