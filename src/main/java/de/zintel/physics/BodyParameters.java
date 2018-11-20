@@ -33,6 +33,10 @@ public class BodyParameters implements Serializable {
 
 	public boolean melting = false;
 
+	public long timestamp = 0;
+
+	public long timeout = 0;
+
 	public double meltingIntensity = 0;
 
 	public BodyParameters(String id) {

@@ -28,6 +28,7 @@ import de.zintel.ci.FishSwarm;
 import de.zintel.ci.Swarm;
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.ScreenParameters;
+import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
@@ -295,6 +296,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 		this.graphicsSubsystem = graphicsSubsystem;
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
+		graphicsSubsystem.setColorMixture(EColorMixture.ADDITIVE);
 
 		swarm = new FishSwarm(new Vector2D(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2))
 				.setUseLeader(true).setUsePredator(true)

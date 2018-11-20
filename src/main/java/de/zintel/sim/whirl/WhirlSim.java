@@ -72,7 +72,7 @@ public class WhirlSim extends SimulationScreen {
 
 	private final double finalBubbleRadius = 3D;
 
-	private final double finalCircleRadius = 5.0;
+	private final double finalCircleRadius = 1.0;
 
 	private double deltaxmin = -200;
 
@@ -144,10 +144,12 @@ public class WhirlSim extends SimulationScreen {
 			// grid
 			final double gridy = dimension.getHeight();
 			for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
-				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(0, 0, viewpoint), (int) projectX(i, gridz, viewpoint),
-						(int) projectY(0, gridz, viewpoint), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
-				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(gridy, 0, viewpoint), (int) projectX(i, gridz, viewpoint),
-						(int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(0, 0, viewpoint),
+						(int) projectX(i, gridz, viewpoint), (int) projectY(0, gridz, viewpoint), adjustColor(gridcolor, 0),
+						adjustColor(gridcolor, gridz));
+				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(gridy, 0, viewpoint),
+						(int) projectX(i, gridz, viewpoint), (int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, 0),
+						adjustColor(gridcolor, gridz));
 				graphicsSubsystem.drawLine((int) projectX(i, gridz, viewpoint), (int) projectY(0, gridz, viewpoint),
 						(int) projectX(i, gridz, viewpoint), (int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, gridz),
 						adjustColor(gridcolor, gridz));
@@ -163,8 +165,11 @@ public class WhirlSim extends SimulationScreen {
 
 			double rcx = projectX(point.x(), rotcenter.z(), viewpoint);
 
-			double bubbleRadius = Math.abs(x - projectX(point.x() + MathUtils.morph(v -> particle.radius, v -> finalBubbleRadius,
-					v -> MathUtils.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, particle.position.x())), rcx),
+			double bubbleRadius = Math.abs(x - projectX(
+					point.x() + MathUtils.morph(v -> particle.radius, v -> finalBubbleRadius,
+							v -> MathUtils.sigmoid(
+									MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, particle.position.x())),
+							rcx),
 					point.z(), viewpoint));
 
 			final Function<Double, Double> colortrans = v -> MathUtils
@@ -172,15 +177,10 @@ public class WhirlSim extends SimulationScreen {
 			final Function<Double, Double> alphatrans = v -> MathUtils
 					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -18, 1.4, particle.position.x()));
 			graphicsSubsystem.drawFilledCircle((int) x, (int) y, (int) bubbleRadius,
-					() -> CUtils.transparent(adjustColor(enlighten(particle.color, colortrans, particle.position.x()), point.z()),
+					() -> CUtils.transparent(
+							adjustColor(CUtils.morphColor(particle.color, Color.YELLOW, colortrans, particle.position.x()), point.z()),
 							(int) MathUtils.morph(v -> (double) particle.color.getAlpha(), v -> 0D, alphatrans, particle.position.x())));
 		}
-	}
-
-	private Color enlighten(final Color color, final Function<Double, Double> ftrans, final double value) {
-		return new Color((int) MathUtils.morph(x -> (double) color.getRed(), x -> 255D, ftrans, value),
-				(int) MathUtils.morph(x -> (double) color.getGreen(), x -> 255D, ftrans, value),
-				(int) MathUtils.morph(x -> (double) color.getBlue(), x -> 255D, ftrans, value), color.getAlpha());
 	}
 
 	private Color adjustColor(final Color color, final double z) {
@@ -233,8 +233,8 @@ public class WhirlSim extends SimulationScreen {
 			final Function<Double, Double> rottrans = x -> MathUtils
 					.sigmoid(MathUtils.morphRange(0, width, rotationTransitionLeft, rotationTransitionRight, particle.position.x()));
 
-			particle.position.setX(
-					particle.position.x() + MathUtils.morph(v -> particle.velocity, v -> particle.velocity + 10, rottrans, particle.position.x()));
+			particle.position.setX(particle.position.x()
+					+ MathUtils.morph(v -> particle.velocity, v -> particle.velocity + 10, rottrans, particle.position.x()));
 
 			if (particle.position.x() > width) {
 
@@ -243,14 +243,14 @@ public class WhirlSim extends SimulationScreen {
 
 			}
 
-			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius, rottrans,
-					particle.position.x());
+			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
+					rottrans, particle.position.x());
 
 			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, particle.position.x());
 
 			particle.position.setZ(Math.sin(theta(particle.angle)) * cradius + rotcenter.z());
-			particle.position
-					.setY(rotcenter.y() + (particle.initialPosition.y() < rotcenter.y() ? -1 : 1) * Math.cos(theta(particle.angle)) * cradius);
+			particle.position.setY(
+					rotcenter.y() + (particle.initialPosition.y() < rotcenter.y() ? -1 : 1) * Math.cos(theta(particle.angle)) * cradius);
 
 		}
 

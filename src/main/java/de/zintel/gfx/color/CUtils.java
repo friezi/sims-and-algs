@@ -6,7 +6,10 @@ package de.zintel.gfx.color;
 import java.awt.Color;
 import java.util.Collection;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.function.Supplier;
+
+import de.zintel.math.MathUtils;
 
 /**
  * @author Friedemann
@@ -114,6 +117,12 @@ public final class CUtils {
 
 	public static String toString(final Color color) {
 		return "[r=" + color.getRed() + ",g=" + color.getGreen() + ",b=" + color.getBlue() + ",a=" + color.getAlpha() + "]";
+	}
+
+	public static Color morphColor(final Color scolor, final Color tcolor, final Function<Double, Double> ftrans, final double value) {
+		return new Color((int) MathUtils.morph(x -> (double) scolor.getRed(), x -> (double) tcolor.getRed(), ftrans, value),
+				(int) MathUtils.morph(x -> (double) scolor.getGreen(), x -> (double) tcolor.getGreen(), ftrans, value),
+				(int) MathUtils.morph(x -> (double) scolor.getBlue(), x -> (double) tcolor.getBlue(), ftrans, value), scolor.getAlpha());
 	}
 
 }

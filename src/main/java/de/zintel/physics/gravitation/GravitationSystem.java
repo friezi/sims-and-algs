@@ -10,17 +10,20 @@ import java.util.Random;
 import java.util.TreeSet;
 
 import de.zintel.gfx.g2d.Field;
+import de.zintel.math.MathUtils;
 import de.zintel.math.Polar2D;
 import de.zintel.math.Vector2D;
 import de.zintel.physics.Body;
-import de.zintel.utils.Pair;
 import de.zintel.utils.CompositeCollection;
+import de.zintel.utils.Pair;
 
 /**
  * @author Friedemann
  *
  */
 public class GravitationSystem implements IBodyProducer {
+
+	private long timestamp = 0;
 
 	private Field field;
 
@@ -60,6 +63,8 @@ public class GravitationSystem implements IBodyProducer {
 	 * 
 	 */
 	public void gravitate() {
+
+		timestamp++;
 
 		Collection<Body> nextMassBodies = Collections.synchronizedCollection(new TreeSet<>());
 		Collection<Body> nextParticles = Collections.synchronizedCollection(new TreeSet<>());
@@ -142,6 +147,8 @@ public class GravitationSystem implements IBodyProducer {
 		}
 
 		Body newBody = new Body(body.getId(), body.getSize(), body.getMass(), position, velocity, body);
+		newBody.getParameters().timestamp = body.getParameters().timestamp;
+		newBody.getParameters().timeout = body.getParameters().timeout;
 		newBody.setParticle(body.isParticle());
 		newBody.setMelting(body.isMelting());
 		newBody.setMeltingIntensity(body.getMeltingIntensity());
@@ -176,6 +183,10 @@ public class GravitationSystem implements IBodyProducer {
 		}
 	}
 
+	public boolean hasTimedOut(final Body body, final double gravitationAmount) {
+		return body.getParameters().timestamp + body.getParameters().timeout * (1 + Math.pow(gravitationAmount / 100, 2)) < timestamp;
+	}
+
 	/**
 	 * @param body
 	 * @return
@@ -201,11 +212,17 @@ public class GravitationSystem implements IBodyProducer {
 
 			Body particle = new Body("particle:" + body.getId() + ":" + i, size, mass, position, velocity, body);
 			particle.setParticle(true);
+			particle.getParameters().timestamp = timestamp;
+			particle.getParameters().timeout = generateParticleTimeout();
 			particles.add(particle);
 		}
 
 		return particles;
 
+	}
+
+	private long generateParticleTimeout() {
+		return (MathUtils.RANDOM.nextInt(5) * 3 + 20) * 30;
 	}
 
 	/**
@@ -252,6 +269,8 @@ public class GravitationSystem implements IBodyProducer {
 		Body particle = new Body("meltingparticle:" + body.getId(), size, mass, createMeltingParticlePosition(body),
 				new Vector2D(body.getVelocity()), body);
 		particle.setParticle(true);
+		particle.getParameters().timestamp = timestamp;
+		particle.getParameters().timeout = generateParticleTimeout();
 		particles.add(particle);
 
 		return particles;
@@ -302,6 +321,11 @@ public class GravitationSystem implements IBodyProducer {
 				cVector.add(collisionVector);
 			}
 
+		}
+
+		if (body.isParticle() && hasTimedOut(body, gVector.length())) {
+			body.setDestroyed(true);
+			return new Pair<Vector2D, Vector2D>(new Vector2D(), new Vector2D());
 		}
 
 		Vector2D velocity = Vector2D.add(body.getVelocity(), cVector);
