@@ -101,7 +101,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 
 	private boolean synchronizzed = false;
 
-	private EColorMixture colorMixture = EColorMixture.TRANSPARENT;
+	private EColorMixture colorMixture = EColorMixture.MEAN;
 
 	public GLGraphicsSubsystem(String title, int width, int height) {
 		this.title = title;

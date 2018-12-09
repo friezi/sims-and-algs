@@ -690,13 +690,13 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.TRANSPARENT : EColorMixture.ADDITIVE;
+				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.MEAN : EColorMixture.ADDITIVE;
 				getGraphicsSubsystem().setColorMixture(colorMixture);
 			}
 
 			@Override
 			public void minus() {
-				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.TRANSPARENT : EColorMixture.ADDITIVE;
+				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.MEAN : EColorMixture.ADDITIVE;
 				getGraphicsSubsystem().setColorMixture(colorMixture);
 			}
 

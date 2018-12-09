@@ -247,13 +247,13 @@ public class NBodies extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.TRANSPARENT : EColorMixture.ADDITIVE;
+				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.MEAN : EColorMixture.ADDITIVE;
 				getGraphicsSubsystem().setColorMixture(colorMixture);
 			}
 
 			@Override
 			public void minus() {
-				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.TRANSPARENT : EColorMixture.ADDITIVE;
+				colorMixture = colorMixture == EColorMixture.ADDITIVE ? EColorMixture.MEAN : EColorMixture.ADDITIVE;
 				getGraphicsSubsystem().setColorMixture(colorMixture);
 			}
 
@@ -262,30 +262,6 @@ public class NBodies extends SimulationScreen {
 				return String.valueOf(colorMixture.name());
 			}
 		});
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -299,33 +275,51 @@ public class NBodies extends SimulationScreen {
 	}
 
 	@Override
-	public void keyPressed(KeyEvent arg0) {
+	public void mouseClicked(MouseEvent arg0) {
 		// TODO Auto-generated method stub
+		
+	}
 
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
 		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-
+		
 	}
 
 }

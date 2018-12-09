@@ -8,5 +8,5 @@ package de.zintel.gfx.color;
  *
  */
 public enum EColorMixture {
-	TRANSPARENT, ADDITIVE;
+	MEAN, ADDITIVE;
 }
