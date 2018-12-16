@@ -1,11 +1,9 @@
 /**
  * 
  */
-package de.zintel.sim.whirl;
+package de.zintel.math;
 
 import java.util.Arrays;
-
-import de.zintel.math.VectorND;
 
 /**
  * @author friedemann.zintel
@@ -31,6 +29,10 @@ public class Vector3D extends VectorND {
 
 	public Vector3D(final double x, final double y, final double z) {
 		super(3, Arrays.asList(x, y, z));
+	}
+
+	public Vector3D(VectorND vector) {
+		super(3, vector.getCoords());
 	}
 
 	public double x() {

@@ -20,6 +20,7 @@ import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.MathUtils;
+import de.zintel.math.Vector3D;
 import de.zintel.sim.SimulationScreen;
 
 /**

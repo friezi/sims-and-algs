@@ -101,7 +101,7 @@ public interface IVectorField {
 			}
 		}
 
-		return new VectorND(dirVector.size(), dirVector, true);
+		return new VectorND(dirVector);
 
 	}
 

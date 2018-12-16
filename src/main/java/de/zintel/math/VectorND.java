@@ -44,31 +44,28 @@ public class VectorND implements Serializable {
 	@SuppressWarnings("serial")
 	public VectorND(final int dim) {
 
-		this(dim, new ArrayList<Double>(dim) {
+		this(new ArrayList<Double>(dim) {
 			{
 				for (int i = 0; i < dim; i++) {
 					add(0.0);
 				}
 			}
-		}, true);
+		});
 	}
 
 	public VectorND(final int dim, final Collection<Double> coords) {
-		this(dim, new ArrayList<Double>(coords), true);
+		this(new ArrayList<Double>(coords));
+		assertProp(dim == this.coords.size());
 	}
 
 	/**
 	 * carefull !!! for performance-reason no copy of coords will be made
 	 * 
-	 * @param dim
 	 * @param coords
-	 * @param nix
-	 *            just to provide different signature from other constructor
 	 */
-	public VectorND(final int dim, final List<Double> coords, final boolean nix) {
-		this.dim = dim;
+	public VectorND(final List<Double> coords) {
+		this.dim = coords.size();
 		this.coords = coords;
-		assertProp(dim == this.coords.size());
 
 	}
 	//
@@ -109,7 +106,7 @@ public class VectorND implements Serializable {
 		return combine(value, (a, b) -> a / b);
 	}
 
-	public VectorND combine(double value, BiFunction<Double, Double, Double> combinator) {
+	private VectorND combine(double value, BiFunction<Double, Double, Double> combinator) {
 
 		for (int i = 0; i < dim; i++) {
 			this.coords.set(i, combinator.apply(this.coords.get(i), value));
@@ -142,9 +139,19 @@ public class VectorND implements Serializable {
 	}
 
 	public static VectorND mult(double val, VectorND vector) {
-		final VectorND nvector = new VectorND(vector);
-		nvector.mult(val);
-		return nvector;
+		return new VectorND(vector).mult(val);
+	}
+
+	/**
+	 * multiplication with a diagonal matrix.
+	 * 
+	 * @param dmvector
+	 *            the diagonal-vector
+	 * @param vector
+	 * @return product
+	 */
+	public static VectorND diagmult(VectorND dmvector, VectorND vector) {
+		return new VectorND(vector).combine(dmvector.getCoords(), (a, b) -> a * b);
 	}
 
 	public static VectorND add(VectorND a, VectorND b) {
@@ -159,6 +166,32 @@ public class VectorND implements Serializable {
 		return nvector;
 	}
 
+	/**
+	 * multiplication of matrix and vector
+	 * 
+	 * @param rowmatrix
+	 *            the row-vectors of the matrix
+	 * @param vector
+	 * @return resultvector
+	 */
+	public static VectorND mmult(List<VectorND> rowmatrix, VectorND vector) {
+
+		assertProp(rowmatrix.size() == vector.getDim());
+		final List<Double> nvalues = new ArrayList<>(vector.getDim());
+		for (int i = 0; i < rowmatrix.size(); i++) {
+			nvalues.set(i, mult(rowmatrix.get(i), vector));
+		}
+
+		return new VectorND(nvalues);
+	}
+
+	/**
+	 * dotproduct
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	public static double mult(VectorND a, VectorND b) {
 
 		assertProp(a.getDim() == b.getDim());
@@ -179,7 +212,15 @@ public class VectorND implements Serializable {
 		return (vector.isNullVector() ? new VectorND(vector.getDim()) : mult(1 / vector.length(), vector));
 	}
 
-	public static VectorND max(VectorND v1, VectorND v2) {
+	/**
+	 * returns the vector which corresponds to the maximum of the absolute
+	 * values.
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	public static VectorND absmax(VectorND v1, VectorND v2) {
 		return (v1.length() >= v2.length() ? v1 : v2);
 	}
 
