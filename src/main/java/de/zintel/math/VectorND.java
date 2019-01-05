@@ -179,7 +179,7 @@ public class VectorND implements Serializable {
 		assertProp(rowmatrix.size() == vector.getDim());
 		final List<Double> nvalues = new ArrayList<>(vector.getDim());
 		for (int i = 0; i < rowmatrix.size(); i++) {
-			nvalues.set(i, mult(rowmatrix.get(i), vector));
+			nvalues.add(mult(rowmatrix.get(i), vector));
 		}
 
 		return new VectorND(nvalues);
