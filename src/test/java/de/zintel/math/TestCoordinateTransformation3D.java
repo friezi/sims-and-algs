@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+import de.zintel.math.transform.CoordinateTransformation3D;
+
 /**
  * @author friedemann.zintel
  *
@@ -23,7 +25,7 @@ public class TestCoordinateTransformation3D {
 	public void testTransformPoint() throws Exception {
 
 		CoordinateTransformation3D transformation = new CoordinateTransformation3D();
-		transformation.scale(new Vector3D(2, -1, 1)).translate(new Vector3D(10, 20, 30));
+		transformation.scale(new Vector3D(2, -1, 1)).translate(new Vector3D(10, 20, 30)).rotate(0, 0, 0);
 
 		Vector3D transformedPoint = transformation.transformPoint(new Vector3D(2, 1, 1));
 
