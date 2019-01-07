@@ -169,17 +169,23 @@ public class VectorND implements Serializable {
 	/**
 	 * multiplication of matrix and vector
 	 * 
-	 * @param rowmatrix
+	 * @param matrix
 	 *            the row-vectors of the matrix
 	 * @param vector
 	 * @return resultvector
 	 */
-	public static VectorND mmult(List<VectorND> rowmatrix, VectorND vector) {
+	public static VectorND mmult(Matrix matrix, VectorND vector) {
 
-		assertProp(rowmatrix.size() == vector.getDim());
+		assertProp(matrix.getRows() == vector.getDim());
+		assertProp(matrix.getColumns() == vector.getDim());
+
 		final List<Double> nvalues = new ArrayList<>(vector.getDim());
-		for (int i = 0; i < rowmatrix.size(); i++) {
-			nvalues.add(mult(rowmatrix.get(i), vector));
+		for (int i = 0; i < matrix.getRows(); i++) {
+			double sum = 0;
+			for (int j = 0; j < matrix.getColumns(); j++) {
+				sum += matrix.get(i, j) * vector.get(j);
+			}
+			nvalues.add(sum);
 		}
 
 		return new VectorND(nvalues);

@@ -3,11 +3,11 @@
  */
 package de.zintel.math.transform;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Function;
 
+import de.zintel.math.Matrix;
+import de.zintel.math.Matrix.Order;
 import de.zintel.math.Vector3D;
 import de.zintel.math.VectorND;
 
@@ -28,7 +28,7 @@ public class Rotator3D implements Function<Vector3D, Vector3D> {
 
 	private final double angleZ;
 
-	private final List<VectorND> rotationMatrix;
+	private final Matrix rotationMatrix;
 
 	public Rotator3D(double angleX, double angleY, double angleZ) {
 		this.angleX = angleX;
@@ -39,7 +39,17 @@ public class Rotator3D implements Function<Vector3D, Vector3D> {
 
 	}
 
-	private List<VectorND> makeRotationMatrix() {
+	private Rotator3D(Matrix rotationMatrix, double angleX, double angleY, double angleZ) {
+
+		this.rotationMatrix = rotationMatrix;
+
+		this.angleX = angleX;
+		this.angleY = angleY;
+		this.angleZ = angleZ;
+
+	}
+
+	private Matrix makeRotationMatrix() {
 
 		final double sinX = Math.sin(angleX);
 		final double sinY = Math.sin(angleY);
@@ -48,9 +58,9 @@ public class Rotator3D implements Function<Vector3D, Vector3D> {
 		final double cosY = Math.cos(angleY);
 		final double cosZ = Math.cos(angleZ);
 
-		return new ArrayList<>(Arrays.asList(new Vector3D(cosY * cosZ, -cosY * sinZ, -sinY),
+		return new Matrix(Arrays.asList(new Vector3D(cosY * cosZ, -cosY * sinZ, -sinY),
 				new Vector3D(cosX * sinZ - sinX * sinY * cosZ, sinX * sinY * sinZ + cosX * cosZ, -sinX * cosY),
-				new Vector3D(cosX * sinY * cosZ + sinX * sinZ, sinX * cosZ - cosX * sinY * sinZ, cosX * cosY)));
+				new Vector3D(cosX * sinY * cosZ + sinX * sinZ, sinX * cosZ - cosX * sinY * sinZ, cosX * cosY)), Order.ROWS);
 
 	}
 
@@ -69,6 +79,10 @@ public class Rotator3D implements Function<Vector3D, Vector3D> {
 
 	public double getAngleZ() {
 		return angleZ;
+	}
+
+	public Rotator3D getInvertedRotator() {
+		return new Rotator3D(rotationMatrix.transpose(), -angleX, -angleY, -angleZ);
 	}
 
 }

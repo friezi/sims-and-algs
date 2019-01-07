@@ -6,7 +6,7 @@ package de.zintel.math.transform;
 import de.zintel.math.Vector3D;
 
 /**
- * caution: both coordinate-systems must e orthogonal systems.
+ * caution: both coordinate-systems are expected to be orthogonal systems.
  * 
  * @author friedemann.zintel
  *
@@ -26,20 +26,11 @@ public class CoordinateTransformation3D {
 	}
 
 	public Vector3D transformPoint(final Vector3D vector) {
-
-		Vector3D rotated = rotateVector(vector);
-		Vector3D translated = translateVector(rotated);
-		Vector3D scaled = scaleVector(translated);
-
-		return scaled;
+		return scaleVector(translateVector(rotateVector(vector)));
 	}
 
 	public Vector3D transformVector(final Vector3D vector) {
-
-		Vector3D rotated = rotateVector(vector);
-		Vector3D scaled = scaleVector(rotated);
-
-		return scaled;
+		return scaleVector(rotateVector(vector));
 	}
 
 	public CoordinateTransformation3D translate(Vector3D vector) {
