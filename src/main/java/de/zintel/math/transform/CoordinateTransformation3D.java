@@ -15,9 +15,15 @@ public class CoordinateTransformation3D {
 
 	private Rotator3D rotator = null;
 
+	private Rotator3D inverseRotator = null;
+
 	private Scaler3D scaler = null;
 
+	private Scaler3D inverseScaler = null;
+
 	private Translator3D translator = null;
+
+	private Translator3D inverseTranslator = null;
 
 	/**
 	 * 
@@ -29,27 +35,39 @@ public class CoordinateTransformation3D {
 		return scaleVector(translateVector(rotateVector(vector)));
 	}
 
+	public Vector3D inverseTransformPoint(final Vector3D vector) {
+		return inverseRotateVector(inverseTranslateVector(inverseScaleVector(vector)));
+	}
+
 	public Vector3D transformVector(final Vector3D vector) {
 		return scaleVector(rotateVector(vector));
 	}
 
+	public Vector3D inverseTransformVector(final Vector3D vector) {
+		return inverseRotateVector(inverseScaleVector(vector));
+	}
+
 	public CoordinateTransformation3D translate(Vector3D vector) {
 		this.translator = new Translator3D(new Vector3D(-vector.x(), -vector.y(), -vector.z()));
+		this.inverseTranslator = new Translator3D(vector);
 		return this;
 	}
 
 	public CoordinateTransformation3D scale(Vector3D diagvector) {
 		this.scaler = new Scaler3D(new Vector3D(1 / diagvector.x(), 1 / diagvector.y(), 1 / diagvector.z()));
+		this.inverseScaler = new Scaler3D(diagvector);
 		return this;
 	}
 
 	public CoordinateTransformation3D rotate(final double angleX, final double angleY, final double angleZ) {
 		this.rotator = new Rotator3D(-angleX, -angleY, -angleZ);
+		this.inverseRotator = this.rotator.getInvertedRotator();
 		return this;
 	}
 
 	/**
 	 * @param vector
+	 *            in original coordinate system
 	 * @return
 	 */
 	private Vector3D translateVector(Vector3D vector) {
@@ -58,14 +76,47 @@ public class CoordinateTransformation3D {
 
 	/**
 	 * @param vector
+	 *            in this coordinate system
+	 * @return
+	 */
+	private Vector3D inverseTranslateVector(Vector3D vector) {
+		return (inverseTranslator == null ? vector : inverseTranslator.apply(vector));
+	}
+
+	/**
+	 * @param vector
+	 *            in original coordinate system
 	 * @return
 	 */
 	private Vector3D scaleVector(Vector3D vector) {
 		return (scaler == null ? vector : scaler.apply(vector));
 	}
 
+	/**
+	 * @param vector
+	 *            in this coordinate system
+	 * @return
+	 */
+	private Vector3D inverseScaleVector(Vector3D vector) {
+		return (inverseScaler == null ? vector : inverseScaler.apply(vector));
+	}
+
+	/**
+	 * @param vector
+	 *            in original coordinate system
+	 * @return
+	 */
 	private Vector3D rotateVector(final Vector3D vector) {
 		return (rotator == null ? vector : rotator.apply(vector));
+	}
+
+	/**
+	 * @param vector
+	 *            in this coordinate system
+	 * @return
+	 */
+	private Vector3D inverseRotateVector(final Vector3D vector) {
+		return (inverseRotator == null ? vector : inverseRotator.apply(vector));
 	}
 
 }

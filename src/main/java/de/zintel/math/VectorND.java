@@ -31,11 +31,7 @@ public class VectorND implements Serializable {
 	private double length = -1;
 
 	public VectorND(VectorND vector) {
-		this(vector.getCoords());
-	}
-
-	public VectorND(Collection<Double> coords) {
-		this(coords.size(), coords);
+		this(vector.getCoords().size(), vector.getCoords());
 	}
 
 	/**

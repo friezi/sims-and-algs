@@ -19,8 +19,12 @@ import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
+import de.zintel.math.Camera3D;
 import de.zintel.math.MathUtils;
+import de.zintel.math.Plane3D;
+import de.zintel.math.Utils3D;
 import de.zintel.math.Vector3D;
+import de.zintel.math.transform.CoordinateTransformation3D;
 import de.zintel.sim.SimulationScreen;
 
 /**
@@ -65,7 +69,8 @@ public class WhirlSim extends SimulationScreen {
 
 	private Set<Particle> particles = new LinkedHashSet<>();
 
-	private Vector3D viewpoint = new Vector3D(950.0, 140.0, -1000.0);
+	private Camera3D camera = new Camera3D(new Vector3D(950.0, 140.0, -1000.0), new Plane3D(new Vector3D(0, 0, 1), new Vector3D(0, 0, 0)),
+			new CoordinateTransformation3D());
 
 	private Vector3D rotcenter = new Vector3D(0.0, 540.0, 200.0);
 
@@ -145,15 +150,21 @@ public class WhirlSim extends SimulationScreen {
 			// grid
 			final double gridy = dimension.getHeight();
 			for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
-				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(0, 0, viewpoint),
-						(int) projectX(i, gridz, viewpoint), (int) projectY(0, gridz, viewpoint), adjustColor(gridcolor, 0),
-						adjustColor(gridcolor, gridz));
-				graphicsSubsystem.drawLine((int) projectX(i, 0, viewpoint), (int) projectY(gridy, 0, viewpoint),
-						(int) projectX(i, gridz, viewpoint), (int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, 0),
-						adjustColor(gridcolor, gridz));
-				graphicsSubsystem.drawLine((int) projectX(i, gridz, viewpoint), (int) projectY(0, gridz, viewpoint),
-						(int) projectX(i, gridz, viewpoint), (int) projectY(gridy, gridz, viewpoint), adjustColor(gridcolor, gridz),
-						adjustColor(gridcolor, gridz));
+
+				final Vector3D topStart = Utils3D.project(new Vector3D(i, 0, 0), camera);
+				final Vector3D topEnd = Utils3D.project(new Vector3D(i, 0, gridz), camera);
+				graphicsSubsystem.drawLine((int) topStart.x(), (int) topStart.y(), (int) topEnd.x(), (int) topEnd.y(),
+						adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+
+				final Vector3D bottomStart = Utils3D.project(new Vector3D(i, gridy, 0), camera);
+				final Vector3D bottomEnd = Utils3D.project(new Vector3D(i, gridy, gridz), camera);
+				graphicsSubsystem.drawLine((int) bottomStart.x(), (int) bottomStart.y(), (int) bottomEnd.x(), (int) bottomEnd.y(),
+						adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+
+				final Vector3D backStart = Utils3D.project(new Vector3D(i, 0, gridz), camera);
+				final Vector3D backEnd = Utils3D.project(new Vector3D(i, gridy, gridz), camera);
+				graphicsSubsystem.drawLine((int) backStart.x(), (int) backStart.y(), (int) backEnd.x(), (int) backEnd.y(),
+						adjustColor(gridcolor, gridz), adjustColor(gridcolor, gridz));
 			}
 		}
 
@@ -161,23 +172,27 @@ public class WhirlSim extends SimulationScreen {
 
 			final Vector3D point = particle.position;
 
-			double x = projectX(point.x(), point.z(), viewpoint);
-			double y = projectY(point.y(), point.z(), viewpoint);
+			final Vector3D ppoint = Utils3D.project(point, camera);
+			if (ppoint == null) {
+				continue;
+			}
 
-			double rcx = projectX(point.x(), rotcenter.z(), viewpoint);
+			double px = ppoint.x();
+			double py = ppoint.y();
 
-			double bubbleRadius = Math.abs(x - projectX(
-					point.x() + MathUtils.morph(v -> particle.radius, v -> finalBubbleRadius,
-							v -> MathUtils.sigmoid(
-									MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, particle.position.x())),
-							rcx),
-					point.z(), viewpoint));
+			final Vector3D prc = Utils3D.project(new Vector3D(point.x(), point.y(), rotcenter.z()), camera);
+			final Vector3D pRimPoint = Utils3D.project(new Vector3D(point.x() + MathUtils.morph(v -> particle.radius,
+					v -> finalBubbleRadius,
+					v -> MathUtils.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, particle.position.x())),
+					prc.x()), point.y(), point.z()), camera);
+
+			double bubbleRadius = Math.abs(px - pRimPoint.x());
 
 			final Function<Double, Double> colortrans = v -> MathUtils
 					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -7, 1.4, particle.position.x()));
 			final Function<Double, Double> alphatrans = v -> MathUtils
 					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -18, 1.4, particle.position.x()));
-			graphicsSubsystem.drawFilledCircle((int) x, (int) y, (int) bubbleRadius,
+			graphicsSubsystem.drawFilledCircle((int) px, (int) py, (int) bubbleRadius,
 					() -> CUtils.transparent(
 							adjustColor(CUtils.morphColor(particle.color, Color.YELLOW, colortrans, particle.position.x()), point.z()),
 							(int) MathUtils.morph(v -> (double) particle.color.getAlpha(), v -> 0D, alphatrans, particle.position.x())));
@@ -195,24 +210,6 @@ public class WhirlSim extends SimulationScreen {
 		} else {
 			return color;
 		}
-	}
-
-	private double projectX(final double x, final double z, final Vector3D vp) {
-		return projectXY(x, z, vp, Vector3D::x);
-	}
-
-	private double projectY(final double y, final double z, final Vector3D vp) {
-		return projectXY(y, z, vp, Vector3D::y);
-	}
-
-	private double projectXY(final double xy, final double z, final Vector3D vp, Function<Vector3D, Double> vpxy) {
-
-		double diffZ = vp.z() - z;
-		if (diffZ == 0) {
-			return 0;
-		}
-		return (xy * vp.z() - z * vpxy.apply(vp)) / diffZ;
-
 	}
 
 	/*
@@ -305,17 +302,17 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				viewpoint.setX(viewpoint.x() + VP_STEP);
+				camera.getViewpoint().setX(camera.getViewpoint().x() + VP_STEP);
 			}
 
 			@Override
 			public void minus() {
-				viewpoint.setX(viewpoint.x() - VP_STEP);
+				camera.getViewpoint().setX(camera.getViewpoint().x() - VP_STEP);
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(viewpoint.x());
+				return String.valueOf(camera.getViewpoint().x());
 			}
 		});
 		addKeyAction(KeyEvent.VK_Y, new IKeyAction() {
@@ -342,17 +339,17 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				viewpoint.setY(viewpoint.y() + VP_STEP);
+				camera.getViewpoint().setY(camera.getViewpoint().y() + VP_STEP);
 			}
 
 			@Override
 			public void minus() {
-				viewpoint.setY(viewpoint.y() - VP_STEP);
+				camera.getViewpoint().setY(camera.getViewpoint().y() - VP_STEP);
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(viewpoint.y());
+				return String.valueOf(camera.getViewpoint().y());
 			}
 		});
 		addKeyAction(KeyEvent.VK_Z, new IKeyAction() {
@@ -379,19 +376,19 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				if (viewpoint.z() + VP_STEP < 0) {
-					viewpoint.setZ(viewpoint.z() + VP_STEP);
+				if (camera.getViewpoint().z() + VP_STEP < 0) {
+					camera.getViewpoint().setZ(camera.getViewpoint().z() + VP_STEP);
 				}
 			}
 
 			@Override
 			public void minus() {
-				viewpoint.setZ(viewpoint.z() - VP_STEP);
+				camera.getViewpoint().setZ(camera.getViewpoint().z() - VP_STEP);
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(viewpoint.z());
+				return String.valueOf(camera.getViewpoint().z());
 			}
 		});
 		addKeyAction(KeyEvent.VK_C, new IKeyAction() {

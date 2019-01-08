@@ -37,6 +37,20 @@ public class TestCoordinateTransformation3D {
 	}
 
 	@Test
+	public void testInverseTransformPoint() throws Exception {
+
+		CoordinateTransformation3D transformation = new CoordinateTransformation3D();
+		transformation.scale(new Vector3D(2, -1, 1)).translate(new Vector3D(10, 20, 30)).rotate(0, 0, 0);
+
+		Vector3D transformedPoint = transformation.inverseTransformPoint(transformation.transformPoint(new Vector3D(2, 1, 1)));
+
+		assertEquals(2.0, transformedPoint.x(), "x");
+		assertEquals(1.0, transformedPoint.y(), "y");
+		assertEquals(1.0, transformedPoint.z(), "z");
+
+	}
+
+	@Test
 	public void testTransformVector() throws Exception {
 
 		CoordinateTransformation3D transformation = new CoordinateTransformation3D();
@@ -46,6 +60,20 @@ public class TestCoordinateTransformation3D {
 
 		assertEquals(1.0, transformedPoint.x(), "x");
 		assertEquals(-3.0, transformedPoint.y(), "y");
+		assertEquals(4.0, transformedPoint.z(), "z");
+
+	}
+
+	@Test
+	public void testInverseTransformVector() throws Exception {
+
+		CoordinateTransformation3D transformation = new CoordinateTransformation3D();
+		transformation.scale(new Vector3D(2, -1, 1)).translate(new Vector3D(10, 20, 30));
+
+		Vector3D transformedPoint = transformation.inverseTransformVector(transformation.transformVector(new Vector3D(2, 3, 4)));
+
+		assertEquals(2.0, transformedPoint.x(), "x");
+		assertEquals(3.0, transformedPoint.y(), "y");
 		assertEquals(4.0, transformedPoint.z(), "z");
 
 	}
