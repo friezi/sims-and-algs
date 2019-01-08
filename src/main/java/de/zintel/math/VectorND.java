@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import de.zintel.math.matrix.DMatrix;
+
 /**
  * @author Friedemann
  *
@@ -174,7 +176,7 @@ public class VectorND implements Serializable {
 	 * @param vector
 	 * @return resultvector
 	 */
-	public static VectorND mmult(Matrix matrix, VectorND vector) {
+	public static VectorND mmult(DMatrix matrix, VectorND vector) {
 
 		assertProp(matrix.getRows() == vector.getDim());
 		assertProp(matrix.getColumns() == vector.getDim());

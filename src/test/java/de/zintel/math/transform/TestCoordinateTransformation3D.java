@@ -1,12 +1,13 @@
 /**
  * 
  */
-package de.zintel.math;
+package de.zintel.math.transform;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
 
 /**
