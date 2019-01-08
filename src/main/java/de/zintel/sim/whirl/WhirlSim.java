@@ -73,6 +73,8 @@ public class WhirlSim extends SimulationScreen {
 	private Camera3D camera = new Camera3D(new Vector3D(950.0, 140.0, -1000.0), new Plane3D(new Vector3D(0, 0, 1), new Vector3D(0, 0, 0)),
 			new CoordinateTransformation3D());
 
+	private int angleCntr = 0;;
+
 	private Vector3D rotcenter = new Vector3D(0.0, 540.0, 200.0);
 
 	private int frequency = 1;
@@ -154,18 +156,24 @@ public class WhirlSim extends SimulationScreen {
 
 				final Vector3D topStart = project(new Vector3D(i, 0, 0));
 				final Vector3D topEnd = project(new Vector3D(i, 0, gridz));
-				graphicsSubsystem.drawLine((int) topStart.x(), (int) topStart.y(), (int) topEnd.x(), (int) topEnd.y(),
-						adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+				if (topStart != null && topEnd != null) {
+					graphicsSubsystem.drawLine((int) topStart.x(), (int) topStart.y(), (int) topEnd.x(), (int) topEnd.y(),
+							adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+				}
 
 				final Vector3D bottomStart = project(new Vector3D(i, gridy, 0));
 				final Vector3D bottomEnd = project(new Vector3D(i, gridy, gridz));
-				graphicsSubsystem.drawLine((int) bottomStart.x(), (int) bottomStart.y(), (int) bottomEnd.x(), (int) bottomEnd.y(),
-						adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+				if (bottomStart != null && bottomEnd != null) {
+					graphicsSubsystem.drawLine((int) bottomStart.x(), (int) bottomStart.y(), (int) bottomEnd.x(), (int) bottomEnd.y(),
+							adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
+				}
 
 				final Vector3D backStart = project(new Vector3D(i, 0, gridz));
 				final Vector3D backEnd = project(new Vector3D(i, gridy, gridz));
-				graphicsSubsystem.drawLine((int) backStart.x(), (int) backStart.y(), (int) backEnd.x(), (int) backEnd.y(),
-						adjustColor(gridcolor, gridz), adjustColor(gridcolor, gridz));
+				if (backStart != null && backEnd != null) {
+					graphicsSubsystem.drawLine((int) backStart.x(), (int) backStart.y(), (int) backEnd.x(), (int) backEnd.y(),
+							adjustColor(gridcolor, gridz), adjustColor(gridcolor, gridz));
+				}
 			}
 		}
 
@@ -197,6 +205,10 @@ public class WhirlSim extends SimulationScreen {
 			final Vector3D pRimPoint = project(new Vector3D(
 					VectorND.add(point, camera.getCoordinateTransformation().inverseTransformVector(new Vector3D(dynamicRadius, 0, 0)))));
 
+			if (pRimPoint == null) {
+				continue;
+			}
+
 			double pradius = Vector3D.distance(ppoint, pRimPoint);
 
 			final Function<Double, Double> colortrans = v -> MathUtils
@@ -215,6 +227,9 @@ public class WhirlSim extends SimulationScreen {
 		final Vector3D point = particle.position;
 
 		final Vector3D prc = project(new Vector3D(point.x(), point.y(), rotcenter.z()));
+		if (prc == null) {
+			return 0;
+		}
 		return MathUtils.morph(v -> particle.radius, v -> finalBubbleRadius,
 				v -> MathUtils.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, particle.position.x())),
 				prc.x());
@@ -289,6 +304,13 @@ public class WhirlSim extends SimulationScreen {
 		}
 
 		particles = newparticles;
+
+		// camera.getCoordinateTransformation().rotate(0,
+		// MathUtils.morphRange(0, 60 * 5, 0, -2 * Math.PI, angleCntr), 0);
+		angleCntr++;
+		if (angleCntr >= 60 * 5) {
+			angleCntr = 0;
+		}
 	}
 
 	private boolean validByFrequency(final int frequency) {
