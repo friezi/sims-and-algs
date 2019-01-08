@@ -24,6 +24,7 @@ import de.zintel.math.MathUtils;
 import de.zintel.math.Plane3D;
 import de.zintel.math.Utils3D;
 import de.zintel.math.Vector3D;
+import de.zintel.math.VectorND;
 import de.zintel.math.transform.CoordinateTransformation3D;
 import de.zintel.sim.SimulationScreen;
 
@@ -151,18 +152,18 @@ public class WhirlSim extends SimulationScreen {
 			final double gridy = dimension.getHeight();
 			for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
 
-				final Vector3D topStart = Utils3D.project(new Vector3D(i, 0, 0), camera);
-				final Vector3D topEnd = Utils3D.project(new Vector3D(i, 0, gridz), camera);
+				final Vector3D topStart = project(new Vector3D(i, 0, 0));
+				final Vector3D topEnd = project(new Vector3D(i, 0, gridz));
 				graphicsSubsystem.drawLine((int) topStart.x(), (int) topStart.y(), (int) topEnd.x(), (int) topEnd.y(),
 						adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
 
-				final Vector3D bottomStart = Utils3D.project(new Vector3D(i, gridy, 0), camera);
-				final Vector3D bottomEnd = Utils3D.project(new Vector3D(i, gridy, gridz), camera);
+				final Vector3D bottomStart = project(new Vector3D(i, gridy, 0));
+				final Vector3D bottomEnd = project(new Vector3D(i, gridy, gridz));
 				graphicsSubsystem.drawLine((int) bottomStart.x(), (int) bottomStart.y(), (int) bottomEnd.x(), (int) bottomEnd.y(),
 						adjustColor(gridcolor, 0), adjustColor(gridcolor, gridz));
 
-				final Vector3D backStart = Utils3D.project(new Vector3D(i, 0, gridz), camera);
-				final Vector3D backEnd = Utils3D.project(new Vector3D(i, gridy, gridz), camera);
+				final Vector3D backStart = project(new Vector3D(i, 0, gridz));
+				final Vector3D backEnd = project(new Vector3D(i, gridy, gridz));
 				graphicsSubsystem.drawLine((int) backStart.x(), (int) backStart.y(), (int) backEnd.x(), (int) backEnd.y(),
 						adjustColor(gridcolor, gridz), adjustColor(gridcolor, gridz));
 			}
@@ -172,7 +173,7 @@ public class WhirlSim extends SimulationScreen {
 
 			final Vector3D point = particle.position;
 
-			final Vector3D ppoint = Utils3D.project(point, camera);
+			final Vector3D ppoint = project(point);
 			if (ppoint == null) {
 				continue;
 			}
@@ -180,23 +181,52 @@ public class WhirlSim extends SimulationScreen {
 			double px = ppoint.x();
 			double py = ppoint.y();
 
-			final Vector3D prc = Utils3D.project(new Vector3D(point.x(), point.y(), rotcenter.z()), camera);
-			final Vector3D pRimPoint = Utils3D.project(new Vector3D(point.x() + MathUtils.morph(v -> particle.radius,
-					v -> finalBubbleRadius,
-					v -> MathUtils.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, particle.position.x())),
-					prc.x()), point.y(), point.z()), camera);
+			/*
+			 * while traversing forward around the rotation-axis, the
+			 * bubble-size should decrease to a fixed minimum
+			 * (finalBubbleRadius), independent from the initial size. After
+			 * having calculated the new dynamic radius, we determine a
+			 * rim-point of the bubble, to be capable of determining the correct
+			 * projected radius. For this we choose a vector of the length of
+			 * the radius in direction to the x-axis on the camera plane and
+			 * retransform it into the global coordinate system. Now we can add
+			 * the vector to the bubble to get the rim-point. By projecting it
+			 * to the plane we can determine the effective (shown) radius.
+			 */
+			final double dynamicRadius = calculateDynamicRadius(particle, dimension);
+			final Vector3D pRimPoint = project(new Vector3D(
+					VectorND.add(point, camera.getCoordinateTransformation().inverseTransformVector(new Vector3D(dynamicRadius, 0, 0)))));
 
-			double bubbleRadius = Math.abs(px - pRimPoint.x());
+			double pradius = Vector3D.distance(ppoint, pRimPoint);
 
 			final Function<Double, Double> colortrans = v -> MathUtils
 					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -7, 1.4, particle.position.x()));
 			final Function<Double, Double> alphatrans = v -> MathUtils
 					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -18, 1.4, particle.position.x()));
-			graphicsSubsystem.drawFilledCircle((int) px, (int) py, (int) bubbleRadius,
+			graphicsSubsystem.drawFilledCircle((int) px, (int) py, (int) pradius,
 					() -> CUtils.transparent(
 							adjustColor(CUtils.morphColor(particle.color, Color.YELLOW, colortrans, particle.position.x()), point.z()),
 							(int) MathUtils.morph(v -> (double) particle.color.getAlpha(), v -> 0D, alphatrans, particle.position.x())));
 		}
+	}
+
+	private double calculateDynamicRadius(Particle particle, final Dimension dimension) {
+
+		final Vector3D point = particle.position;
+
+		final Vector3D prc = project(new Vector3D(point.x(), point.y(), rotcenter.z()));
+		return MathUtils.morph(v -> particle.radius, v -> finalBubbleRadius,
+				v -> MathUtils.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, particle.position.x())),
+				prc.x());
+
+	}
+
+	/**
+	 * @param point
+	 * @return
+	 */
+	private Vector3D project(final Vector3D point) {
+		return Utils3D.project(point, camera);
 	}
 
 	private Color adjustColor(final Color color, final double z) {
