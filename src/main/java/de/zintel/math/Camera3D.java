@@ -4,7 +4,6 @@
 package de.zintel.math;
 
 import de.zintel.math.transform.CoordinateTransformation3D;
-import de.zintel.math.transform.Rotator3D;
 
 /**
  * Viewpoint and plane are always relativ according to the
