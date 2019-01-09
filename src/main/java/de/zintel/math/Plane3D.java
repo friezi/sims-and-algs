@@ -3,22 +3,33 @@
  */
 package de.zintel.math;
 
+import de.zintel.math.transform.Rotator3D;
+
 /**
  * @author friedemann.zintel
  *
  */
 public class Plane3D {
 
-	private final Vector3D normal;
+	private Vector3D normal;
 
-	private final Vector3D positionvector;
+	private Vector3D positionvector;
 
-	private final double pn;
+	private double pn;
 
 	public Plane3D(Vector3D normal, Vector3D positionvector) {
 		this.normal = normal;
 		this.positionvector = positionvector;
-		this.pn = VectorND.mult(positionvector, normal);
+		this.pn = calculatePn(normal, positionvector);
+	}
+
+	/**
+	 * @param normal
+	 * @param positionvector
+	 * @return
+	 */
+	public double calculatePn(Vector3D normal, Vector3D positionvector) {
+		return VectorND.mult(positionvector, normal);
 	}
 
 	public Vector3D getNormal() {
@@ -31,6 +42,13 @@ public class Plane3D {
 
 	public double getPn() {
 		return pn;
+	}
+
+	public void rotate(double angleX, double angleY, double angleZ) {
+
+		normal = new Rotator3D(angleX, angleY, angleZ).apply(normal);
+		pn = calculatePn(normal, positionvector);
+
 	}
 
 }

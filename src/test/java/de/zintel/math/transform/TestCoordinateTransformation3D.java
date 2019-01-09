@@ -26,7 +26,7 @@ public class TestCoordinateTransformation3D {
 	public void testTransformPoint() throws Exception {
 
 		CoordinateTransformation3D transformation = new CoordinateTransformation3D();
-		transformation.scale(new Vector3D(2, -1, 1)).translate(new Vector3D(10, 20, 30)).rotate(0, 0, 0);
+		transformation.setScaling(new Vector3D(2, -1, 1)).setTranslation(new Vector3D(10, 20, 30)).setRotation(0, 0, 0);
 
 		Vector3D transformedPoint = transformation.transformPoint(new Vector3D(2, 1, 1));
 
@@ -40,7 +40,7 @@ public class TestCoordinateTransformation3D {
 	public void testInverseTransformPoint() throws Exception {
 
 		CoordinateTransformation3D transformation = new CoordinateTransformation3D();
-		transformation.scale(new Vector3D(2, -1, 1)).translate(new Vector3D(10, 20, 30)).rotate(0, 0, 0);
+		transformation.setScaling(new Vector3D(2, -1, 1)).setTranslation(new Vector3D(10, 20, 30)).setRotation(0, 0, 0);
 
 		Vector3D transformedPoint = transformation.inverseTransformPoint(transformation.transformPoint(new Vector3D(2, 1, 1)));
 
@@ -54,7 +54,7 @@ public class TestCoordinateTransformation3D {
 	public void testTransformVector() throws Exception {
 
 		CoordinateTransformation3D transformation = new CoordinateTransformation3D();
-		transformation.scale(new Vector3D(2, -1, 1)).translate(new Vector3D(10, 20, 30));
+		transformation.setScaling(new Vector3D(2, -1, 1)).setTranslation(new Vector3D(10, 20, 30));
 
 		Vector3D transformedPoint = transformation.transformVector(new Vector3D(2, 3, 4));
 
@@ -68,7 +68,7 @@ public class TestCoordinateTransformation3D {
 	public void testInverseTransformVector() throws Exception {
 
 		CoordinateTransformation3D transformation = new CoordinateTransformation3D();
-		transformation.scale(new Vector3D(2, -1, 1)).translate(new Vector3D(10, 20, 30));
+		transformation.setScaling(new Vector3D(2, -1, 1)).setTranslation(new Vector3D(10, 20, 30));
 
 		Vector3D transformedPoint = transformation.inverseTransformVector(transformation.transformVector(new Vector3D(2, 3, 4)));
 

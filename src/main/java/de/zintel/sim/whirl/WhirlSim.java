@@ -73,8 +73,6 @@ public class WhirlSim extends SimulationScreen {
 	private Camera3D camera = new Camera3D(new Vector3D(950.0, 140.0, -1000.0), new Plane3D(new Vector3D(0, 0, 1), new Vector3D(0, 0, 0)),
 			new CoordinateTransformation3D());
 
-	private int angleCntr = 0;;
-
 	private Vector3D rotcenter = new Vector3D(0.0, 540.0, 200.0);
 
 	private int frequency = 1;
@@ -102,6 +100,8 @@ public class WhirlSim extends SimulationScreen {
 	private int minParticleRadius = 3;
 
 	private int maxParticleRadius = 9;
+
+	private int rotationspeed = 0;
 
 	/**
 	 * @param title
@@ -305,12 +305,10 @@ public class WhirlSim extends SimulationScreen {
 
 		particles = newparticles;
 
-		// camera.getCoordinateTransformation().rotate(0,
-		// MathUtils.morphRange(0, 60 * 5, 0, -2 * Math.PI, angleCntr), 0);
-		angleCntr++;
-		if (angleCntr >= 60 * 5) {
-			angleCntr = 0;
+		if (rotationspeed != 0) {
+			camera.rotate(0, rotationspeed * 2 * Math.PI / (60 * 60), 0);
 		}
+
 	}
 
 	private boolean validByFrequency(final int frequency) {
@@ -792,6 +790,43 @@ public class WhirlSim extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return String.valueOf(maxParticleRadius);
+			}
+		});
+		addKeyAction(KeyEvent.VK_V, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "ROTSPEED";
+			}
+
+			@Override
+			public String text() {
+				return "rotation speed";
+			}
+
+			@Override
+			public void plus() {
+				rotationspeed++;
+			}
+
+			@Override
+			public void minus() {
+				rotationspeed--;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(rotationspeed);
 			}
 		});
 	}

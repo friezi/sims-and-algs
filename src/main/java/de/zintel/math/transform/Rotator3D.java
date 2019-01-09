@@ -22,13 +22,13 @@ import de.zintel.math.VectorND;
  */
 public class Rotator3D implements Function<Vector3D, Vector3D> {
 
-	private final double angleX;
+	private double angleX;
 
-	private final double angleY;
+	private double angleY;
 
-	private final double angleZ;
+	private double angleZ;
 
-	private final DMatrix rotationMatrix;
+	private DMatrix rotationMatrix;
 
 	public Rotator3D(double angleX, double angleY, double angleZ) {
 		this.angleX = angleX;
@@ -62,6 +62,16 @@ public class Rotator3D implements Function<Vector3D, Vector3D> {
 				new Vector3D(cosX * sinZ - sinX * sinY * cosZ, sinX * sinY * sinZ + cosX * cosZ, -sinX * cosY),
 				new Vector3D(cosX * sinY * cosZ + sinX * sinZ, sinX * cosZ - cosX * sinY * sinZ, cosX * cosY)), Order.ROWS);
 		return matrix;
+
+	}
+
+	public void add(double angleX, double angleY, double angleZ) {
+
+		this.angleX += angleX;
+		this.angleY += angleY;
+		this.angleZ += angleZ;
+
+		rotationMatrix = makeRotationMatrix();
 
 	}
 

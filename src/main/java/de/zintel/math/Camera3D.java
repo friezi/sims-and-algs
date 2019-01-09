@@ -4,8 +4,12 @@
 package de.zintel.math;
 
 import de.zintel.math.transform.CoordinateTransformation3D;
+import de.zintel.math.transform.Rotator3D;
 
 /**
+ * Viewpoint and plane are always relativ according to the
+ * coordinate-transformation
+ * 
  * @author friedemann.zintel
  *
  */
@@ -33,6 +37,10 @@ public class Camera3D {
 
 	public CoordinateTransformation3D getCoordinateTransformation() {
 		return coordinateTransformation;
+	}
+
+	public void rotate(double angleX, double angleY, double angleZ) {
+		coordinateTransformation.rotate(angleX, angleY, angleZ);
 	}
 
 }

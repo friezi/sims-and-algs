@@ -47,20 +47,31 @@ public class CoordinateTransformation3D {
 		return inverseRotateVector(inverseScaleVector(vector));
 	}
 
-	public CoordinateTransformation3D translate(Vector3D vector) {
+	public CoordinateTransformation3D setTranslation(Vector3D vector) {
 		this.translator = new Translator3D(new Vector3D(-vector.x(), -vector.y(), -vector.z()));
 		this.inverseTranslator = new Translator3D(vector);
 		return this;
 	}
 
-	public CoordinateTransformation3D scale(Vector3D diagvector) {
+	public CoordinateTransformation3D setScaling(Vector3D diagvector) {
 		this.scaler = new Scaler3D(new Vector3D(1 / diagvector.x(), 1 / diagvector.y(), 1 / diagvector.z()));
 		this.inverseScaler = new Scaler3D(diagvector);
 		return this;
 	}
 
-	public CoordinateTransformation3D rotate(final double angleX, final double angleY, final double angleZ) {
+	public CoordinateTransformation3D setRotation(final double angleX, final double angleY, final double angleZ) {
 		this.rotator = new Rotator3D(-angleX, -angleY, -angleZ);
+		this.inverseRotator = this.rotator.getInvertedRotator();
+		return this;
+	}
+
+	public CoordinateTransformation3D rotate(final double angleX, final double angleY, final double angleZ) {
+
+		if (rotator == null) {
+			rotator = new Rotator3D(0, 0, 0);
+		}
+
+		this.rotator.add(-angleX, -angleY, -angleZ);
 		this.inverseRotator = this.rotator.getInvertedRotator();
 		return this;
 	}
