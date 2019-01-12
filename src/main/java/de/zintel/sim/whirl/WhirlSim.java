@@ -141,9 +141,9 @@ public class WhirlSim extends SimulationScreen {
 		graphicsSubsystem.setColorMixture(colorMixture);
 		initKeyActions();
 
-		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
-				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
-				graphicsSubsystem.getDimension());
+		camera = new PlaneCamera3D(
+				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
+				new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
 		// camera = new SphereCamera3D(new Vector3D(950.0, 140.0, -1000.0), new
 		// CoordinateTransformation3D(), 5000000,
 		// graphicsSubsystem.getDimension());
@@ -163,90 +163,10 @@ public class WhirlSim extends SimulationScreen {
 		final Dimension dimension = graphicsSubsystem.getDimension();
 
 		if (showgrid) {
-			// grid
-			final double gridz = 1500;
-
 			if (gridType == GridType.SIMPLE) {
-				final double gridy = dimension.getHeight();
-				for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
-
-					final Vector3D topStart = new Vector3D(i, 0, 0);
-					final Vector3D p_topStart = project(topStart);
-					final Vector3D topEnd = new Vector3D(i, 0, gridz);
-					final Vector3D p_topEnd = project(topEnd);
-					if (p_topStart != null && p_topEnd != null) {
-						graphicsSubsystem.drawLine((int) p_topStart.x(), (int) p_topStart.y(), (int) p_topEnd.x(), (int) p_topEnd.y(),
-								adjustColor(gridcolor, topStart), adjustColor(gridcolor, topEnd));
-					}
-
-					final Vector3D bottomStart = new Vector3D(i, gridy, 0);
-					final Vector3D p_bottomStart = project(bottomStart);
-					final Vector3D bottomEnd = new Vector3D(i, gridy, gridz);
-					final Vector3D p_bottomEnd = project(bottomEnd);
-					if (p_bottomStart != null && p_bottomEnd != null) {
-						graphicsSubsystem.drawLine((int) p_bottomStart.x(), (int) p_bottomStart.y(), (int) p_bottomEnd.x(),
-								(int) p_bottomEnd.y(), adjustColor(gridcolor, bottomStart), adjustColor(gridcolor, bottomEnd));
-					}
-
-					final Vector3D backStart = new Vector3D(i, 0, gridz);
-					final Vector3D p_backStart = project(backStart);
-					final Vector3D backEnd = new Vector3D(i, gridy, gridz);
-					final Vector3D p_backEnd = project(backEnd);
-					if (p_backStart != null && p_backEnd != null) {
-						graphicsSubsystem.drawLine((int) p_backStart.x(), (int) p_backStart.y(), (int) p_backEnd.x(), (int) p_backEnd.y(),
-								adjustColor(gridcolor, backStart), adjustColor(gridcolor, backEnd));
-					}
-				}
+				drawSimpleGrid(graphicsSubsystem);
 			} else {
-				final int step = 100;
-				for (int z = 1500; z >= 0; z -= step) {
-					for (int y = 0; y < dimension.getHeight(); y += step) {
-						for (int x = 0; x < dimension.getWidth(); x += step) {
-							final Vector3D point = new Vector3D(x, y, z);
-							final Vector3D znpoint = new Vector3D(point.x(), point.y(), point.z() - step);
-							final Vector3D xnpoint = new Vector3D(point.x() + step, point.y(), point.z());
-							final Vector3D ynpoint = new Vector3D(point.x(), point.y() + step, point.z());
-							final Vector3D ppoint = project(point);
-							final Vector3D znppoint = project(znpoint);
-							final Vector3D xnppoint = project(xnpoint);
-							final Vector3D ynppoint = project(ynpoint);
-							if (ppoint == null) {
-								continue;
-							}
-
-							final int radius = (int) projectRadius(point, ppoint, finalBubbleRadius * 3);
-							if (radius == 0) {
-								continue;
-							}
-
-							if (ppoint != null) {
-								graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius,
-										() -> adjustColor(Color.GREEN, point));
-
-								if (xnppoint != null) {
-									if (x < dimension.getWidth()) {
-										graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) xnppoint.x(),
-												(int) xnppoint.y(), adjustColor(gridcolor, ppoint), adjustColor(gridcolor, xnppoint));
-									}
-								}
-
-								if (ynppoint != null) {
-									if (y < dimension.getHeight()) {
-										graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) ynppoint.x(),
-												(int) ynppoint.y(), adjustColor(gridcolor, ppoint), adjustColor(gridcolor, ynppoint));
-									}
-								}
-
-								if (znppoint != null) {
-									if (z > 0) {
-										graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) znppoint.x(),
-												(int) znppoint.y(), adjustColor(gridcolor, ppoint), adjustColor(gridcolor, znppoint));
-									}
-								}
-							}
-						}
-					}
-				}
+				drawComplexGrid(graphicsSubsystem);
 			}
 		}
 
@@ -287,6 +207,99 @@ public class WhirlSim extends SimulationScreen {
 			graphicsSubsystem.drawFilledCircle((int) px, (int) py, pradius,
 					() -> CUtils.transparent(adjustColor(CUtils.morphColor(particle.color, Color.YELLOW, colortrans, point.x()), point),
 							(int) MathUtils.morph(v -> (double) particle.color.getAlpha(), v -> 0D, alphatrans, point.x())));
+		}
+	}
+
+	private void drawSimpleGrid(IGraphicsSubsystem graphicsSubsystem) {
+
+		final Dimension dimension = graphicsSubsystem.getDimension();
+		final double gridz = 1500;
+
+		final double gridy = dimension.getHeight();
+		for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
+
+			final Vector3D topStart = new Vector3D(i, 0, 0);
+			final Vector3D p_topStart = project(topStart);
+			final Vector3D topEnd = new Vector3D(i, 0, gridz);
+			final Vector3D p_topEnd = project(topEnd);
+			if (p_topStart != null && p_topEnd != null) {
+				graphicsSubsystem.drawLine((int) p_topStart.x(), (int) p_topStart.y(), (int) p_topEnd.x(), (int) p_topEnd.y(),
+						adjustColor(gridcolor, topStart), adjustColor(gridcolor, topEnd));
+			}
+
+			final Vector3D bottomStart = new Vector3D(i, gridy, 0);
+			final Vector3D p_bottomStart = project(bottomStart);
+			final Vector3D bottomEnd = new Vector3D(i, gridy, gridz);
+			final Vector3D p_bottomEnd = project(bottomEnd);
+			if (p_bottomStart != null && p_bottomEnd != null) {
+				graphicsSubsystem.drawLine((int) p_bottomStart.x(), (int) p_bottomStart.y(), (int) p_bottomEnd.x(), (int) p_bottomEnd.y(),
+						adjustColor(gridcolor, bottomStart), adjustColor(gridcolor, bottomEnd));
+			}
+
+			final Vector3D backStart = new Vector3D(i, 0, gridz);
+			final Vector3D p_backStart = project(backStart);
+			final Vector3D backEnd = new Vector3D(i, gridy, gridz);
+			final Vector3D p_backEnd = project(backEnd);
+			if (p_backStart != null && p_backEnd != null) {
+				graphicsSubsystem.drawLine((int) p_backStart.x(), (int) p_backStart.y(), (int) p_backEnd.x(), (int) p_backEnd.y(),
+						adjustColor(gridcolor, backStart), adjustColor(gridcolor, backEnd));
+			}
+		}
+
+	}
+
+	private void drawComplexGrid(IGraphicsSubsystem graphicsSubsystem) {
+
+		final Dimension dimension = graphicsSubsystem.getDimension();
+
+		final int step = 100;
+		for (int z = 1500; z >= 0; z -= step) {
+			for (int y = 0; y < dimension.getHeight(); y += step) {
+				for (int x = 0; x < dimension.getWidth(); x += step) {
+					
+					final Vector3D point = new Vector3D(x, y, z);
+					final Vector3D znpoint = new Vector3D(point.x(), point.y(), point.z() - step);
+					final Vector3D xnpoint = new Vector3D(point.x() + step, point.y(), point.z());
+					final Vector3D ynpoint = new Vector3D(point.x(), point.y() + step, point.z());
+					final Vector3D ppoint = project(point);
+					final Vector3D znppoint = project(znpoint);
+					final Vector3D xnppoint = project(xnpoint);
+					final Vector3D ynppoint = project(ynpoint);
+					if (ppoint == null) {
+						continue;
+					}
+
+					final int radius = (int) projectRadius(point, ppoint, finalBubbleRadius * 3);
+					if (radius == 0) {
+						continue;
+					}
+
+					if (ppoint != null) {
+						graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius, () -> adjustColor(Color.GREEN, point));
+
+						if (xnppoint != null) {
+							if (x < dimension.getWidth()) {
+								graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) xnppoint.x(), (int) xnppoint.y(),
+										adjustColor(gridcolor, ppoint), adjustColor(gridcolor, xnppoint));
+							}
+						}
+
+						if (ynppoint != null) {
+							if (y < dimension.getHeight()) {
+								graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) ynppoint.x(), (int) ynppoint.y(),
+										adjustColor(gridcolor, ppoint), adjustColor(gridcolor, ynppoint));
+							}
+						}
+
+						if (znppoint != null) {
+							if (z > 0) {
+								graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) znppoint.x(), (int) znppoint.y(),
+										adjustColor(gridcolor, ppoint), adjustColor(gridcolor, znppoint));
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -368,8 +381,8 @@ public class WhirlSim extends SimulationScreen {
 
 			}
 
-			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
-					rottrans, point.x());
+			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius, rottrans,
+					point.x());
 
 			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, point.x());
 
@@ -1004,8 +1017,8 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public String getValue() {
-				return String.valueOf(
-						camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
+				return String
+						.valueOf(camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
 			}
 		});
 		addKeyAction(KeyEvent.VK_E, new IKeyAction() {
