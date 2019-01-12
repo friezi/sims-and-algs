@@ -81,7 +81,7 @@ public class CoordinateTransformation3D {
 	 *            in original coordinate system
 	 * @return
 	 */
-	private Vector3D translateVector(Vector3D vector) {
+	public Vector3D translateVector(Vector3D vector) {
 		return (translator == null ? vector : translator.apply(vector));
 	}
 
@@ -90,7 +90,7 @@ public class CoordinateTransformation3D {
 	 *            in this coordinate system
 	 * @return
 	 */
-	private Vector3D inverseTranslateVector(Vector3D vector) {
+	public Vector3D inverseTranslateVector(Vector3D vector) {
 		return (inverseTranslator == null ? vector : inverseTranslator.apply(vector));
 	}
 
@@ -99,7 +99,7 @@ public class CoordinateTransformation3D {
 	 *            in original coordinate system
 	 * @return
 	 */
-	private Vector3D scaleVector(Vector3D vector) {
+	public Vector3D scaleVector(Vector3D vector) {
 		return (scaler == null ? vector : scaler.apply(vector));
 	}
 
@@ -108,7 +108,7 @@ public class CoordinateTransformation3D {
 	 *            in this coordinate system
 	 * @return
 	 */
-	private Vector3D inverseScaleVector(Vector3D vector) {
+	public Vector3D inverseScaleVector(Vector3D vector) {
 		return (inverseScaler == null ? vector : inverseScaler.apply(vector));
 	}
 
@@ -117,7 +117,7 @@ public class CoordinateTransformation3D {
 	 *            in original coordinate system
 	 * @return
 	 */
-	private Vector3D rotateVector(final Vector3D vector) {
+	public Vector3D rotateVector(final Vector3D vector) {
 		return (rotator == null ? vector : rotator.apply(vector));
 	}
 
@@ -126,7 +126,7 @@ public class CoordinateTransformation3D {
 	 *            in this coordinate system
 	 * @return
 	 */
-	private Vector3D inverseRotateVector(final Vector3D vector) {
+	public Vector3D inverseRotateVector(final Vector3D vector) {
 		return (inverseRotator == null ? vector : inverseRotator.apply(vector));
 	}
 

@@ -31,13 +31,6 @@ public class Utils3D {
 
 	}
 
-	public static Vector3D project(final Vector3D point, final Camera3D camera) {
-
-		final Vector3D tpoint = camera.getCoordinateTransformation().transformPoint(point);
-		// liegt bei z<0 hinter der Linse
-		return tpoint.z() < 0 ? null : intersect(tpoint, camera.getViewpoint(), camera.getPlane());
-	}
-
 	// obsolete:
 	private double projectX(final double x, final double z, final Vector3D vp) {
 		return projectXY(x, z, vp, Vector3D::x);

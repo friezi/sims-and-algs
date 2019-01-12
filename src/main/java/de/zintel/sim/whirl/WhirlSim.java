@@ -19,10 +19,10 @@ import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
-import de.zintel.math.Camera3D;
+import de.zintel.math.PlaneCamera3D;
+import de.zintel.math.SphereCamera3D;
+import de.zintel.math.ICamera3D;
 import de.zintel.math.MathUtils;
-import de.zintel.math.Plane3D;
-import de.zintel.math.Utils3D;
 import de.zintel.math.Vector3D;
 import de.zintel.math.VectorND;
 import de.zintel.math.transform.CoordinateTransformation3D;
@@ -33,6 +33,10 @@ import de.zintel.sim.SimulationScreen;
  *
  */
 public class WhirlSim extends SimulationScreen {
+
+	private static enum GridType {
+		SIMPLE, COMPLEX
+	}
 
 	private static class Particle {
 
@@ -70,8 +74,7 @@ public class WhirlSim extends SimulationScreen {
 
 	private Set<Particle> particles = new LinkedHashSet<>();
 
-	private Camera3D camera = new Camera3D(new Vector3D(950.0, 140.0, -1000.0), new Plane3D(new Vector3D(0, 0, 1), new Vector3D(0, 0, 0)),
-			new CoordinateTransformation3D());
+	private ICamera3D camera;
 
 	private Vector3D rotcenter = new Vector3D(0.0, 540.0, 200.0);
 
@@ -96,6 +99,8 @@ public class WhirlSim extends SimulationScreen {
 	private boolean showgrid = true;
 
 	private EColorMixture colorMixture = EColorMixture.ADDITIVE;
+
+	private GridType gridType = GridType.SIMPLE;
 
 	private int minParticleRadius = 3;
 
@@ -136,6 +141,13 @@ public class WhirlSim extends SimulationScreen {
 		graphicsSubsystem.setColorMixture(colorMixture);
 		initKeyActions();
 
+		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
+				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
+				graphicsSubsystem.getDimension());
+		// camera = new SphereCamera3D(new Vector3D(950.0, 140.0, -1000.0), new
+		// CoordinateTransformation3D(), 5000000,
+		// graphicsSubsystem.getDimension());
+
 	}
 
 	/*
@@ -148,39 +160,92 @@ public class WhirlSim extends SimulationScreen {
 	@Override
 	protected void renderSim(IGraphicsSubsystem graphicsSubsystem) {
 
-		final double gridz = 1500;
 		final Dimension dimension = graphicsSubsystem.getDimension();
 
 		if (showgrid) {
 			// grid
-			final double gridy = dimension.getHeight();
-			for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
+			final double gridz = 1500;
 
-				final Vector3D topStart = new Vector3D(i, 0, 0);
-				final Vector3D p_topStart = project(topStart);
-				final Vector3D topEnd = new Vector3D(i, 0, gridz);
-				final Vector3D p_topEnd = project(topEnd);
-				if (p_topStart != null && p_topEnd != null) {
-					graphicsSubsystem.drawLine((int) p_topStart.x(), (int) p_topStart.y(), (int) p_topEnd.x(), (int) p_topEnd.y(),
-							adjustColor(gridcolor, topStart), adjustColor(gridcolor, topEnd));
+			if (gridType == GridType.SIMPLE) {
+				final double gridy = dimension.getHeight();
+				for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
+
+					final Vector3D topStart = new Vector3D(i, 0, 0);
+					final Vector3D p_topStart = project(topStart);
+					final Vector3D topEnd = new Vector3D(i, 0, gridz);
+					final Vector3D p_topEnd = project(topEnd);
+					if (p_topStart != null && p_topEnd != null) {
+						graphicsSubsystem.drawLine((int) p_topStart.x(), (int) p_topStart.y(), (int) p_topEnd.x(), (int) p_topEnd.y(),
+								adjustColor(gridcolor, topStart), adjustColor(gridcolor, topEnd));
+					}
+
+					final Vector3D bottomStart = new Vector3D(i, gridy, 0);
+					final Vector3D p_bottomStart = project(bottomStart);
+					final Vector3D bottomEnd = new Vector3D(i, gridy, gridz);
+					final Vector3D p_bottomEnd = project(bottomEnd);
+					if (p_bottomStart != null && p_bottomEnd != null) {
+						graphicsSubsystem.drawLine((int) p_bottomStart.x(), (int) p_bottomStart.y(), (int) p_bottomEnd.x(),
+								(int) p_bottomEnd.y(), adjustColor(gridcolor, bottomStart), adjustColor(gridcolor, bottomEnd));
+					}
+
+					final Vector3D backStart = new Vector3D(i, 0, gridz);
+					final Vector3D p_backStart = project(backStart);
+					final Vector3D backEnd = new Vector3D(i, gridy, gridz);
+					final Vector3D p_backEnd = project(backEnd);
+					if (p_backStart != null && p_backEnd != null) {
+						graphicsSubsystem.drawLine((int) p_backStart.x(), (int) p_backStart.y(), (int) p_backEnd.x(), (int) p_backEnd.y(),
+								adjustColor(gridcolor, backStart), adjustColor(gridcolor, backEnd));
+					}
 				}
+			} else {
+				final int step = 100;
+				for (int z = 1500; z >= 0; z -= step) {
+					for (int y = 0; y < dimension.getHeight(); y += step) {
+						for (int x = 0; x < dimension.getWidth(); x += step) {
+							final Vector3D point = new Vector3D(x, y, z);
+							final Vector3D znpoint = new Vector3D(point.x(), point.y(), point.z() - step);
+							final Vector3D xnpoint = new Vector3D(point.x() + step, point.y(), point.z());
+							final Vector3D ynpoint = new Vector3D(point.x(), point.y() + step, point.z());
+							final Vector3D ppoint = project(point);
+							final Vector3D znppoint = project(znpoint);
+							final Vector3D xnppoint = project(xnpoint);
+							final Vector3D ynppoint = project(ynpoint);
+							if (ppoint == null) {
+								continue;
+							}
 
-				final Vector3D bottomStart = new Vector3D(i, gridy, 0);
-				final Vector3D p_bottomStart = project(bottomStart);
-				final Vector3D bottomEnd = new Vector3D(i, gridy, gridz);
-				final Vector3D p_bottomEnd = project(bottomEnd);
-				if (p_bottomStart != null && p_bottomEnd != null) {
-					graphicsSubsystem.drawLine((int) p_bottomStart.x(), (int) p_bottomStart.y(), (int) p_bottomEnd.x(), (int) p_bottomEnd.y(),
-							adjustColor(gridcolor, bottomStart), adjustColor(gridcolor, bottomEnd));
-				}
+							final int radius = (int) projectRadius(point, ppoint, finalBubbleRadius * 3);
+							if (radius == 0) {
+								continue;
+							}
 
-				final Vector3D backStart = new Vector3D(i, 0, gridz);
-				final Vector3D p_backStart = project(backStart);
-				final Vector3D backEnd = new Vector3D(i, gridy, gridz);
-				final Vector3D p_backEnd = project(backEnd);
-				if (p_backStart != null && p_backEnd != null) {
-					graphicsSubsystem.drawLine((int) p_backStart.x(), (int) p_backStart.y(), (int) p_backEnd.x(), (int) p_backEnd.y(),
-							adjustColor(gridcolor, backStart), adjustColor(gridcolor, backEnd));
+							if (ppoint != null) {
+								graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius,
+										() -> adjustColor(Color.GREEN, point));
+
+								if (xnppoint != null) {
+									if (x < dimension.getWidth()) {
+										graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) xnppoint.x(),
+												(int) xnppoint.y(), adjustColor(gridcolor, ppoint), adjustColor(gridcolor, xnppoint));
+									}
+								}
+
+								if (ynppoint != null) {
+									if (y < dimension.getHeight()) {
+										graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) ynppoint.x(),
+												(int) ynppoint.y(), adjustColor(gridcolor, ppoint), adjustColor(gridcolor, ynppoint));
+									}
+								}
+
+								if (znppoint != null) {
+									if (z > 0) {
+										graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) znppoint.x(),
+												(int) znppoint.y(), adjustColor(gridcolor, ppoint), adjustColor(gridcolor, znppoint));
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -210,23 +275,32 @@ public class WhirlSim extends SimulationScreen {
 			 * to the plane we can determine the effective (shown) radius.
 			 */
 			final double dynamicRadius = calculateDynamicRadius(particle, dimension);
-			final Vector3D pRimPoint = project(new Vector3D(
-					VectorND.add(point, camera.getCoordinateTransformation().inverseTransformVector(new Vector3D(dynamicRadius, 0, 0)))));
-
-			if (pRimPoint == null) {
+			int pradius = (int) projectRadius(point, ppoint, dynamicRadius);
+			if (pradius == 0) {
 				continue;
 			}
-
-			double pradius = Vector3D.distance(ppoint, pRimPoint);
 
 			final Function<Double, Double> colortrans = v -> MathUtils
 					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -7, 1.4, point.x()));
 			final Function<Double, Double> alphatrans = v -> MathUtils
 					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -18, 1.4, point.x()));
-			graphicsSubsystem.drawFilledCircle((int) px, (int) py, (int) pradius,
+			graphicsSubsystem.drawFilledCircle((int) px, (int) py, pradius,
 					() -> CUtils.transparent(adjustColor(CUtils.morphColor(particle.color, Color.YELLOW, colortrans, point.x()), point),
 							(int) MathUtils.morph(v -> (double) particle.color.getAlpha(), v -> 0D, alphatrans, point.x())));
 		}
+	}
+
+	private double projectRadius(final Vector3D point, final Vector3D ppoint, final double radius) {
+
+		final Vector3D pRimPoint = project(
+				new Vector3D(VectorND.add(point, camera.getTransformationToScreen().inverseTransformVector(new Vector3D(radius, 0, 0)))));
+
+		if (pRimPoint == null) {
+			return 0;
+		}
+
+		return Vector3D.distance(ppoint, pRimPoint);
+
 	}
 
 	private double calculateDynamicRadius(Particle particle, final Dimension dimension) {
@@ -247,12 +321,12 @@ public class WhirlSim extends SimulationScreen {
 	 * @return
 	 */
 	private Vector3D project(final Vector3D point) {
-		return Utils3D.project(point, camera);
+		return camera.project(point);
 	}
 
 	private Color adjustColor(final Color color, final Vector3D point) {
 
-		final Vector3D t_point = dynamicColoring ? camera.getCoordinateTransformation().transformPoint(point) : point;
+		final Vector3D t_point = dynamicColoring ? camera.getTransformationToScreen().transformPoint(point) : point;
 		if (t_point.z() > rotcenter.z()) {
 
 			float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
@@ -294,8 +368,8 @@ public class WhirlSim extends SimulationScreen {
 
 			}
 
-			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius, rottrans,
-					point.x());
+			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
+					rottrans, point.x());
 
 			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, point.x());
 
@@ -871,6 +945,108 @@ public class WhirlSim extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return String.valueOf(dynamicColoring);
+			}
+		});
+		addKeyAction(KeyEvent.VK_A, new IKeyAction() {
+
+			private final int rstep = 20;
+
+			private final double cstep = 0.1;
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "RAD";
+			}
+
+			@Override
+			public String text() {
+				return (camera instanceof SphereCamera3D ? "radius" : "curvature");
+			}
+
+			@Override
+			public void plus() {
+				if (camera instanceof SphereCamera3D) {
+					final SphereCamera3D scamera = (SphereCamera3D) camera;
+					scamera.setRadius(scamera.getRadius() + rstep);
+				} else {
+					final PlaneCamera3D pcamera = (PlaneCamera3D) camera;
+					pcamera.setCurvature(pcamera.getCurvature() + cstep);
+				}
+			}
+
+			@Override
+			public void minus() {
+				if (camera instanceof SphereCamera3D) {
+					final SphereCamera3D scamera = (SphereCamera3D) camera;
+					if (((getGraphicsSubsystem().getDimension().getWidth() - 1) / (2 * (scamera.getRadius() - rstep))) < Math.PI / 2) {
+						scamera.setRadius(scamera.getRadius() - rstep);
+					}
+				} else {
+
+					final PlaneCamera3D pcamera = (PlaneCamera3D) camera;
+					if (pcamera.getCurvature() - cstep >= 0) {
+						pcamera.setCurvature(pcamera.getCurvature() - cstep);
+					} else {
+						pcamera.setCurvature(0);
+					}
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(
+						camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
+			}
+		});
+		addKeyAction(KeyEvent.VK_E, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "GRIDTYPE";
+			}
+
+			@Override
+			public String text() {
+				return "gridtype";
+			}
+
+			@Override
+			public void plus() {
+				switchGT();
+			}
+
+			@Override
+			public void minus() {
+				switchGT();
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(gridType.name());
+			}
+
+			private void switchGT() {
+				gridType = gridType == GridType.SIMPLE ? GridType.COMPLEX : GridType.SIMPLE;
 			}
 		});
 	}

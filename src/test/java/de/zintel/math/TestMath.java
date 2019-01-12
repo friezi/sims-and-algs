@@ -113,4 +113,12 @@ public class TestMath {
 		return Math.max(x1, x2) - Math.min(x1, x2) < 0.00001;
 	}
 
+	@Test
+	public void testTrig() throws Exception {
+
+		double value=3/4.0;
+		System.out.println("x: " + Math.acos(value) + "  -x: " + Math.acos(-value));
+
+	}
+
 }
