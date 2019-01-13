@@ -11,6 +11,13 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 
+import com.github.strikerx3.jxinput.XInputDevice;
+import com.github.strikerx3.jxinput.XInputLibraryVersion;
+import com.github.strikerx3.jxinput.enums.XInputButton;
+import com.github.strikerx3.jxinput.exceptions.XInputNotLoadedException;
+import com.github.strikerx3.jxinput.listener.SimpleXInputDeviceListener;
+import com.github.strikerx3.jxinput.listener.XInputDeviceListener;
+
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
@@ -146,6 +153,53 @@ public class WhirlSim extends SimulationScreen {
 		// CoordinateTransformation3D(), 5000000,
 		// graphicsSubsystem.getDimension());
 
+		initXInputDevice();
+
+	}
+
+	private void initXInputDevice() {
+
+		if (XInputDevice.isAvailable()) {
+
+			XInputLibraryVersion libVersion = XInputDevice.getLibraryVersion();
+			System.out.println("INFO: XInput library: " + libVersion);
+
+			try {
+
+				XInputDevice xInputDevice = XInputDevice.getDeviceFor(0);
+
+				XInputDeviceListener listener = new SimpleXInputDeviceListener() {
+
+					@Override
+					public void buttonChanged(XInputButton button, boolean pressed) {
+						super.buttonChanged(button, pressed);
+						System.out.println("INFO: XInputdevice button has changed");
+					}
+
+					@Override
+					public void connected() {
+						super.connected();
+						System.out.println("INFO: XInputdevice has connected");
+
+					}
+
+					@Override
+					public void disconnected() {
+						System.out.println("INFO: XInputdevice has disconnected");
+					}
+
+				};
+
+				xInputDevice.addListener(listener);
+
+			} catch (XInputNotLoadedException e) {
+				System.out.println("WARN: XInput not loaded!");
+			}
+		} else {
+
+			System.out.println("WARN: XInput not available!");
+
+		}
 	}
 
 	/*
