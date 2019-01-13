@@ -141,9 +141,9 @@ public class WhirlSim extends SimulationScreen {
 		graphicsSubsystem.setColorMixture(colorMixture);
 		initKeyActions();
 
-		camera = new PlaneCamera3D(
-				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
-				new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
+		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
+				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
+				graphicsSubsystem.getDimension());
 		// camera = new SphereCamera3D(new Vector3D(950.0, 140.0, -1000.0), new
 		// CoordinateTransformation3D(), 5000000,
 		// graphicsSubsystem.getDimension());
@@ -204,9 +204,12 @@ public class WhirlSim extends SimulationScreen {
 					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -7, 1.4, point.x()));
 			final Function<Double, Double> alphatrans = v -> MathUtils
 					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -18, 1.4, point.x()));
-			graphicsSubsystem.drawFilledCircle((int) px, (int) py, pradius,
-					() -> CUtils.transparent(adjustColor(CUtils.morphColor(particle.color, Color.YELLOW, colortrans, point.x()), point),
-							(int) MathUtils.morph(v -> (double) particle.color.getAlpha(), v -> 0D, alphatrans, point.x())));
+
+			if (camera.inRange(ppoint)) {
+				graphicsSubsystem.drawFilledCircle((int) px, (int) py, pradius,
+						() -> CUtils.transparent(adjustColor(CUtils.morphColor(particle.color, Color.YELLOW, colortrans, point.x()), point),
+								(int) MathUtils.morph(v -> (double) particle.color.getAlpha(), v -> 0D, alphatrans, point.x())));
+			}
 		}
 	}
 
@@ -275,7 +278,11 @@ public class WhirlSim extends SimulationScreen {
 					}
 
 					if (ppoint != null) {
-						graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius, () -> adjustColor(Color.GREEN, point));
+
+						if (camera.inRange(ppoint)) {
+							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius,
+									() -> adjustColor(Color.GREEN, point));
+						}
 
 						if (xnppoint != null) {
 							if (x < dimension.getWidth()) {
@@ -381,8 +388,8 @@ public class WhirlSim extends SimulationScreen {
 
 			}
 
-			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius, rottrans,
-					point.x());
+			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
+					rottrans, point.x());
 
 			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, point.x());
 
@@ -1017,8 +1024,8 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public String getValue() {
-				return String
-						.valueOf(camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
+				return String.valueOf(
+						camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
 			}
 		});
 		addKeyAction(KeyEvent.VK_E, new IKeyAction() {

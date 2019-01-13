@@ -12,4 +12,5 @@ public interface ICamera3D {
 
 	Vector3D project(Vector3D point);
 
+	boolean inRange(final Vector3D point);
 }

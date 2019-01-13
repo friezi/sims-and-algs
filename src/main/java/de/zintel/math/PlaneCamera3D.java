@@ -79,11 +79,12 @@ public class PlaneCamera3D implements ICamera3D {
 			i_point = new Vector3D(curve(screenDimension.getWidth() - 1, i_point.x(), curvature),
 					curve(screenDimension.getHeight() - 1, i_point.y(), curvature / 3), i_point.z());
 		}
-		return (i_point != null && inRange(i_point) ? i_point : null);
+		return i_point;
 
 	}
 
-	private boolean inRange(final Vector3D point) {
+	@Override
+	public boolean inRange(final Vector3D point) {
 		return point.x() >= 0 && point.x() < screenDimension.getWidth() && point.y() >= 0 && point.y() < screenDimension.getHeight();
 	}
 
