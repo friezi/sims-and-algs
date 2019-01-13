@@ -13,7 +13,6 @@ import de.zintel.gfx.ScreenParameters;
 import de.zintel.math.Vector2D;
 import de.zintel.math.Vector2DPlain;
 import de.zintel.math.VectorField2D;
-import de.zintel.math.AVectorND;
 
 /**
  * @author friedemann.zintel

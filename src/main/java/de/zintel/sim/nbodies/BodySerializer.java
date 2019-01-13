@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.function.Consumer;
 import java.util.zip.GZIPOutputStream;
 
 import de.zintel.physics.Body;

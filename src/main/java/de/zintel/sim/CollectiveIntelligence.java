@@ -9,7 +9,6 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -27,10 +26,10 @@ import de.zintel.ci.BoidType;
 import de.zintel.ci.FishSwarm;
 import de.zintel.ci.Swarm;
 import de.zintel.control.IKeyAction;
-import de.zintel.gfx.ScreenParameters;
-import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
+import de.zintel.gfx.ScreenParameters;
+import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
 import de.zintel.gfx.g2d.IterationUnit2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
@@ -197,7 +196,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 				}
 			}
 
-			final Vector2DPlain motionVector = new Vector2DPlain(currentPosition.x - previousPosition.x, currentPosition.y - previousPosition.y);
+			final Vector2DPlain motionVector = new Vector2DPlain(currentPosition.x - previousPosition.x,
+					currentPosition.y - previousPosition.y);
 			previousPosition = currentPosition;
 
 			return motionVector;
@@ -298,10 +298,11 @@ public class CollectiveIntelligence extends SimulationScreen {
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		graphicsSubsystem.setColorMixture(EColorMixture.ADDITIVE);
 
-		swarm = new FishSwarm(new Vector2DPlain(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2))
-				.setUseLeader(true).setUsePredator(true)
-				.setPublicDistance(MathUtils.distance(new Point(), new Point(screenParameters.WIDTH, screenParameters.HEIGHT)) / 4)
-				.setLeaderAttraction(40000);
+		swarm = new FishSwarm(
+				new Vector2DPlain(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2))
+						.setUseLeader(true).setUsePredator(true)
+						.setPublicDistance(MathUtils.distance(new Point(), new Point(screenParameters.WIDTH, screenParameters.HEIGHT)) / 4)
+						.setLeaderAttraction(40000);
 
 		initKeyActions();
 		initBoids();
@@ -341,7 +342,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 			// detect clusters
 			final BiFunction<Boid, Boid, Double> distanceOp = (b1, b2) -> Vector2DPlain.distance(b1.getPosition(), b2.getPosition());
-			final Collection<Boid> memberBoids = boids.stream().filter(boid -> boid.getType() == BoidType.MEMBER).collect(Collectors.toList());
+			final Collection<Boid> memberBoids = boids.stream().filter(boid -> boid.getType() == BoidType.MEMBER)
+					.collect(Collectors.toList());
 
 			final Set<Collection<Boid>> boidClusters = MathUtils.getClusters(memberBoids, 2.5, distanceOp);
 
@@ -400,8 +402,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 			};
 
 			graphicsSubsystem.drawFilledEllipse((int) boid.getPosition().x, (int) boid.getPosition().y,
-					graphicsSubsystem.supportsColorChange() ? BOID_SIZE : BOID_SIZE / 2, 2, Math.PI / 2 - boid.getDirectionPolar().getAngle(),
-					colorGenerator);
+					graphicsSubsystem.supportsColorChange() ? BOID_SIZE : BOID_SIZE / 2, 2,
+					Math.PI / 2 - boid.getDirectionPolar().getAngle(), colorGenerator);
 
 			if (SHIVERING && !graphicsSubsystem.supportsColorChange()) {
 				graphicsSubsystem.drawFilledEllipse((int) boid.getPosition().x, (int) boid.getPosition().y, BOID_SIZE, 2,
@@ -932,6 +934,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 	@Override
 	public void mouseClicked(MouseEvent event) {
 
+		super.mouseClicked(event);
+
 		if (event.getButton() == MouseEvent.BUTTON1) {
 
 			graphicsSubsystem.removeMouseMotionListener((MouseMotionListener) mouseBoid.getMotioner());
@@ -956,48 +960,4 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 		}
 	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent arg0) {
-
-	}
-
-	@Override
-	public void mousePressed(MouseEvent arg0) {
-
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent arg0) {
-
-	}
-
-	@Override
-	public void keyTyped(KeyEvent arg0) {
-
-	}
-
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
 }

@@ -5,7 +5,6 @@ package de.zintel.sim.nbodies;
 
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -268,58 +267,11 @@ public class NBodies extends SimulationScreen {
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent event) {
 
+		super.mouseWheelMoved(event);
+
 		int notches = event.getWheelRotation();
 		scenery.getSceneryConfig().setDistance(scenery.getSceneryConfig().getDistance() - notches * 0.1);
 		bodyProducer.setField(new Field(scenery.getSceneryConfig().spaceMin(width), scenery.getSceneryConfig().spaceMin(height),
 				scenery.getSceneryConfig().spaceMax(width), scenery.getSceneryConfig().spaceMax(height)));
 	}
-
-	@Override
-	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

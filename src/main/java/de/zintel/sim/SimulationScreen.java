@@ -8,8 +8,10 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -271,6 +273,19 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	}
 
+	@Override
+	public void keyReleased(KeyEvent ke) {
+
+		if (ke.getExtendedKeyCode() == KeyEvent.VK_ESCAPE) {
+			stopped = true;
+		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_SPACE) {
+			paused ^= true;
+		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_SHIFT) {
+			shift = false;
+		}
+
+	}
+
 	private void updateFadingText(String id, String text, Point position, Color color, long timeout, boolean toggleComponent) {
 
 		FadingText fadingText = (FadingText) gfxComponents.get(id);
@@ -349,19 +364,6 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 		keyActions.put(event, action);
 	}
 
-	@Override
-	public void keyReleased(KeyEvent ke) {
-
-		if (ke.getExtendedKeyCode() == KeyEvent.VK_ESCAPE) {
-			stopped = true;
-		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_SPACE) {
-			paused ^= true;
-		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_SHIFT) {
-			shift = false;
-		}
-
-	}
-
 	public IGraphicsSubsystem getGraphicsSubsystem() {
 		return graphicsSubsystem;
 	}
@@ -393,6 +395,42 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	public boolean isShift() {
 		return shift;
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent arg0) {
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent arg0) {
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent arg0) {
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
 	}
 
 }
