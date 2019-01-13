@@ -6,7 +6,7 @@ package de.zintel.sim.nbodies.sceneries;
 import java.util.Collection;
 import java.util.Random;
 
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 import de.zintel.physics.Body;
 import de.zintel.physics.gravitation.Physics;
 
@@ -131,16 +131,16 @@ public abstract class SceneryConfig {
 				makeRandomVector(1, 1));
 	}
 
-	protected static Vector2D makeRandomPoint(int minX, int minY, int maxX, int maxY) {
-		return new Vector2D(RANDOM.nextInt(maxX - minX - 1) + minX, RANDOM.nextInt(maxY - minY - 1) + minY);
+	protected static Vector2DPlain makeRandomPoint(int minX, int minY, int maxX, int maxY) {
+		return new Vector2DPlain(RANDOM.nextInt(maxX - minX - 1) + minX, RANDOM.nextInt(maxY - minY - 1) + minY);
 	}
 
-	protected static Vector2D makeRandomVector(int width, int height) {
+	protected static Vector2DPlain makeRandomVector(int width, int height) {
 
 		int dX = (RANDOM.nextInt(2) == 1 ? 1 : -1);
 		int dY = (RANDOM.nextInt(2) == 1 ? 1 : -1);
 
-		return new Vector2D(dX * RANDOM.nextInt(width), dY * RANDOM.nextInt(height));
+		return new Vector2DPlain(dX * RANDOM.nextInt(width), dY * RANDOM.nextInt(height));
 	}
 
 }

@@ -6,7 +6,7 @@ package de.zintel.gfx.g2d.verlet;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * Verlet Vertex
@@ -21,40 +21,40 @@ public class VLVertex2D {
 	 * 
 	 */
 
-	private Vector2D current;
+	private Vector2DPlain current;
 
-	private Vector2D previous;
+	private Vector2DPlain previous;
 
-	private Collection<Vector2D> deltas = new ArrayList<>();
+	private Collection<Vector2DPlain> deltas = new ArrayList<>();
 
 	/**
 	 * 
 	 */
-	public VLVertex2D(Vector2D current) {
+	public VLVertex2D(Vector2DPlain current) {
 		this(current, current);
 	}
 
 	/**
 	 * 
 	 */
-	public VLVertex2D(Vector2D current, Vector2D previous) {
+	public VLVertex2D(Vector2DPlain current, Vector2DPlain previous) {
 		this.current = current;
 		this.previous = previous;
 	}
 
-	public Vector2D getCurrent() {
+	public Vector2DPlain getCurrent() {
 		return current;
 	}
 
-	public void setCurrent(Vector2D current) {
+	public void setCurrent(Vector2DPlain current) {
 		this.current = current;
 	}
 
-	public Vector2D getPrevious() {
+	public Vector2DPlain getPrevious() {
 		return previous;
 	}
 
-	public void setPrevious(Vector2D previous) {
+	public void setPrevious(Vector2DPlain previous) {
 		this.previous = previous;
 	}
 
@@ -64,10 +64,10 @@ public class VLVertex2D {
 	}
 
 	public VLVertex2D dcopy() {
-		return new VLVertex2D(new Vector2D(current), new Vector2D(previous));
+		return new VLVertex2D(new Vector2DPlain(current), new Vector2DPlain(previous));
 	}
 
-	public VLVertex2D addDelta(final Vector2D delta) {
+	public VLVertex2D addDelta(final Vector2DPlain delta) {
 		deltas.add(delta);
 		return this;
 	}
@@ -77,7 +77,7 @@ public class VLVertex2D {
 		return this;
 	}
 
-	public Collection<Vector2D> getDeltas() {
+	public Collection<Vector2DPlain> getDeltas() {
 		return deltas;
 	}
 

@@ -12,7 +12,7 @@ import java.util.List;
  * @author friedemann.zintel
  *
  */
-public class PolarND {
+public class PolarND<T extends AVectorND<T>> {
 
 	private double radius;
 
@@ -39,7 +39,7 @@ public class PolarND {
 		this.angles = angles;
 	}
 
-	public VectorND toCartesian() {
+	public T toCartesian(final IVectorFactory<T> vectorFactory) {
 
 		final Double[] coords = new Double[angles.size() + 1];
 
@@ -54,7 +54,7 @@ public class PolarND {
 
 		}
 
-		return new VectorND(Arrays.asList(coords));
+		return vectorFactory.newVector(Arrays.asList(coords));
 
 	}
 

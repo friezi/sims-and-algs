@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author friedemann.zintel
@@ -22,8 +22,8 @@ public class VLFacet2D implements IVLPolygon2D {
 
 		@Override
 		public int compare(VLVertexSkid o1, VLVertexSkid o2) {
-			Vector2D left = o1.getVertex().getCurrent();
-			Vector2D right = o2.getVertex().getCurrent();
+			Vector2DPlain left = o1.getVertex().getCurrent();
+			Vector2DPlain right = o2.getVertex().getCurrent();
 			return (left.x == right.x && left.y == right.y) ? 0 : -1;
 		}
 	};

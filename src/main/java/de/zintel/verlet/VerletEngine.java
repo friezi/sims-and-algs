@@ -14,7 +14,7 @@ import java.util.function.Function;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
 import de.zintel.gfx.g2d.verlet.VLVertexSkid;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 import de.zintel.utils.Pair;
 
 /**
@@ -25,11 +25,11 @@ public class VerletEngine {
 
 	private final Set<Runnable> progressors = new LinkedHashSet<>();
 
-	private final Set<BiFunction<Vector2D, Vector2D, Vector2D>> influenceVectorProviders = new LinkedHashSet<>();
+	private final Set<BiFunction<Vector2DPlain, Vector2DPlain, Vector2DPlain>> influenceVectorProviders = new LinkedHashSet<>();
 
 	private final Set<VerletEngine> engines = new LinkedHashSet<>();
 
-	private Function<VLVertexSkid, Pair<Vector2D, Vector2D>> vertexConstraintHandler = null;
+	private Function<VLVertexSkid, Pair<Vector2DPlain, Vector2DPlain>> vertexConstraintHandler = null;
 
 	private BiConsumer<Collection<VLEdge2D>, Integer> edgesHandler = null;
 
@@ -124,9 +124,9 @@ public class VerletEngine {
 						return;
 					}
 
-					final Vector2D newCurrent = calculateNewPosition(vertex);
+					final Vector2DPlain newCurrent = calculateNewPosition(vertex);
 
-					for (BiFunction<Vector2D, Vector2D, Vector2D> provider : influenceVectorProviders) {
+					for (BiFunction<Vector2DPlain, Vector2DPlain, Vector2DPlain> provider : influenceVectorProviders) {
 						newCurrent.add(provider.apply(vertex.getCurrent(), newCurrent));
 					}
 
@@ -153,8 +153,8 @@ public class VerletEngine {
 	 * @param friction
 	 * @return
 	 */
-	public Vector2D calculateNewPosition(VLVertex2D vertex) {
-		return Vector2D.add(vertex.getCurrent(), Vector2D.substract(vertex.getCurrent(), vertex.getPrevious()));
+	public Vector2DPlain calculateNewPosition(VLVertex2D vertex) {
+		return Vector2DPlain.add(vertex.getCurrent(), Vector2DPlain.substract(vertex.getCurrent(), vertex.getPrevious()));
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class VerletEngine {
 	 * @param vertex
 	 * @param newCurrent
 	 */
-	public void repositionVertex(VLVertex2D vertex, final Vector2D newCurrent) {
+	public void repositionVertex(VLVertex2D vertex, final Vector2DPlain newCurrent) {
 		vertex.setPrevious(vertex.getCurrent());
 		vertex.setCurrent(newCurrent);
 	}
@@ -180,19 +180,19 @@ public class VerletEngine {
 
 	}
 
-	private void adjust(final VLVertex2D vertex, Pair<Vector2D, Vector2D> delta) {
+	private void adjust(final VLVertex2D vertex, Pair<Vector2DPlain, Vector2DPlain> delta) {
 
 		vertex.getCurrent().add(delta.getFirst());
 		vertex.getPrevious().add(delta.getSecond());
 
 	}
 
-	public VerletEngine addInfluenceVectorProvider(final BiFunction<Vector2D, Vector2D, Vector2D> provider) {
+	public VerletEngine addInfluenceVectorProvider(final BiFunction<Vector2DPlain, Vector2DPlain, Vector2DPlain> provider) {
 		influenceVectorProviders.add(provider);
 		return this;
 	}
 
-	public VerletEngine removeInfluenceVectorProvider(final BiFunction<Vector2D, Vector2D, Vector2D> provider) {
+	public VerletEngine removeInfluenceVectorProvider(final BiFunction<Vector2DPlain, Vector2DPlain, Vector2DPlain> provider) {
 		influenceVectorProviders.remove(provider);
 		return this;
 	}
@@ -233,7 +233,7 @@ public class VerletEngine {
 		return this;
 	}
 
-	public Function<VLVertexSkid, Pair<Vector2D, Vector2D>> getVertexConstraintHandler() {
+	public Function<VLVertexSkid, Pair<Vector2DPlain, Vector2DPlain>> getVertexConstraintHandler() {
 		return vertexConstraintHandler;
 	}
 
@@ -241,7 +241,7 @@ public class VerletEngine {
 	 * @param vertexConstraintHandler
 	 * @return <delta_current,delta_previous>
 	 */
-	public VerletEngine setVertexConstraintHandler(Function<VLVertexSkid, Pair<Vector2D, Vector2D>> vertexConstraintHandler) {
+	public VerletEngine setVertexConstraintHandler(Function<VLVertexSkid, Pair<Vector2DPlain, Vector2DPlain>> vertexConstraintHandler) {
 		this.vertexConstraintHandler = vertexConstraintHandler;
 		return this;
 	}

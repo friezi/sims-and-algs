@@ -19,15 +19,15 @@ public class Utils3D {
 
 	public static Vector3D intersect(final Vector3D a, final Vector3D b, final Plane3D plane) {
 
-		VectorND diff = VectorND.substract(b, a);
-		final double div = VectorND.mult(diff, plane.getNormal());
+		Vector3D diff = AVectorND.substract(b, a);
+		final double div = AVectorND.mult(diff, plane.getNormal());
 		if (div == 0) {
 			return null;
 		}
 
-		final double lambda = (plane.getPn() - VectorND.mult(a, plane.getNormal())) / div;
+		final double lambda = (plane.getPn() - AVectorND.mult(a, plane.getNormal())) / div;
 
-		return new Vector3D(VectorND.add(a, VectorND.mult(lambda, diff)));
+		return Vector3D.add(a, Vector3D.mult(lambda, diff));
 
 	}
 

@@ -3,165 +3,75 @@
  */
 package de.zintel.math;
 
-import java.awt.Point;
-import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 
 /**
- * @author Friedemann
+ * @author friedemann.zintel
  *
  */
-public class Vector2D implements Serializable {
+public class Vector2D extends AVectorND<Vector2D> {
+
+	private static final int DIM = 2;
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5754883813412571661L;
+	private static final long serialVersionUID = -6604676797217529689L;
 
-	public static final Vector2D NULL_VECTOR = new Vector2D();
+	private static final int X = 0;
+	private static final int Y = 1;
 
-	public double x;
-
-	public double y;
-
-	private double length = -1;
-
+	/**
+	 * @param dim
+	 */
 	public Vector2D() {
-		this(0.0, 0.0);
+		super(DIM);
 	}
 
-	public Vector2D(Vector2D vector) {
-		this(vector.x, vector.y);
+	public Vector2D(final double x, final double y) {
+		super(DIM, Arrays.asList(x, y));
 	}
 
-	public Vector2D(Point point) {
-		this(point.x, point.y);
+	public Vector2D(AVectorND<Vector2D> vector) {
+		this(vector.getValues());
 	}
 
-	public Vector2D(double x, double y) {
-		super();
-		this.x = x;
-		this.y = y;
-		checkForNaN();
+	public Vector2D(List<Double> values) {
+		super(DIM, values);
 	}
 
-	/**
-	 * only for deserialization purpose!
-	 * 
-	 * @param x
-	 * @param y
-	 * @param length
-	 */
-	public Vector2D(double x, double y, double length) {
-		this(x, y);
-		this.length = length;
+	public double x() {
+		return get(X);
 	}
 
-	public double length() {
-
-		if (length == -1) {
-			length = Math.sqrt(mult(this, this));
-		}
-
-		return length;
+	public double y() {
+		return get(Y);
 	}
 
-	public Vector2D add(Vector2D vector) {
-		return add(vector.x, vector.y);
-	}
-
-	public Vector2D substract(Vector2D vector) {
-		return substract(vector.x, vector.y);
-	}
-
-	public Vector2D mult(double value) {
-		this.x *= value;
-		this.y *= value;
-		checkForNaN();
-		length = -1;
+	public Vector2D setX(final double value) {
+		set(X, value);
 		return this;
 	}
 
-	public Vector2D add(double x, double y) {
-		this.x += x;
-		this.y += y;
-		checkForNaN();
-		length = -1;
+	public Vector2D setY(final double value) {
+		set(Y, value);
 		return this;
-	}
-
-	public Vector2D substract(double x, double y) {
-		this.x -= x;
-		this.y -= y;
-		checkForNaN();
-		length = -1;
-		return this;
-	}
-
-	public static Vector2D mult(double val, Vector2D vector) {
-		final Vector2D nvector = new Vector2D(vector);
-		nvector.mult(val);
-		return nvector;
-	}
-
-	public static Vector2D add(Vector2D a, Vector2D b) {
-		final Vector2D nvector = new Vector2D(a);
-		nvector.add(b);
-		return nvector;
-	}
-
-	public static Vector2D substract(Vector2D a, Vector2D b) {
-		final Vector2D nvector = new Vector2D(a);
-		nvector.substract(b);
-		return nvector;
-	}
-
-	public static double mult(Vector2D a, Vector2D b) {
-		return a.x * b.x + a.y * b.y;
-	}
-
-	public boolean isNullVector() {
-		return x == 0.0 && y == 0.0;
-	}
-
-	public static Vector2D normalize(Vector2D vector) {
-		return mult(1 / vector.length(), vector);
-	}
-
-	public static Vector2D max(Vector2D v1, Vector2D v2) {
-		return (v1.length() >= v2.length() ? v1 : v2);
-	}
-
-	public Polar2D toPolar() {
-		return new Polar2D(length(), Math.atan2(y, x));
-	}
-
-	public VectorND toND() {
-		return new VectorND(Arrays.asList(x, y));
-	}
-
-	public Point toPoint() {
-		return new Point((int) x, (int) y);
-	}
-
-	private void checkForNaN() throws RuntimeException {
-		if (!Double.isFinite(x)) {
-			x = Double.MAX_VALUE;
-//			System.out.println("WARNING: adjusted x to 0.0 due to Nan or infinity!");
-		}
-		if (!Double.isFinite(y)) {
-			y = Double.MAX_VALUE;
-//			System.out.println("WARNING: adjusted y to 0.0 due to Nan or infinity!");
-		}
 	}
 
 	@Override
-	public String toString() {
-		return "Vector2D [x=" + x + ", y=" + y + "]";
+	public Vector2D newVector(Vector2D vector) {
+		return new Vector2D(vector);
 	}
 
-	public static double distance(Vector2D p1, Vector2D p2) {
-		return substract(p2, p1).length();
+	@Override
+	public Vector2D newVector() {
+		return new Vector2D();
+	}
+
+	@Override
+	public Vector2D newVector(List<Double> values) {
+		return new Vector2D(values);
 	}
 
 }

@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * Verlet Edge
@@ -37,7 +37,7 @@ public class VLEdge2D implements IVLEdgeContainer2D {
 		this.second = second;
 		this.color = color;
 		this.renderer = renderer;
-		this.preferredLength = Vector2D.distance(first.getVertex().getCurrent(), second.getVertex().getCurrent());
+		this.preferredLength = Vector2DPlain.distance(first.getVertex().getCurrent(), second.getVertex().getCurrent());
 	}
 
 	private VLEdge2D(VLVertexSkid first, VLVertexSkid second, double length, Color color, Consumer<VLEdge2D> renderer) {
@@ -111,8 +111,8 @@ public class VLEdge2D implements IVLEdgeContainer2D {
 		this.renderer = renderer;
 	}
 
-	public Vector2D currentToVector2D() {
-		return Vector2D.substract(second.getVertex().getCurrent(), first.getVertex().getCurrent());
+	public Vector2DPlain currentToVector2D() {
+		return Vector2DPlain.substract(second.getVertex().getCurrent(), first.getVertex().getCurrent());
 	}
 
 }

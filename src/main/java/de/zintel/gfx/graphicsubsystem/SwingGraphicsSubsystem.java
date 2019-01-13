@@ -21,7 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import de.zintel.gfx.color.EColorMixture;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author Friedemann
@@ -232,23 +232,23 @@ public class SwingGraphicsSubsystem implements IGraphicsSubsystem {
 	@Override
 	public void drawFilledTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Color color) {
 
-		Collection<Vector2D> points = new ArrayList<>(3);
-		points.add(new Vector2D(x1, y1));
-		points.add(new Vector2D(x2, y2));
-		points.add(new Vector2D(x3, y3));
+		Collection<Vector2DPlain> points = new ArrayList<>(3);
+		points.add(new Vector2DPlain(x1, y1));
+		points.add(new Vector2DPlain(x2, y2));
+		points.add(new Vector2DPlain(x3, y3));
 
 		drawFilledPolygon(points, color);
 
 	}
 
 	@Override
-	public void drawFilledPolygon(Collection<Vector2D> points, Supplier<Color> colorGenerator) {
+	public void drawFilledPolygon(Collection<Vector2DPlain> points, Supplier<Color> colorGenerator) {
 		graphics.setColor(colorGenerator.get());
 
 		final int x[] = new int[points.size()];
 		final int y[] = new int[points.size()];
 		int i = 0;
-		for (Vector2D point : points) {
+		for (Vector2DPlain point : points) {
 			x[i] = (int) point.x;
 			y[i] = (int) point.y;
 			i++;

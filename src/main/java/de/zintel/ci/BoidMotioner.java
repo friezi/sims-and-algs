@@ -3,7 +3,7 @@
  */
 package de.zintel.ci;
 
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author Friedemann
@@ -11,6 +11,6 @@ import de.zintel.math.Vector2D;
  */
 public interface BoidMotioner {
 
-	Vector2D nextMotionVector();
+	Vector2DPlain nextMotionVector();
 
 }

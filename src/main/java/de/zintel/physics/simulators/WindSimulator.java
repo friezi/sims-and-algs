@@ -11,8 +11,9 @@ import java.util.function.Function;
 
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 import de.zintel.math.VectorField2D;
-import de.zintel.math.VectorND;
+import de.zintel.math.AVectorND;
 
 /**
  * @author friedemann.zintel
@@ -22,7 +23,7 @@ public class WindSimulator {
 
 	private final Random rnd = new Random(Instant.now().toEpochMilli());
 
-	private final VectorField2D airstreamField;
+	private final VectorField2D<Vector2D> airstreamField;
 
 	private final ScreenParameters screenParameters;
 
@@ -36,7 +37,7 @@ public class WindSimulator {
 
 	private int rateOfAirstreamChange = 1;
 
-	public WindSimulator(VectorField2D airstreamField, ScreenParameters screenParameters) {
+	public WindSimulator(VectorField2D<Vector2D> airstreamField, ScreenParameters screenParameters) {
 		this.airstreamField = airstreamField;
 		randomAirstream();
 		this.screenParameters = screenParameters;
@@ -57,21 +58,23 @@ public class WindSimulator {
 
 	}
 
-	public Vector2D calculateWind(final Vector2D pos) {
+	public Vector2DPlain calculateWind(final Vector2DPlain pos) {
 		return calculateWindTurbulence(calculateAirstream(pos));
 	}
 
-	public VectorND calculateAirstream(final Vector2D pos) {
+	public Vector2D calculateAirstream(final Vector2DPlain pos) {
 
 		final List<Integer> windfieldDimensions = airstreamField.getDimensions();
-		return airstreamField.interpolateLinear(new VectorND(Arrays.asList(pos.x * windfieldDimensions.get(0) / screenParameters.WIDTH,
-				pos.y * windfieldDimensions.get(1) / screenParameters.HEIGHT)));
+		final Vector2D coordinates = new Vector2D(Arrays.asList(pos.x * windfieldDimensions.get(0) / screenParameters.WIDTH,
+				pos.y * windfieldDimensions.get(1) / screenParameters.HEIGHT));
+		return airstreamField.interpolateLinear(coordinates, coordinates);
 	}
 
-	@SuppressWarnings("serial")
-	private Vector2D calculateWindTurbulence(final VectorND windVector) {
-//		return new VectorND(new ArrayList<Double>(){{windVector.getCoords().stream().forEach(c->add(windIntensity * c * (rnd.nextDouble() * 3 - 1)));}});
-		return new Vector2D(windIntensity * windVector.get(0) * (rnd.nextDouble() * 3 - 1),
+	private Vector2DPlain calculateWindTurbulence(final Vector2D windVector) {
+		// return new VectorND(new
+		// ArrayList<Double>(){{windVector.getCoords().stream().forEach(c->add(windIntensity
+		// * c * (rnd.nextDouble() * 3 - 1)));}});
+		return new Vector2DPlain(windIntensity * windVector.get(0) * (rnd.nextDouble() * 3 - 1),
 				windIntensity * windVector.get(1) * (rnd.nextDouble() * 3 - 1));
 	}
 
@@ -88,9 +91,9 @@ public class WindSimulator {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 
-				final VectorND pos = new VectorND(Arrays.asList((double) x, (double) y));
-				airstreamField.setValue(pos, VectorND.add(airstreamField.getValue(pos),
-						new VectorND(Arrays.asList(gen.apply(rnd.nextDouble()), gen.apply(rnd.nextDouble())))));
+				final Vector2D pos = new Vector2D(Arrays.asList((double) x, (double) y));
+				airstreamField.setValue(pos, Vector2D.add(airstreamField.getValue(pos),
+						new Vector2D(Arrays.asList(gen.apply(rnd.nextDouble()), gen.apply(rnd.nextDouble())))));
 			}
 		}
 
@@ -104,14 +107,14 @@ public class WindSimulator {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 
-				final VectorND pos = new VectorND(Arrays.asList((double) x, (double) y));
-				airstreamField.setValue(pos, new VectorND(Arrays.asList(gen.apply(rnd.nextDouble()), gen.apply(rnd.nextDouble()))));
+				final Vector2D pos = new Vector2D(Arrays.asList((double) x, (double) y));
+				airstreamField.setValue(pos, new Vector2D(Arrays.asList(gen.apply(rnd.nextDouble()), gen.apply(rnd.nextDouble()))));
 			}
 		}
 
 	}
 
-	public VectorField2D getAirstreamField() {
+	public VectorField2D<Vector2D> getAirstreamField() {
 		return airstreamField;
 	}
 

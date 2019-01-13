@@ -9,7 +9,7 @@ import de.zintel.gfx.g2d.verlet.AdjustingColorProvider;
 import de.zintel.gfx.g2d.verlet.VLChainNet2D;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 public class SmoothFilledChainNetRenderer implements Consumer<VLChainNet2D> {
 
@@ -41,7 +41,7 @@ public class SmoothFilledChainNetRenderer implements Consumer<VLChainNet2D> {
 				final List<VLEdge2D> vLeft = edgesV.get(h).get(v);
 
 				final int vecdim = hTop.size() + vRight.size() + hBottom.size() + vLeft.size();
-				final Collection<Vector2D> points = new ArrayList<>(vecdim);
+				final Collection<Vector2DPlain> points = new ArrayList<>(vecdim);
 				final List<VLEdge2D> polygonEdges = new ArrayList<>(vecdim);
 				for (int i = 0; i < hTop.size(); i++) {
 					final VLEdge2D edge = hTop.get(i);

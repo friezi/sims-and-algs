@@ -118,29 +118,28 @@ public class SphereCamera3D implements ICamera3D {
 		final double x = MathUtils.morphRange(-d_anglex, d_anglex, 0, screenDimension.getWidth() - 1, alphax);
 		final double y = MathUtils.morphRange(-d_angley, d_angley, screenDimension.getHeight() - 1, 0, alphay);
 
-		final Vector3D v = new Vector3D(x, y, 0);
-		return v;
+		return new Vector3D(x, y, 0);
 	}
 
 	private final Vector3D intersectWithSphere(final Vector3D point) {
 
-		final VectorND vp = Vector3D.substract(viewpoint, point);
+		final Vector3D vp = AVectorND.substract(viewpoint, point);
 		final double vpLength = vp.length();
 
 		if (vpLength == 0) {
 			return null;
 		}
 
-		final VectorND l = Vector3D.mult(1.0 / vpLength, vp);
-		final double lpc = Vector3D.mult(l, Vector3D.substract(point, sphereCenter));
-		final double root = Math.sqrt(Math.pow(lpc, 2) + 2 * Vector3D.mult(point, sphereCenter) + Math.pow(radius, 2)
-				- Math.pow(point.length(), 2) - Math.pow(sphereCenter.length(), 2));
+		final Vector3D l = AVectorND.mult(1.0 / vpLength, vp);
+		final double lpc = AVectorND.mult(l, AVectorND.substract(point, sphereCenter));
+		final double root = Math.sqrt(Math.pow(lpc, 2) + 2 * Vector3D.mult(point, sphereCenter) + Math.pow(radius, 2) - Math.pow(point.length(), 2)
+				- Math.pow(sphereCenter.length(), 2));
 
 		final double lambda1 = -lpc + root;
 		final double lambda2 = -lpc - root;
 
-		final Vector3D p1 = new Vector3D(Vector3D.add(point, Vector3D.mult(lambda1 / vpLength, vp)));
-		final Vector3D p2 = new Vector3D(Vector3D.add(point, Vector3D.mult(lambda2 / vpLength, vp)));
+		final Vector3D p1 = Vector3D.add(point, Vector3D.mult(lambda1 / vpLength, vp));
+		final Vector3D p2 = Vector3D.add(point, Vector3D.mult(lambda2 / vpLength, vp));
 
 		return nearest(p1, p2);
 

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import de.zintel.math.MathUtils;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author Friedemann
@@ -17,7 +17,7 @@ import de.zintel.math.Vector2D;
  */
 public class Swarm {
 
-	private final Vector2D center;
+	private final Vector2DPlain center;
 
 	private int boidSpeed = 8;
 
@@ -49,7 +49,7 @@ public class Swarm {
 
 	private final Object boidsMonitor = new Object();
 
-	public Swarm(Vector2D center) {
+	public Swarm(Vector2DPlain center) {
 		this.center = center;
 	}
 
@@ -78,7 +78,7 @@ public class Swarm {
 			Collection<Boid> nextBoids = Collections.synchronizedCollection(new ArrayList<>(boids.size()));
 
 			boids.parallelStream().forEach(boid -> {
-				final Vector2D attractionVector = calculateAttractor(boid);
+				final Vector2DPlain attractionVector = calculateAttractor(boid);
 				Boid nextBoid = approachPoint(boid, attractionVector);
 				nextBoids.add(nextBoid);
 			});
@@ -93,12 +93,12 @@ public class Swarm {
 	 * @param attractionVector
 	 * @return
 	 */
-	private Boid approachPoint(final Boid boid, final Vector2D attractionVector) {
+	private Boid approachPoint(final Boid boid, final Vector2DPlain attractionVector) {
 
-		final Vector2D position = boid.getPosition();
+		final Vector2DPlain position = boid.getPosition();
 
-		Vector2D newPosition;
-		Vector2D newDirection;
+		Vector2DPlain newPosition;
+		Vector2DPlain newDirection;
 
 		if (boid.isConvergeAttractor()) {
 			if (!(usePredator && boid.getType() == BoidType.PREDATOR)) {
@@ -107,9 +107,9 @@ public class Swarm {
 
 				if (length > 0) {
 
-					Vector2D normVector = Vector2D.normalize(attractionVector);
+					Vector2DPlain normVector = Vector2DPlain.normalize(attractionVector);
 					double vFactor = Math.min(length, boidSpeed);
-					Vector2D scaledAttractionVector = Vector2D.mult(vFactor, normVector);
+					Vector2DPlain scaledAttractionVector = Vector2DPlain.mult(vFactor, normVector);
 
 					newDirection = scaledAttractionVector;
 
@@ -123,14 +123,14 @@ public class Swarm {
 				newDirection = attractionVector;
 			}
 		} else {
-			newDirection = new Vector2D();
+			newDirection = new Vector2DPlain();
 		}
 
 		if (boid.getMotioner() != null) {
 			newDirection.add(boid.getMotioner().nextMotionVector());
 		}
 
-		newPosition = new Vector2D(position).add(newDirection);
+		newPosition = new Vector2DPlain(position).add(newDirection);
 		Boid newBoid = new Boid(newPosition, boid.getId()).setType(boid.getType()).setMotioner(boid.getMotioner())
 				.setConvergeAttractor(boid.isConvergeAttractor()).setPanic(boid.getPanic());
 		newBoid.setPreviousDirection(boid.getDirection());
@@ -144,19 +144,19 @@ public class Swarm {
 	 * @param boid
 	 * @return
 	 */
-	private Vector2D calculateAttractor(final Boid boid) {
+	private Vector2DPlain calculateAttractor(final Boid boid) {
 
 		if (usePredator && boid.getType() == BoidType.PREDATOR) {
-			return new Vector2D();
+			return new Vector2DPlain();
 		}
 
-		Vector2D tVector = new Vector2D();
+		Vector2DPlain tVector = new Vector2DPlain();
 
-		final Vector2D panic = boid.getPanic();
+		final Vector2DPlain panic = boid.getPanic();
 		if (panic.length() > 1) {
 			panic.mult(9 / 10);
 		} else {
-			boid.setPanic(new Vector2D());
+			boid.setPanic(new Vector2DPlain());
 		}
 
 		for (final Boid neighbour : boids) {
@@ -165,7 +165,7 @@ public class Swarm {
 				continue;
 			}
 
-			double distance = Vector2D.distance(boid.getPosition(), neighbour.getPosition());
+			double distance = Vector2DPlain.distance(boid.getPosition(), neighbour.getPosition());
 
 			if (useCohesion && !(useLeader && boid.getType() == BoidType.LEADER)) {
 				tVector.add(calculateCohesionVector(boid, neighbour, distance));
@@ -194,10 +194,10 @@ public class Swarm {
 	 * @param distance
 	 * @return
 	 */
-	private Vector2D calculateCohesionVector(final Boid boid, final Boid neighbour, final double distance) {
+	private Vector2DPlain calculateCohesionVector(final Boid boid, final Boid neighbour, final double distance) {
 
 		if (distance < 1) {
-			return new Vector2D();
+			return new Vector2DPlain();
 		}
 
 		double factor = publicDistance - distance;
@@ -209,7 +209,7 @@ public class Swarm {
 			factor *= leaderAttraction;
 		}
 
-		return Vector2D.mult(factor / distance, Vector2D.substract(neighbour.getPosition(), boid.getPosition()));
+		return Vector2DPlain.mult(factor / distance, Vector2DPlain.substract(neighbour.getPosition(), boid.getPosition()));
 
 	}
 
@@ -219,13 +219,13 @@ public class Swarm {
 	 * @param distance
 	 * @return
 	 */
-	private Vector2D calculateSeparationVector(final Boid boid, final Boid neighbour, double distance) {
+	private Vector2DPlain calculateSeparationVector(final Boid boid, final Boid neighbour, double distance) {
 
 		int individualDist = usePredator && neighbour.getType() == BoidType.PREDATOR ? predatorDistance : personalDistance;
 
 		if (distance > individualDist) {
 
-			return new Vector2D();
+			return new Vector2DPlain();
 
 		} else {
 
@@ -235,20 +235,20 @@ public class Swarm {
 				distance = 1;
 			}
 
-			final Vector2D diffVector = Vector2D.substract(boid.getPosition(), neighbour.getPosition());
-			final Vector2D separationVector = Vector2D.mult(factor / distance, diffVector);
+			final Vector2DPlain diffVector = Vector2DPlain.substract(boid.getPosition(), neighbour.getPosition());
+			final Vector2DPlain separationVector = Vector2DPlain.mult(factor / distance, diffVector);
 
 			if (usePanic) {
 				if (usePredator && neighbour.getType() == BoidType.PREDATOR) {
 
-					boid.setPanic(Vector2D.add(boid.getPanic(), separationVector));
+					boid.setPanic(Vector2DPlain.add(boid.getPanic(), separationVector));
 
 				} else {
 
-					final Vector2D panic = neighbour.getPanic();
+					final Vector2DPlain panic = neighbour.getPanic();
 					final double intensity = panic.length();
 					if (intensity > 0) {
-						boid.setPanic(Vector2D.mult(intensity, Vector2D.normalize(diffVector)));
+						boid.setPanic(Vector2DPlain.mult(intensity, Vector2DPlain.normalize(diffVector)));
 					}
 				}
 			}
@@ -265,20 +265,20 @@ public class Swarm {
 	 * @param distance
 	 * @return
 	 */
-	private Vector2D calculateAlignmentVector(final Boid boid, final Boid neighbour, final double distance) {
+	private Vector2DPlain calculateAlignmentVector(final Boid boid, final Boid neighbour, final double distance) {
 
 		if (distance > 2 * personalDistance) {
 
-			return new Vector2D();
+			return new Vector2DPlain();
 
 		} else {
 
 			if (usePredator && neighbour.getType() == BoidType.PREDATOR) {
-				return new Vector2D();
+				return new Vector2DPlain();
 			}
 
 			double coeff = Math.pow(2, influenceOfAlignment) / Math.max(distance, 1.0);
-			return Vector2D.mult(coeff, neighbour.getDirection());
+			return Vector2DPlain.mult(coeff, neighbour.getDirection());
 
 		}
 
@@ -290,8 +290,8 @@ public class Swarm {
 	 * @param distance
 	 * @return
 	 */
-	private Vector2D calculateCenterVector(final Boid boid) {
-		return Vector2D.mult((boid.getType() == BoidType.LEADER ? 3 : 10), Vector2D.substract(center, boid.getPosition()));
+	private Vector2DPlain calculateCenterVector(final Boid boid) {
+		return Vector2DPlain.mult((boid.getType() == BoidType.LEADER ? 3 : 10), Vector2DPlain.substract(center, boid.getPosition()));
 	}
 
 	private Point calculateInertnessVector(Point direction) {

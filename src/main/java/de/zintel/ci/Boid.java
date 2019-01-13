@@ -4,7 +4,7 @@
 package de.zintel.ci;
 
 import de.zintel.math.Polar2D;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author Friedemann
@@ -12,19 +12,19 @@ import de.zintel.math.Vector2D;
  */
 public class Boid {
 
-	private Vector2D position;
+	private Vector2DPlain position;
 
 	private final String id;
 
-	private Vector2D direction = new Vector2D();
+	private Vector2DPlain direction = new Vector2DPlain();
 
 	private Polar2D directionPolar = new Polar2D(1, 0);
 
-	private Vector2D previousDirection = new Vector2D();
+	private Vector2DPlain previousDirection = new Vector2DPlain();
 
 	private Polar2D previousDirectionPolar = new Polar2D(1, 0);
 
-	private Vector2D panic = new Vector2D();
+	private Vector2DPlain panic = new Vector2DPlain();
 
 	private BoidType type = BoidType.MEMBER;
 
@@ -32,25 +32,25 @@ public class Boid {
 
 	private BoidMotioner motioner = null;
 
-	public Boid(Vector2D position, String id) {
+	public Boid(Vector2DPlain position, String id) {
 		super();
 		this.position = position;
 		this.id = id;
 	}
 
-	public Vector2D getPosition() {
+	public Vector2DPlain getPosition() {
 		return position;
 	}
 
-	public void setPosition(Vector2D position) {
+	public void setPosition(Vector2DPlain position) {
 		this.position = position;
 	}
 
-	public Vector2D getDirection() {
+	public Vector2DPlain getDirection() {
 		return direction;
 	}
 
-	public void setDirection(Vector2D direction) {
+	public void setDirection(Vector2DPlain direction) {
 		this.direction = direction;
 		directionPolar = direction.toPolar();
 	}
@@ -93,11 +93,11 @@ public class Boid {
 		return true;
 	}
 
-	public Vector2D getPreviousDirection() {
+	public Vector2DPlain getPreviousDirection() {
 		return previousDirection;
 	}
 
-	public Boid setPreviousDirection(Vector2D previousDirection) {
+	public Boid setPreviousDirection(Vector2DPlain previousDirection) {
 		this.previousDirection = previousDirection;
 		previousDirectionPolar = previousDirection.toPolar();
 		return this;
@@ -121,11 +121,11 @@ public class Boid {
 		return this;
 	}
 
-	public Vector2D getPanic() {
+	public Vector2DPlain getPanic() {
 		return panic;
 	}
 
-	public Boid setPanic(Vector2D panic) {
+	public Boid setPanic(Vector2DPlain panic) {
 		this.panic = panic;
 		return this;
 	}

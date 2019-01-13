@@ -10,7 +10,7 @@ import de.zintel.gfx.g2d.verlet.AdjustingColorProvider;
 import de.zintel.gfx.g2d.verlet.VLChainNet2D;
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 public class MeanFilledChainNetRenderer implements Consumer<VLChainNet2D> {
 
@@ -41,7 +41,7 @@ public class MeanFilledChainNetRenderer implements Consumer<VLChainNet2D> {
 				final List<VLEdge2D> hBottom = currentEdgesHBottom.get(h);
 				final List<VLEdge2D> vLeft = edgesV.get(h).get(v);
 
-				final Collection<Vector2D> points = new ArrayList<>(hTop.size() + vRight.size() + hBottom.size() + vLeft.size());
+				final Collection<Vector2DPlain> points = new ArrayList<>(hTop.size() + vRight.size() + hBottom.size() + vLeft.size());
 				for (int i = 0; i < hTop.size(); i++) {
 					final VLEdge2D edge = hTop.get(i);
 					points.add(edge.getFirst().getVertex().getCurrent());

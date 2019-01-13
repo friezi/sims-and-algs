@@ -24,7 +24,7 @@ import de.zintel.math.SphereCamera3D;
 import de.zintel.math.ICamera3D;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector3D;
-import de.zintel.math.VectorND;
+import de.zintel.math.AVectorND;
 import de.zintel.math.transform.CoordinateTransformation3D;
 import de.zintel.sim.SimulationScreen;
 
@@ -256,7 +256,7 @@ public class WhirlSim extends SimulationScreen {
 		for (int z = 1500; z >= 0; z -= step) {
 			for (int y = 0; y < dimension.getHeight(); y += step) {
 				for (int x = 0; x < dimension.getWidth(); x += step) {
-					
+
 					final Vector3D point = new Vector3D(x, y, z);
 					final Vector3D znpoint = new Vector3D(point.x(), point.y(), point.z() - step);
 					final Vector3D xnpoint = new Vector3D(point.x() + step, point.y(), point.z());
@@ -306,7 +306,7 @@ public class WhirlSim extends SimulationScreen {
 	private double projectRadius(final Vector3D point, final Vector3D ppoint, final double radius) {
 
 		final Vector3D pRimPoint = project(
-				new Vector3D(VectorND.add(point, camera.getTransformationToScreen().inverseTransformVector(new Vector3D(radius, 0, 0)))));
+				AVectorND.add(point, camera.getTransformationToScreen().inverseTransformVector(new Vector3D(radius, 0, 0))));
 
 		if (pRimPoint == null) {
 			return 0;

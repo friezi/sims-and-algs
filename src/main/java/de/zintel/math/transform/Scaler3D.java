@@ -6,7 +6,7 @@ package de.zintel.math.transform;
 import java.util.function.Function;
 
 import de.zintel.math.Vector3D;
-import de.zintel.math.VectorND;
+import de.zintel.math.AVectorND;
 
 /**
  * @author friedemann.zintel
@@ -22,7 +22,7 @@ public class Scaler3D implements Function<Vector3D, Vector3D> {
 
 	@Override
 	public Vector3D apply(Vector3D vector) {
-		return new Vector3D(VectorND.diagmult(scalevector, vector));
+		return AVectorND.diagmult(scalevector, vector);
 	}
 
 }

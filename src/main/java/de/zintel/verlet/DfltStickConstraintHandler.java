@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author friedemann.zintel
@@ -37,11 +37,11 @@ public class DfltStickConstraintHandler implements BiConsumer<Collection<VLEdge2
 
 		VLVertex2D vFirst = edge.getFirst().getVertex();
 		VLVertex2D vSecond = edge.getSecond().getVertex();
-		final Vector2D cFirst = vFirst.getCurrent();
-		final Vector2D cSecond = vSecond.getCurrent();
-		Vector2D dV = Vector2D.substract(cFirst, cSecond);
+		final Vector2DPlain cFirst = vFirst.getCurrent();
+		final Vector2DPlain cSecond = vSecond.getCurrent();
+		Vector2DPlain dV = Vector2DPlain.substract(cFirst, cSecond);
 		if (dV.isNullVector()) {
-			dV = Vector2D.substract(vFirst.getPrevious(), vSecond.getPrevious());
+			dV = Vector2DPlain.substract(vFirst.getPrevious(), vSecond.getPrevious());
 			// Problem!!! no line anymore
 			// System.out.println("WARNING: Nullvector! edge: " + edge);
 			// // do no adjustment to prevent NaN
@@ -62,12 +62,12 @@ public class DfltStickConstraintHandler implements BiConsumer<Collection<VLEdge2
 		if (length != edge.getPreferredLength()) {
 
 			double diff = length - edge.getPreferredLength();
-			Vector2D slackV = Vector2D.mult((diff / length) / 2, dV);
+			Vector2DPlain slackV = Vector2DPlain.mult((diff / length) / 2, dV);
 
 			if (!edge.getFirst().isSticky()) {
 
 				if (edge.getSecond().isSticky()) {
-					cFirst.substract(Vector2D.mult(2, slackV));
+					cFirst.substract(Vector2DPlain.mult(2, slackV));
 				} else {
 					cFirst.substract(slackV);
 				}
@@ -75,7 +75,7 @@ public class DfltStickConstraintHandler implements BiConsumer<Collection<VLEdge2
 			if (!edge.getSecond().isSticky()) {
 
 				if (edge.getFirst().isSticky()) {
-					cSecond.add(Vector2D.mult(2, slackV));
+					cSecond.add(Vector2DPlain.mult(2, slackV));
 				} else {
 					cSecond.add(slackV);
 				}

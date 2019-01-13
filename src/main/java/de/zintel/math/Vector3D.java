@@ -4,12 +4,15 @@
 package de.zintel.math;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author friedemann.zintel
  *
  */
-public class Vector3D extends VectorND {
+public class Vector3D extends AVectorND<Vector3D> {
+
+	private static final int DIM = 3;
 
 	/**
 	 * 
@@ -24,15 +27,19 @@ public class Vector3D extends VectorND {
 	 * @param dim
 	 */
 	public Vector3D() {
-		super(3);
+		super(DIM);
 	}
 
 	public Vector3D(final double x, final double y, final double z) {
-		super(3, Arrays.asList(x, y, z));
+		super(DIM, Arrays.asList(x, y, z));
 	}
 
-	public Vector3D(VectorND vector) {
-		super(3, vector.getCoords());
+	public Vector3D(AVectorND<Vector3D> vector) {
+		this(vector.getValues());
+	}
+
+	public Vector3D(List<Double> values) {
+		super(DIM, values);
 	}
 
 	public double x() {
@@ -60,6 +67,21 @@ public class Vector3D extends VectorND {
 	public Vector3D setZ(final double value) {
 		set(Z, value);
 		return this;
+	}
+
+	@Override
+	public Vector3D newVector(Vector3D vector) {
+		return new Vector3D(vector);
+	}
+
+	@Override
+	public Vector3D newVector() {
+		return new Vector3D();
+	}
+
+	@Override
+	public Vector3D newVector(List<Double> values) {
+		return new Vector3D(values);
 	}
 
 }

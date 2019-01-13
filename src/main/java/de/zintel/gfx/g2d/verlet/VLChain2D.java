@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import de.zintel.math.MathUtils;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author friedemann.zintel
@@ -46,7 +46,7 @@ public class VLChain2D implements IVLEdgeContainer2D {
 		VLVertexSkid previous = first;
 		for (int i = 2; i < elements; i++) {
 
-			final VLVertexSkid current = new VLVertexSkid(new VLVertex2D(new Vector2D(
+			final VLVertexSkid current = new VLVertexSkid(new VLVertex2D(new Vector2DPlain(
 					MathUtils.interpolateLinearReal(first.getVertex().getCurrent().x, last.getVertex().getCurrent().x, i, elements),
 					MathUtils.interpolateLinearReal(first.getVertex().getCurrent().y, last.getVertex().getCurrent().y, i, elements))));
 			edges.add(new VLEdge2D(previous, current, Color.WHITE, edgeRenderer));

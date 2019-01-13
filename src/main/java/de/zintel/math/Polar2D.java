@@ -34,7 +34,7 @@ public class Polar2D {
 		this.angle = angle;
 	}
 
-	public Vector2D toCartesian() {
+	public Vector2DPlain toCartesian() {
 		double x = radius * Math.cos(angle);
 		double y = radius * Math.sin(angle);
 
@@ -43,7 +43,7 @@ public class Polar2D {
 			System.exit(1);
 		}
 
-		return new Vector2D(x, y);
+		return new Vector2DPlain(x, y);
 	}
 
 	@Override

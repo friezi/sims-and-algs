@@ -37,7 +37,7 @@ import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.ContinuousInterpolatingValueProvider;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Polar2D;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author Friedemann
@@ -125,7 +125,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 			this.speed = speed;
 		}
 
-		public Vector2D nextMotionVector() {
+		public Vector2DPlain nextMotionVector() {
 
 			Point currentPosition = previousPosition;
 
@@ -197,7 +197,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 				}
 			}
 
-			final Vector2D motionVector = new Vector2D(currentPosition.x - previousPosition.x, currentPosition.y - previousPosition.y);
+			final Vector2DPlain motionVector = new Vector2DPlain(currentPosition.x - previousPosition.x, currentPosition.y - previousPosition.y);
 			previousPosition = currentPosition;
 
 			return motionVector;
@@ -219,9 +219,9 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 	private static class MouseBasedMotioner implements BoidMotioner, MouseMotionListener {
 
-		private Vector2D previousPosition;
+		private Vector2DPlain previousPosition;
 
-		private Vector2D currentPosition;
+		private Vector2DPlain currentPosition;
 
 		public MouseBasedMotioner(Boid boid) {
 			this.previousPosition = boid.getPosition();
@@ -234,12 +234,12 @@ public class CollectiveIntelligence extends SimulationScreen {
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
-			currentPosition = new Vector2D(e.getX(), e.getY());
+			currentPosition = new Vector2DPlain(e.getX(), e.getY());
 		}
 
 		@Override
-		public Vector2D nextMotionVector() {
-			Vector2D motionVector = Vector2D.substract(currentPosition, previousPosition);
+		public Vector2DPlain nextMotionVector() {
+			Vector2DPlain motionVector = Vector2DPlain.substract(currentPosition, previousPosition);
 			previousPosition = currentPosition;
 			return motionVector;
 		}
@@ -298,7 +298,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		graphicsSubsystem.setColorMixture(EColorMixture.ADDITIVE);
 
-		swarm = new FishSwarm(new Vector2D(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2))
+		swarm = new FishSwarm(new Vector2DPlain(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2))
 				.setUseLeader(true).setUsePredator(true)
 				.setPublicDistance(MathUtils.distance(new Point(), new Point(screenParameters.WIDTH, screenParameters.HEIGHT)) / 4)
 				.setLeaderAttraction(40000);
@@ -340,7 +340,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 		if (clustering) {
 
 			// detect clusters
-			final BiFunction<Boid, Boid, Double> distanceOp = (b1, b2) -> Vector2D.distance(b1.getPosition(), b2.getPosition());
+			final BiFunction<Boid, Boid, Double> distanceOp = (b1, b2) -> Vector2DPlain.distance(b1.getPosition(), b2.getPosition());
 			final Collection<Boid> memberBoids = boids.stream().filter(boid -> boid.getType() == BoidType.MEMBER).collect(Collectors.toList());
 
 			final Set<Collection<Boid>> boidClusters = MathUtils.getClusters(memberBoids, 2.5, distanceOp);
@@ -891,8 +891,8 @@ public class CollectiveIntelligence extends SimulationScreen {
 		return new Boid(makeRandomVector2D(screenParameters.WIDTH, screenParameters.HEIGHT), id);
 	}
 
-	private static Vector2D makeRandomVector2D(int width, int height) {
-		return new Vector2D(makeRandomPoint(width, height));
+	private static Vector2DPlain makeRandomVector2D(int width, int height) {
+		return new Vector2DPlain(makeRandomPoint(width, height));
 	}
 
 	private static Point makeRandomPoint(int width, int height) {
@@ -939,7 +939,7 @@ public class CollectiveIntelligence extends SimulationScreen {
 			mouseIsLeader ^= true;
 
 			mouseBoid.setType(mouseIsLeader ? BoidType.LEADER : BoidType.PREDATOR);
-			mouseBoid.setPosition(new Vector2D(event.getX(), event.getY()));
+			mouseBoid.setPosition(new Vector2DPlain(event.getX(), event.getY()));
 
 			MouseBasedMotioner motioner = new MouseBasedMotioner(mouseBoid);
 			mouseBoid.setMotioner(motioner);

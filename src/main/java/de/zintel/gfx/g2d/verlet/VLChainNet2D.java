@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import de.zintel.math.MathUtils;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author friedemann.zintel
@@ -46,7 +46,7 @@ public class VLChainNet2D implements IVLEdgeContainer2D {
 				current = topright;
 			} else {
 
-				current = new VLVertexSkid(new VLVertex2D(new Vector2D(MathUtils.interpolateLinearReal(topleft.getVertex().getCurrent().x,
+				current = new VLVertexSkid(new VLVertex2D(new Vector2DPlain(MathUtils.interpolateLinearReal(topleft.getVertex().getCurrent().x,
 						topright.getVertex().getCurrent().x, h + 1, dimHorizontal), topleft.getVertex().getCurrent().y)));
 				current.setSticky(topleft.isSticky());
 			}
@@ -73,7 +73,7 @@ public class VLChainNet2D implements IVLEdgeContainer2D {
 					List<List<VLEdge2D>> currentChainsV = edgesV.get(h);
 					final VLVertexSkid top = verticesV.get(h);
 					VLVertexSkid bottom = new VLVertexSkid(
-							new VLVertex2D(new Vector2D(top.getVertex().getCurrent().x, top.getVertex().getCurrent().y + height)));
+							new VLVertex2D(new Vector2DPlain(top.getVertex().getCurrent().x, top.getVertex().getCurrent().y + height)));
 					final VLChain2D chainV = new VLChain2D(top, bottom, chainLinks, null, edgeRenderer);
 					edges.addAll(chainV.getEdges());
 					currentChainsV.add(chainV.getEdges());

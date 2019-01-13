@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 import de.zintel.sim.nbodies.BodyProperty;
 
 /**
@@ -30,16 +30,16 @@ public class Body implements Comparable<Body>, Serializable {
 		this.parameters = parameters;
 	}
 
-	public Body(String id, double size, double mass, Vector2D position) {
-		this(id, size, mass, position, new Vector2D());
+	public Body(String id, double size, double mass, Vector2DPlain position) {
+		this(id, size, mass, position, new Vector2DPlain());
 	}
 
-	public Body(String id, double size, double mass, Vector2D position, Vector2D velocity, Body propertiesBody) {
+	public Body(String id, double size, double mass, Vector2DPlain position, Vector2DPlain velocity, Body propertiesBody) {
 		this(id, size, mass, position, velocity);
 		this.copyProperties(propertiesBody);
 	}
 
-	public Body(String id, double size, double mass, Vector2D position, Vector2D velocity) {
+	public Body(String id, double size, double mass, Vector2DPlain position, Vector2DPlain velocity) {
 		this(new BodyParameters(id));
 		parameters.size = size;
 		parameters.mass = mass;
@@ -69,19 +69,19 @@ public class Body implements Comparable<Body>, Serializable {
 		return parameters.mass;
 	}
 
-	public Vector2D getVelocity() {
+	public Vector2DPlain getVelocity() {
 		return parameters.velocity;
 	}
 
-	public void setVelocity(Vector2D velocity) {
+	public void setVelocity(Vector2DPlain velocity) {
 		parameters.velocity = velocity;
 	}
 
-	public Vector2D getPosition() {
+	public Vector2DPlain getPosition() {
 		return parameters.position;
 	}
 
-	public void setPosition(Vector2D position) {
+	public void setPosition(Vector2DPlain position) {
 		parameters.position = position;
 	}
 

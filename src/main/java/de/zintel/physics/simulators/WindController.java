@@ -5,13 +5,13 @@ package de.zintel.physics.simulators;
 
 import java.util.function.BiFunction;
 
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author friedemann.zintel
  *
  */
-public class WindController implements Runnable, BiFunction<Vector2D, Vector2D, Vector2D> {
+public class WindController implements Runnable, BiFunction<Vector2DPlain, Vector2DPlain, Vector2DPlain> {
 
 	private final WindSimulator windSimulator;
 
@@ -26,11 +26,11 @@ public class WindController implements Runnable, BiFunction<Vector2D, Vector2D, 
 	}
 
 	@Override
-	public Vector2D apply(Vector2D t, Vector2D u) {
+	public Vector2DPlain apply(Vector2DPlain t, Vector2DPlain u) {
 		if (doWind) {
 			return windSimulator.calculateWind(t);
 		} else {
-			return Vector2D.NULL_VECTOR;
+			return Vector2DPlain.NULL_VECTOR;
 		}
 	}
 

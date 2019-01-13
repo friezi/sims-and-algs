@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author Friedemann
@@ -157,21 +157,21 @@ public final class GLUtils {
 
 	}
 
-	public static void drawFilledPolygon(final Collection<Vector2D> points, final Supplier<Color> colorGenerator, final Dimension dimension,
+	public static void drawFilledPolygon(final Collection<Vector2DPlain> points, final Supplier<Color> colorGenerator, final Dimension dimension,
 			final GL2 gl) {
 
-		final Collection<Vector2D> projectedPoints = new ArrayList<>(points.size());
-		for (Vector2D point : points) {
-			projectedPoints.add(new Vector2D(projectX((int) point.x, dimension), projectY((int) point.y, dimension)));
+		final Collection<Vector2DPlain> projectedPoints = new ArrayList<>(points.size());
+		for (Vector2DPlain point : points) {
+			projectedPoints.add(new Vector2DPlain(projectX((int) point.x, dimension), projectY((int) point.y, dimension)));
 		}
 
 		drawFilledPolygon(projectedPoints, colorGenerator, gl);
 	}
 
-	public static void drawFilledPolygon(final Collection<Vector2D> hPoints, final Supplier<Color> colorGenerator, final GL2 gl) {
+	public static void drawFilledPolygon(final Collection<Vector2DPlain> hPoints, final Supplier<Color> colorGenerator, final GL2 gl) {
 
 		gl.glBegin(GL2.GL_POLYGON);
-		for (Vector2D point : hPoints) {
+		for (Vector2DPlain point : hPoints) {
 
 			final Color color = colorGenerator.get();
 			gl.glColor4f(projectColorValue2GL(color.getRed()), projectColorValue2GL(color.getGreen()), projectColorValue2GL(color.getBlue()),

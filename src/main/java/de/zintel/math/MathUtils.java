@@ -157,9 +157,9 @@ public final class MathUtils {
 	 *            value x
 	 * @return morphed value
 	 */
-	public static VectorND morph(final Function<VectorND, VectorND> fstart, final Function<VectorND, VectorND> fend,
-			final Function<VectorND, Double> ftransDividend, final Function<VectorND, Double> ftransDivisor, final VectorND x) {
-		final VectorND start = fstart.apply(x);
+	public static <N extends AVectorND<N>, M extends AVectorND<M>> M morph(final Function<N, M> fstart, final Function<N, M> fend,
+			final Function<N, Double> ftransDividend, final Function<N, Double> ftransDivisor, final N x) {
+		final M start = fstart.apply(x);
 		return fend.apply(x).substract(start).mult(ftransDividend.apply(x)).div(ftransDivisor.apply(x)).add(start);
 	}
 

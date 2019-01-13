@@ -20,7 +20,7 @@ import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
 import de.zintel.gfx.g2d.verlet.VLVertexSkid;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 import de.zintel.utils.IterableIterator;
 
 /**
@@ -75,7 +75,7 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 				for (IterationUnit2D unit : lineInterpolater) {
 
 					Point point = unit.getPoint();
-					graphicsSubsystem.drawPoint(point.x, point.y, calculateColor(new Vector2D(point), polygon));
+					graphicsSubsystem.drawPoint(point.x, point.y, calculateColor(new Vector2DPlain(point), polygon));
 				}
 			}
 
@@ -84,7 +84,7 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 		}
 	}
 
-	private Color calculateColor(final Vector2D point, final T polygon) {
+	private Color calculateColor(final Vector2DPlain point, final T polygon) {
 
 		final Collection<EdgeValue> values = new ArrayList<>(3);
 		for (VLEdge2D edge : (contextEdgesProvider != null ? contextEdgesProvider.apply(polygon) : Collections.<VLEdge2D> emptyList())) {
@@ -110,15 +110,15 @@ public class PolygonInterpolatingRenderer<T extends IVLPolygon2D> implements Con
 
 	}
 
-	private double distance(final Vector2D point, final VLEdge2D edge) {
+	private double distance(final Vector2DPlain point, final VLEdge2D edge) {
 
-		final Vector2D start = edge.getFirst().getVertex().getCurrent();
-		final Vector2D end = edge.getSecond().getVertex().getCurrent();
-		final Vector2D edgeV = Vector2D.substract(end, start);
-		final double lambda = (Vector2D.mult(point, edgeV) - Vector2D.mult(start, edgeV)) / Vector2D.mult(edgeV, edgeV);
+		final Vector2DPlain start = edge.getFirst().getVertex().getCurrent();
+		final Vector2DPlain end = edge.getSecond().getVertex().getCurrent();
+		final Vector2DPlain edgeV = Vector2DPlain.substract(end, start);
+		final double lambda = (Vector2DPlain.mult(point, edgeV) - Vector2DPlain.mult(start, edgeV)) / Vector2DPlain.mult(edgeV, edgeV);
 		// check for exceeding the line
-		final Vector2D referencePoint = lambda > 1 ? end : lambda < 0 ? start : Vector2D.mult(lambda, edgeV).add(start);
-		return Vector2D.substract(referencePoint, point).length();
+		final Vector2DPlain referencePoint = lambda > 1 ? end : lambda < 0 ? start : Vector2DPlain.mult(lambda, edgeV).add(start);
+		return Vector2DPlain.substract(referencePoint, point).length();
 
 	}
 

@@ -7,16 +7,16 @@ import java.util.function.Function;
 
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
 import de.zintel.gfx.g2d.verlet.VLVertexSkid;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 import de.zintel.utils.Pair;
 
 /**
  * @author friedemann.zintel
  *
  */
-public class VertexBorderConstraintHandler implements Function<VLVertexSkid, Pair<Vector2D, Vector2D>> {
+public class VertexBorderConstraintHandler implements Function<VLVertexSkid, Pair<Vector2DPlain, Vector2DPlain>> {
 
-	private static final Vector2D GRAV_DOWN = new Vector2D(0, 0.8);
+	private static final Vector2DPlain GRAV_DOWN = new Vector2DPlain(0, 0.8);
 
 	private double xmin, ymin, xmax, ymax;
 
@@ -29,15 +29,15 @@ public class VertexBorderConstraintHandler implements Function<VLVertexSkid, Pai
 	}
 
 	@Override
-	public Pair<Vector2D, Vector2D> apply(VLVertexSkid skid) {
+	public Pair<Vector2DPlain, Vector2DPlain> apply(VLVertexSkid skid) {
 
 		VLVertex2D vertex = skid.getVertex();
 
-		final Vector2D current = vertex.getCurrent();
-		final Vector2D previous = vertex.getPrevious();
+		final Vector2DPlain current = vertex.getCurrent();
+		final Vector2DPlain previous = vertex.getPrevious();
 
-		final Vector2D dcurrent = new Vector2D();
-		final Vector2D dprevious = new Vector2D();
+		final Vector2DPlain dcurrent = new Vector2DPlain();
+		final Vector2DPlain dprevious = new Vector2DPlain();
 
 		// bounce
 		if (current.x > xmax) {

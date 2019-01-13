@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 import de.zintel.math.MathUtils;
+import de.zintel.math.Vector2D;
 import de.zintel.math.VectorND;
 
 /**
@@ -20,14 +21,14 @@ public class MorphTexture implements ITexture {
 
 	private final ITexture textureOne;
 
-	private final Function<VectorND, Double> morphFactor;
+	private final Function<Vector2D, Double> morphFactor;
 
-	private final VectorND factorXRange;
+	private final Vector2D factorXRange;
 
-	private final VectorND factorYRange;
+	private final Vector2D factorYRange;
 
-	public MorphTexture(ITexture textureZero, ITexture textureOne, Function<VectorND, Double> morphFactor, VectorND factorXRange,
-			VectorND factorYRange) {
+	public MorphTexture(ITexture textureZero, ITexture textureOne, Function<Vector2D, Double> morphFactor, Vector2D factorXRange,
+			Vector2D factorYRange) {
 		this.textureZero = textureZero;
 		this.textureOne = textureOne;
 		this.morphFactor = morphFactor;
@@ -68,7 +69,7 @@ public class MorphTexture implements ITexture {
 	@Override
 	public Color getColor(double x, double y) {
 
-		final VectorND colorValues = morphColorValue(new VectorND(Arrays.asList(x, y)));
+		final VectorND colorValues = morphColorValue(new Vector2D(Arrays.asList(x, y)));
 		return new Color(fit(colorValues.get(0)), fit(colorValues.get(1)), fit(colorValues.get(2)), fit(colorValues.get(3)));
 	}
 
@@ -76,12 +77,13 @@ public class MorphTexture implements ITexture {
 		return (int) Math.max(Math.min(value, 255), 0);
 	}
 
-	private VectorND morphColorValue(VectorND coords) {
-		return MathUtils.morph(xy -> textureZero.getValue(xy), xy -> textureOne.getValue(xy),
-				xy -> morphFactor.apply(new VectorND(Arrays.asList(
-						MathUtils.morphRange(0, textureZero.getWidth() - 1, factorXRange.get(0), factorXRange.get(1), xy.get(0)),
-						MathUtils.morphRange(0, textureZero.getHeight() - 1, factorYRange.get(0), factorYRange.get(1), xy.get(1))))),
-				xy -> 1.0, coords);
+	private VectorND morphColorValue(Vector2D coords) {
+		return MathUtils
+				.morph(xy -> textureZero.getValue(xy), xy -> textureOne.getValue(xy),
+						xy -> morphFactor.apply(new Vector2D(Arrays.asList(
+								MathUtils.morphRange(0, textureZero.getWidth() - 1, factorXRange.get(0), factorXRange.get(1), xy.get(0)),
+								MathUtils.morphRange(0, textureZero.getHeight() - 1, factorYRange.get(0), factorYRange.get(1), xy.get(1))))),
+						xy -> 1.0, coords);
 	}
 
 	public ITexture getTextureZero() {
@@ -92,15 +94,15 @@ public class MorphTexture implements ITexture {
 		return textureOne;
 	}
 
-	public Function<VectorND, Double> getMorphFactor() {
+	public Function<Vector2D, Double> getMorphFactor() {
 		return morphFactor;
 	}
 
-	public VectorND getFactorXRange() {
+	public Vector2D getFactorXRange() {
 		return factorXRange;
 	}
 
-	public VectorND getFactorYRange() {
+	public Vector2D getFactorYRange() {
 		return factorYRange;
 	}
 

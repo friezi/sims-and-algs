@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * Positionen der Kantenenden werden gemittelt.
@@ -49,13 +49,13 @@ public class MeanAdjustingStickConstraintHandlerNoMap implements BiConsumer<Coll
 
 		} else {
 
-			Vector2D dv = new Vector2D();
-			for (Vector2D delta : vertex.getDeltas()) {
+			Vector2DPlain dv = new Vector2DPlain();
+			for (Vector2DPlain delta : vertex.getDeltas()) {
 				double fac = 1.0 / size;
 				if (!Double.isFinite(fac)) {
 					System.out.println("dfac is not finite!");
 				}
-				dv.add(Vector2D.mult(fac, delta));
+				dv.add(Vector2DPlain.mult(fac, delta));
 			}
 			vertex.getCurrent().add(dv);
 
@@ -64,7 +64,7 @@ public class MeanAdjustingStickConstraintHandlerNoMap implements BiConsumer<Coll
 
 	}
 
-	private void add(final VLVertex2D vertex, final Vector2D vector) {
+	private void add(final VLVertex2D vertex, final Vector2DPlain vector) {
 		vertex.addDelta(vector);
 	}
 
@@ -72,11 +72,11 @@ public class MeanAdjustingStickConstraintHandlerNoMap implements BiConsumer<Coll
 
 		VLVertex2D vFirst = edge.getFirst().getVertex();
 		VLVertex2D vSecond = edge.getSecond().getVertex();
-		final Vector2D cFirst = vFirst.getCurrent();
-		final Vector2D cSecond = vSecond.getCurrent();
-		Vector2D vDistance = Vector2D.substract(cFirst, cSecond);
+		final Vector2DPlain cFirst = vFirst.getCurrent();
+		final Vector2DPlain cSecond = vSecond.getCurrent();
+		Vector2DPlain vDistance = Vector2DPlain.substract(cFirst, cSecond);
 		if (vDistance.isNullVector()) {
-			vDistance = Vector2D.substract(vFirst.getPrevious(), vSecond.getPrevious());
+			vDistance = Vector2DPlain.substract(vFirst.getPrevious(), vSecond.getPrevious());
 			// Problem!!! no line anymore
 			// System.out.println("WARNING: Nullvector! edge: " + edge);
 			// // do no adjustment to prevent NaN
@@ -105,13 +105,13 @@ public class MeanAdjustingStickConstraintHandlerNoMap implements BiConsumer<Coll
 				System.out.println(
 						"fac is not finite! diff: " + diff + " length: " + distance + " preferredLength: " + edge.getPreferredLength());
 			}
-			Vector2D vSlack = Vector2D.mult(fac, vDistance);
+			Vector2DPlain vSlack = Vector2DPlain.mult(fac, vDistance);
 
 			if (!edge.getFirst().isSticky()) {
-				add(vFirst, edge.getSecond().isSticky() ? Vector2D.mult(-2, vSlack) : Vector2D.mult(-1, vSlack));
+				add(vFirst, edge.getSecond().isSticky() ? Vector2DPlain.mult(-2, vSlack) : Vector2DPlain.mult(-1, vSlack));
 			}
 			if (!edge.getSecond().isSticky()) {
-				add(vSecond, edge.getFirst().isSticky() ? Vector2D.mult(2, vSlack) : vSlack);
+				add(vSecond, edge.getFirst().isSticky() ? Vector2DPlain.mult(2, vSlack) : vSlack);
 			}
 		}
 	}

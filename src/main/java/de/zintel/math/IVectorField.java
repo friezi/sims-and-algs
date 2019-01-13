@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Field of dim n
+ * Field of dim n with vectors of dim m.
  * 
  * @author friedemann.zintel
  *
  */
-public interface IVectorField {
+public interface IVectorField<N extends AVectorND<N>, M extends AVectorND<M>> {
 
 	List<Integer> getDimensions();
 
@@ -23,25 +23,25 @@ public interface IVectorField {
 	 *            vector dim n
 	 * @return vector dim m
 	 */
-	VectorND getValue(VectorND pos);
+	M getValue(N pos);
 
-	void setValue(VectorND pos, VectorND value);
+	void setValue(N pos, M value);
 
-	List<VectorND> asList();
+	List<M> asList();
 
-	default VectorND interpolateLinear(VectorND pos) {
+	default M interpolateLinear(N coordinatevector, IVectorFactory<M> factory) {
 
 		final List<Integer> fieldDimensions = getDimensions();
-		final List<Double> origin = new ArrayList<>(pos.getDim());
+		final List<Double> floorCoordinates = new ArrayList<>(coordinatevector.getDim());
 		// distancevector
-		final List<Double> deltavector = new ArrayList<>(pos.getDim());
+		final List<Double> deltacoordinates = new ArrayList<>(coordinatevector.getDim());
 		long edgeComponetMask = 0L;
 		int fieldDimension = 0;
-		for (final double component : pos.getCoords()) {
+		for (final double coordinate : coordinatevector.getValues()) {
 
-			final double floor = Math.floor(component);
-			origin.add(floor);
-			deltavector.add(component - floor);
+			final double floor = Math.floor(coordinate);
+			floorCoordinates.add(floor);
+			deltacoordinates.add(coordinate - floor);
 
 			// check for edge-position
 			if (floor == fieldDimensions.get(fieldDimension) - 1) {
@@ -53,7 +53,7 @@ public interface IVectorField {
 		final int dimensions = fieldDimensions.size();
 		final long cardinality = (int) Math.pow(2, dimensions);
 
-		VectorND sum = null;
+		M sum = null;
 		for (long targetSetMask = 0; targetSetMask < cardinality; targetSetMask++) {
 
 			if ((targetSetMask & edgeComponetMask) > 0) {
@@ -69,7 +69,7 @@ public interface IVectorField {
 					continue;
 				}
 
-				final Double dvd = deltavector.get(dim);
+				final Double dvd = deltacoordinates.get(dim);
 				final boolean delta = MathUtils.isSet(targetSetMask, dim);
 				prod *= (delta ? dvd : (1 - dvd));
 
@@ -82,26 +82,26 @@ public interface IVectorField {
 				continue;
 			}
 
-			final VectorND targetVector = getTargetVector(origin, targetSetMask);
-			final VectorND value = getValue(targetVector);
-			sum = new VectorND(value.getDim()).add(value).mult(prod).add(sum == null ? new VectorND(value.getDim()) : sum);
+			final N targetCoordinates = getTargetCoordinates(floorCoordinates, targetSetMask, coordinatevector);
+			final M value = getValue(targetCoordinates);
+			sum = factory.newVector().add(value).mult(prod).add(sum == null ? factory.newVector() : sum);
 		}
 
-		return (sum == null ? new VectorND(getDimensionsCodomain()) : sum);
+		return (sum == null ? factory.newVector() : sum);
 	}
 
-	default VectorND getTargetVector(final List<Double> origin, final long dirmask) {
+	default N getTargetCoordinates(final List<Double> floorcoordinates, final long directionmask, IVectorFactory<N> factory) {
 
-		final List<Double> dirVector = new ArrayList<>(origin.size());
-		for (int i = 0; i < origin.size(); i++) {
-			if (MathUtils.isSet(dirmask, i)) {
-				dirVector.add(origin.get(i) + 1);
+		final List<Double> targetcoordinates = new ArrayList<>(floorcoordinates.size());
+		for (int i = 0; i < floorcoordinates.size(); i++) {
+			if (MathUtils.isSet(directionmask, i)) {
+				targetcoordinates.add(floorcoordinates.get(i) + 1);
 			} else {
-				dirVector.add(origin.get(i));
+				targetcoordinates.add(floorcoordinates.get(i));
 			}
 		}
 
-		return new VectorND(dirVector);
+		return factory.newVector(targetcoordinates);
 
 	}
 

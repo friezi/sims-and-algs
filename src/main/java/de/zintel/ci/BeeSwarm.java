@@ -3,7 +3,7 @@
  */
 package de.zintel.ci;
 
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author Friedemann
@@ -11,7 +11,7 @@ import de.zintel.math.Vector2D;
  */
 public class BeeSwarm extends Swarm {
 
-	public BeeSwarm(Vector2D center) {
+	public BeeSwarm(Vector2DPlain center) {
 		super(center);
 		setUseAlignment(false);
 	}

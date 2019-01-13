@@ -2,7 +2,7 @@ package de.zintel.physics;
 
 import java.io.Serializable;
 
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 public class BodyParameters implements Serializable {
 
@@ -21,9 +21,9 @@ public class BodyParameters implements Serializable {
 
 	public double volume;
 
-	public Vector2D position;
+	public Vector2DPlain position;
 
-	public Vector2D velocity;
+	public Vector2DPlain velocity;
 
 	public boolean particle = false;
 

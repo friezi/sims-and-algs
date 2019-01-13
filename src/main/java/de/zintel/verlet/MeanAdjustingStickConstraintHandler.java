@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
 
 import de.zintel.gfx.g2d.verlet.VLEdge2D;
 import de.zintel.gfx.g2d.verlet.VLVertex2D;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * Positionen der Kantenenden werden gemittelt.
@@ -30,28 +30,28 @@ public class MeanAdjustingStickConstraintHandler implements BiConsumer<Collectio
 	@Override
 	public void accept(Collection<VLEdge2D> edges, Integer iteration) {
 
-		Map<VLVertex2D, Collection<Vector2D>> modMap = new HashMap<>();
+		Map<VLVertex2D, Collection<Vector2DPlain>> modMap = new HashMap<>();
 		// here parallelisation should not be done because some edges access the
 		// same vertex
 		for (final VLEdge2D edge : edges) {
 			handleStickConstraints(edge, modMap, iteration);
 		}
 
-		for (Map.Entry<VLVertex2D, Collection<Vector2D>> entry : modMap.entrySet()) {
+		for (Map.Entry<VLVertex2D, Collection<Vector2DPlain>> entry : modMap.entrySet()) {
 
-			Vector2D dv = new Vector2D();
+			Vector2DPlain dv = new Vector2DPlain();
 			int size = entry.getValue().size();
-			for (Vector2D v : entry.getValue()) {
-				dv.add(Vector2D.mult(1.0 / size, v));
+			for (Vector2DPlain v : entry.getValue()) {
+				dv.add(Vector2DPlain.mult(1.0 / size, v));
 			}
 			entry.getKey().getCurrent().add(dv);
 		}
 
 	}
 
-	private void add(final VLVertex2D vertex, final Vector2D vector, final Map<VLVertex2D, Collection<Vector2D>> map) {
+	private void add(final VLVertex2D vertex, final Vector2DPlain vector, final Map<VLVertex2D, Collection<Vector2DPlain>> map) {
 
-		Collection<Vector2D> collection = map.get(vertex);
+		Collection<Vector2DPlain> collection = map.get(vertex);
 		if (collection == null) {
 
 			collection = new ArrayList<>();
@@ -63,15 +63,15 @@ public class MeanAdjustingStickConstraintHandler implements BiConsumer<Collectio
 
 	}
 
-	private void handleStickConstraints(final VLEdge2D edge, Map<VLVertex2D, Collection<Vector2D>> modMap, final int iteration) {
+	private void handleStickConstraints(final VLEdge2D edge, Map<VLVertex2D, Collection<Vector2DPlain>> modMap, final int iteration) {
 
 		VLVertex2D vFirst = edge.getFirst().getVertex();
 		VLVertex2D vSecond = edge.getSecond().getVertex();
-		final Vector2D cFirst = vFirst.getCurrent();
-		final Vector2D cSecond = vSecond.getCurrent();
-		Vector2D dV = Vector2D.substract(cFirst, cSecond);
+		final Vector2DPlain cFirst = vFirst.getCurrent();
+		final Vector2DPlain cSecond = vSecond.getCurrent();
+		Vector2DPlain dV = Vector2DPlain.substract(cFirst, cSecond);
 		if (dV.isNullVector()) {
-			dV = Vector2D.substract(vFirst.getPrevious(), vSecond.getPrevious());
+			dV = Vector2DPlain.substract(vFirst.getPrevious(), vSecond.getPrevious());
 			// Problem!!! no line anymore
 			// System.out.println("WARNING: Nullvector! edge: " + edge);
 			// // do no adjustment to prevent NaN
@@ -92,23 +92,23 @@ public class MeanAdjustingStickConstraintHandler implements BiConsumer<Collectio
 		if (length != edge.getPreferredLength()) {
 
 			double diff = length - edge.getPreferredLength();
-			Vector2D slackV = Vector2D.mult((diff / length) / 2, dV);
+			Vector2DPlain slackV = Vector2DPlain.mult((diff / length) / 2, dV);
 
 			if (!edge.getFirst().isSticky()) {
 
-				Vector2D dVector;
+				Vector2DPlain dVector;
 				if (edge.getSecond().isSticky()) {
-					dVector = Vector2D.mult(-2, slackV);
+					dVector = Vector2DPlain.mult(-2, slackV);
 				} else {
-					dVector = Vector2D.mult(-1, slackV);
+					dVector = Vector2DPlain.mult(-1, slackV);
 				}
 				add(vFirst, dVector, modMap);
 			}
 			if (!edge.getSecond().isSticky()) {
 
-				Vector2D dVector;
+				Vector2DPlain dVector;
 				if (edge.getFirst().isSticky()) {
-					dVector = Vector2D.mult(2, slackV);
+					dVector = Vector2DPlain.mult(2, slackV);
 				} else {
 					dVector = slackV;
 				}

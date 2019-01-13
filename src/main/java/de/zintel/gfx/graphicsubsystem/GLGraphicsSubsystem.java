@@ -37,7 +37,7 @@ import com.jogamp.opengl.util.awt.TextRenderer;
 import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.gl.GLUtils;
 import de.zintel.gfx.gl.GLUtils.CircleDrawer;
-import de.zintel.math.Vector2D;
+import de.zintel.math.Vector2DPlain;
 
 /**
  * @author Friedemann
@@ -189,7 +189,7 @@ public class GLGraphicsSubsystem implements IGraphicsSubsystem, GLEventListener,
 	}
 
 	@Override
-	public void drawFilledPolygon(Collection<Vector2D> points, Supplier<Color> colorGenerator) {
+	public void drawFilledPolygon(Collection<Vector2DPlain> points, Supplier<Color> colorGenerator) {
 		GLUtils.drawFilledPolygon(points, colorGenerator, dimension, gl);
 	}
 
