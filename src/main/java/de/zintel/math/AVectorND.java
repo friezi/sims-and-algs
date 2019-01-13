@@ -17,8 +17,8 @@ import de.zintel.math.matrix.DMatrix;
  * 
  * Attention! To not produce ClasscCastExceptions, the type T must always be
  * equal to the extended lass type. Define only classes in the way 'T extends
- * VectorND<T>'. I. e. omit something like this: 'S extends VectorND<S> ... T
- * extends VectorND<S>'. Due to a lack of the typesystem, the required equality
+ * AVectorND<T>'. I. e. omit something like this: 'S extends AVectorND<S> ... T
+ * extends AVectorND<S>'. Due to a lack of the typesystem, the required equality
  * is not specifyable.
  * 
  * @author Friedemann
@@ -58,8 +58,8 @@ public abstract class AVectorND<T extends AVectorND<T>> implements IVectorFactor
 		});
 	}
 
-	public AVectorND(final int dim, final Collection<Double> coords) {
-		this(new ArrayList<Double>(coords));
+	public AVectorND(final int dim, final Collection<Double> values) {
+		this(new ArrayList<Double>(values));
 		assertProp(dim == this.values.size());
 	}
 
@@ -123,20 +123,20 @@ public abstract class AVectorND<T extends AVectorND<T>> implements IVectorFactor
 		return (T) this;
 	}
 
-	public T add(final List<Double> coords) {
-		return combine(coords, (a, b) -> a + b);
+	public T add(final List<Double> values) {
+		return combine(values, (a, b) -> a + b);
 	}
 
-	public T substract(final List<Double> coords) {
-		return combine(coords, (a, b) -> a - b);
+	public T substract(final List<Double> values) {
+		return combine(values, (a, b) -> a - b);
 	}
 
-	protected T combine(final List<Double> coords, BiFunction<Double, Double, Double> combinator) {
+	protected T combine(final List<Double> values, BiFunction<Double, Double, Double> combinator) {
 
-		assertProp(dim == coords.size());
+		assertProp(dim == values.size());
 
 		for (int i = 0; i < dim; i++) {
-			this.values.set(i, combinator.apply(this.values.get(i), coords.get(i)));
+			this.values.set(i, combinator.apply(this.values.get(i), values.get(i)));
 		}
 
 		length = -1;
