@@ -58,6 +58,8 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	private final IGraphicsSubsystem graphicsSubsystem;
 
+	private boolean logging = true;
+
 	private boolean stopped = false;
 
 	private long calculations = 0;
@@ -102,12 +104,16 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 		graphicsSubsystem.addKeyListener(this);
 		graphicsSubsystem.addRendererListener(this);
 
-		System.out.println("initialising ...");
+		if (logging) {
+			System.out.println("initialising ...");
+		}
 
 		init(graphicsSubsystem);
 		initBaseKeyActions();
 
-		System.out.println("initialised");
+		if (logging) {
+			System.out.println("initialised");
+		}
 
 		graphicsSubsystem.display();
 
@@ -149,7 +155,9 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 				if (crStopTs - crStartTs >= 1000) {
 
 					double calculationrate = calculations / ((crStopTs - crStartTs) / (double) 1000);
-					System.out.println("calculationrate: " + calculationrate + " cps");
+					if (logging) {
+						System.out.println("calculationrate: " + calculationrate + " cps");
+					}
 
 					crStartTs = System.currentTimeMillis();
 					calculations = 0;
@@ -184,7 +192,9 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 		if (rStopTs - rStartTs >= 1000) {
 
 			double framerate = renderings / ((rStopTs - rStartTs) / (double) 1000);
-			System.out.println("framerate: " + framerate + " fps");
+			if (logging) {
+				System.out.println("framerate: " + framerate + " fps");
+			}
 
 			rStartTs = System.currentTimeMillis();
 			renderings = 0;
@@ -248,8 +258,8 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 				}
 
 				keyAction.plus();
-				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
-						TEXT_TIMEOUT, keyAction.toggleComponent());
+				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW, TEXT_TIMEOUT,
+						keyAction.toggleComponent());
 
 			}
 
@@ -263,8 +273,8 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 				}
 
 				keyAction.minus();
-				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
-						TEXT_TIMEOUT, keyAction.toggleComponent());
+				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW, TEXT_TIMEOUT,
+						keyAction.toggleComponent());
 
 			}
 		} else if (pressedKeyCode == KeyEvent.VK_SHIFT) {
@@ -347,8 +357,8 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 			@Override
 			public String getValue() {
-				return keyActions.entrySet().stream().filter(entry -> entry.getValue() != this).map(
-						entry -> KeyEvent.getKeyText(entry.getKey()) + ": " + entry.getValue().text() + ": " + entry.getValue().getValue())
+				return keyActions.entrySet().stream().filter(entry -> entry.getValue() != this)
+						.map(entry -> KeyEvent.getKeyText(entry.getKey()) + ": " + entry.getValue().text() + ": " + entry.getValue().getValue())
 						.collect(Collectors.joining("\n"));
 			}
 
@@ -431,6 +441,14 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
+	}
+
+	public boolean isLogging() {
+		return logging;
+	}
+
+	public void setLogging(boolean logging) {
+		this.logging = logging;
 	}
 
 }

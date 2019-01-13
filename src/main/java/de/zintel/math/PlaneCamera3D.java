@@ -26,8 +26,7 @@ public class PlaneCamera3D implements ICamera3D {
 
 	private final Plane3D plane = new Plane3D(new Vector3D(0, 0, 1), new Vector3D(0, 0, 0));
 
-	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToScreen, double curvature,
-			Dimension screenDimension) {
+	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToScreen, double curvature, Dimension screenDimension) {
 		this.viewpoint = viewpoint;
 		this.transformationToScreen = transformationToScreen;
 		this.curvature = curvature;
@@ -77,7 +76,7 @@ public class PlaneCamera3D implements ICamera3D {
 		Vector3D i_point = t_point.z() < 0 ? null : Utils3D.intersect(t_point, getViewpoint(), plane);
 		if (i_point != null && inRange(i_point) && curvature > 0) {
 			i_point = new Vector3D(curve(screenDimension.getWidth() - 1, i_point.x(), curvature),
-					curve(screenDimension.getHeight() - 1, i_point.y(), curvature / 3), i_point.z());
+					curve(screenDimension.getHeight() - 1, i_point.y(), curvature), i_point.z());
 		}
 		return i_point;
 
