@@ -13,28 +13,37 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.github.strikerx3.jxinput.XInputDevice;
+import com.github.strikerx3.jxinput.exceptions.XInputNotLoadedException;
+
+import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
+import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.component.FadingText;
 import de.zintel.gfx.component.GfxState;
 import de.zintel.gfx.component.IGfxComponent;
-import de.zintel.control.IKeyAction;
-import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystemFactory;
 import de.zintel.gfx.graphicsubsystem.IRendererListener;
+import de.zintel.xinput.IXInputAnalogHandler;
+import de.zintel.xinput.XInputBundle;
+import de.zintel.xinput.XInputController;
 
 /**
  * @author friedemann.zintel
  *
  */
-public abstract class SimulationScreen implements MouseListener, MouseWheelListener, MouseMotionListener, KeyListener, IRendererListener {
+public abstract class SimulationScreen
+		implements MouseListener, MouseWheelListener, MouseMotionListener, KeyListener, IRendererListener, IXInputAnalogHandler {
 
 	public static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
 
@@ -82,8 +91,10 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	private Map<String, IGfxComponent> gfxComponents = new LinkedHashMap<>();
 
-	public SimulationScreen(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
-			int recordingRate) {
+	private final Collection<XInputController> xInputControllers = new LinkedList<>();
+
+	public SimulationScreen(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord,
+			String recordFilename, int recordingRate) {
 		this.screenParameters = screenParameters;
 		this.doRecord = doRecord;
 		this.recordFilename = recordFilename;
@@ -142,6 +153,10 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 				calculations++;
 				if (crStartTs == 0) {
 					crStartTs = System.currentTimeMillis();
+				}
+
+				for (XInputController xInputController : xInputControllers) {
+					xInputController.handleXInput();
 				}
 
 				calculate(graphicsSubsystem.getDimension());
@@ -258,8 +273,8 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 				}
 
 				keyAction.plus();
-				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW, TEXT_TIMEOUT,
-						keyAction.toggleComponent());
+				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
+						TEXT_TIMEOUT, keyAction.toggleComponent());
 
 			}
 
@@ -273,8 +288,8 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 				}
 
 				keyAction.minus();
-				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW, TEXT_TIMEOUT,
-						keyAction.toggleComponent());
+				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
+						TEXT_TIMEOUT, keyAction.toggleComponent());
 
 			}
 		} else if (pressedKeyCode == KeyEvent.VK_SHIFT) {
@@ -357,8 +372,8 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 			@Override
 			public String getValue() {
-				return keyActions.entrySet().stream().filter(entry -> entry.getValue() != this)
-						.map(entry -> KeyEvent.getKeyText(entry.getKey()) + ": " + entry.getValue().text() + ": " + entry.getValue().getValue())
+				return keyActions.entrySet().stream().filter(entry -> entry.getValue() != this).map(
+						entry -> KeyEvent.getKeyText(entry.getKey()) + ": " + entry.getValue().text() + ": " + entry.getValue().getValue())
 						.collect(Collectors.joining("\n"));
 			}
 
@@ -449,6 +464,43 @@ public abstract class SimulationScreen implements MouseListener, MouseWheelListe
 
 	public void setLogging(boolean logging) {
 		this.logging = logging;
+	}
+
+	public void addXInputBundle(final XInputBundle xInputBundle) {
+
+		if (XInputDevice.isAvailable()) {
+
+			try {
+
+				XInputDevice xInputDevice = XInputDevice.getDeviceFor(xInputBundle.getPlayerNmb());
+				xInputDevice.addListener(xInputBundle.getxInputDeviceListener());
+
+				xInputControllers.add(new XInputController(xInputDevice, xInputBundle));
+
+			} catch (XInputNotLoadedException e) {
+				System.out.println("WARN: XInput not loaded for device " + xInputBundle.getPlayerNmb() + "!");
+			}
+		} else {
+
+			System.out.println("WARN: XInput not available!");
+
+		}
+	}
+
+	@Override
+	public void handleXInputLeftStick(float x, float y) {
+	}
+
+	@Override
+	public void handleXInputRightStick(float x, float y) {
+	}
+
+	@Override
+	public void handleXInputLT(float value) {
+	}
+
+	@Override
+	public void handleXInputRT(float value) {
 	}
 
 }

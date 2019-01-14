@@ -11,15 +11,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.github.strikerx3.jxinput.XInputAxes;
-import com.github.strikerx3.jxinput.XInputComponents;
-import com.github.strikerx3.jxinput.XInputDevice;
-import com.github.strikerx3.jxinput.XInputLibraryVersion;
-import com.github.strikerx3.jxinput.enums.XInputButton;
-import com.github.strikerx3.jxinput.exceptions.XInputNotLoadedException;
-import com.github.strikerx3.jxinput.listener.SimpleXInputDeviceListener;
-import com.github.strikerx3.jxinput.listener.XInputDeviceListener;
-
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
@@ -34,6 +25,7 @@ import de.zintel.math.SphereCamera3D;
 import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
 import de.zintel.sim.SimulationScreen;
+import de.zintel.xinput.XInputBundle;
 
 /**
  * @author friedemann.zintel
@@ -117,8 +109,6 @@ public class WhirlSim extends SimulationScreen {
 
 	private boolean dynamicColoring = false;
 
-	private XInputDevice xInputDevice;
-
 	/**
 	 * @param title
 	 * @param gfxSsystem
@@ -146,66 +136,26 @@ public class WhirlSim extends SimulationScreen {
 	@Override
 	protected void init(IGraphicsSubsystem graphicsSubsystem) {
 
-		setLogging(false);
-
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		graphicsSubsystem.setColorMixture(colorMixture);
 		initKeyActions();
 
-		camera = new PlaneCamera3D(
-				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
-				new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
+		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
+				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
+				graphicsSubsystem.getDimension());
 		// camera = new SphereCamera3D(new Vector3D(950.0, 140.0, -1000.0), new
 		// CoordinateTransformation3D(), 5000000,
 		// graphicsSubsystem.getDimension());
 
-		initXInputDevice();
+		initXInput();
 
 	}
 
-	private void initXInputDevice() {
-
-		if (XInputDevice.isAvailable()) {
-
-			XInputLibraryVersion libVersion = XInputDevice.getLibraryVersion();
-			System.out.println("INFO: XInput library: " + libVersion);
-
-			try {
-
-				xInputDevice = XInputDevice.getDeviceFor(0);
-
-				XInputDeviceListener listener = new SimpleXInputDeviceListener() {
-
-					@Override
-					public void buttonChanged(XInputButton button, boolean pressed) {
-						super.buttonChanged(button, pressed);
-						System.out.println("INFO: XInputdevice button has changed: " + button + " : " + pressed);
-					}
-
-					@Override
-					public void connected() {
-						super.connected();
-						System.out.println("INFO: XInputdevice has connected");
-
-					}
-
-					@Override
-					public void disconnected() {
-						System.out.println("INFO: XInputdevice has disconnected");
-					}
-
-				};
-
-				xInputDevice.addListener(listener);
-
-			} catch (XInputNotLoadedException e) {
-				System.out.println("WARN: XInput not loaded!");
-			}
-		} else {
-
-			System.out.println("WARN: XInput not available!");
-
-		}
+	/**
+	 * 
+	 */
+	public void initXInput() {
+		addXInputBundle(new XInputBundle(0).setxInputAnalogHandler(this));
 	}
 
 	/*
@@ -338,7 +288,8 @@ public class WhirlSim extends SimulationScreen {
 					if (ppoint != null) {
 
 						if (camera.inRange(ppoint)) {
-							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius, () -> adjustColor(Color.GREEN, point));
+							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius,
+									() -> adjustColor(Color.GREEN, point));
 						}
 
 						if (xnppoint != null) {
@@ -415,41 +366,6 @@ public class WhirlSim extends SimulationScreen {
 		}
 	}
 
-	private void handleXInput() {
-
-		if (xInputDevice != null) {
-
-			if (xInputDevice.poll()) {
-
-				XInputComponents components = xInputDevice.getComponents();
-				final XInputAxes axes = components.getAxes();
-				// System.out.println("rt:"+axes.rt+" lt:"+axes.lt+"
-				// rx:"+axes.rx+" ry:"+axes.ry+" lx:"+axes.lx+" ly:"+axes.ly);
-
-				if (camera instanceof PlaneCamera3D) {
-					((PlaneCamera3D) camera).setCurvature(10 * axes.rt);
-				}
-
-				rotationspeed = -40 * adjustToDeadZone(axes.ly);
-
-			}
-		}
-
-	}
-
-	private float adjustToDeadZone(float value) {
-
-		final float deadzone = 0.11F;
-
-		final float amount = Math.abs(value);
-		final float direction = Math.signum(value);
-		if (amount < deadzone) {
-			return 0;
-		} else {
-			return value - direction * deadzone;
-		}
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -457,8 +373,6 @@ public class WhirlSim extends SimulationScreen {
 	 */
 	@Override
 	protected void calculate(Dimension dimension) throws Exception {
-
-		handleXInput();
 
 		final double width = dimension.getWidth() + deltaxmax;
 
@@ -482,8 +396,8 @@ public class WhirlSim extends SimulationScreen {
 
 			}
 
-			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius, rottrans,
-					point.x());
+			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
+					rottrans, point.x());
 
 			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, point.x());
 
@@ -1118,8 +1032,8 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public String getValue() {
-				return String
-						.valueOf(camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
+				return String.valueOf(
+						camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
 			}
 		});
 		addKeyAction(KeyEvent.VK_E, new IKeyAction() {
@@ -1172,7 +1086,27 @@ public class WhirlSim extends SimulationScreen {
 	 */
 	@Override
 	protected void shutdown() throws Exception {
-		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void handleXInputLeftStick(float x, float y) {
+
+		System.out.println("ls x:" + x + " y:" + y);
+
+		super.handleXInputLeftStick(x, y);
+
+		rotationspeed = -40 * y;
+	}
+
+	@Override
+	public void handleXInputRT(float value) {
+
+		super.handleXInputRT(value);
+
+		if (camera instanceof PlaneCamera3D) {
+			((PlaneCamera3D) camera).setCurvature(10 * value);
+		}
 
 	}
 }
