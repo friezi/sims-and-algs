@@ -39,18 +39,20 @@ public class XInputController {
 				XInputComponents components = xInputDevice.getComponents();
 				final XInputAxes axes = components.getAxes();
 
-				xInputBundle.getxInputAnalogHandler().handleXInputLeftStick(adjustToDeadZone(axes.lx), adjustToDeadZone(axes.ly));
-				xInputBundle.getxInputAnalogHandler().handleXInputRightStick(adjustToDeadZone(axes.rx), adjustToDeadZone(axes.ry));
-				xInputBundle.getxInputAnalogHandler().handleXInputLT(adjustToDeadZone(axes.lt));
-				xInputBundle.getxInputAnalogHandler().handleXInputRT(adjustToDeadZone(axes.rt));
+				xInputBundle.getxInputAnalogHandler().handleXInputLeftStick(adjustToDeadZone(axes.lx, xInputBundle.getDeadzoneStick()),
+						adjustToDeadZone(axes.ly, xInputBundle.getDeadzoneStick()));
+				xInputBundle.getxInputAnalogHandler().handleXInputRightStick(adjustToDeadZone(axes.rx, xInputBundle.getDeadzoneStick()),
+						adjustToDeadZone(axes.ry, xInputBundle.getDeadzoneStick()));
+				xInputBundle.getxInputAnalogHandler().handleXInputLT(adjustToDeadZone(axes.lt, xInputBundle.getDeadzoneLRT()));
+				xInputBundle.getxInputAnalogHandler().handleXInputRT(adjustToDeadZone(axes.rt, xInputBundle.getDeadzoneLRT()));
 
 			}
 		}
 
 	}
 
-	private float adjustToDeadZone(float value) {
-		return Math.abs(value) < xInputBundle.getDeadzone() ? 0 : value - Math.signum(value) * xInputBundle.getDeadzone();
+	private float adjustToDeadZone(float value, final float deadzone) {
+		return Math.abs(value) < deadzone ? 0 : (value - Math.signum(value) * deadzone) / (1 - deadzone);
 	}
 
 }

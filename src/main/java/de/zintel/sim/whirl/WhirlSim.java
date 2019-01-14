@@ -280,7 +280,7 @@ public class WhirlSim extends SimulationScreen {
 						continue;
 					}
 
-					final int radius = (int) projectRadius(point, ppoint, finalBubbleRadius * 2);
+					final int radius = (int) projectRadius(point, ppoint, finalBubbleRadius * 2.5);
 					if (radius == 0) {
 						continue;
 					}
@@ -1092,11 +1092,9 @@ public class WhirlSim extends SimulationScreen {
 	@Override
 	public void handleXInputLeftStick(float x, float y) {
 
-		System.out.println("ls x:" + x + " y:" + y);
-
 		super.handleXInputLeftStick(x, y);
 
-		rotationspeed = -40 * y;
+		rotationspeed = -50 * y;
 	}
 
 	@Override

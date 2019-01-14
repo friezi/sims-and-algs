@@ -11,7 +11,9 @@ import com.github.strikerx3.jxinput.listener.XInputDeviceListener;
  */
 public class XInputBundle {
 
-	public static final float DEADZONE__DFLT = 0.23F;
+	public static final float DEADZONE_STICK_DFLT = 0.21F;
+
+	public static final float DEADZONE_LRT_DFLT = 0F;
 
 	private final int playerNmb;
 
@@ -19,7 +21,9 @@ public class XInputBundle {
 
 	private IXInputAnalogHandler xInputAnalogHandler = null;
 
-	private float deadzone = DEADZONE__DFLT;
+	private float deadzoneStick = DEADZONE_STICK_DFLT;
+
+	private float deadzoneLRT = DEADZONE_LRT_DFLT;
 
 	public XInputBundle(int playerNmb) {
 		this.playerNmb = playerNmb;
@@ -47,12 +51,20 @@ public class XInputBundle {
 		return playerNmb;
 	}
 
-	public float getDeadzone() {
-		return deadzone;
+	public float getDeadzoneStick() {
+		return deadzoneStick;
 	}
 
-	public void setDeadzone(float deadzone) {
-		this.deadzone = deadzone;
+	public void setDeadzoneStick(float deadzoneStick) {
+		this.deadzoneStick = deadzoneStick;
+	}
+
+	public float getDeadzoneLRT() {
+		return deadzoneLRT;
+	}
+
+	public void setDeadzoneLRT(float deadzoneLRT) {
+		this.deadzoneLRT = deadzoneLRT;
 	}
 
 }
