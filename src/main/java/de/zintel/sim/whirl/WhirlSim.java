@@ -330,7 +330,7 @@ public class WhirlSim extends SimulationScreen {
 						continue;
 					}
 
-					final int radius = (int) projectRadius(point, ppoint, finalBubbleRadius * 3);
+					final int radius = (int) projectRadius(point, ppoint, finalBubbleRadius * 2);
 					if (radius == 0) {
 						continue;
 					}
