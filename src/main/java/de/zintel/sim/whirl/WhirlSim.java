@@ -11,6 +11,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 
+import com.github.strikerx3.jxinput.enums.XInputButton;
+
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
@@ -25,7 +27,7 @@ import de.zintel.math.SphereCamera3D;
 import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
 import de.zintel.sim.SimulationScreen;
-import de.zintel.xinput.XInputBundle;
+import de.zintel.xinput.XInputHandle;
 
 /**
  * @author friedemann.zintel
@@ -149,23 +151,28 @@ public class WhirlSim extends SimulationScreen {
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		graphicsSubsystem.setColorMixture(colorMixture);
 		initKeyActions();
+		initCamera(graphicsSubsystem);
+		initXInput();
 
-		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
-				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
-				graphicsSubsystem.getDimension());
+	}
+
+	/**
+	 * @param graphicsSubsystem
+	 */
+	public void initCamera(IGraphicsSubsystem graphicsSubsystem) {
 		// camera = new SphereCamera3D(new Vector3D(950.0, 140.0, -1000.0), new
 		// CoordinateTransformation3D(), 5000000,
 		// graphicsSubsystem.getDimension());
-
-		initXInput();
-
+		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
+				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
+				graphicsSubsystem.getDimension());
 	}
 
 	/**
 	 * 
 	 */
 	public void initXInput() {
-		addXInputBundle(new XInputBundle(0).setXInputAnalogHandler(this));
+		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(this));
 	}
 
 	/*
@@ -1151,6 +1158,16 @@ public class WhirlSim extends SimulationScreen {
 		if (camera instanceof PlaneCamera3D && value != 0) {
 			final PlaneCamera3D pcamera = (PlaneCamera3D) camera;
 			pcamera.setCurvature(Math.min(pcamera.getCurvature(), CURVATURE_MAX * (1 - value)));
+		}
+
+	}
+
+	@Override
+	public void buttonChanged(XInputButton button, boolean pressed) {
+		super.buttonChanged(button, pressed);
+
+		if (button == XInputButton.X && pressed) {
+			initCamera(getGraphicsSubsystem());
 		}
 
 	}

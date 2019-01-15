@@ -3,13 +3,11 @@
  */
 package de.zintel.xinput;
 
-import com.github.strikerx3.jxinput.listener.XInputDeviceListener;
-
 /**
  * @author friedemann.zintel
  *
  */
-public class XInputBundle {
+public class XInputHandle {
 
 	public static final float DEADZONE_STICK_DFLT = 0.25F;
 
@@ -17,33 +15,22 @@ public class XInputBundle {
 
 	private final int playerNmb;
 
-	private XInputDeviceListener xInputDeviceListener = null;
-
-	private IXInputAnalogHandler xInputAnalogHandler = null;
+	private IXInputCombinedHandler xInputCombinedHandler = null;
 
 	private float deadzoneStick = DEADZONE_STICK_DFLT;
 
 	private float deadzoneLRT = DEADZONE_LRT_DFLT;
 
-	public XInputBundle(int playerNmb) {
+	public XInputHandle(int playerNmb) {
 		this.playerNmb = playerNmb;
 	}
 
-	public XInputDeviceListener getXInputDeviceListener() {
-		return xInputDeviceListener;
+	public IXInputCombinedHandler getXInputCombinedHandler() {
+		return xInputCombinedHandler;
 	}
 
-	public XInputBundle setXInputDeviceListener(XInputDeviceListener xInputDeviceListener) {
-		this.xInputDeviceListener = xInputDeviceListener;
-		return this;
-	}
-
-	public IXInputAnalogHandler getXInputAnalogHandler() {
-		return xInputAnalogHandler;
-	}
-
-	public XInputBundle setXInputAnalogHandler(IXInputAnalogHandler xInputAnalogHandler) {
-		this.xInputAnalogHandler = xInputAnalogHandler;
+	public XInputHandle setXInputCombinedHandler(IXInputCombinedHandler xInputCombinedHandler) {
+		this.xInputCombinedHandler = xInputCombinedHandler;
 		return this;
 	}
 

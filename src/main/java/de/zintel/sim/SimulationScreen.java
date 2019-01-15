@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.github.strikerx3.jxinput.XInputDevice;
+import com.github.strikerx3.jxinput.enums.XInputButton;
 import com.github.strikerx3.jxinput.exceptions.XInputNotLoadedException;
 
 import de.zintel.control.IKeyAction;
@@ -34,8 +35,8 @@ import de.zintel.gfx.component.IGfxComponent;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystemFactory;
 import de.zintel.gfx.graphicsubsystem.IRendererListener;
-import de.zintel.xinput.IXInputAnalogHandler;
-import de.zintel.xinput.XInputBundle;
+import de.zintel.xinput.IXInputCombinedHandler;
+import de.zintel.xinput.XInputHandle;
 import de.zintel.xinput.XInputController;
 
 /**
@@ -43,7 +44,7 @@ import de.zintel.xinput.XInputController;
  *
  */
 public abstract class SimulationScreen
-		implements MouseListener, MouseWheelListener, MouseMotionListener, KeyListener, IRendererListener, IXInputAnalogHandler {
+		implements MouseListener, MouseWheelListener, MouseMotionListener, KeyListener, IRendererListener, IXInputCombinedHandler {
 
 	public static final EGraphicsSubsystem GFX_SSYSTEM = GfxUtils.EGraphicsSubsystem.GL;
 
@@ -466,21 +467,21 @@ public abstract class SimulationScreen
 		this.logging = logging;
 	}
 
-	public void addXInputBundle(final XInputBundle xInputBundle) {
+	public void addXInputHandle(final XInputHandle xInputHandle) {
 
 		if (XInputDevice.isAvailable()) {
 
 			try {
 
-				XInputDevice xInputDevice = XInputDevice.getDeviceFor(xInputBundle.getPlayerNmb());
-				if (xInputBundle.getXInputDeviceListener() != null) {
-					xInputDevice.addListener(xInputBundle.getXInputDeviceListener());
+				XInputDevice xInputDevice = XInputDevice.getDeviceFor(xInputHandle.getPlayerNmb());
+				if (xInputHandle.getXInputCombinedHandler() != null) {
+					xInputDevice.addListener(xInputHandle.getXInputCombinedHandler());
 				}
 
-				xInputControllers.add(new XInputController(xInputDevice, xInputBundle));
+				xInputControllers.add(new XInputController(xInputDevice, xInputHandle));
 
 			} catch (XInputNotLoadedException e) {
-				System.out.println("WARN: XInput not loaded for device " + xInputBundle.getPlayerNmb() + "!");
+				System.out.println("WARN: XInput not loaded for device " + xInputHandle.getPlayerNmb() + "!");
 			}
 		} else {
 
@@ -503,6 +504,18 @@ public abstract class SimulationScreen
 
 	@Override
 	public void handleXInputRT(float value) {
+	}
+
+	@Override
+	public void buttonChanged(XInputButton button, boolean pressed) {
+	}
+
+	@Override
+	public void connected() {
+	}
+
+	@Override
+	public void disconnected() {
 	}
 
 }

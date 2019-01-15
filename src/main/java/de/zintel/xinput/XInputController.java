@@ -15,40 +15,42 @@ public class XInputController {
 
 	private final XInputDevice xInputDevice;
 
-	private final XInputBundle xInputBundle;
+	private final XInputHandle xInputHandle;
 
-	public XInputController(XInputDevice xInputDevice, XInputBundle xInputBundle) {
+	public XInputController(XInputDevice xInputDevice, XInputHandle xInputHandle) {
 		this.xInputDevice = xInputDevice;
-		this.xInputBundle = xInputBundle;
+		this.xInputHandle = xInputHandle;
 	}
 
 	public XInputDevice getXInputDevice() {
 		return xInputDevice;
 	}
 
-	public XInputBundle getXInputBundle() {
-		return xInputBundle;
+	public XInputHandle getXInputHandle() {
+		return xInputHandle;
 	}
 
 	public void handleXInput() {
 
 		if (xInputDevice != null) {
-
 			if (xInputDevice.poll()) {
 
-				XInputComponents components = xInputDevice.getComponents();
-				final XInputAxes axes = components.getAxes();
+				final IXInputCombinedHandler combinedHandler = xInputHandle.getXInputCombinedHandler();
 
-				xInputBundle.getXInputAnalogHandler().handleXInputLeftStick(adjustToDeadZone(axes.lx, xInputBundle.getDeadzoneStick()),
-						adjustToDeadZone(axes.ly, xInputBundle.getDeadzoneStick()));
-				xInputBundle.getXInputAnalogHandler().handleXInputRightStick(adjustToDeadZone(axes.rx, xInputBundle.getDeadzoneStick()),
-						adjustToDeadZone(axes.ry, xInputBundle.getDeadzoneStick()));
-				xInputBundle.getXInputAnalogHandler().handleXInputLT(adjustToDeadZone(axes.lt, xInputBundle.getDeadzoneLRT()));
-				xInputBundle.getXInputAnalogHandler().handleXInputRT(adjustToDeadZone(axes.rt, xInputBundle.getDeadzoneLRT()));
+				if (combinedHandler != null) {
 
+					XInputComponents components = xInputDevice.getComponents();
+					final XInputAxes axes = components.getAxes();
+
+					combinedHandler.handleXInputLeftStick(adjustToDeadZone(axes.lx, xInputHandle.getDeadzoneStick()),
+							adjustToDeadZone(axes.ly, xInputHandle.getDeadzoneStick()));
+					combinedHandler.handleXInputRightStick(adjustToDeadZone(axes.rx, xInputHandle.getDeadzoneStick()),
+							adjustToDeadZone(axes.ry, xInputHandle.getDeadzoneStick()));
+					combinedHandler.handleXInputLT(adjustToDeadZone(axes.lt, xInputHandle.getDeadzoneLRT()));
+					combinedHandler.handleXInputRT(adjustToDeadZone(axes.rt, xInputHandle.getDeadzoneLRT()));
+				}
 			}
 		}
-
 	}
 
 	private float adjustToDeadZone(float value, final float deadzone) {
