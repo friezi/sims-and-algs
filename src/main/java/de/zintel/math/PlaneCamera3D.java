@@ -31,7 +31,7 @@ public class PlaneCamera3D implements ICamera3D {
 	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToScreen, double curvature,
 			Dimension screenDimension) {
 		this.viewpoint = viewpoint;
-		this.transformationToScreen = transformationToScreen;
+		this.transformationToScreen = transformationToScreen.translateRotation(new Vector3D(viewpoint.x(), viewpoint.y(), viewpoint.z()));
 		this.curvature = curvature;
 		this.screenDimension = screenDimension;
 		this.screenRatio = screenDimension.getHeight() / screenDimension.getWidth();
@@ -55,16 +55,6 @@ public class PlaneCamera3D implements ICamera3D {
 	@Override
 	public CoordinateTransformation3D getTransformationToScreen() {
 		return transformationToScreen;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.zintel.math.ICamera3D#rotate(double, double, double)
-	 */
-	@Override
-	public void rotate(double angleX, double angleY, double angleZ) {
-		transformationToScreen.rotate(angleX, angleY, angleZ);
 	}
 
 	/*
@@ -107,6 +97,21 @@ public class PlaneCamera3D implements ICamera3D {
 
 	public void setCurvature(double curvature) {
 		this.curvature = curvature;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.zintel.math.ICamera3D#rotate(double, double, double)
+	 */
+	@Override
+	public void rotate(double angleX, double angleY, double angleZ) {
+		transformationToScreen.rotate(angleX, angleY, angleZ);
+	}
+
+	@Override
+	public void translate(final Vector3D vector) {
+		transformationToScreen.translate(vector).translateRotation(vector);
 	}
 
 }

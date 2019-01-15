@@ -65,7 +65,7 @@ public class Rotator3D implements Function<Vector3D, Vector3D> {
 
 	}
 
-	public void add(double angleX, double angleY, double angleZ) {
+	public Rotator3D addAngles(double angleX, double angleY, double angleZ) {
 
 		this.angleX += angleX;
 		this.angleY += angleY;
@@ -73,10 +73,13 @@ public class Rotator3D implements Function<Vector3D, Vector3D> {
 
 		rotationMatrix = makeRotationMatrix();
 
+		return this;
+
 	}
 
 	@Override
 	public Vector3D apply(final Vector3D vector) {
+		// FIXME vectors must not be translated!!!
 		return AVectorND.mmult(rotationMatrix, vector);
 	}
 

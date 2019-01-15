@@ -473,7 +473,9 @@ public abstract class SimulationScreen
 			try {
 
 				XInputDevice xInputDevice = XInputDevice.getDeviceFor(xInputBundle.getPlayerNmb());
-				xInputDevice.addListener(xInputBundle.getxInputDeviceListener());
+				if (xInputBundle.getXInputDeviceListener() != null) {
+					xInputDevice.addListener(xInputBundle.getXInputDeviceListener());
+				}
 
 				xInputControllers.add(new XInputController(xInputDevice, xInputBundle));
 

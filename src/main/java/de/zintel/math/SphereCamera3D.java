@@ -89,6 +89,11 @@ public class SphereCamera3D implements ICamera3D {
 		transformationToScreen.rotate(angleX, angleY, angleZ);
 	}
 
+	@Override
+	public void translate(Vector3D vector) {
+		transformationToScreen.translate(vector);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

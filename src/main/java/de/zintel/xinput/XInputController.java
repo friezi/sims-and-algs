@@ -39,12 +39,12 @@ public class XInputController {
 				XInputComponents components = xInputDevice.getComponents();
 				final XInputAxes axes = components.getAxes();
 
-				xInputBundle.getxInputAnalogHandler().handleXInputLeftStick(adjustToDeadZone(axes.lx, xInputBundle.getDeadzoneStick()),
+				xInputBundle.getXInputAnalogHandler().handleXInputLeftStick(adjustToDeadZone(axes.lx, xInputBundle.getDeadzoneStick()),
 						adjustToDeadZone(axes.ly, xInputBundle.getDeadzoneStick()));
-				xInputBundle.getxInputAnalogHandler().handleXInputRightStick(adjustToDeadZone(axes.rx, xInputBundle.getDeadzoneStick()),
+				xInputBundle.getXInputAnalogHandler().handleXInputRightStick(adjustToDeadZone(axes.rx, xInputBundle.getDeadzoneStick()),
 						adjustToDeadZone(axes.ry, xInputBundle.getDeadzoneStick()));
-				xInputBundle.getxInputAnalogHandler().handleXInputLT(adjustToDeadZone(axes.lt, xInputBundle.getDeadzoneLRT()));
-				xInputBundle.getxInputAnalogHandler().handleXInputRT(adjustToDeadZone(axes.rt, xInputBundle.getDeadzoneLRT()));
+				xInputBundle.getXInputAnalogHandler().handleXInputLT(adjustToDeadZone(axes.lt, xInputBundle.getDeadzoneLRT()));
+				xInputBundle.getXInputAnalogHandler().handleXInputRT(adjustToDeadZone(axes.rt, xInputBundle.getDeadzoneLRT()));
 
 			}
 		}

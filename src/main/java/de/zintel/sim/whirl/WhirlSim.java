@@ -105,7 +105,15 @@ public class WhirlSim extends SimulationScreen {
 
 	private int maxParticleRadius = 9;
 
-	private double rotationspeed = 0;
+	private double hrotationspeed = 0;
+
+	private final double maxspeed = 50;
+
+	private double vrotationspeed = 0;
+
+	private double sidespeed = 0;
+
+	private double frontspeed = 0;
 
 	private boolean dynamicColoring = false;
 
@@ -155,7 +163,7 @@ public class WhirlSim extends SimulationScreen {
 	 * 
 	 */
 	public void initXInput() {
-		addXInputBundle(new XInputBundle(0).setxInputAnalogHandler(this));
+		addXInputBundle(new XInputBundle(0).setXInputAnalogHandler(this));
 	}
 
 	/*
@@ -320,14 +328,13 @@ public class WhirlSim extends SimulationScreen {
 
 	private double projectRadius(final Vector3D point, final Vector3D ppoint, final double radius) {
 
-		final Vector3D pRimPoint = project(
-				AVectorND.add(point, camera.getTransformationToScreen().inverseTransformVector(new Vector3D(radius, 0, 0))));
+		final Vector3D pRimPoint = project(AVectorND.add(point, new Vector3D(radius, 0, 0)));
 
 		if (pRimPoint == null) {
 			return 0;
 		}
 
-		return Vector3D.distance(ppoint, pRimPoint);
+		return Math.max(Vector3D.distance(ppoint, pRimPoint), 1);
 
 	}
 
@@ -374,6 +381,25 @@ public class WhirlSim extends SimulationScreen {
 	@Override
 	protected void calculate(Dimension dimension) throws Exception {
 
+		if (hrotationspeed != 0) {
+			camera.rotate(0, hrotationspeed * 2 * Math.PI / (60 * 60), 0);
+		}
+
+		if (vrotationspeed != 0) {
+			camera.rotate(vrotationspeed * 2 * Math.PI / (60 * 60), 0, 0);
+		}
+
+		if (frontspeed != 0) {
+			// attention: the translation axis here reflects to the inner
+			// coordinate system of the camera!
+			camera.translate(camera.getTransformationToScreen().inverseTransformVector(Vector3D.mult(frontspeed, new Vector3D(0, 0, 1))));
+		}
+
+		if (sidespeed != 0) {
+			// s. a.
+			camera.translate(camera.getTransformationToScreen().inverseTransformVector(Vector3D.mult(sidespeed, new Vector3D(1, 0, 0))));
+		}
+
 		final double width = dimension.getWidth() + deltaxmax;
 
 		Set<Particle> newparticles = new LinkedHashSet<>(particles);
@@ -413,10 +439,6 @@ public class WhirlSim extends SimulationScreen {
 		}
 
 		particles = newparticles;
-
-		if (rotationspeed != 0) {
-			camera.rotate(0, rotationspeed * 2 * Math.PI / (60 * 60), 0);
-		}
 
 	}
 
@@ -925,17 +947,17 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				rotationspeed++;
+				hrotationspeed++;
 			}
 
 			@Override
 			public void minus() {
-				rotationspeed--;
+				hrotationspeed--;
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(rotationspeed);
+				return String.valueOf(hrotationspeed);
 			}
 		});
 		addKeyAction(KeyEvent.VK_D, new IKeyAction() {
@@ -1094,7 +1116,17 @@ public class WhirlSim extends SimulationScreen {
 
 		super.handleXInputLeftStick(x, y);
 
-		rotationspeed = -50 * y;
+		sidespeed = 200 * x;
+		frontspeed = 200 * y;
+	}
+
+	@Override
+	public void handleXInputRightStick(float x, float y) {
+
+		super.handleXInputRightStick(x, y);
+
+		hrotationspeed = -maxspeed * x;
+		vrotationspeed = maxspeed * y;
 	}
 
 	@Override

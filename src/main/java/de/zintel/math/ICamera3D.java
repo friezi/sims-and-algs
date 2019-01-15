@@ -10,6 +10,8 @@ public interface ICamera3D {
 
 	void rotate(double angleX, double angleY, double angleZ);
 
+	void translate(Vector3D vector);
+
 	Vector3D project(Vector3D point);
 
 	boolean inRange(final Vector3D point);

@@ -25,6 +25,10 @@ public class CoordinateTransformation3D {
 
 	private Translator3D inverseTranslator = null;
 
+	private Translator3D axisTranslator = null;
+
+	private Translator3D inverseAxisTranslator = null;
+
 	/**
 	 * 
 	 */
@@ -32,7 +36,7 @@ public class CoordinateTransformation3D {
 	}
 
 	public Vector3D transformPoint(final Vector3D vector) {
-		return scaleVector(translateVector(rotateVector(vector)));
+		return scaleVector(translateVector(inverseTranslateAxis(rotateVector(translateAxis(vector)))));
 	}
 
 	public Vector3D inverseTransformPoint(final Vector3D vector) {
@@ -65,14 +69,44 @@ public class CoordinateTransformation3D {
 		return this;
 	}
 
+	/**
+	 * rorates the coordinate system.
+	 * 
+	 * @param angleX
+	 * @param angleY
+	 * @param angleZ
+	 * @return
+	 */
 	public CoordinateTransformation3D rotate(final double angleX, final double angleY, final double angleZ) {
 
 		if (rotator == null) {
 			rotator = new Rotator3D(0, 0, 0);
 		}
 
-		this.rotator.add(-angleX, -angleY, -angleZ);
+		this.rotator.addAngles(-angleX, -angleY, -angleZ);
 		this.inverseRotator = this.rotator.getInvertedRotator();
+		return this;
+	}
+
+	public CoordinateTransformation3D translateRotation(final Vector3D vector) {
+
+		if (axisTranslator == null) {
+			axisTranslator = new Translator3D();
+		}
+
+		this.axisTranslator.add(Vector3D.mult(-1, vector));
+		this.inverseAxisTranslator = this.axisTranslator.getInvertedTranslator();
+		return this;
+	}
+
+	public CoordinateTransformation3D translate(final Vector3D vector) {
+
+		if (translator == null) {
+			translator = new Translator3D(new Vector3D());
+		}
+
+		this.translator.add(Vector3D.mult(-1, vector));
+		this.inverseTranslator = this.translator.getInvertedTranslator();
 		return this;
 	}
 
@@ -92,6 +126,24 @@ public class CoordinateTransformation3D {
 	 */
 	public Vector3D inverseTranslateVector(Vector3D vector) {
 		return (inverseTranslator == null ? vector : inverseTranslator.apply(vector));
+	}
+
+	/**
+	 * @param vector
+	 *            in original coordinate system
+	 * @return
+	 */
+	public Vector3D translateAxis(Vector3D vector) {
+		return (axisTranslator == null ? vector : axisTranslator.apply(vector));
+	}
+
+	/**
+	 * @param vector
+	 *            in original coordinate system
+	 * @return
+	 */
+	public Vector3D inverseTranslateAxis(Vector3D vector) {
+		return (inverseAxisTranslator == null ? vector : inverseAxisTranslator.apply(vector));
 	}
 
 	/**

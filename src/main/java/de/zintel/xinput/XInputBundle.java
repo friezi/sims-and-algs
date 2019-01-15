@@ -11,7 +11,7 @@ import com.github.strikerx3.jxinput.listener.XInputDeviceListener;
  */
 public class XInputBundle {
 
-	public static final float DEADZONE_STICK_DFLT = 0.21F;
+	public static final float DEADZONE_STICK_DFLT = 0.25F;
 
 	public static final float DEADZONE_LRT_DFLT = 0F;
 
@@ -29,20 +29,20 @@ public class XInputBundle {
 		this.playerNmb = playerNmb;
 	}
 
-	public XInputDeviceListener getxInputDeviceListener() {
+	public XInputDeviceListener getXInputDeviceListener() {
 		return xInputDeviceListener;
 	}
 
-	public XInputBundle setxInputDeviceListener(XInputDeviceListener xInputDeviceListener) {
+	public XInputBundle setXInputDeviceListener(XInputDeviceListener xInputDeviceListener) {
 		this.xInputDeviceListener = xInputDeviceListener;
 		return this;
 	}
 
-	public IXInputAnalogHandler getxInputAnalogHandler() {
+	public IXInputAnalogHandler getXInputAnalogHandler() {
 		return xInputAnalogHandler;
 	}
 
-	public XInputBundle setxInputAnalogHandler(IXInputAnalogHandler xInputAnalogHandler) {
+	public XInputBundle setXInputAnalogHandler(IXInputAnalogHandler xInputAnalogHandler) {
 		this.xInputAnalogHandler = xInputAnalogHandler;
 		return this;
 	}
