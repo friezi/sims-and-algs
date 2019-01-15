@@ -25,8 +25,9 @@ public class PlaneCamera3D implements ICamera3D {
 	private final Dimension screenDimension;
 
 	private final Plane3D plane = new Plane3D(new Vector3D(0, 0, 1), new Vector3D(0, 0, 0));
+	private final Vector3D middle;
 
-	private final double screenRatio;
+	private final double maxDistance;
 
 	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToScreen, double curvature,
 			Dimension screenDimension) {
@@ -34,7 +35,8 @@ public class PlaneCamera3D implements ICamera3D {
 		this.transformationToScreen = transformationToScreen.translateRotation(new Vector3D(viewpoint.x(), viewpoint.y(), viewpoint.z()));
 		this.curvature = curvature;
 		this.screenDimension = screenDimension;
-		this.screenRatio = screenDimension.getHeight() / screenDimension.getWidth();
+		this.middle = new Vector3D((screenDimension.getWidth() - 1) / 2, (screenDimension.getHeight() - 1) / 2, 0);
+		this.maxDistance = Vector3D.add(new Vector3D(screenDimension.getWidth() - 1, screenDimension.getHeight() - 1, 0), middle).length();
 	}
 
 	/*
@@ -69,8 +71,7 @@ public class PlaneCamera3D implements ICamera3D {
 		// liegt bei z<0 hinter der Linse
 		Vector3D i_point = t_point.z() < 0 ? null : Utils3D.intersect(t_point, getViewpoint(), plane);
 		if (i_point != null && inRange(i_point) && curvature > 0) {
-			i_point = new Vector3D(curve(screenDimension.getWidth() - 1, i_point.x(), curvature),
-					curve(screenDimension.getHeight() - 1, i_point.y(), curvature * screenRatio), i_point.z());
+			i_point = curve(i_point, curvature);
 		}
 		return i_point;
 
@@ -81,13 +82,13 @@ public class PlaneCamera3D implements ICamera3D {
 		return point.x() >= 0 && point.x() < screenDimension.getWidth() && point.y() >= 0 && point.y() < screenDimension.getHeight();
 	}
 
-	private double curve(final double max, final double value, final double curvature) {
+	private Vector3D curve(final Vector3D point, final double curvature) {
 
-		final double m = max / 2;
-		final double dx = value - m;
-		final double adx = Math.abs(dx);
-		final double sin = Math.sin(MathUtils.morphRange(0, m, 0, Math.PI / 2, adx));
-		return m + MathUtils.morphRange(0, m, 1, 1 + Math.pow(sin, 2) * curvature, adx) * dx;
+		final Vector3D direction = Vector3D.substract(point, middle);
+		final double distance = direction.length();
+		final double sin = Math.sin(MathUtils.morphRange(0, maxDistance, 0, Math.PI / 2, distance));
+
+		return Vector3D.add(point, Vector3D.mult((curvature * Math.pow(sin, 2) * distance) / maxDistance, direction));
 
 	}
 

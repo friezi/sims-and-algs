@@ -71,6 +71,8 @@ public class WhirlSim extends SimulationScreen {
 
 	private static final double VP_STEP = 10;
 
+	private static final double CURVATURE_MAX = 20;
+
 	private Set<Particle> particles = new LinkedHashSet<>();
 
 	private ICamera3D camera;
@@ -1135,7 +1137,20 @@ public class WhirlSim extends SimulationScreen {
 		super.handleXInputRT(value);
 
 		if (camera instanceof PlaneCamera3D) {
-			((PlaneCamera3D) camera).setCurvature(10 * value);
+			final PlaneCamera3D pcamera = (PlaneCamera3D) camera;
+			pcamera.setCurvature(Math.max(pcamera.getCurvature(), CURVATURE_MAX * value));
+		}
+
+	}
+
+	@Override
+	public void handleXInputLT(float value) {
+
+		super.handleXInputRT(value);
+
+		if (camera instanceof PlaneCamera3D && value != 0) {
+			final PlaneCamera3D pcamera = (PlaneCamera3D) camera;
+			pcamera.setCurvature(Math.min(pcamera.getCurvature(), CURVATURE_MAX * (1 - value)));
 		}
 
 	}
