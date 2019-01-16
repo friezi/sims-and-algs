@@ -70,7 +70,7 @@ public class PlaneCamera3D implements ICamera3D {
 		final Vector3D t_point = transformationToScreen.transformPoint(point);
 		// liegt bei z<0 hinter der Linse
 		Vector3D i_point = t_point.z() < 0 ? null : Utils3D.intersect(t_point, getViewpoint(), plane);
-		if (i_point != null && inRange(i_point) && curvature > 0) {
+		if (i_point != null && curvature > 0) {
 			i_point = curve(i_point, curvature);
 		}
 		return i_point;
@@ -86,9 +86,9 @@ public class PlaneCamera3D implements ICamera3D {
 
 		final Vector3D direction = Vector3D.substract(point, middle);
 		final double distance = direction.length();
-		final double sin = Math.sin(MathUtils.morphRange(0, maxDistance, 0, Math.PI / 2, distance));
+		final double weight = Math.pow(Math.sin(MathUtils.morphRange(0, maxDistance, 0, Math.PI / 2, distance)), 2);
 
-		return Vector3D.add(point, Vector3D.mult((curvature * Math.pow(sin, 2) * distance) / maxDistance, direction));
+		return Vector3D.add(point, Vector3D.mult((weight * curvature * distance) / maxDistance, direction));
 
 	}
 
