@@ -6,13 +6,20 @@ package de.zintel.sim.whirl;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
 import com.github.strikerx3.jxinput.enums.XInputButton;
 
+import de.zintel.animation.IAnimator;
+import de.zintel.animation.MultiAnimator;
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
@@ -121,6 +128,10 @@ public class WhirlSim extends SimulationScreen {
 
 	private boolean dynamicColoring = false;
 
+	private IAnimator multiAnimator;
+
+	private Collection<IAnimator> animators = new ArrayList<>();
+
 	/**
 	 * @param title
 	 * @param gfxSsystem
@@ -153,26 +164,161 @@ public class WhirlSim extends SimulationScreen {
 		initKeyActions();
 		initCamera(graphicsSubsystem);
 		initXInput();
+		initAnimators();
 
 	}
 
 	/**
 	 * @param graphicsSubsystem
 	 */
-	public void initCamera(IGraphicsSubsystem graphicsSubsystem) {
+	private void initCamera(IGraphicsSubsystem graphicsSubsystem) {
 		// camera = new SphereCamera3D(new Vector3D(950.0, 140.0, -1000.0), new
 		// CoordinateTransformation3D(), 5000000,
 		// graphicsSubsystem.getDimension());
-		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
-				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
-				graphicsSubsystem.getDimension());
+		camera = new PlaneCamera3D(
+				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
+				new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
 	}
 
 	/**
 	 * 
 	 */
-	public void initXInput() {
+	private void initXInput() {
 		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(this));
+	}
+
+	private void initAnimators() {
+
+		animators.clear();
+
+		animators.add(createCenterAnimator());
+		animators.add(creatTopAnimator());
+		animators.add(creatRotationTransitionLeftAnimator());
+
+		multiAnimator = new MultiAnimator(Collections.emptyList());
+
+	}
+
+	private IAnimator createCenterAnimator() {
+		return new IAnimator() {
+
+			private int start = 0;
+
+			private int end = 0;
+
+			private double step = 0;
+
+			private double deltastep = 0;
+
+			@Override
+			public void step() {
+				if (!finished()) {
+					step += deltastep;
+					rotcenter.setY(MathUtils.morphRange(0, maxSteps(), start, end, step));
+				}
+
+			}
+
+			@Override
+			public void reinit() {
+				end = MathUtils.RANDOM.nextInt((int) getGraphicsSubsystem().getDimension().getHeight());
+				start = (int) rotcenter.y();
+				step = 0;
+				deltastep = 1D / (MathUtils.RANDOM.nextInt(10) + 1);
+
+			}
+
+			@Override
+			public boolean finished() {
+				return step >= maxSteps();
+			}
+
+			private int maxSteps() {
+				return Math.abs(end - start);
+			}
+		};
+	}
+
+	private IAnimator creatTopAnimator() {
+		return new IAnimator() {
+
+			private int start = 0;
+
+			private int end = 0;
+
+			private double step = 0;
+
+			private double deltastep = 0;
+
+			@Override
+			public void step() {
+
+				if (!finished()) {
+					step += deltastep;
+					particlesminy = ((int) MathUtils.morphRange(0, maxSteps(), start, end, step));
+				}
+
+			}
+
+			@Override
+			public void reinit() {
+				end = MathUtils.RANDOM.nextInt((int) particlesmaxy + 1);
+				start = (int) particlesminy;
+				step = 0;
+				deltastep = 1D / (MathUtils.RANDOM.nextInt(5) + 1);
+
+			}
+
+			@Override
+			public boolean finished() {
+				return step >= maxSteps();
+			}
+
+			private int maxSteps() {
+				return Math.abs(end - start);
+			}
+		};
+	}
+
+	private IAnimator creatRotationTransitionLeftAnimator() {
+		return new IAnimator() {
+
+			private int start = 0;
+
+			private int end = 0;
+
+			private double step = 0;
+
+			private double deltastep = 0;
+
+			@Override
+			public void step() {
+
+				if (!finished()) {
+					step += deltastep;
+					rotationTransitionLeft = ((int) MathUtils.morphRange(0, maxSteps(), start, end, step));
+				}
+
+			}
+
+			@Override
+			public void reinit() {
+				end = MathUtils.RANDOM.nextInt(7) - 7;
+				start = (int) rotationTransitionLeft;
+				step = 0;
+				deltastep = 1D / (MathUtils.RANDOM.nextInt(5) + 5);
+
+			}
+
+			@Override
+			public boolean finished() {
+				return step >= maxSteps();
+			}
+
+			private int maxSteps() {
+				return Math.abs(end - start);
+			}
+		};
 	}
 
 	/*
@@ -305,8 +451,7 @@ public class WhirlSim extends SimulationScreen {
 					if (ppoint != null) {
 
 						if (camera.inRange(ppoint)) {
-							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius,
-									() -> adjustColor(Color.GREEN, point));
+							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius, () -> adjustColor(Color.GREEN, point));
 						}
 
 						if (xnppoint != null) {
@@ -382,6 +527,36 @@ public class WhirlSim extends SimulationScreen {
 		}
 	}
 
+	private void doAnimators() {
+
+		if (multiAnimator.finished()) {
+
+			multiAnimator = newMultiAnimator();
+			multiAnimator.reinit();
+
+		}
+
+		multiAnimator.step();
+
+	}
+
+	private IAnimator newMultiAnimator() {
+
+		List<IAnimator> selectiveAnimators = new ArrayList<>(animators);
+		Collection<IAnimator> activeAnimators = new LinkedList<>();
+
+		final int cnt = MathUtils.RANDOM.nextInt(selectiveAnimators.size());
+		for (int i = 0; i <= cnt; i++) {
+
+			final int nmb = MathUtils.RANDOM.nextInt(selectiveAnimators.size());
+			activeAnimators.add(selectiveAnimators.remove(nmb));
+
+		}
+
+		return new MultiAnimator(activeAnimators);
+
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -389,6 +564,8 @@ public class WhirlSim extends SimulationScreen {
 	 */
 	@Override
 	protected void calculate(Dimension dimension) throws Exception {
+
+		doAnimators();
 
 		if (hrotationspeed != 0) {
 			camera.rotate(0, hrotationspeed * 2 * Math.PI / (60 * 60), 0);
@@ -431,8 +608,8 @@ public class WhirlSim extends SimulationScreen {
 
 			}
 
-			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
-					rottrans, point.x());
+			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius, rottrans,
+					point.x());
 
 			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, point.x());
 
@@ -1063,8 +1240,8 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public String getValue() {
-				return String.valueOf(
-						camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
+				return String
+						.valueOf(camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
 			}
 		});
 		addKeyAction(KeyEvent.VK_E, new IKeyAction() {
