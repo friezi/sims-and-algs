@@ -1,13 +1,11 @@
 /**
  * 
  */
-package de.zintel.math;
+package de.zintel.math.matrix;
 
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import de.zintel.math.matrix.MatrixConstructionBundle;
 
 /**
  * very general definition of a matrix.

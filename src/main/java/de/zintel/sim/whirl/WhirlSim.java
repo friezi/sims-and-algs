@@ -132,6 +132,8 @@ public class WhirlSim extends SimulationScreen {
 
 	private Collection<IAnimator> animators = new ArrayList<>();
 
+	private boolean doAnimation = true;
+
 	/**
 	 * @param title
 	 * @param gfxSsystem
@@ -175,9 +177,9 @@ public class WhirlSim extends SimulationScreen {
 		// camera = new SphereCamera3D(new Vector3D(950.0, 140.0, -1000.0), new
 		// CoordinateTransformation3D(), 5000000,
 		// graphicsSubsystem.getDimension());
-		camera = new PlaneCamera3D(
-				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
-				new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
+		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
+				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
+				graphicsSubsystem.getDimension());
 	}
 
 	/**
@@ -224,7 +226,7 @@ public class WhirlSim extends SimulationScreen {
 				end = MathUtils.RANDOM.nextInt((int) getGraphicsSubsystem().getDimension().getHeight());
 				start = (int) rotcenter.y();
 				step = 0;
-				deltastep = 1D / (MathUtils.RANDOM.nextInt(10) + 1);
+				deltastep = (1D / (MathUtils.RANDOM.nextInt(3) + 1)) / (1D / (MathUtils.RANDOM.nextInt(3) + 1));
 
 			}
 
@@ -265,7 +267,7 @@ public class WhirlSim extends SimulationScreen {
 				end = MathUtils.RANDOM.nextInt((int) particlesmaxy + 1);
 				start = (int) particlesminy;
 				step = 0;
-				deltastep = 1D / (MathUtils.RANDOM.nextInt(5) + 1);
+				deltastep = 1;
 
 			}
 
@@ -451,7 +453,8 @@ public class WhirlSim extends SimulationScreen {
 					if (ppoint != null) {
 
 						if (camera.inRange(ppoint)) {
-							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius, () -> adjustColor(Color.GREEN, point));
+							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius,
+									() -> adjustColor(Color.GREEN, point));
 						}
 
 						if (xnppoint != null) {
@@ -565,7 +568,9 @@ public class WhirlSim extends SimulationScreen {
 	@Override
 	protected void calculate(Dimension dimension) throws Exception {
 
-		doAnimators();
+		if (doAnimation) {
+			doAnimators();
+		}
 
 		if (hrotationspeed != 0) {
 			camera.rotate(0, hrotationspeed * 2 * Math.PI / (60 * 60), 0);
@@ -608,8 +613,8 @@ public class WhirlSim extends SimulationScreen {
 
 			}
 
-			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius, rottrans,
-					point.x());
+			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
+					rottrans, point.x());
 
 			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, point.x());
 
@@ -1240,8 +1245,8 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public String getValue() {
-				return String
-						.valueOf(camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
+				return String.valueOf(
+						camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
 			}
 		});
 		addKeyAction(KeyEvent.VK_E, new IKeyAction() {
@@ -1283,6 +1288,43 @@ public class WhirlSim extends SimulationScreen {
 
 			private void switchGT() {
 				gridType = gridType == GridType.SIMPLE ? GridType.COMPLEX : GridType.SIMPLE;
+			}
+		});
+		addKeyAction(KeyEvent.VK_H, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "DOANIMATION";
+			}
+
+			@Override
+			public String text() {
+				return "do animation";
+			}
+
+			@Override
+			public void plus() {
+				doAnimation = true;
+			}
+
+			@Override
+			public void minus() {
+				doAnimation = false;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(doAnimation);
 			}
 		});
 	}

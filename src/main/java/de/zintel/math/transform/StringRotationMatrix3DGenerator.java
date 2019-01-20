@@ -5,7 +5,7 @@ package de.zintel.math.transform;
 
 import java.util.Arrays;
 
-import de.zintel.math.AMatrix;
+import de.zintel.math.matrix.AMatrix;
 import de.zintel.math.matrix.NumberStringMatrix;
 
 /**

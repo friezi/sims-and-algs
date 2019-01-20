@@ -6,8 +6,8 @@ package de.zintel.math.transform;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import de.zintel.math.AMatrix.Order;
 import de.zintel.math.matrix.DMatrix;
+import de.zintel.math.matrix.AMatrix.Order;
 import de.zintel.math.Vector3D;
 import de.zintel.math.AVectorND;
 
@@ -79,7 +79,6 @@ public class Rotator3D implements Function<Vector3D, Vector3D> {
 
 	@Override
 	public Vector3D apply(final Vector3D vector) {
-		// FIXME vectors must not be translated!!!
 		return AVectorND.mmult(rotationMatrix, vector);
 	}
 

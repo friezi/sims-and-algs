@@ -5,7 +5,6 @@ package de.zintel.math.matrix;
 
 import java.util.function.BiFunction;
 
-import de.zintel.math.AMatrix;
 import de.zintel.math.monoid.Monoid;
 
 /**

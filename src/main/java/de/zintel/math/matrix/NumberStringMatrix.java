@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import de.zintel.math.AMatrix;
 import de.zintel.math.monoid.MonoidStringNumberMult;
 import de.zintel.math.monoid.MonoidStringNumberSum;
 

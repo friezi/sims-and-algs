@@ -5,7 +5,6 @@ package de.zintel.math.matrix;
 
 import java.util.List;
 
-import de.zintel.math.AMatrix;
 import de.zintel.math.AVectorND;
 import de.zintel.math.monoid.MonoidMultDouble;
 import de.zintel.math.monoid.MonoidSumDouble;

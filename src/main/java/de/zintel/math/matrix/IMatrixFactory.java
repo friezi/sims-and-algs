@@ -3,8 +3,6 @@
  */
 package de.zintel.math.matrix;
 
-import de.zintel.math.AMatrix;
-
 /**
  * @author friedemann.zintel
  *
