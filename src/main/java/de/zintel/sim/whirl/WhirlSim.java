@@ -578,6 +578,7 @@ public class WhirlSim extends SimulationScreen {
 			
 			final double angle = hrotationspeed * 2 * Math.PI / (60 * 60);
 			final Vector3D viewpoint = camera.getViewpoint();
+			System.out.println("vp: "+camera.getTransformationToScreen().inverseTransformPoint(viewpoint));
 			final Axis3D axis = new Axis3D(camera.getTransformationToScreen().inverseTransformPoint(viewpoint), camera.getTransformationToScreen().inverseTransformPoint(new Vector3D(viewpoint.x(), viewpoint.y()+1, viewpoint.z())));
 			camera.rotate(axis, angle);
 			
@@ -594,13 +595,18 @@ public class WhirlSim extends SimulationScreen {
 		if (frontspeed != 0) {
 			// attention: the translation axis here refers to the inner
 			// coordinate system of the camera!
+			System.out.println("vp: "+camera.getTransformationToScreen().inverseTransformPoint(camera.getViewpoint()));
 			final Vector3D translationVector = camera.getTransformationToScreen().inverseTransformVector(Vector3D.mult(frontspeed, new Vector3D(0, 0, 1)));
 			camera.translate(translationVector);
 		}
 
 		if (sidespeed != 0) {
 			// s. a.
-			camera.translate(camera.getTransformationToScreen().inverseTransformVector(Vector3D.mult(sidespeed, new Vector3D(1, 0, 0))));
+			final Vector3D tv = Vector3D.mult(sidespeed, new Vector3D(1, 0, 0));
+//			final Vector3D viewpoint = camera.getViewpoint();
+//			final Axis3D axis = new Axis3D(camera.getTransformationToScreen().inverseTransformPoint(viewpoint).add(tv), camera.getTransformationToScreen().inverseTransformPoint(new Vector3D(viewpoint.x()+1, viewpoint.y(), viewpoint.z()).add(tv)));
+			camera.translate(camera.getTransformationToScreen().inverseTransformVector(tv));
+//			camera.rotate(axis, 0);
 		}
 
 		final double width = dimension.getWidth() + deltaxmax;

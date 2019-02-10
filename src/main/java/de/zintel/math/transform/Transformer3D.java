@@ -70,7 +70,8 @@ public class Transformer3D {
 
 	public Transformer3D inverse() {
 		final DMatrix<Vector3D> rmT = rotationMatrix.transpose();
-		return new Transformer3D(rmT, Vector3D.mmult(rmT, translationVector));
+		// V=RT*V'-RT*T
+		return new Transformer3D(rmT, Vector3D.mult(-1, Vector3D.mmult(rmT, translationVector)));
 	}
 
 }
