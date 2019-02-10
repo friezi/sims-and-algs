@@ -13,7 +13,7 @@ import de.zintel.math.AVectorND;
 
 /**
  * rotation happens always in positive direction from top to bottom, i. e.
- * x->y->z. It starts at positive top element and rotations in direction of
+ * x->y->z. It starts at positive top element and rotates in direction of
  * positive bottom-element. So, f. i. to rotate around the y-axis, you start at
  * x-axis in positive direction and rotate in positive z-direction.
  * 

@@ -27,12 +27,14 @@ import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.AVectorND;
+import de.zintel.math.Axis3D;
 import de.zintel.math.ICamera3D;
 import de.zintel.math.MathUtils;
 import de.zintel.math.PlaneCamera3D;
 import de.zintel.math.SphereCamera3D;
 import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
+import de.zintel.math.transform.CoordinateTransformation3DNew;
 import de.zintel.sim.SimulationScreen;
 import de.zintel.xinput.XInputHandle;
 
@@ -178,7 +180,7 @@ public class WhirlSim extends SimulationScreen {
 		// CoordinateTransformation3D(), 5000000,
 		// graphicsSubsystem.getDimension());
 		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
-				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
+				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3DNew(), 0,
 				graphicsSubsystem.getDimension());
 	}
 
@@ -573,17 +575,27 @@ public class WhirlSim extends SimulationScreen {
 		}
 
 		if (hrotationspeed != 0) {
-			camera.rotate(0, hrotationspeed * 2 * Math.PI / (60 * 60), 0);
+			
+			final double angle = hrotationspeed * 2 * Math.PI / (60 * 60);
+			final Vector3D viewpoint = camera.getViewpoint();
+			final Axis3D axis = new Axis3D(camera.getTransformationToScreen().inverseTransformPoint(viewpoint), camera.getTransformationToScreen().inverseTransformPoint(new Vector3D(viewpoint.x(), viewpoint.y()+1, viewpoint.z())));
+			camera.rotate(axis, angle);
+			
 		}
 
 		if (vrotationspeed != 0) {
-			camera.rotate(vrotationspeed * 2 * Math.PI / (60 * 60), 0, 0);
+			
+			final double angle = vrotationspeed * 2 * Math.PI / (60 * 60);
+			final Vector3D viewpoint = camera.getViewpoint();
+			final Axis3D axis = new Axis3D(camera.getTransformationToScreen().inverseTransformPoint(viewpoint), camera.getTransformationToScreen().inverseTransformPoint(new Vector3D(viewpoint.x()+1, viewpoint.y(), viewpoint.z())));
+			camera.rotate(axis, angle);
 		}
 
 		if (frontspeed != 0) {
-			// attention: the translation axis here reflects to the inner
+			// attention: the translation axis here refers to the inner
 			// coordinate system of the camera!
-			camera.translate(camera.getTransformationToScreen().inverseTransformVector(Vector3D.mult(frontspeed, new Vector3D(0, 0, 1))));
+			final Vector3D translationVector = camera.getTransformationToScreen().inverseTransformVector(Vector3D.mult(frontspeed, new Vector3D(0, 0, 1)));
+			camera.translate(translationVector);
 		}
 
 		if (sidespeed != 0) {

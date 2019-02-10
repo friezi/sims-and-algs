@@ -115,7 +115,7 @@ public class CoordinateTransformation3D {
 	 *            in original coordinate system
 	 * @return
 	 */
-	public Vector3D translateVector(Vector3D vector) {
+	private Vector3D translateVector(Vector3D vector) {
 		return (translator == null ? vector : translator.apply(vector));
 	}
 

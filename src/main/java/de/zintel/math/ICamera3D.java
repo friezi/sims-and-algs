@@ -1,14 +1,15 @@
 package de.zintel.math;
 
 import de.zintel.math.transform.CoordinateTransformation3D;
+import de.zintel.math.transform.CoordinateTransformation3DNew;
 
 public interface ICamera3D {
 
 	Vector3D getViewpoint();
 
-	CoordinateTransformation3D getTransformationToScreen();
+	CoordinateTransformation3DNew getTransformationToScreen();
 
-	void rotate(double angleX, double angleY, double angleZ);
+	void rotate(Axis3D axis, double angle);
 
 	void translate(Vector3D vector);
 
