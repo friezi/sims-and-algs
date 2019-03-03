@@ -45,6 +45,13 @@ public class Transformer3D {
 
 	public Transformer3D addTranslation(final Vector3D tv) {
 		translationVector.add(tv);
+		addAxisTranslation(tv);
+		return this;
+	}
+
+	public Transformer3D addAxisTranslation(final Vector3D atv) {
+		// V'=R*V+T+2atv-R*atv
+		translationVector.add(Vector3D.substract(Vector3D.mult(2, atv), Vector3D.mmult(rotationMatrix, atv)));
 		return this;
 	}
 
