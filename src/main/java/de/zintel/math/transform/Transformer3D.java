@@ -45,15 +45,15 @@ public class Transformer3D {
 
 	public Transformer3D addTranslation(final Vector3D tv) {
 		translationVector.add(tv);
-		addAxisTranslation(tv);
+//		addAxisTranslation(tv);
 		return this;
 	}
-
-	public Transformer3D addAxisTranslation(final Vector3D atv) {
-		// V'=R*V+T+2atv-R*atv
-		translationVector.add(Vector3D.substract(Vector3D.mult(2, atv), Vector3D.mmult(rotationMatrix, atv)));
-		return this;
-	}
+//
+//	public Transformer3D addAxisTranslation(final Vector3D atv) {
+//		// V'=R*V+T+2atv-R*atv
+//		translationVector.add(Vector3D.substract(Vector3D.mult(2, atv), Vector3D.mmult(rotationMatrix, atv)));
+//		return this;
+//	}
 
 	public Transformer3D addRotation(final Axis3D axis, final double angle) {
 
@@ -64,13 +64,14 @@ public class Transformer3D {
 				: RotationMatrix3DProvider.getRmY(new TrigonomFnProviderDirect(axisVector.x() / avLengthXZ, axisVector.z() / avLengthXZ));
 		final DMatrix<Vector3D> rotX = RotationMatrix3DProvider
 				.getRmX(new TrigonomFnProviderDirect(axisVector.y() / axisVector.length(), avLengthXZ / axisVector.length()));
-		final DMatrix<Vector3D> rotZ = RotationMatrix3DProvider.getRmZ((new TrigonomFnProviderAngle(angle)));
+		final DMatrix<Vector3D> rotZ = RotationMatrix3DProvider.getRmZ(new TrigonomFnProviderAngle(angle));
 
 		final DMatrix<Vector3D> rg = DMatrix.mmult(rotY.transpose(),
 				DMatrix.mmult(rotX.transpose(), DMatrix.mmult(rotZ, DMatrix.mmult(rotX, rotY))));
 
 		rotationMatrix = DMatrix.mmult(rg, rotationMatrix);
 		translationVector = Vector3D.add(Vector3D.mmult(rg, Vector3D.substract(translationVector, axis.getP1())), axis.getP1());
+		/*Vector3D.add(Vector3D.mmult(rg, Vector3D.substract(translationVector, axis.getP1())), axis.getP1())*/;
 
 		return this;
 	}
