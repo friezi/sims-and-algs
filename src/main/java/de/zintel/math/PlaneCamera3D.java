@@ -70,7 +70,7 @@ public class PlaneCamera3D implements ICamera3D {
 
 		final Vector3D t_point = transformationToScreen.transformPoint(point);
 		// liegt bei z<0 hinter der Linse
-		Vector3D i_point = t_point.z() < 0 ? null : Utils3D.intersect(t_point, getViewpoint(), plane);
+		Vector3D i_point = t_point.z() < 0 ? null : Utils3D.intersect(t_point, viewpoint, plane);
 		if (i_point != null && curvature > 0) {
 			i_point = curve(i_point, curvature);
 		}
