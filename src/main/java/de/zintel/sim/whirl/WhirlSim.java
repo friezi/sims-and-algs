@@ -124,6 +124,8 @@ public class WhirlSim extends SimulationScreen {
 
 	private double vrotationspeed = 0;
 
+	private double zrotationspeed = 0;
+
 	private double sidespeed = 0;
 
 	private double frontspeed = 0;
@@ -135,6 +137,8 @@ public class WhirlSim extends SimulationScreen {
 	private Collection<IAnimator> animators = new ArrayList<>();
 
 	private boolean doAnimation = true;
+
+	private boolean buttonRB = false;
 
 	/**
 	 * @param title
@@ -589,6 +593,14 @@ public class WhirlSim extends SimulationScreen {
 			final double angle = vrotationspeed * 2 * Math.PI / (60 * 60);
 			final Vector3D viewpoint = camera.getViewpoint();
 			final Axis3D axis = new Axis3D(camera.getTransformationToScreen().inverseTransformPoint(viewpoint), camera.getTransformationToScreen().inverseTransformPoint(new Vector3D(viewpoint.x()+1, viewpoint.y(), viewpoint.z())));
+			camera.rotate(axis, angle);
+		}
+
+		if (zrotationspeed != 0) {
+			
+			final double angle = zrotationspeed * 2 * Math.PI / (60 * 60);
+			final Vector3D viewpoint = camera.getViewpoint();
+			final Axis3D axis = new Axis3D(camera.getTransformationToScreen().inverseTransformPoint(viewpoint), camera.getTransformationToScreen().inverseTransformPoint(new Vector3D(viewpoint.x(), viewpoint.y(), viewpoint.z()+1)));
 			camera.rotate(axis, angle);
 		}
 
@@ -1371,8 +1383,17 @@ public class WhirlSim extends SimulationScreen {
 
 		super.handleXInputRightStick(x, y);
 
-		hrotationspeed = -maxspeed * x;
-		vrotationspeed = maxspeed * y;
+		if (buttonRB) {
+			hrotationspeed = 0;
+			vrotationspeed = 0;
+			zrotationspeed = maxspeed * x;
+		} else {
+
+			hrotationspeed = -maxspeed * x;
+			vrotationspeed = maxspeed * y;
+			zrotationspeed = 0;
+
+		}
 	}
 
 	@Override
@@ -1405,6 +1426,8 @@ public class WhirlSim extends SimulationScreen {
 
 		if (button == XInputButton.X && pressed) {
 			initCamera(getGraphicsSubsystem());
+		} else if (button == XInputButton.RIGHT_SHOULDER) {
+			buttonRB = pressed;
 		}
 
 	}

@@ -70,7 +70,7 @@ public class Transformer3D {
 				DMatrix.mmult(rotX.transpose(), DMatrix.mmult(rotZ, DMatrix.mmult(rotX, rotY))));
 
 		rotationMatrix = DMatrix.mmult(rg, rotationMatrix);
-		translationVector = Vector3D.add(Vector3D.mmult(rg, Vector3D.substract(translationVector, axis.getP1())), axis.getP1());
+//		translationVector = Vector3D.add(Vector3D.mmult(rg, Vector3D.substract(translationVector, axis.getP1())), axis.getP1());
 		/*Vector3D.add(Vector3D.mmult(rg, Vector3D.substract(translationVector, axis.getP1())), axis.getP1())*/;
 
 		return this;

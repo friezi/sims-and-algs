@@ -58,6 +58,8 @@ public abstract class SimulationScreen
 
 	private static final String ID_STATUS = "status";
 
+	private final boolean PRINT_BUTTONS = false;
+
 	private final ScreenParameters screenParameters;
 
 	private final boolean doRecord;
@@ -492,30 +494,51 @@ public abstract class SimulationScreen
 
 	@Override
 	public void handleXInputLeftStick(float x, float y) {
+		if (PRINT_BUTTONS && (x != 0 || y != 0)) {
+			System.out.println("XBox-C: LS : " + x + ", " + y);
+		}
 	}
 
 	@Override
 	public void handleXInputRightStick(float x, float y) {
+		if (PRINT_BUTTONS && (x != 0 || y != 0)) {
+			System.out.println("XBox-C: RS : " + x + ", " + y);
+		}
 	}
 
 	@Override
 	public void handleXInputLT(float value) {
+		if (PRINT_BUTTONS && value != 0) {
+			System.out.println("XBox-C: LT : " + value);
+		}
 	}
 
 	@Override
 	public void handleXInputRT(float value) {
+		if (PRINT_BUTTONS && value != 0) {
+			System.out.println("XBox-C: RT : " + value);
+		}
 	}
 
 	@Override
 	public void buttonChanged(XInputButton button, boolean pressed) {
+		if (PRINT_BUTTONS) {
+			System.out.println("XBox-C: " + button + " : " + pressed);
+		}
 	}
 
 	@Override
 	public void connected() {
+		if (PRINT_BUTTONS) {
+			System.out.println("XBox-C: connected");
+		}
 	}
 
 	@Override
 	public void disconnected() {
+		if (PRINT_BUTTONS) {
+			System.out.println("XBox-C: disconnected");
+		}
 	}
 
 }
