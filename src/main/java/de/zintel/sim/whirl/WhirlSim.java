@@ -582,8 +582,10 @@ public class WhirlSim extends SimulationScreen {
 			
 			final double angle = hrotationspeed * 2 * Math.PI / (60 * 60);
 			final Vector3D viewpoint = camera.getViewpoint();
-			System.out.println("vp: "+camera.getTransformationToScreen().inverseTransformPoint(viewpoint));
+			System.out.println("vp: "+camera.getViewpoint());
+			System.out.println("vpr: "+camera.getTransformationToScreen().inverseTransformPoint(viewpoint));
 			final Axis3D axis = new Axis3D(camera.getTransformationToScreen().inverseTransformPoint(viewpoint), camera.getTransformationToScreen().inverseTransformPoint(new Vector3D(viewpoint.x(), viewpoint.y()-1, viewpoint.z())));
+			System.out.println("axis: "+axis);
 			camera.rotate(axis, angle);
 			
 		}

@@ -26,4 +26,9 @@ public class Axis3D {
 		return p2;
 	}
 
+	@Override
+	public String toString() {
+		return "Axis3D [p1=" + p1 + ", p2=" + p2 + "]";
+	}
+
 }
