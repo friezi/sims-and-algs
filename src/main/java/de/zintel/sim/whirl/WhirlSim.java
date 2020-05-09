@@ -524,11 +524,11 @@ public class WhirlSim extends SimulationScreen {
 
 	private Color adjustColor(final Color color, final Vector3D point) {
 
-		final Vector3D t_point = dynamicColoring ? camera.getTransformationToScreen().transformPoint(point) : point;
+		final Vector3D t_point = dynamicColoring ? camera.getTransformationToCamera().transformPoint(point) : point;
 		if (t_point.z() > rotcenter.z()) {
 
 			float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
-			final float brightness = (float) (hsb[2] * rotcenter.z() / (2 * t_point.z()));
+			final float brightness = (float) (hsb[2] * rotcenter.z() / (1.1 * t_point.z()));
 			return Color.getHSBColor(hsb[0], hsb[1], brightness);
 
 		} else {
@@ -565,6 +565,10 @@ public class WhirlSim extends SimulationScreen {
 		return new MultiAnimator(activeAnimators);
 
 	}
+	
+	private double speedAngle(final double speed) {
+		return speed * 2 * Math.PI / (60 * 60);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -580,47 +584,38 @@ public class WhirlSim extends SimulationScreen {
 
 		if (hrotationspeed != 0) {
 			
-			final double angle = hrotationspeed * 2 * Math.PI / (60 * 60);
+			final double angle = speedAngle(hrotationspeed);
 			final Vector3D viewpoint = camera.getViewpoint();
-			System.out.println("vp: "+camera.getViewpoint());
-			System.out.println("vpr: "+camera.getTransformationToScreen().inverseTransformPoint(viewpoint));
-			final Axis3D axis = new Axis3D(camera.getTransformationToScreen().inverseTransformPoint(viewpoint), camera.getTransformationToScreen().inverseTransformPoint(new Vector3D(viewpoint.x(), viewpoint.y()-1, viewpoint.z())));
-			System.out.println("axis: "+axis);
+			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x(), viewpoint.y()-1, viewpoint.z()));
 			camera.rotate(axis, angle);
 			
 		}
 
 		if (vrotationspeed != 0) {
 			
-			final double angle = vrotationspeed * 2 * Math.PI / (60 * 60);
+			final double angle = speedAngle(vrotationspeed );
 			final Vector3D viewpoint = camera.getViewpoint();
-			final Axis3D axis = new Axis3D(camera.getTransformationToScreen().inverseTransformPoint(viewpoint), camera.getTransformationToScreen().inverseTransformPoint(new Vector3D(viewpoint.x()+1, viewpoint.y(), viewpoint.z())));
+			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x()+1, viewpoint.y(), viewpoint.z()));
 			camera.rotate(axis, angle);
 		}
 
 		if (zrotationspeed != 0) {
 			
-			final double angle = zrotationspeed * 2 * Math.PI / (60 * 60);
+			final double angle = speedAngle(zrotationspeed );
 			final Vector3D viewpoint = camera.getViewpoint();
-			final Axis3D axis = new Axis3D(camera.getTransformationToScreen().inverseTransformPoint(viewpoint), camera.getTransformationToScreen().inverseTransformPoint(new Vector3D(viewpoint.x(), viewpoint.y(), viewpoint.z()+1)));
+			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x(), viewpoint.y(), viewpoint.z()+1));
 			camera.rotate(axis, angle);
 		}
 
 		if (frontspeed != 0) {
-			// attention: the translation axis here refers to the inner
-			// coordinate system of the camera!
-			System.out.println("vp: "+camera.getTransformationToScreen().inverseTransformPoint(camera.getViewpoint()));
-			final Vector3D translationVector = camera.getTransformationToScreen().inverseTransformVector(Vector3D.mult(frontspeed, new Vector3D(0, 0, 1)));
+			final Vector3D translationVector = Vector3D.mult(frontspeed, new Vector3D(0, 0, 1));
 			camera.translate(translationVector);
 		}
 
 		if (sidespeed != 0) {
 			// s. a.
 			final Vector3D tv = Vector3D.mult(sidespeed, new Vector3D(1, 0, 0));
-//			final Vector3D viewpoint = camera.getViewpoint();
-//			final Axis3D axis = new Axis3D(camera.getTransformationToScreen().inverseTransformPoint(viewpoint).add(tv), camera.getTransformationToScreen().inverseTransformPoint(new Vector3D(viewpoint.x()+1, viewpoint.y(), viewpoint.z()).add(tv)));
-			camera.translate(camera.getTransformationToScreen().inverseTransformVector(tv));
-//			camera.rotate(axis, 0);
+			camera.translate(tv);
 		}
 
 		final double width = dimension.getWidth() + deltaxmax;

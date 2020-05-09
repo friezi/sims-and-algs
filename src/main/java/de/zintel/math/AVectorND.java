@@ -108,6 +108,10 @@ public abstract class AVectorND<T extends AVectorND<T>> implements IVectorFactor
 		return combine(value, (a, b) -> a * b);
 	}
 
+	public T negate() {
+		return mult(-1);
+	}
+
 	public T div(double value) {
 		return combine(value, (a, b) -> a / b);
 	}
@@ -146,6 +150,10 @@ public abstract class AVectorND<T extends AVectorND<T>> implements IVectorFactor
 
 	public static <T extends AVectorND<T>> T mult(double val, T vector) {
 		return vector.newVector(vector).mult(val);
+	}
+
+	public static <T extends AVectorND<T>> T negate(T vector) {
+		return mult(-1, vector);
 	}
 
 	/**

@@ -19,7 +19,7 @@ public class PlaneCamera3D implements ICamera3D {
 
 	private final Vector3D viewpoint;
 
-	private final CoordinateTransformation3DNew transformationToScreen;
+	private final CoordinateTransformation3DNew transformationToCamera;
 
 	private double curvature;
 
@@ -30,10 +30,10 @@ public class PlaneCamera3D implements ICamera3D {
 
 	private final double maxDistance;
 
-	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3DNew transformationToScreen, double curvature,
+	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3DNew transformationToCamera, double curvature,
 			Dimension screenDimension) {
 		this.viewpoint = viewpoint;
-		this.transformationToScreen = transformationToScreen/*.translateRotation(new Vector3D(viewpoint.x(), viewpoint.y(), viewpoint.z()))*/;
+		this.transformationToCamera = transformationToCamera;
 		this.curvature = curvature;
 		this.screenDimension = screenDimension;
 		this.middle = new Vector3D((screenDimension.getWidth() - 1) / 2, (screenDimension.getHeight() - 1) / 2, 0);
@@ -56,8 +56,8 @@ public class PlaneCamera3D implements ICamera3D {
 	 * @see de.zintel.math.ICamera3D#getTransformationToLens()
 	 */
 	@Override
-	public CoordinateTransformation3DNew getTransformationToScreen() {
-		return transformationToScreen;
+	public CoordinateTransformation3DNew getTransformationToCamera() {
+		return transformationToCamera;
 	}
 
 	/*
@@ -68,7 +68,7 @@ public class PlaneCamera3D implements ICamera3D {
 	@Override
 	public Vector3D project(final Vector3D point) {
 
-		final Vector3D t_point = transformationToScreen.transformPoint(point);
+		final Vector3D t_point = transformationToCamera.transformPoint(point);
 		// liegt bei z<0 hinter der Linse
 		Vector3D i_point = t_point.z() < 0 ? null : Utils3D.intersect(t_point, viewpoint, plane);
 		if (i_point != null && curvature > 0) {
@@ -108,12 +108,12 @@ public class PlaneCamera3D implements ICamera3D {
 	 */
 	@Override
 	public void rotate(Axis3D axis, double angle) {
-		transformationToScreen.rotate(axis,angle);
+		transformationToCamera.rotate(axis,angle);
 	}
 
 	@Override
 	public void translate(final Vector3D vector) {
-		transformationToScreen.translate(vector)/*.translateRotation(vector)*/;
+		transformationToCamera.translate(vector);
 	}
 
 }

@@ -75,7 +75,7 @@ public class SphereCamera3D implements ICamera3D {
 	 * @see de.zintel.math.ICamera3D#getTransformationToLens()
 	 */
 	@Override
-	public CoordinateTransformation3D getTransformationToScreen() {
+	public CoordinateTransformation3D getTransformationToCamera() {
 		return transformationToScreen;
 	}
 
