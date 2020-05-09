@@ -6,7 +6,6 @@ package de.zintel.math;
 import java.awt.Dimension;
 
 import de.zintel.math.transform.CoordinateTransformation3D;
-import de.zintel.math.transform.CoordinateTransformation3DNew;
 
 /**
  * Viewpoint and plane are always relative according to the
@@ -19,7 +18,7 @@ public class PlaneCamera3D implements ICamera3D {
 
 	private final Vector3D viewpoint;
 
-	private final CoordinateTransformation3DNew transformationToCamera;
+	private final CoordinateTransformation3D transformationToCamera;
 
 	private double curvature;
 
@@ -30,7 +29,7 @@ public class PlaneCamera3D implements ICamera3D {
 
 	private final double maxDistance;
 
-	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3DNew transformationToCamera, double curvature,
+	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToCamera, double curvature,
 			Dimension screenDimension) {
 		this.viewpoint = viewpoint;
 		this.transformationToCamera = transformationToCamera;
@@ -56,7 +55,7 @@ public class PlaneCamera3D implements ICamera3D {
 	 * @see de.zintel.math.ICamera3D#getTransformationToLens()
 	 */
 	@Override
-	public CoordinateTransformation3DNew getTransformationToCamera() {
+	public CoordinateTransformation3D getTransformationToCamera() {
 		return transformationToCamera;
 	}
 

@@ -45,7 +45,6 @@ public class Transformer3D {
 
 	public Transformer3D addTranslation(final Vector3D tv) {
 		translationVector.add(tv);
-//		addAxisTranslation(tv);
 		return this;
 	}
 
@@ -63,6 +62,7 @@ public class Transformer3D {
 		final DMatrix<Vector3D> rg = DMatrix.mmult(rotY.transpose(),
 				DMatrix.mmult(rotX.transpose(), DMatrix.mmult(rotZ, DMatrix.mmult(rotX, rotY))));
 
+		// V'=R_A*R*V+R_A(T-T_A)+T_A --> R_A: combined rotation by axis  T_A: translation of axis
 		rotationMatrix = DMatrix.mmult(rg, rotationMatrix);
 		translationVector = Vector3D.add(Vector3D.mmult(rg, Vector3D.substract(translationVector, axis.getP1())), axis.getP1());
 

@@ -1,7 +1,6 @@
 package de.zintel.math;
 
 import de.zintel.math.transform.CoordinateTransformation3D;
-import de.zintel.math.transform.CoordinateTransformation3DNew;
 
 /**
  * An abstract camera. Attention: transformations are always relative to the
@@ -14,7 +13,7 @@ public interface ICamera3D {
 
 	Vector3D getViewpoint();
 
-	CoordinateTransformation3DNew getTransformationToCamera();
+	CoordinateTransformation3D getTransformationToCamera();
 
 	void rotate(Axis3D axis, double angle);
 

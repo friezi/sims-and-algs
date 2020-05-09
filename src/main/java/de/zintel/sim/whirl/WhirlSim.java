@@ -34,7 +34,6 @@ import de.zintel.math.PlaneCamera3D;
 import de.zintel.math.SphereCamera3D;
 import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
-import de.zintel.math.transform.CoordinateTransformation3DNew;
 import de.zintel.sim.SimulationScreen;
 import de.zintel.xinput.XInputHandle;
 
@@ -184,7 +183,7 @@ public class WhirlSim extends SimulationScreen {
 		// CoordinateTransformation3D(), 5000000,
 		// graphicsSubsystem.getDimension());
 		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
-				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3DNew(), 0,
+				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
 				graphicsSubsystem.getDimension());
 	}
 

@@ -54,7 +54,7 @@ public class SphereCamera3D implements ICamera3D {
 		this.d_angley = (screenDimension.getHeight() - 1) / (2 * this.radius);
 
 		this.screenToLens = new CoordinateTransformation3D()
-				.setTranslation(new Vector3D((screenDimension.getWidth() - 1) / 2, (screenDimension.getHeight() - 1) / 2, this.radius))
+				.translate(new Vector3D((screenDimension.getWidth() - 1) / 2, (screenDimension.getHeight() - 1) / 2, this.radius))
 				.setScaling(new Vector3D(1, -1, -1));
 
 	}
@@ -79,14 +79,9 @@ public class SphereCamera3D implements ICamera3D {
 		return transformationToScreen;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.zintel.math.ICamera3D#rotate(double, double, double)
-	 */
 	@Override
-	public void rotate(double angleX, double angleY, double angleZ) {
-		transformationToScreen.rotate(angleX, angleY, angleZ);
+	public void rotate(Axis3D axis, double angle) {
+		transformationToScreen.rotate(axis, angle);
 	}
 
 	@Override
@@ -137,8 +132,8 @@ public class SphereCamera3D implements ICamera3D {
 
 		final Vector3D l = AVectorND.mult(1.0 / vpLength, vp);
 		final double lpc = AVectorND.mult(l, AVectorND.substract(point, sphereCenter));
-		final double root = Math.sqrt(Math.pow(lpc, 2) + 2 * Vector3D.mult(point, sphereCenter) + Math.pow(radius, 2)
-				- Math.pow(point.length(), 2) - Math.pow(sphereCenter.length(), 2));
+		final double root = Math.sqrt(Math.pow(lpc, 2) + 2 * Vector3D.mult(point, sphereCenter) + Math.pow(radius, 2) - Math.pow(point.length(), 2)
+				- Math.pow(sphereCenter.length(), 2));
 
 		final double lambda1 = -lpc + root;
 		final double lambda2 = -lpc - root;
