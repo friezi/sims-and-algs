@@ -1,5 +1,7 @@
-package de.zintel.math;
+package de.zintel.camera;
 
+import de.zintel.math.Axis3D;
+import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
 
 /**
@@ -22,4 +24,10 @@ public interface ICamera3D {
 	Vector3D project(Vector3D point);
 
 	boolean inRange(final Vector3D point);
+	
+	void reset();
+
+	void setCurvature(double value);
+
+	double getCurvature();
 }

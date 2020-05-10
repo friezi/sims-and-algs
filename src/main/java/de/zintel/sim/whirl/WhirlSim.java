@@ -13,10 +13,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 
-import com.github.strikerx3.jxinput.enums.XInputButton;
-
 import de.zintel.animation.IAnimator;
 import de.zintel.animation.MultiAnimator;
+import de.zintel.camera.ICamera3D;
+import de.zintel.camera.PlaneCamera3D;
+import de.zintel.camera.SphereCamera3D;
+import de.zintel.camera.XInputCameraController;
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
@@ -24,11 +26,7 @@ import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.AVectorND;
-import de.zintel.math.Axis3D;
-import de.zintel.math.ICamera3D;
 import de.zintel.math.MathUtils;
-import de.zintel.math.PlaneCamera3D;
-import de.zintel.math.SphereCamera3D;
 import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
 import de.zintel.sim.SimulationScreen;
@@ -65,9 +63,9 @@ public class WhirlSim extends SimulationScreen {
 
 	private static final double VP_STEP = 10;
 
-	private static final double CURVATURE_MAX = 20;
-
 	private ICamera3D camera;
+
+	private XInputCameraController xInputCameraController;
 
 	private WhirlParticleSystem<WhirlParticleAttributes> whirlParticleSystem;
 
@@ -91,18 +89,6 @@ public class WhirlSim extends SimulationScreen {
 
 	private int maxParticleRadius = 9;
 
-	private double hrotationspeed = 0;
-
-	private final double maxspeed = 50;
-
-	private double vrotationspeed = 0;
-
-	private double zrotationspeed = 0;
-
-	private double sidespeed = 0;
-
-	private double frontspeed = 0;
-
 	private boolean dynamicColoring = false;
 
 	private IAnimator multiAnimator;
@@ -110,8 +96,6 @@ public class WhirlSim extends SimulationScreen {
 	private Collection<IAnimator> animators = new ArrayList<>();
 
 	private boolean doAnimation = true;
-
-	private boolean buttonRB = false;
 
 	/**
 	 * @param title
@@ -144,7 +128,6 @@ public class WhirlSim extends SimulationScreen {
 		initKeyActions();
 		initWhirlParticleSystem(graphicsSubsystem);
 		initCamera(graphicsSubsystem);
-		initXInput();
 		initAnimators();
 
 	}
@@ -168,13 +151,10 @@ public class WhirlSim extends SimulationScreen {
 		camera = new PlaneCamera3D(
 				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
 				new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
-	}
 
-	/**
-	 * 
-	 */
-	private void initXInput() {
-		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(this));
+		xInputCameraController = new XInputCameraController(camera, 50);
+		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(xInputCameraController));
+
 	}
 
 	private void initAnimators() {
@@ -548,10 +528,6 @@ public class WhirlSim extends SimulationScreen {
 
 	}
 
-	private double speedAngle(final double speed) {
-		return speed * 2 * Math.PI / (60 * 60);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -564,41 +540,7 @@ public class WhirlSim extends SimulationScreen {
 			doAnimators();
 		}
 
-		if (hrotationspeed != 0) {
-
-			final double angle = speedAngle(hrotationspeed);
-			final Vector3D viewpoint = camera.getViewpoint();
-			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x(), viewpoint.y() - 1, viewpoint.z()));
-			camera.rotate(axis, angle);
-
-		}
-
-		if (vrotationspeed != 0) {
-
-			final double angle = speedAngle(vrotationspeed);
-			final Vector3D viewpoint = camera.getViewpoint();
-			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x() + 1, viewpoint.y(), viewpoint.z()));
-			camera.rotate(axis, angle);
-		}
-
-		if (zrotationspeed != 0) {
-
-			final double angle = speedAngle(zrotationspeed);
-			final Vector3D viewpoint = camera.getViewpoint();
-			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x(), viewpoint.y(), viewpoint.z() + 1));
-			camera.rotate(axis, angle);
-		}
-
-		if (frontspeed != 0) {
-			final Vector3D translationVector = Vector3D.mult(frontspeed, new Vector3D(0, 0, 1));
-			camera.translate(translationVector);
-		}
-
-		if (sidespeed != 0) {
-			// s. a.
-			final Vector3D tv = Vector3D.mult(sidespeed, new Vector3D(1, 0, 0));
-			camera.translate(tv);
-		}
+		xInputCameraController.animate();
 
 		whirlParticleSystem.calculate(dimension);
 
@@ -1070,43 +1012,6 @@ public class WhirlSim extends SimulationScreen {
 				return String.valueOf(maxParticleRadius);
 			}
 		});
-		addKeyAction(KeyEvent.VK_V, new IKeyAction() {
-
-			@Override
-			public boolean withAction() {
-				return true;
-			}
-
-			@Override
-			public boolean toggleComponent() {
-				return false;
-			}
-
-			@Override
-			public String textID() {
-				return "ROTSPEED";
-			}
-
-			@Override
-			public String text() {
-				return "rotation speed";
-			}
-
-			@Override
-			public void plus() {
-				hrotationspeed++;
-			}
-
-			@Override
-			public void minus() {
-				hrotationspeed--;
-			}
-
-			@Override
-			public String getValue() {
-				return String.valueOf(hrotationspeed);
-			}
-		});
 		addKeyAction(KeyEvent.VK_D, new IKeyAction() {
 
 			@Override
@@ -1292,69 +1197,6 @@ public class WhirlSim extends SimulationScreen {
 	 */
 	@Override
 	protected void shutdown() throws Exception {
-
-	}
-
-	@Override
-	public void handleXInputLeftStick(float x, float y) {
-
-		super.handleXInputLeftStick(x, y);
-
-		sidespeed = 200 * x;
-		frontspeed = 200 * y;
-	}
-
-	@Override
-	public void handleXInputRightStick(float x, float y) {
-
-		super.handleXInputRightStick(x, y);
-
-		if (buttonRB) {
-			hrotationspeed = 0;
-			vrotationspeed = 0;
-			zrotationspeed = maxspeed * x;
-		} else {
-
-			hrotationspeed = -maxspeed * x;
-			vrotationspeed = maxspeed * y;
-			zrotationspeed = 0;
-
-		}
-	}
-
-	@Override
-	public void handleXInputRT(float value) {
-
-		super.handleXInputRT(value);
-
-		if (camera instanceof PlaneCamera3D) {
-			final PlaneCamera3D pcamera = (PlaneCamera3D) camera;
-			pcamera.setCurvature(Math.max(pcamera.getCurvature(), CURVATURE_MAX * value));
-		}
-
-	}
-
-	@Override
-	public void handleXInputLT(float value) {
-
-		super.handleXInputRT(value);
-
-		if (camera instanceof PlaneCamera3D && value != 0) {
-			final PlaneCamera3D pcamera = (PlaneCamera3D) camera;
-			pcamera.setCurvature(Math.min(pcamera.getCurvature(), CURVATURE_MAX * (1 - value)));
-		}
-
-	}
-
-	@Override
-	public void buttonChanged(XInputButton button, boolean pressed) {
-		super.buttonChanged(button, pressed);
-
-		if (button == XInputButton.X && pressed) {
-			initCamera(getGraphicsSubsystem());
-		} else if (button == XInputButton.RIGHT_SHOULDER) {
-			buttonRB = pressed;
-		}
 
 	}
 }

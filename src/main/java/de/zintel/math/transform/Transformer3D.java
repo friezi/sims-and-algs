@@ -18,20 +18,38 @@ import de.zintel.math.matrix.DMatrix;
  */
 public class Transformer3D {
 
-	private DMatrix<Vector3D> rotationMatrix = Utils3D.IDENTITY_MATRIX;
+	private final DMatrix<Vector3D> initialRotationMatrix;
 
-	private Vector3D translationVector = new Vector3D();
+	private final Vector3D initialTranslationVector;
+
+	private DMatrix<Vector3D> rotationMatrix;
+
+	private Vector3D translationVector;
 
 	/**
 	 * 
 	 */
 	public Transformer3D() {
+
+		initialRotationMatrix = Utils3D.IDENTITY_MATRIX;
+		initialTranslationVector = new Vector3D();
+
+		reset();
 	}
 
-	private Transformer3D(DMatrix<Vector3D> rotationMatrix, Vector3D translationVector) {
+	private Transformer3D(DMatrix<Vector3D> initialRotationMatrix, Vector3D initialTranslationVector) {
 
-		this.rotationMatrix = rotationMatrix;
-		this.translationVector = translationVector;
+		this.initialRotationMatrix = initialRotationMatrix;
+		this.initialTranslationVector = initialTranslationVector;
+
+		reset();
+
+	}
+
+	public void reset() {
+
+		rotationMatrix = initialRotationMatrix.copy();
+		translationVector = new Vector3D(initialTranslationVector);
 
 	}
 
@@ -59,10 +77,10 @@ public class Transformer3D {
 				.getRmX(new TrigonomFnProviderDirect(axisVector.y() / axisVector.length(), avLengthXZ / axisVector.length()));
 		final DMatrix<Vector3D> rotZ = RotationMatrix3DProvider.getRmZ(new TrigonomFnProviderAngle(angle));
 
-		final DMatrix<Vector3D> rg = DMatrix.mmult(rotY.transpose(),
-				DMatrix.mmult(rotX.transpose(), DMatrix.mmult(rotZ, DMatrix.mmult(rotX, rotY))));
+		final DMatrix<Vector3D> rg = DMatrix.mmult(rotY.transpose(), DMatrix.mmult(rotX.transpose(), DMatrix.mmult(rotZ, DMatrix.mmult(rotX, rotY))));
 
-		// V'=R_A*R*V+R_A(T-T_A)+T_A --> R_A: combined rotation by axis  T_A: translation of axis
+		// V'=R_A*R*V+R_A(T-T_A)+T_A --> R_A: combined rotation by axis T_A:
+		// translation of axis
 		rotationMatrix = DMatrix.mmult(rg, rotationMatrix);
 		translationVector = Vector3D.add(Vector3D.mmult(rg, Vector3D.substract(translationVector, axis.getP1())), axis.getP1());
 

@@ -58,7 +58,7 @@ public abstract class SimulationScreen
 
 	private static final String ID_STATUS = "status";
 
-	private final boolean PRINT_BUTTONS = false;
+	private boolean printButtons = false;
 
 	private final ScreenParameters screenParameters;
 
@@ -123,6 +123,7 @@ public abstract class SimulationScreen
 		}
 
 		init(graphicsSubsystem);
+		initXInput();
 		initBaseKeyActions();
 
 		if (logging) {
@@ -139,6 +140,13 @@ public abstract class SimulationScreen
 	 * @param graphicsSubsystem
 	 */
 	protected abstract void init(final IGraphicsSubsystem graphicsSubsystem);
+
+	/**
+	 * 
+	 */
+	private void initXInput() {
+		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(this));
+	}
 
 	/**
 	 * @throws Exception
@@ -494,49 +502,49 @@ public abstract class SimulationScreen
 
 	@Override
 	public void handleXInputLeftStick(float x, float y) {
-		if (PRINT_BUTTONS && (x != 0 || y != 0)) {
+		if (printButtons && (x != 0 || y != 0)) {
 			System.out.println("XBox-C: LS : " + x + ", " + y);
 		}
 	}
 
 	@Override
 	public void handleXInputRightStick(float x, float y) {
-		if (PRINT_BUTTONS && (x != 0 || y != 0)) {
+		if (printButtons && (x != 0 || y != 0)) {
 			System.out.println("XBox-C: RS : " + x + ", " + y);
 		}
 	}
 
 	@Override
 	public void handleXInputLT(float value) {
-		if (PRINT_BUTTONS && value != 0) {
+		if (printButtons && value != 0) {
 			System.out.println("XBox-C: LT : " + value);
 		}
 	}
 
 	@Override
 	public void handleXInputRT(float value) {
-		if (PRINT_BUTTONS && value != 0) {
+		if (printButtons && value != 0) {
 			System.out.println("XBox-C: RT : " + value);
 		}
 	}
 
 	@Override
 	public void buttonChanged(XInputButton button, boolean pressed) {
-		if (PRINT_BUTTONS) {
+		if (printButtons) {
 			System.out.println("XBox-C: " + button + " : " + pressed);
 		}
 	}
 
 	@Override
 	public void connected() {
-		if (PRINT_BUTTONS) {
+		if (printButtons) {
 			System.out.println("XBox-C: connected");
 		}
 	}
 
 	@Override
 	public void disconnected() {
-		if (PRINT_BUTTONS) {
+		if (printButtons) {
 			System.out.println("XBox-C: disconnected");
 		}
 	}

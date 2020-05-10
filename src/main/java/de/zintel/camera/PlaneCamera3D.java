@@ -1,10 +1,15 @@
 /**
  * 
  */
-package de.zintel.math;
+package de.zintel.camera;
 
 import java.awt.Dimension;
 
+import de.zintel.math.Axis3D;
+import de.zintel.math.MathUtils;
+import de.zintel.math.Plane3D;
+import de.zintel.math.Utils3D;
+import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
 
 /**
@@ -29,8 +34,7 @@ public class PlaneCamera3D implements ICamera3D {
 
 	private final double maxDistance;
 
-	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToCamera, double curvature,
-			Dimension screenDimension) {
+	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToCamera, double curvature, Dimension screenDimension) {
 		this.viewpoint = viewpoint;
 		this.transformationToCamera = transformationToCamera;
 		this.curvature = curvature;
@@ -92,10 +96,12 @@ public class PlaneCamera3D implements ICamera3D {
 
 	}
 
+	@Override
 	public double getCurvature() {
 		return curvature;
 	}
 
+	@Override
 	public void setCurvature(double curvature) {
 		this.curvature = curvature;
 	}
@@ -107,12 +113,17 @@ public class PlaneCamera3D implements ICamera3D {
 	 */
 	@Override
 	public void rotate(Axis3D axis, double angle) {
-		transformationToCamera.rotate(axis,angle);
+		transformationToCamera.rotate(axis, angle);
 	}
 
 	@Override
 	public void translate(final Vector3D vector) {
 		transformationToCamera.translate(vector);
+	}
+
+	@Override
+	public void reset() {
+		transformationToCamera.reset();
 	}
 
 }

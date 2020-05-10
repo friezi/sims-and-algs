@@ -1,10 +1,14 @@
 /**
  * 
  */
-package de.zintel.math;
+package de.zintel.camera;
 
 import java.awt.Dimension;
 
+import de.zintel.math.AVectorND;
+import de.zintel.math.Axis3D;
+import de.zintel.math.MathUtils;
+import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
 
 /**
@@ -164,6 +168,21 @@ public class SphereCamera3D implements ICamera3D {
 	@Override
 	public boolean inRange(final Vector3D point) {
 		return point.x() >= 0 && point.x() < screenDimension.getWidth() && point.y() >= 0 && point.y() < screenDimension.getHeight();
+	}
+
+	@Override
+	public void setCurvature(double value) {
+
+	}
+
+	@Override
+	public double getCurvature() {
+		return 0;
+	}
+
+	@Override
+	public void reset() {
+		transformationToScreen.reset();
 	}
 
 }

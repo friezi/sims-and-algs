@@ -94,4 +94,12 @@ public class CoordinateTransformation3D {
 		return (inverseScaler == null ? vector : inverseScaler.apply(vector));
 	}
 
+	public CoordinateTransformation3D reset() {
+
+		transformer.reset();
+		inverseTransformer = transformer.inverse();
+
+		return this;
+	}
+
 }

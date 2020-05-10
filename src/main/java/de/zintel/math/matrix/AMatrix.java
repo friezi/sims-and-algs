@@ -73,6 +73,19 @@ public abstract class AMatrix<T, M extends AMatrix<T, M>> {
 		return field[i][j];
 	}
 
+	public M copy() {
+
+		final T[][] tfield = constructionBundle.fieldconstructor.apply(columns, rows);
+		for (int row = 0; row < rows; row++) {
+			for (int column = 0; column < columns; column++) {
+				tfield[row][column] = field[row][column];
+			}
+		}
+
+		return constructionBundle.newMatrix(tfield, rows, columns);
+
+	}
+
 	public M transpose() {
 
 		final T[][] tfield = constructionBundle.fieldconstructor.apply(columns, rows);
