@@ -152,9 +152,6 @@ public class WhirlSim extends SimulationScreen {
 				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
 				new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
 
-		xInputCameraController = new XInputCameraController(camera, 50);
-		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(xInputCameraController));
-
 	}
 
 	private void initAnimators() {
@@ -166,6 +163,9 @@ public class WhirlSim extends SimulationScreen {
 		animators.add(creatRotationTransitionLeftAnimator());
 
 		multiAnimator = new MultiAnimator(Collections.emptyList());
+
+		xInputCameraController = new XInputCameraController(camera, 50);
+		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(xInputCameraController));
 
 	}
 
@@ -508,6 +508,7 @@ public class WhirlSim extends SimulationScreen {
 		}
 
 		multiAnimator.step();
+		xInputCameraController.step();
 
 	}
 
@@ -539,8 +540,6 @@ public class WhirlSim extends SimulationScreen {
 		if (doAnimation) {
 			doAnimators();
 		}
-
-		xInputCameraController.animate();
 
 		whirlParticleSystem.calculate(dimension);
 

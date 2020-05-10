@@ -5,6 +5,7 @@ package de.zintel.camera;
 
 import com.github.strikerx3.jxinput.enums.XInputButton;
 
+import de.zintel.animation.IAnimator;
 import de.zintel.math.Axis3D;
 import de.zintel.math.Vector3D;
 import de.zintel.xinput.IXInputCombinedHandler;
@@ -13,7 +14,7 @@ import de.zintel.xinput.IXInputCombinedHandler;
  * @author friedo
  *
  */
-public class XInputCameraController implements IXInputCombinedHandler {
+public class XInputCameraController implements IXInputCombinedHandler,IAnimator {
 
 	private static final double CURVATURE_MAX = 20;
 
@@ -44,7 +45,7 @@ public class XInputCameraController implements IXInputCombinedHandler {
 		this.maxspeed = maxspeed;
 	}
 
-	public void animate() {
+	public void step() {
 
 		if (doReset) {
 
@@ -165,5 +166,15 @@ public class XInputCameraController implements IXInputCombinedHandler {
 
 	@Override
 	public void disconnected() {
+	}
+
+	@Override
+	public void reinit() {
+		doReset=true;
+	}
+
+	@Override
+	public boolean finished() {
+		return false;
 	}
 }
