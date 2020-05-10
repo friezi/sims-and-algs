@@ -107,12 +107,12 @@ public class Tetragon3D implements IObject3D {
 		}
 
 		// Startrand interpolieren
-		new Processor<StepUnit3D>(new LinearPointInterpolater3D(sP1.add(point), sP2.add(point), true), new Consumer<StepUnit3D>() {
+		new Processor<StepUnit3Dold>(new LinearPointInterpolater3D(sP1.add(point), sP2.add(point), true), new Consumer<StepUnit3Dold>() {
 
 			Collection<Point3D> ePoints = new ArrayList<>(2);
 
 			// Endrand interpolieren
-			Processor<StepUnit3D> eITP = new Processor<StepUnit3D>(new LinearPointInterpolater3D(eP1.add(point), eP2.add(point), true),
+			Processor<StepUnit3Dold> eITP = new Processor<StepUnit3Dold>(new LinearPointInterpolater3D(eP1.add(point), eP2.add(point), true),
 					stepUnit -> {
 						ePoints.add(stepUnit.getPoint());
 					}) {
@@ -124,13 +124,13 @@ public class Tetragon3D implements IObject3D {
 			};
 
 			@Override
-			public void accept(StepUnit3D sStepUnit) {
+			public void accept(StepUnit3Dold sStepUnit) {
 
 				Point3D sPoint = sStepUnit.getPoint();
 				int sStep = sStepUnit.getStep();
 				int sStepMax = sStepUnit.getStepMax();
 
-				StepUnit3D eStepUnit = eITP.getCurrent();
+				StepUnit3Dold eStepUnit = eITP.getCurrent();
 				if (MathUtils.interpolateLinear(0, eStepUnit.getStepMax(), sStep, sStepMax) > eStepUnit.getStep() && eITP.inProcess()) {
 					ePoints.clear();
 					eITP.progress();
@@ -142,14 +142,14 @@ public class Tetragon3D implements IObject3D {
 
 				// Linie interpolieren
 				for (Point3D ePoint : ePoints) {
-					new Processor<StepUnit3D>(new LinearPointInterpolater3D(sPoint, ePoint, true), new Consumer<StepUnit3D>() {
+					new Processor<StepUnit3Dold>(new LinearPointInterpolater3D(sPoint, ePoint, true), new Consumer<StepUnit3Dold>() {
 
 						private Point lastpoint = null;
 						private int lastTx;
 						private int lastTy;
 
 						@Override
-						public void accept(StepUnit3D stepUnit) {
+						public void accept(StepUnit3Dold stepUnit) {
 
 							int step = stepUnit.getStep();
 							int stepMax = stepUnit.getStepMax();

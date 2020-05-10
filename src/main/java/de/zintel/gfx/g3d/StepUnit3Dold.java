@@ -1,16 +1,14 @@
 package de.zintel.gfx.g3d;
 
-import de.zintel.math.Vector3D;
+public class StepUnit3Dold {
 
-public class StepUnit3D {
-
-	private final Vector3D point;
+	private final Point3D point;
 
 	private final int step;
 
 	private final int stepMax;
 
-	public StepUnit3D(Vector3D point, int step, int stepMax) {
+	public StepUnit3Dold(Point3D point, int step, int stepMax) {
 		super();
 		this.point = point;
 		this.step = step;
@@ -30,7 +28,7 @@ public class StepUnit3D {
 		return stepMax;
 	}
 
-	public Vector3D getPoint() {
+	public Point3D getPoint() {
 		return point;
 	}
 
