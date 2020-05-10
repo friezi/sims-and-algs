@@ -9,11 +9,8 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 
 import com.github.strikerx3.jxinput.enums.XInputButton;
@@ -47,28 +44,15 @@ public class WhirlSim extends SimulationScreen {
 		SIMPLE, COMPLEX
 	}
 
-	private static class Particle {
-
-		public final double velocity;
-
-		public double angle = 0;
-
-		public final Vector3D position;
-
-		public final Vector3D initialPosition;
+	private static class WhirlParticleAttributes {
 
 		public final Color color;
 
 		private final double radius;
 
-		public Particle(final double x, final double y, final double z, Color color, double velocity, double radius) {
-
-			this.position = new Vector3D(x, y, z);
-			this.initialPosition = new Vector3D(x, y, z);
+		public WhirlParticleAttributes(Color color, double radius) {
 			this.color = color;
-			this.velocity = velocity;
 			this.radius = radius;
-
 		}
 
 	}
@@ -83,29 +67,19 @@ public class WhirlSim extends SimulationScreen {
 
 	private static final double CURVATURE_MAX = 20;
 
-	private Set<Particle> particles = new LinkedHashSet<>();
-
 	private ICamera3D camera;
 
-	private Vector3D rotcenter = new Vector3D(0.0, 540.0, 200.0);
-
-	private int frequency = 1;
+	private WhirlParticleSystem<WhirlParticleAttributes> whirlParticleSystem;
 
 	private final double finalBubbleRadius = 3D;
 
 	private final double finalCircleRadius = 1.0;
 
+	private Vector3D rotcenter = new Vector3D(0.0, 540.0, 200.0);
+
 	private double deltaxmin = -200;
 
 	private double deltaxmax = 200;
-
-	private double rotationTransitionLeft = -3;
-
-	private double rotationTransitionRight = 4;
-
-	private double particlesminy = 1;
-
-	private double particlesmaxy = 0;
 
 	private boolean showgrid = true;
 
@@ -150,7 +124,6 @@ public class WhirlSim extends SimulationScreen {
 	public WhirlSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
 			int recordingRate) {
 		super(title, gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
-		particlesmaxy = getGraphicsSubsystem().getDimension().getHeight();
 	}
 
 	public static void main(String args[]) throws Exception {
@@ -169,9 +142,19 @@ public class WhirlSim extends SimulationScreen {
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		graphicsSubsystem.setColorMixture(colorMixture);
 		initKeyActions();
+		initWhirlParticleSystem(graphicsSubsystem);
 		initCamera(graphicsSubsystem);
 		initXInput();
 		initAnimators();
+
+	}
+
+	private void initWhirlParticleSystem(IGraphicsSubsystem graphicsSubsystem) {
+
+		whirlParticleSystem = new WhirlParticleSystem<>(
+				particle -> new WhirlParticleAttributes(CUtils.transparent(CUtils.makeRandomColor(), 200),
+						MathUtils.makeRandom(minParticleRadius, maxParticleRadius)),
+				Collections.emptySet(), rotcenter, deltaxmin, deltaxmax, 1, getGraphicsSubsystem().getDimension().getHeight(), finalCircleRadius);
 
 	}
 
@@ -182,9 +165,9 @@ public class WhirlSim extends SimulationScreen {
 		// camera = new SphereCamera3D(new Vector3D(950.0, 140.0, -1000.0), new
 		// CoordinateTransformation3D(), 5000000,
 		// graphicsSubsystem.getDimension());
-		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
-				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
-				graphicsSubsystem.getDimension());
+		camera = new PlaneCamera3D(
+				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
+				new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
 	}
 
 	/**
@@ -221,7 +204,7 @@ public class WhirlSim extends SimulationScreen {
 			public void step() {
 				if (!finished()) {
 					step += deltastep;
-					rotcenter.setY(MathUtils.morphRange(0, maxSteps(), start, end, step));
+					whirlParticleSystem.getRotcenter().setY(MathUtils.morphRange(0, maxSteps(), start, end, step));
 				}
 
 			}
@@ -229,7 +212,7 @@ public class WhirlSim extends SimulationScreen {
 			@Override
 			public void reinit() {
 				end = MathUtils.RANDOM.nextInt((int) getGraphicsSubsystem().getDimension().getHeight());
-				start = (int) rotcenter.y();
+				start = (int) whirlParticleSystem.getRotcenter().y();
 				step = 0;
 				deltastep = (1D / (MathUtils.RANDOM.nextInt(3) + 1)) / (1D / (MathUtils.RANDOM.nextInt(3) + 1));
 
@@ -262,15 +245,15 @@ public class WhirlSim extends SimulationScreen {
 
 				if (!finished()) {
 					step += deltastep;
-					particlesminy = ((int) MathUtils.morphRange(0, maxSteps(), start, end, step));
+					whirlParticleSystem.setParticlesminy(((int) MathUtils.morphRange(0, maxSteps(), start, end, step)));
 				}
 
 			}
 
 			@Override
 			public void reinit() {
-				end = MathUtils.RANDOM.nextInt((int) particlesmaxy + 1);
-				start = (int) particlesminy;
+				end = MathUtils.RANDOM.nextInt((int) whirlParticleSystem.getParticlesmaxy() + 1);
+				start = (int) whirlParticleSystem.getParticlesminy();
 				step = 0;
 				deltastep = 1;
 
@@ -303,7 +286,7 @@ public class WhirlSim extends SimulationScreen {
 
 				if (!finished()) {
 					step += deltastep;
-					rotationTransitionLeft = ((int) MathUtils.morphRange(0, maxSteps(), start, end, step));
+					whirlParticleSystem.setRotationTransitionLeft(((int) MathUtils.morphRange(0, maxSteps(), start, end, step)));
 				}
 
 			}
@@ -311,7 +294,7 @@ public class WhirlSim extends SimulationScreen {
 			@Override
 			public void reinit() {
 				end = MathUtils.RANDOM.nextInt(7) - 7;
-				start = (int) rotationTransitionLeft;
+				start = (int) whirlParticleSystem.getRotationTransitionLeft();
 				step = 0;
 				deltastep = 1D / (MathUtils.RANDOM.nextInt(5) + 5);
 
@@ -348,9 +331,9 @@ public class WhirlSim extends SimulationScreen {
 			}
 		}
 
-		for (Particle particle : particles) {
+		for (WhirlParticle<WhirlParticleAttributes> particle : whirlParticleSystem.getParticles()) {
 
-			final Vector3D point = particle.position;
+			final Vector3D point = particle.getPosition();
 
 			final Vector3D ppoint = project(point);
 			if (ppoint == null) {
@@ -385,8 +368,9 @@ public class WhirlSim extends SimulationScreen {
 
 			if (camera.inRange(ppoint)) {
 				graphicsSubsystem.drawFilledCircle((int) px, (int) py, pradius,
-						() -> CUtils.transparent(adjustColor(CUtils.morphColor(particle.color, Color.YELLOW, colortrans, point.x()), point),
-								(int) MathUtils.morph(v -> (double) particle.color.getAlpha(), v -> 0D, alphatrans, point.x())));
+						() -> CUtils.transparent(
+								adjustColor(CUtils.morphColor(particle.getAttributes().color, Color.YELLOW, colortrans, point.x()), point),
+								(int) MathUtils.morph(v -> (double) particle.getAttributes().color.getAlpha(), v -> 0D, alphatrans, point.x())));
 			}
 		}
 	}
@@ -458,8 +442,7 @@ public class WhirlSim extends SimulationScreen {
 					if (ppoint != null) {
 
 						if (camera.inRange(ppoint)) {
-							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius,
-									() -> adjustColor(Color.GREEN, point));
+							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius, () -> adjustColor(Color.GREEN, point));
 						}
 
 						if (xnppoint != null) {
@@ -500,15 +483,15 @@ public class WhirlSim extends SimulationScreen {
 
 	}
 
-	private double calculateDynamicRadius(Particle particle, final Dimension dimension) {
+	private double calculateDynamicRadius(WhirlParticle<WhirlParticleAttributes> particle, final Dimension dimension) {
 
-		final Vector3D point = particle.position;
+		final Vector3D point = particle.getPosition();
 
-		final Vector3D prc = project(new Vector3D(point.x(), point.y(), rotcenter.z()));
+		final Vector3D prc = project(new Vector3D(point.x(), point.y(), whirlParticleSystem.getRotcenter().z()));
 		if (prc == null) {
 			return 0;
 		}
-		return MathUtils.morph(v -> particle.radius, v -> finalBubbleRadius,
+		return MathUtils.morph(v -> particle.getAttributes().radius, v -> finalBubbleRadius,
 				v -> MathUtils.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, point.x())), prc.x());
 
 	}
@@ -524,10 +507,10 @@ public class WhirlSim extends SimulationScreen {
 	private Color adjustColor(final Color color, final Vector3D point) {
 
 		final Vector3D t_point = dynamicColoring ? camera.getTransformationToCamera().transformPoint(point) : point;
-		if (t_point.z() > rotcenter.z()) {
+		if (t_point.z() > whirlParticleSystem.getRotcenter().z()) {
 
 			float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
-			final float brightness = (float) (hsb[2] * rotcenter.z() / (1.1 * t_point.z()));
+			final float brightness = (float) (hsb[2] * whirlParticleSystem.getRotcenter().z() / (1.1 * t_point.z()));
 			return Color.getHSBColor(hsb[0], hsb[1], brightness);
 
 		} else {
@@ -564,7 +547,7 @@ public class WhirlSim extends SimulationScreen {
 		return new MultiAnimator(activeAnimators);
 
 	}
-	
+
 	private double speedAngle(final double speed) {
 		return speed * 2 * Math.PI / (60 * 60);
 	}
@@ -582,27 +565,27 @@ public class WhirlSim extends SimulationScreen {
 		}
 
 		if (hrotationspeed != 0) {
-			
+
 			final double angle = speedAngle(hrotationspeed);
 			final Vector3D viewpoint = camera.getViewpoint();
-			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x(), viewpoint.y()-1, viewpoint.z()));
+			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x(), viewpoint.y() - 1, viewpoint.z()));
 			camera.rotate(axis, angle);
-			
+
 		}
 
 		if (vrotationspeed != 0) {
-			
-			final double angle = speedAngle(vrotationspeed );
+
+			final double angle = speedAngle(vrotationspeed);
 			final Vector3D viewpoint = camera.getViewpoint();
-			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x()+1, viewpoint.y(), viewpoint.z()));
+			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x() + 1, viewpoint.y(), viewpoint.z()));
 			camera.rotate(axis, angle);
 		}
 
 		if (zrotationspeed != 0) {
-			
-			final double angle = speedAngle(zrotationspeed );
+
+			final double angle = speedAngle(zrotationspeed);
 			final Vector3D viewpoint = camera.getViewpoint();
-			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x(), viewpoint.y(), viewpoint.z()+1));
+			final Axis3D axis = new Axis3D(viewpoint, new Vector3D(viewpoint.x(), viewpoint.y(), viewpoint.z() + 1));
 			camera.rotate(axis, angle);
 		}
 
@@ -617,62 +600,8 @@ public class WhirlSim extends SimulationScreen {
 			camera.translate(tv);
 		}
 
-		final double width = dimension.getWidth() + deltaxmax;
+		whirlParticleSystem.calculate(dimension);
 
-		Set<Particle> newparticles = new LinkedHashSet<>(particles);
-
-		final Iterator<Particle> iterator = newparticles.iterator();
-		while (iterator.hasNext()) {
-
-			final Particle particle = iterator.next();
-			final Vector3D point = particle.position;
-
-			final Function<Double, Double> rottrans = x -> MathUtils
-					.sigmoid(MathUtils.morphRange(0, width, rotationTransitionLeft, rotationTransitionRight, point.x()));
-
-			point.setX(point.x() + MathUtils.morph(v -> particle.velocity, v -> particle.velocity + 10, rottrans, point.x()));
-
-			if (point.x() > width) {
-
-				iterator.remove();
-				continue;
-
-			}
-
-			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
-					rottrans, point.x());
-
-			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, point.x());
-
-			point.setZ(Math.sin(theta(particle.angle)) * cradius + rotcenter.z());
-			point.setY(rotcenter.y() + (particle.initialPosition.y() < rotcenter.y() ? -1 : 1) * Math.cos(theta(particle.angle)) * cradius);
-
-		}
-
-		if (validByFrequency(frequency)) {
-			newparticles.add(new Particle(deltaxmin, MathUtils.makeRandom((int) particlesminy, (int) particlesmaxy), rotcenter.z(),
-					CUtils.transparent(CUtils.makeRandomColor(), 200), MathUtils.makeRandom(2, 7),
-					MathUtils.makeRandom(minParticleRadius, maxParticleRadius)));
-		}
-
-		particles = newparticles;
-
-	}
-
-	private boolean validByFrequency(final int frequency) {
-
-		if (frequency > 0) {
-			return MathUtils.RANDOM.nextInt(frequency) == frequency - 1;
-		} else if (frequency < 0) {
-			return MathUtils.RANDOM.nextInt(-frequency) != -frequency - 1;
-		} else {
-			return false;
-		}
-
-	}
-
-	private double theta(final double degree) {
-		return MathUtils.morphRange(0, 360, 0, 2 * Math.PI, ((int) degree) % 360);
 	}
 
 	private void initKeyActions() {
@@ -815,17 +744,17 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				rotcenter.setY(rotcenter.y() + delta);
+				whirlParticleSystem.getRotcenter().setY(whirlParticleSystem.getRotcenter().y() + delta);
 			}
 
 			@Override
 			public void minus() {
-				rotcenter.setY(rotcenter.y() - delta);
+				whirlParticleSystem.getRotcenter().setY(whirlParticleSystem.getRotcenter().y() - delta);
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(rotcenter.y());
+				return String.valueOf(whirlParticleSystem.getRotcenter().y());
 			}
 		});
 		addKeyAction(KeyEvent.VK_L, new IKeyAction() {
@@ -854,17 +783,17 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				rotationTransitionLeft += delta;
+				whirlParticleSystem.setRotationTransitionLeft(whirlParticleSystem.getRotationTransitionLeft() + delta);
 			}
 
 			@Override
 			public void minus() {
-				rotationTransitionLeft -= delta;
+				whirlParticleSystem.setRotationTransitionLeft(whirlParticleSystem.getRotationTransitionLeft() - delta);
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(rotationTransitionLeft);
+				return String.valueOf(whirlParticleSystem.getRotationTransitionLeft());
 			}
 		});
 		addKeyAction(KeyEvent.VK_R, new IKeyAction() {
@@ -893,17 +822,17 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				rotationTransitionRight += delta;
+				whirlParticleSystem.setRotationTransitionRight(whirlParticleSystem.getRotationTransitionRight() + delta);
 			}
 
 			@Override
 			public void minus() {
-				rotationTransitionRight -= delta;
+				whirlParticleSystem.setRotationTransitionRight(whirlParticleSystem.getRotationTransitionRight() - delta);
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(rotationTransitionRight);
+				return String.valueOf(whirlParticleSystem.getRotationTransitionRight());
 			}
 		});
 		addKeyAction(KeyEvent.VK_T, new IKeyAction() {
@@ -932,19 +861,19 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				if (particlesminy + delta <= particlesmaxy) {
-					particlesminy += delta;
+				if (whirlParticleSystem.getParticlesminy() + delta <= whirlParticleSystem.getParticlesmaxy()) {
+					whirlParticleSystem.setParticlesminy(whirlParticleSystem.getParticlesminy() + delta);
 				}
 			}
 
 			@Override
 			public void minus() {
-				particlesminy -= delta;
+				whirlParticleSystem.setParticlesminy(whirlParticleSystem.getParticlesminy() - delta);
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(particlesminy);
+				return String.valueOf(whirlParticleSystem.getParticlesminy());
 			}
 		});
 		addKeyAction(KeyEvent.VK_B, new IKeyAction() {
@@ -973,19 +902,19 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				particlesmaxy += delta;
+				whirlParticleSystem.setParticlesmaxy(whirlParticleSystem.getParticlesmaxy() + delta);
 			}
 
 			@Override
 			public void minus() {
-				if (particlesmaxy - delta >= particlesminy) {
-					particlesmaxy -= delta;
+				if (whirlParticleSystem.getParticlesmaxy() - delta >= whirlParticleSystem.getParticlesminy()) {
+					whirlParticleSystem.setParticlesmaxy(whirlParticleSystem.getParticlesmaxy() - delta);
 				}
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(particlesmaxy);
+				return String.valueOf(whirlParticleSystem.getParticlesmaxy());
 			}
 		});
 		addKeyAction(KeyEvent.VK_G, new IKeyAction() {
@@ -1049,16 +978,17 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public void plus() {
-				frequency += 1;
+				whirlParticleSystem.setFrequency(whirlParticleSystem.getFrequency() + 1);
 			}
 
 			@Override
 			public void minus() {
-				frequency -= 1;
+				whirlParticleSystem.setFrequency(whirlParticleSystem.getFrequency() - 1);
 			}
 
 			@Override
 			public String getValue() {
+				final int frequency = whirlParticleSystem.getFrequency();
 				return String.valueOf(frequency >= 0 ? (double) frequency : (1 / (double) -frequency));
 			}
 		});
@@ -1271,8 +1201,8 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public String getValue() {
-				return String.valueOf(
-						camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
+				return String
+						.valueOf(camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
 			}
 		});
 		addKeyAction(KeyEvent.VK_E, new IKeyAction() {
