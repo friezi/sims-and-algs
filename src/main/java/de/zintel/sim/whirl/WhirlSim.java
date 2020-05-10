@@ -15,15 +15,18 @@ import java.util.function.Function;
 
 import de.zintel.animation.IAnimator;
 import de.zintel.animation.MultiAnimator;
+import de.zintel.camera.BezierCameraAnimator;
 import de.zintel.camera.ICamera3D;
 import de.zintel.camera.PlaneCamera3D;
 import de.zintel.camera.SphereCamera3D;
-import de.zintel.camera.XInputCameraController;
+import de.zintel.camera.XInputCameraAnimator;
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
+import de.zintel.gfx.g3d.BezierPointInterpolater3D;
+import de.zintel.gfx.g3d.StepUnit3D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.AVectorND;
 import de.zintel.math.MathUtils;
@@ -65,7 +68,9 @@ public class WhirlSim extends SimulationScreen {
 
 	private ICamera3D camera;
 
-	private XInputCameraController xInputCameraController;
+	private XInputCameraAnimator xInputCameraAnimator;
+	
+	private BezierCameraAnimator bezierCameraAnimator;
 
 	private WhirlParticleSystem<WhirlParticleAttributes> whirlParticleSystem;
 
@@ -96,6 +101,8 @@ public class WhirlSim extends SimulationScreen {
 	private Collection<IAnimator> animators = new ArrayList<>();
 
 	private boolean doAnimation = true;
+//
+//	private Collection<Vector3D> bpoints=new LinkedList<>();
 
 	/**
 	 * @param title
@@ -117,7 +124,7 @@ public class WhirlSim extends SimulationScreen {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.zintel.sim.SimulationScreen#init(de.zintel.gfx.graphicsubsystem.
+	 * @see de.zintel.sim.SimulationScreen#init(de.zintelgfx.graphicsubsystem.
 	 * IGraphicsSubsystem)
 	 */
 	@Override
@@ -128,9 +135,35 @@ public class WhirlSim extends SimulationScreen {
 		initKeyActions();
 		initWhirlParticleSystem(graphicsSubsystem);
 		initCamera(graphicsSubsystem);
-		initAnimators();
+		initAnimators(graphicsSubsystem);
+//
+//		makeBezier(graphicsSubsystem);
 
 	}
+//
+//	private void makeBezier(IGraphicsSubsystem graphicsSubsystem) {
+//
+//		final BezierPointInterpolater3D bezierPointInterpolater3D = new BezierPointInterpolater3D(makeRandomPoint(graphicsSubsystem),
+//				makeRandomPoint(graphicsSubsystem));
+//
+//		for (int i = 0; i < 10; i++) {
+//			bezierPointInterpolater3D.addControlPoint(makeRandomPoint(graphicsSubsystem));
+//		}
+//		for (StepUnit3D unit : bezierPointInterpolater3D) {
+//			bpoints.add(unit.getPoint());
+//		}
+//	}
+//
+//	private Vector3D makeRandomPoint(IGraphicsSubsystem graphicsSubsystem) {
+//		return new Vector3D(makeRangeValue(graphicsSubsystem.getDimension().width), makeRangeValue(graphicsSubsystem.getDimension().height),
+//				makeRangeValue(graphicsSubsystem.getDimension().height));
+//	}
+//
+//	private double makeRangeValue(int dim) {
+//
+//		int fac = 7;
+//		return MathUtils.RANDOM.nextInt(fac * dim) - (fac / 2) * dim;
+//	}
 
 	private void initWhirlParticleSystem(IGraphicsSubsystem graphicsSubsystem) {
 
@@ -154,7 +187,7 @@ public class WhirlSim extends SimulationScreen {
 
 	}
 
-	private void initAnimators() {
+	private void initAnimators(IGraphicsSubsystem graphicsSubsystem) {
 
 		animators.clear();
 
@@ -164,8 +197,10 @@ public class WhirlSim extends SimulationScreen {
 
 		multiAnimator = new MultiAnimator(Collections.emptyList());
 
-		xInputCameraController = new XInputCameraController(camera, 50);
-		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(xInputCameraController));
+		xInputCameraAnimator = new XInputCameraAnimator(camera, 50);
+		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(xInputCameraAnimator));
+//		
+//		bezierCameraAnimator=new BezierCameraAnimator(camera, rotcenter, graphicsSubsystem.getDimension());
 
 	}
 
@@ -353,6 +388,15 @@ public class WhirlSim extends SimulationScreen {
 								(int) MathUtils.morph(v -> (double) particle.getAttributes().color.getAlpha(), v -> 0D, alphatrans, point.x())));
 			}
 		}
+//
+//		for (Vector3D bpointWorld : bpoints) {
+//			final Vector3D bpoint = project(bpointWorld);
+//			if (bpoint == null) {
+//				continue;
+//			}
+//			if (camera.inRange(bpoint)) {
+//				graphicsSubsystem.drawFilledCircle((int) bpoint.x(), (int) bpoint.y(), 4, () -> Color.YELLOW);}
+//		}
 	}
 
 	private void drawSimpleGrid(IGraphicsSubsystem graphicsSubsystem) {
@@ -508,8 +552,9 @@ public class WhirlSim extends SimulationScreen {
 		}
 
 		multiAnimator.step();
-		xInputCameraController.step();
-
+		xInputCameraAnimator.step();
+//		bezierCameraAnimator.step();
+		
 	}
 
 	private IAnimator newMultiAnimator() {

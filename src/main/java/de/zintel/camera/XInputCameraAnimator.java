@@ -14,7 +14,7 @@ import de.zintel.xinput.IXInputCombinedHandler;
  * @author friedo
  *
  */
-public class XInputCameraController implements IXInputCombinedHandler,IAnimator {
+public class XInputCameraAnimator implements IXInputCombinedHandler, IAnimator {
 
 	private static final double CURVATURE_MAX = 20;
 
@@ -40,7 +40,7 @@ public class XInputCameraController implements IXInputCombinedHandler,IAnimator 
 
 	private boolean doReset = false;
 
-	public XInputCameraController(ICamera3D camera, double maxspeed) {
+	public XInputCameraAnimator(ICamera3D camera, double maxspeed) {
 		this.camera = camera;
 		this.maxspeed = maxspeed;
 	}
@@ -170,7 +170,7 @@ public class XInputCameraController implements IXInputCombinedHandler,IAnimator 
 
 	@Override
 	public void reinit() {
-		doReset=true;
+		doReset = true;
 	}
 
 	@Override
