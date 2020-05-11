@@ -197,10 +197,10 @@ public class WhirlSim extends SimulationScreen {
 
 		multiAnimator = new MultiAnimator(Collections.emptyList());
 
-		xInputCameraAnimator = new XInputCameraAnimator(camera, 50);
-		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(xInputCameraAnimator));
-//		
-//		bezierCameraAnimator=new BezierCameraAnimator(camera, rotcenter, graphicsSubsystem.getDimension());
+//		xInputCameraAnimator = new XInputCameraAnimator(camera, 50);
+//		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(xInputCameraAnimator));
+		
+		bezierCameraAnimator=new BezierCameraAnimator(camera, rotcenter, graphicsSubsystem.getDimension());
 
 	}
 
@@ -552,8 +552,8 @@ public class WhirlSim extends SimulationScreen {
 		}
 
 		multiAnimator.step();
-		xInputCameraAnimator.step();
-//		bezierCameraAnimator.step();
+//		xInputCameraAnimator.step();
+		bezierCameraAnimator.step();
 		
 	}
 
