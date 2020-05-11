@@ -16,6 +16,8 @@ import de.zintel.xinput.IXInputCombinedHandler;
  */
 public class XInputCameraAnimator implements IXInputCombinedHandler, IAnimator {
 
+	private final Vector3D center = new Vector3D(0.0, 540.0, 200.0);
+
 	private static final double CURVATURE_MAX = 20;
 
 	private final ICamera3D camera;
@@ -40,6 +42,8 @@ public class XInputCameraAnimator implements IXInputCombinedHandler, IAnimator {
 
 	private boolean doReset = false;
 
+	private boolean doCenter = false;
+
 	public XInputCameraAnimator(ICamera3D camera, double maxspeed) {
 		this.camera = camera;
 		this.maxspeed = maxspeed;
@@ -52,6 +56,28 @@ public class XInputCameraAnimator implements IXInputCombinedHandler, IAnimator {
 			camera.reset();
 			doReset = false;
 
+		}
+
+		if (doCenter) {
+
+			final Vector3D pcenter = camera.getTransformationToCamera().transformPoint(center);
+
+			// rotation to center
+			final Vector3D vpoint = camera.getViewpoint();
+			final Vector3D cnorm = Vector3D.substract(pcenter, vpoint);
+			final double cnlen = cnorm.length();
+			if (cnlen == 0) {
+				// camera has reached center, no adjustment possible
+				return;
+			}
+
+			final Vector3D snorm = new Vector3D(0, 0, 1);
+			final Vector3D rotnorm = Vector3D.crossProduct(cnorm, snorm);
+			final double angle = Math.asin(rotnorm.length() / (Math.abs(cnlen) * Math.abs(snorm.length())));
+
+			camera.rotate(new Axis3D(vpoint, Vector3D.add(vpoint, rotnorm)), -angle);
+
+			doCenter = false;
 		}
 
 		if (hrotationspeed != 0) {
@@ -152,6 +178,8 @@ public class XInputCameraAnimator implements IXInputCombinedHandler, IAnimator {
 
 		if (button == XInputButton.X && pressed) {
 			doReset = true;
+		} else if (button == XInputButton.B && pressed) {
+			doCenter = true;
 		} else if (button == XInputButton.RIGHT_SHOULDER) {
 			buttonRB = pressed;
 		} else if (button == XInputButton.LEFT_SHOULDER) {

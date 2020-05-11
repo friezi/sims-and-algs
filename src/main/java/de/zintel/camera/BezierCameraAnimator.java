@@ -4,7 +4,10 @@
 package de.zintel.camera;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.zintel.animation.IAnimator;
@@ -27,14 +30,23 @@ public class BezierCameraAnimator implements IAnimator {
 
 	private final Dimension dimension;
 
+	private final Vector3D mid;
+
 	private BezierPointInterpolater3D bezierPointInterpolater3D;
 
 	private Vector3D previousPoint = null;
+
+	private int counter = 0;
+
+	private Collection<Vector3D> pathpoints = Collections.emptyList();
+
+	private Iterator<Vector3D> pathiterator = null;
 
 	public BezierCameraAnimator(ICamera3D camera, Vector3D center, Dimension dimension) {
 		this.camera = camera;
 		this.center = center;
 		this.dimension = dimension;
+		this.mid = new Vector3D(dimension.getWidth() / 2, dimension.getHeight() / 2, 0);
 	}
 
 	/*
@@ -55,11 +67,16 @@ public class BezierCameraAnimator implements IAnimator {
 	@Override
 	public void step() {
 
-		if (bezierPointInterpolater3D == null || !bezierPointInterpolater3D.hasNext()) {
+		if (bezierPointInterpolater3D == null || !pathiterator.hasNext()) {
 			makeBezier();
 		} else {
 
-			final Vector3D next = bezierPointInterpolater3D.next().getPoint();
+			final Vector3D next = pathiterator.next();
+
+			counter++;
+			if (counter % 3 != 0) {
+				return;
+			}
 
 			final CoordinateTransformation3D toCamera = camera.getTransformationToCamera();
 			final Vector3D ppoint = toCamera.transformPoint(next);
@@ -72,18 +89,18 @@ public class BezierCameraAnimator implements IAnimator {
 
 			// rotation to center
 			final Vector3D vpoint = camera.getViewpoint();
-			final Vector3D cnorm = Vector3D.substract(vpoint, pcenter);
+			final Vector3D cnorm = Vector3D.substract(pcenter, vpoint);
 			final double cnlen = cnorm.length();
 			if (cnlen == 0) {
 				// camera has reached center, no adjustment possible
 				return;
 			}
 
-			final Vector3D snorm = new Vector3D(0, 0, -1);
+			final Vector3D snorm = new Vector3D(0, 0, 1);
 			final Vector3D rotnorm = Vector3D.crossProduct(cnorm, snorm);
 			final double angle = Math.asin(rotnorm.length() / (Math.abs(cnlen) * Math.abs(snorm.length())));
 
-			camera.rotate(new Axis3D(vpoint, Vector3D.add(vpoint, rotnorm)), angle);
+			camera.rotate(new Axis3D(vpoint, Vector3D.add(vpoint, rotnorm)), -angle);
 
 		}
 	}
@@ -100,13 +117,21 @@ public class BezierCameraAnimator implements IAnimator {
 
 	private void makeBezier() {
 
-		bezierPointInterpolater3D = new BezierPointInterpolater3D(previousPoint == null ? makeRandomPoint() : previousPoint,
-				makeRandomPoint());
+		bezierPointInterpolater3D = new BezierPointInterpolater3D(previousPoint == null ? makeRandomPoint() : previousPoint, makeRandomPoint());
 
-		int maxControllPoints = MathUtils.RANDOM.nextInt(15) + 1;
+		int maxControllPoints = MathUtils.RANDOM.nextInt(8) + 1;
 		for (int i = 0; i < maxControllPoints; i++) {
 			bezierPointInterpolater3D.addControlPoint(makeRandomPoint());
 		}
+
+		final LinkedList<Vector3D> list = new LinkedList<>();
+		for (final StepUnit3D unit : bezierPointInterpolater3D) {
+			list.add(unit.getPoint());
+		}
+		pathpoints = list;
+		pathiterator = pathpoints.iterator();
+
+		counter = 0;
 	}
 
 	private Vector3D makeRandomPoint() {
@@ -117,6 +142,10 @@ public class BezierCameraAnimator implements IAnimator {
 
 		int fac = 7;
 		return MathUtils.RANDOM.nextInt(fac * dim) - (fac / 2) * dim;
+	}
+
+	public Collection<Vector3D> getPathpoints() {
+		return pathpoints;
 	}
 
 }

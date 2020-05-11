@@ -69,7 +69,7 @@ public class WhirlSim extends SimulationScreen {
 	private ICamera3D camera;
 
 	private XInputCameraAnimator xInputCameraAnimator;
-	
+
 	private BezierCameraAnimator bezierCameraAnimator;
 
 	private WhirlParticleSystem<WhirlParticleAttributes> whirlParticleSystem;
@@ -101,8 +101,8 @@ public class WhirlSim extends SimulationScreen {
 	private Collection<IAnimator> animators = new ArrayList<>();
 
 	private boolean doAnimation = true;
-//
-//	private Collection<Vector3D> bpoints=new LinkedList<>();
+	//
+	// private Collection<Vector3D> bpoints=new LinkedList<>();
 
 	/**
 	 * @param title
@@ -136,34 +136,37 @@ public class WhirlSim extends SimulationScreen {
 		initWhirlParticleSystem(graphicsSubsystem);
 		initCamera(graphicsSubsystem);
 		initAnimators(graphicsSubsystem);
-//
-//		makeBezier(graphicsSubsystem);
+		//
+		// makeBezier(graphicsSubsystem);
 
 	}
-//
-//	private void makeBezier(IGraphicsSubsystem graphicsSubsystem) {
-//
-//		final BezierPointInterpolater3D bezierPointInterpolater3D = new BezierPointInterpolater3D(makeRandomPoint(graphicsSubsystem),
-//				makeRandomPoint(graphicsSubsystem));
-//
-//		for (int i = 0; i < 10; i++) {
-//			bezierPointInterpolater3D.addControlPoint(makeRandomPoint(graphicsSubsystem));
-//		}
-//		for (StepUnit3D unit : bezierPointInterpolater3D) {
-//			bpoints.add(unit.getPoint());
-//		}
-//	}
-//
-//	private Vector3D makeRandomPoint(IGraphicsSubsystem graphicsSubsystem) {
-//		return new Vector3D(makeRangeValue(graphicsSubsystem.getDimension().width), makeRangeValue(graphicsSubsystem.getDimension().height),
-//				makeRangeValue(graphicsSubsystem.getDimension().height));
-//	}
-//
-//	private double makeRangeValue(int dim) {
-//
-//		int fac = 7;
-//		return MathUtils.RANDOM.nextInt(fac * dim) - (fac / 2) * dim;
-//	}
+	//
+	// private void makeBezier(IGraphicsSubsystem graphicsSubsystem) {
+	//
+	// final BezierPointInterpolater3D bezierPointInterpolater3D = new
+	// BezierPointInterpolater3D(makeRandomPoint(graphicsSubsystem),
+	// makeRandomPoint(graphicsSubsystem));
+	//
+	// for (int i = 0; i < 10; i++) {
+	// bezierPointInterpolater3D.addControlPoint(makeRandomPoint(graphicsSubsystem));
+	// }
+	// for (StepUnit3D unit : bezierPointInterpolater3D) {
+	// bpoints.add(unit.getPoint());
+	// }
+	// }
+	//
+	// private Vector3D makeRandomPoint(IGraphicsSubsystem graphicsSubsystem) {
+	// return new
+	// Vector3D(makeRangeValue(graphicsSubsystem.getDimension().width),
+	// makeRangeValue(graphicsSubsystem.getDimension().height),
+	// makeRangeValue(graphicsSubsystem.getDimension().height));
+	// }
+	//
+	// private double makeRangeValue(int dim) {
+	//
+	// int fac = 7;
+	// return MathUtils.RANDOM.nextInt(fac * dim) - (fac / 2) * dim;
+	// }
 
 	private void initWhirlParticleSystem(IGraphicsSubsystem graphicsSubsystem) {
 
@@ -197,10 +200,11 @@ public class WhirlSim extends SimulationScreen {
 
 		multiAnimator = new MultiAnimator(Collections.emptyList());
 
-//		xInputCameraAnimator = new XInputCameraAnimator(camera, 50);
-//		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(xInputCameraAnimator));
-		
-		bezierCameraAnimator=new BezierCameraAnimator(camera, rotcenter, graphicsSubsystem.getDimension());
+		// xInputCameraAnimator = new XInputCameraAnimator(camera, 50);
+		// addXInputHandle(new
+		// XInputHandle(0).setXInputCombinedHandler(xInputCameraAnimator));
+
+		bezierCameraAnimator = new BezierCameraAnimator(camera, rotcenter, graphicsSubsystem.getDimension());
 
 	}
 
@@ -389,13 +393,15 @@ public class WhirlSim extends SimulationScreen {
 			}
 		}
 //
-//		for (Vector3D bpointWorld : bpoints) {
+//		for (Vector3D bpointWorld : bezierCameraAnimator.getPathpoints()) {
 //			final Vector3D bpoint = project(bpointWorld);
 //			if (bpoint == null) {
 //				continue;
 //			}
 //			if (camera.inRange(bpoint)) {
-//				graphicsSubsystem.drawFilledCircle((int) bpoint.x(), (int) bpoint.y(), 4, () -> Color.YELLOW);}
+//				final Color color = new Color(0, 0, 80, 20);
+//				graphicsSubsystem.drawFilledCircle((int) bpoint.x(), (int) bpoint.y(), 4, () -> color);
+//			}
 //		}
 	}
 
@@ -534,7 +540,7 @@ public class WhirlSim extends SimulationScreen {
 		if (t_point.z() > whirlParticleSystem.getRotcenter().z()) {
 
 			float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
-			final float brightness = (float) (hsb[2] * whirlParticleSystem.getRotcenter().z() / (1.1 * t_point.z()));
+			final float brightness = (float) (hsb[2] * (100 + whirlParticleSystem.getRotcenter().z()) / (100 + t_point.z()));
 			return Color.getHSBColor(hsb[0], hsb[1], brightness);
 
 		} else {
@@ -552,9 +558,9 @@ public class WhirlSim extends SimulationScreen {
 		}
 
 		multiAnimator.step();
-//		xInputCameraAnimator.step();
+		// xInputCameraAnimator.step();
 		bezierCameraAnimator.step();
-		
+
 	}
 
 	private IAnimator newMultiAnimator() {
