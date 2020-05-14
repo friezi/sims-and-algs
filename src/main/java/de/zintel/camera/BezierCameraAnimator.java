@@ -4,7 +4,6 @@
 package de.zintel.camera;
 
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -34,7 +33,7 @@ public class BezierCameraAnimator implements IAnimator {
 
 	private BezierPointInterpolater3D bezierPointInterpolater3D;
 
-	private Vector3D previousPoint = null;
+	private Vector3D previousPoint;
 
 	private int counter = 0;
 
@@ -47,6 +46,7 @@ public class BezierCameraAnimator implements IAnimator {
 		this.center = center;
 		this.dimension = dimension;
 		this.mid = new Vector3D(dimension.getWidth() / 2, dimension.getHeight() / 2, 0);
+		this.previousPoint = camera.getTransformationToCamera().inverseTransformPoint(camera.getViewpoint());
 	}
 
 	/*
@@ -74,7 +74,8 @@ public class BezierCameraAnimator implements IAnimator {
 			final Vector3D next = pathiterator.next();
 
 			counter++;
-			if (counter % 3 != 0) {
+			if (counter % 5 != 0) {
+				step();
 				return;
 			}
 
