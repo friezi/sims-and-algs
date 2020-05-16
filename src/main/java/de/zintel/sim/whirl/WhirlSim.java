@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 
+import com.github.strikerx3.jxinput.enums.XInputButton;
+
 import de.zintel.animation.IAnimator;
 import de.zintel.animation.MultiAnimator;
 import de.zintel.camera.BezierCameraAnimator;
@@ -25,8 +27,6 @@ import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
-import de.zintel.gfx.g3d.BezierPointInterpolater3D;
-import de.zintel.gfx.g3d.StepUnit3D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.AVectorND;
 import de.zintel.math.MathUtils;
@@ -68,9 +68,11 @@ public class WhirlSim extends SimulationScreen {
 
 	private ICamera3D camera;
 
+	private BezierCameraAnimator bezierCameraAnimator;
+
 	private XInputCameraAnimator xInputCameraAnimator;
 
-	private BezierCameraAnimator bezierCameraAnimator;
+	private IAnimator cameraAnimator;
 
 	private WhirlParticleSystem<WhirlParticleAttributes> whirlParticleSystem;
 
@@ -100,9 +102,9 @@ public class WhirlSim extends SimulationScreen {
 
 	private Collection<IAnimator> animators = new ArrayList<>();
 
-	private boolean doAnimation = true;
-	//
-	// private Collection<Vector3D> bpoints=new LinkedList<>();
+	private volatile boolean doAnimation = true;
+
+	private volatile boolean isXInputcamera = true;
 
 	/**
 	 * @param title
@@ -200,11 +202,10 @@ public class WhirlSim extends SimulationScreen {
 
 		multiAnimator = new MultiAnimator(Collections.emptyList());
 
-		// xInputCameraAnimator = new XInputCameraAnimator(camera, 50);
-		// addXInputHandle(new
-		// XInputHandle(0).setXInputCombinedHandler(xInputCameraAnimator));
+		xInputCameraAnimator = new XInputCameraAnimator(camera, 50);
+		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(xInputCameraAnimator));
 
-		bezierCameraAnimator = new BezierCameraAnimator(camera, rotcenter, graphicsSubsystem.getDimension());
+		cameraAnimator = xInputCameraAnimator;
 
 	}
 
@@ -392,17 +393,18 @@ public class WhirlSim extends SimulationScreen {
 								(int) MathUtils.morph(v -> (double) particle.getAttributes().color.getAlpha(), v -> 0D, alphatrans, point.x())));
 			}
 		}
-//
-//		for (Vector3D bpointWorld : bezierCameraAnimator.getPathpoints()) {
-//			final Vector3D bpoint = project(bpointWorld);
-//			if (bpoint == null) {
-//				continue;
-//			}
-//			if (camera.inRange(bpoint)) {
-//				final Color color = new Color(0, 0, 80, 20);
-//				graphicsSubsystem.drawFilledCircle((int) bpoint.x(), (int) bpoint.y(), 4, () -> color);
-//			}
-//		}
+		//
+		// for (Vector3D bpointWorld : bezierCameraAnimator.getPathpoints()) {
+		// final Vector3D bpoint = project(bpointWorld);
+		// if (bpoint == null) {
+		// continue;
+		// }
+		// if (camera.inRange(bpoint)) {
+		// final Color color = new Color(0, 0, 80, 20);
+		// graphicsSubsystem.drawFilledCircle((int) bpoint.x(), (int)
+		// bpoint.y(), 4, () -> color);
+		// }
+		// }
 	}
 
 	private void drawSimpleGrid(IGraphicsSubsystem graphicsSubsystem) {
@@ -558,8 +560,7 @@ public class WhirlSim extends SimulationScreen {
 		}
 
 		multiAnimator.step();
-		// xInputCameraAnimator.step();
-		bezierCameraAnimator.step();
+		cameraAnimator.step();
 
 	}
 
@@ -587,6 +588,16 @@ public class WhirlSim extends SimulationScreen {
 	 */
 	@Override
 	protected void calculate(Dimension dimension) throws Exception {
+
+		if (isXInputcamera) {
+			cameraAnimator = xInputCameraAnimator;
+			bezierCameraAnimator = null;
+		} else {
+			if (bezierCameraAnimator == null) {
+				bezierCameraAnimator = new BezierCameraAnimator(camera, rotcenter, getGraphicsSubsystem().getDimension());
+			}
+			cameraAnimator = bezierCameraAnimator;
+		}
 
 		if (doAnimation) {
 			doAnimators();
@@ -1238,6 +1249,15 @@ public class WhirlSim extends SimulationScreen {
 				return String.valueOf(doAnimation);
 			}
 		});
+	}
+
+	@Override
+	public void buttonChanged(XInputButton button, boolean pressed) {
+
+		if (button == XInputButton.Y && pressed) {
+			isXInputcamera = !isXInputcamera;
+		}
+
 	}
 
 	/*
