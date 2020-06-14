@@ -144,14 +144,14 @@ public class FadingText implements IGfxComponent {
 	}
 
 	private int interpolate(int v1, int v2, int iteration, int maxIterations) {
-		return MathUtils.interpolate(v1, v2, iteration, maxIterations, (x, max) -> {
-			return x * Math.sin((Math.PI * x) / (2 * max));
-			// return x * Math.sin((Math.PI * x) / (2 * max));
-			// return x * Math.tanh(40*(double)x/max);
-			// return x * Math.sin(Math.acos(-1+x/(double)max));
-			// return x * Math.sqrt((double)x / max);
-			// return x * x/max;
-		});
+		return MathUtils.interpolate(v1, v2, iteration, maxIterations, (x, max) -> 
+			x * Math.sin((Math.PI * x) / (2 * max))
+			// x * Math.sin((Math.PI * x) / (2 * max))
+			// x * Math.tanh(40*(double)x/max)
+			// x * Math.sin(Math.acos(-1+x/(double)max))
+			// x * Math.sqrt((double)x / max)
+			// x * x/max
+		);
 	}
 
 	@Override
