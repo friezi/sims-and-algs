@@ -46,9 +46,7 @@ public final class MathUtils {
 	}
 
 	public static int interpolateLinear(int start, int end, int iteration, int maxIterations) {
-		return interpolate(start, end, iteration, maxIterations, (x, max) -> {
-			return x;
-		});
+		return interpolate(start, end, iteration, maxIterations, (x, max) -> x);
 	}
 
 	public static double interpolateLinearReal(double start, double end, int iteration, int maxIterations) {
@@ -56,9 +54,7 @@ public final class MathUtils {
 	}
 
 	public static int interpolateLinearMoreScattering(int start, int end, int iteration, int maxIterations) {
-		return interpolateMoreScattering(start, end, iteration, maxIterations, (x, max) -> {
-			return x;
-		});
+		return interpolateMoreScattering(start, end, iteration, maxIterations, (x, max) -> x);
 	}
 
 	public static int interpolateTexture(int start, int end, int iteration, int maxIterations) {
@@ -66,9 +62,8 @@ public final class MathUtils {
 	}
 
 	public static int interpolateMisc(int start, int end, int iteration, int maxIterations) {
-		return interpolate(start, end, iteration, maxIterations, (x, max) -> {
-			return x + (x < max / 2 ? 1 : -1) * 100 * Math.sin((x * Math.PI) / max) * Math.cos((x * Math.PI) / max);
-		});
+		return interpolate(start, end, iteration, maxIterations,
+				(x, max) -> x + (x < max / 2 ? 1 : -1) * 100 * Math.sin((x * Math.PI) / max) * Math.cos((x * Math.PI) / max));
 	}
 
 	public static int interpolate(int start, int end, int iteration, int maxIterations, StepProjection p) {
