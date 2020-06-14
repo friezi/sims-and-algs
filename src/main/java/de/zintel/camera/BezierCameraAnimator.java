@@ -41,6 +41,13 @@ public class BezierCameraAnimator implements IAnimator {
 
 	private Iterator<Vector3D> pathiterator = null;
 
+	private boolean logging = false;
+
+	// for smooth centering
+	private int mergeWithCenterStep = 0;
+
+	private int mergeWithCenterSteps = 120;
+
 	public BezierCameraAnimator(ICamera3D camera, Vector3D center, Dimension dimension) {
 		this.camera = camera;
 		this.center = center;
@@ -100,8 +107,13 @@ public class BezierCameraAnimator implements IAnimator {
 			final Vector3D snorm = new Vector3D(0, 0, 1);
 			final Vector3D rotnorm = Vector3D.crossProduct(cnorm, snorm);
 			final double angle = Math.asin(rotnorm.length() / (Math.abs(cnlen) * Math.abs(snorm.length())));
+			final double effectiveAngle = MathUtils.interpolateLinearReal(0, angle, mergeWithCenterStep, mergeWithCenterSteps);
 
-			camera.rotate(new Axis3D(vpoint, Vector3D.add(vpoint, rotnorm)), -angle);
+			camera.rotate(new Axis3D(vpoint, Vector3D.add(vpoint, rotnorm)), -effectiveAngle);
+
+			if (mergeWithCenterStep < mergeWithCenterSteps) {
+				mergeWithCenterStep++;
+			}
 
 		}
 	}
@@ -118,7 +130,8 @@ public class BezierCameraAnimator implements IAnimator {
 
 	private void makeBezier() {
 
-		bezierPointInterpolater3D = new BezierPointInterpolater3D(previousPoint == null ? makeRandomPoint() : previousPoint, makeRandomPoint());
+		bezierPointInterpolater3D = new BezierPointInterpolater3D(previousPoint == null ? makeRandomPoint() : previousPoint,
+				makeRandomPoint());
 
 		int maxControllPoints = MathUtils.RANDOM.nextInt(8) + 1;
 		for (int i = 0; i < maxControllPoints; i++) {
@@ -147,6 +160,14 @@ public class BezierCameraAnimator implements IAnimator {
 
 	public Collection<Vector3D> getPathpoints() {
 		return pathpoints;
+	}
+
+	public boolean isLogging() {
+		return logging;
+	}
+
+	public void setLogging(boolean logging) {
+		this.logging = logging;
 	}
 
 }
