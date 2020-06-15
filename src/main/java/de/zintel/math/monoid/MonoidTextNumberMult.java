@@ -9,14 +9,14 @@ import java.util.function.BiFunction;
  * @author friedemann.zintel
  *
  */
-public class MonoidStringNumberSum extends MonoidString {
+public class MonoidTextNumberMult extends MonoidTextRepr {
 
-	private static final String NEUTRAL = "0";
+	private static final String NEUTRAL = "1";
 
 	private static final BiFunction<String, String, String> conc = (a, b) -> cat(a, b);
 
-	public MonoidStringNumberSum() {
-		super("+", NEUTRAL, conc);
+	public MonoidTextNumberMult() {
+		super("*", NEUTRAL, conc);
 	}
 
 	protected static String cat(final String a, final String b) {
@@ -25,14 +25,15 @@ public class MonoidStringNumberSum extends MonoidString {
 			return b;
 		} else if (NEUTRAL.equals(b)) {
 			return a;
-		} else if (("-" + a).equals(b) || ("-" + b).equals(a)) {
+		} else if (("0").equals(b) || ("0").equals(a)) {
 			return "0";
 		} else {
-			if (a.startsWith("-")) {
-				return "(" + b + a + ")";
-			} else {
-				return "(" + a + (b.startsWith("-") ? "" : "+") + b + ")";
+			if (a.startsWith("-") && b.startsWith("-")) {
+				return a.substring(1) + "*" + b.substring(1);
+			} else if (b.startsWith("-")) {
+				return b + "*" + a;
 			}
+			return a + "*" + b;
 		}
 
 	}

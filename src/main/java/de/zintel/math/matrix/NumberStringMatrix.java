@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import de.zintel.math.monoid.MonoidStringNumberMult;
-import de.zintel.math.monoid.MonoidStringNumberSum;
+import de.zintel.math.monoid.MonoidTextNumberMult;
+import de.zintel.math.monoid.MonoidTextNumberSum;
 
 public class NumberStringMatrix extends AMatrix<String, NumberStringMatrix> {
 
 	private static final MatrixConstructionBundle<String, NumberStringMatrix> CONSTRUCTION_BUNDLE = new MatrixConstructionBundle<>(
 			(bundle, field, rows, columns) -> new NumberStringMatrix(bundle, field, rows, columns),
-			(rows, columns) -> new String[rows][columns], new MonoidStringNumberSum(), new MonoidStringNumberMult());
+			(rows, columns) -> new String[rows][columns], new MonoidTextNumberSum(), new MonoidTextNumberMult());
 
 	private static final Function<List<String>, Integer> amounter = List::size;
 
