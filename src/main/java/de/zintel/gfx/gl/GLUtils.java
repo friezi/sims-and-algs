@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 
+import de.zintel.math.MathUtils;
 import de.zintel.math.Vector2DPlain;
 
 /**
@@ -228,11 +229,7 @@ public final class GLUtils {
 	}
 
 	public static double projectHomogenous(int value, int max) {
-		return 2 * normalize(value, max) - 1;
-	}
-
-	public static double normalize(int value, int max) {
-		return (double) value / max;
+		return MathUtils.morphRange(0, max, -1, 1, value);
 	}
 
 }
