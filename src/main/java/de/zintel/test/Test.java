@@ -69,6 +69,7 @@ public class Test {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		realIp();
 		connect();
 	}
 
@@ -79,7 +80,7 @@ public class Test {
 		int maxIt = 10;
 
 		for (int i = 1; i <= maxIt; i++) {
-			System.out.println(MathUtils.interpolateLinearReal(start, end, i, maxIt));
+			System.out.println(MathUtils.interpolateReal(start, end, i, maxIt,(x, max) -> x));
 		}
 
 	}

@@ -46,19 +46,19 @@ public final class MathUtils {
 	}
 
 	public static int interpolateLinear(int start, int end, int iteration, int maxIterations) {
-		return interpolate(start, end, iteration, maxIterations, (x, max) -> x);
+		return (int) interpolateLinearReal(start, end, iteration, maxIterations);
 	}
 
 	public static double interpolateLinearReal(double start, double end, int iteration, int maxIterations) {
-		return interpolateRealMorph(start, end, iteration, maxIterations, x -> morphRange(start, end, 0, 1, x));
+		return interpolateReal(start, end, iteration, maxIterations, (x, max) -> x);
 	}
 
 	public static int interpolateLinearMoreScattering(int start, int end, int iteration, int maxIterations) {
 		return interpolateMoreScattering(start, end, iteration, maxIterations, (x, max) -> x);
 	}
 
-	public static int interpolateTexture(int start, int end, int iteration, int maxIterations) {
-		return interpolateMisc(start, end, iteration, maxIterations);
+	public static int interpolate(int start, int end, int iteration, int maxIterations, StepProjection p) {
+		return (int) interpolateReal(start, end, iteration, maxIterations, p);
 	}
 
 	public static int interpolateMisc(int start, int end, int iteration, int maxIterations) {
@@ -66,30 +66,15 @@ public final class MathUtils {
 				(x, max) -> x + (x < max / 2 ? 1 : -1) * 100 * Math.sin((x * Math.PI) / max) * Math.cos((x * Math.PI) / max));
 	}
 
-	public static int interpolate(int start, int end, int iteration, int maxIterations, StepProjection p) {
-		return (int) interpolateReal(start, end, iteration, maxIterations, p);
-	}
-
 	public static double interpolateReal(double start, double end, int iteration, int maxIterations, StepProjection p) {
 
 		final int maxSteps = maxIterations - 1;
 		final int step = iteration - 1;
+		// we could directly use this expression as transition-function, but it
+		// would require additional casts int-> double and double -> int
 		double projectedStep = Math.abs(p.project(step, maxSteps)) % (maxSteps + 1);
 
 		return maxSteps <= 0 ? start : morph(x -> start, x -> end, x -> x, x -> (double) maxSteps, projectedStep);
-	}
-
-	public static double interpolateRealMorph(double start, double end, int iteration, int maxIterations,
-			final Function<Double, Double> morphFactor) {
-
-		return interpolateRealMorph(start, end, iteration, maxIterations, morphFactor, (x, max) -> x);
-	}
-
-	public static double interpolateRealMorph(double start, double end, int iteration, int maxIterations, final Function<Double, Double> morphFactor,
-			StepProjection p) {
-
-		final int maxSteps = maxIterations - 1;
-		return maxSteps <= 0 ? start : morph(x -> start, x -> end, morphFactor, interpolateReal(start, end, iteration, maxIterations, p));
 	}
 
 	/**
@@ -115,23 +100,28 @@ public final class MathUtils {
 	 *            start-function
 	 * @param fend
 	 *            end-function
-	 * @param ftransDividend
+	 * @param ftransNumerator
 	 *            transition-function: if ftrans:double->[0;1] in such way, that
 	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a morph from
 	 *            fstart to fend well take place
-	 * @param ftransDivisor
+	 * @param ftransDenominator
 	 *            for precision-reasons it's possible to split up the
 	 *            ftrans-function into two functions, so that the calculation
 	 *            will be
-	 *            (ftransDividend()*(...))/ftransDivisor()=(ftransDividend/ftransDivisor)*(...)
+	 *            (ftransNumerator()*(...))/ftransDenominator()=(ftransNumerator/ftransDenominator)*(...)
 	 * @param x
 	 *            value x
 	 * @return morphed value
 	 */
 	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend,
-			final Function<Double, Double> ftransDividend, final Function<Double, Double> ftransDivisor, final double x) {
+			final Function<Double, Double> ftransNumerator, final Function<Double, Double> ftransDenominator, final double x) {
+		
 		final Double start = fstart.apply(x);
-		return start + (ftransDividend.apply(x) * (fend.apply(x) - start)) / ftransDivisor.apply(x);
+		final Double end = fend.apply(x);
+		final Double numerator = ftransNumerator.apply(x);
+		final Double denominator = ftransDenominator.apply(x);
+		
+		return start + (numerator * (end - start)) / denominator;
 	}
 
 	/**
