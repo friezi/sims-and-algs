@@ -37,10 +37,10 @@ public class WhirlParticleSystem<A> extends ParticleSystem<WhirlParticle<A>, A> 
 
 	private int frequency = 1;
 
-	public WhirlParticleSystem(Function<WhirlParticle<A>, A> attributeInitializer, Set<WhirlParticle<A>> particles, Vector3D rotcenter, double deltaxmin,
-			double deltaxmax, double particlesminy, double particlesmaxy, double finalCircleRadius) {
+	public WhirlParticleSystem(Function<WhirlParticle<A>, A> attributeInitializer, Set<WhirlParticle<A>> particles, Vector3D rotcenter,
+			double deltaxmin, double deltaxmax, double particlesminy, double particlesmaxy, double finalCircleRadius) {
 		super(attributeInitializer, particles);
-		this.rotcenter=rotcenter;
+		this.rotcenter = rotcenter;
 		this.deltaxmin = deltaxmin;
 		this.deltaxmax = deltaxmax;
 		this.particlesminy = particlesminy;
@@ -64,6 +64,7 @@ public class WhirlParticleSystem<A> extends ParticleSystem<WhirlParticle<A>, A> 
 			final Function<Double, Double> rottrans = x -> MathUtils
 					.sigmoid(MathUtils.morphRange(0, width, rotationTransitionLeft, rotationTransitionRight, point.x()));
 
+			// particles velocity in x direction should increase by progressing in x direction
 			point.setX(point.x() + MathUtils.morph(v -> particle.velocity, v -> particle.velocity + 10, rottrans, point.x()));
 
 			if (point.x() > width) {
@@ -73,16 +74,20 @@ public class WhirlParticleSystem<A> extends ParticleSystem<WhirlParticle<A>, A> 
 
 			}
 
+			// the radius should decrease by progressing in x direction
 			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius, rottrans,
 					point.x());
 
+			// the angular velocity should increase by progressing in x direction
 			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, point.x());
 
+			// rotation on x axis
 			point.setZ(Math.sin(theta(particle.angle)) * cradius + rotcenter.z());
 			point.setY(rotcenter.y() + (particle.initialPosition.y() < rotcenter.y() ? -1 : 1) * Math.cos(theta(particle.angle)) * cradius);
 
 		}
 
+		// frequency of particle generation
 		if (validByFrequency(frequency)) {
 			final WhirlParticle<A> particle = new WhirlParticle<A>(
 					new Vector3D(deltaxmin, MathUtils.makeRandom((int) particlesminy, (int) particlesmaxy), rotcenter.z()),
