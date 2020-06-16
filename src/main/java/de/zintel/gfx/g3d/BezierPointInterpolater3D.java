@@ -103,7 +103,6 @@ public class BezierPointInterpolater3D extends APointInterpolater3D {
 			}
 
 			maxIterations = getMaxLength() + 1;
-			iteration++;
 
 			while (iteration <= maxIterations) {
 

@@ -99,6 +99,10 @@ public class WhirlParticleSystem<A> extends ParticleSystem<WhirlParticle<A>, A> 
 		setParticles(newparticles);
 	}
 
+	/** degree -> radian
+	 * @param degree
+	 * @return
+	 */
 	private double theta(final double degree) {
 		return MathUtils.morphRange(0, 360, 0, 2 * Math.PI, ((int) degree) % 360);
 	}

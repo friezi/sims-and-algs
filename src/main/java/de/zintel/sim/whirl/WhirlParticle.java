@@ -7,6 +7,9 @@ public class WhirlParticle<A> extends Particle<A> {
 
 	public final double velocity;
 
+	/**
+	 * degree (not radian!)
+	 */
 	public double angle = 0;
 
 	public final Vector3D initialPosition;

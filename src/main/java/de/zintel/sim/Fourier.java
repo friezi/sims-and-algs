@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -20,13 +22,17 @@ import javax.swing.JPanel;
 
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.g2d.BezierPointInterpolater;
+import de.zintel.gfx.g3d.FourierPointGenerator;
+import de.zintel.gfx.g3d.FourierPointGenerator.FourierCircle;
+import de.zintel.math.MathUtils;
+import de.zintel.math.Vector3D;
 
 /**
  * @author Friedemann
  *
  */
 @SuppressWarnings("serial")
-public class Bezier extends JPanel implements MouseListener, ActionListener {
+public class Fourier extends JPanel implements MouseListener, ActionListener {
 
 	private static final int MAX_TEXTURE_X = 1000;
 	private static final int MAX_TEXTURE_Y = 260;
@@ -40,9 +46,9 @@ public class Bezier extends JPanel implements MouseListener, ActionListener {
 
 	private JFrame mainFrame;
 
-	private BezierPointInterpolater interpolater;
+	private FourierPointGenerator interpolater;
 
-	private List<Point> points = new ArrayList<>();
+	private List<Vector3D> points = new LinkedList<>();
 
 	private int iterations = 0;
 
@@ -54,7 +60,7 @@ public class Bezier extends JPanel implements MouseListener, ActionListener {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		Bezier application = new Bezier();
+		Fourier application = new Fourier();
 		application.start();
 
 	}
@@ -63,7 +69,7 @@ public class Bezier extends JPanel implements MouseListener, ActionListener {
 
 		init();
 
-		mainFrame = new JFrame("Bezier");
+		mainFrame = new JFrame("Fourier");
 		mainFrame.addMouseListener(this);
 		mainFrame.setSize(screenParameters.WIDTH, screenParameters.HEIGHT);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -80,11 +86,11 @@ public class Bezier extends JPanel implements MouseListener, ActionListener {
 	private void init() {
 
 		points.clear();
-		interpolater = new BezierPointInterpolater(makeRandomPoint(), makeRandomPoint(), AUTOCONNECT_POINTS, SCATTERING);
-
-		iterations = RANDOM.nextInt(MAX_ITERATIONS) + 1;
-		for (int i = 0; i < iterations; i++) {
-			interpolater.addControlPoint(makeRandomPoint());
+		iterations = 10000/*MathUtils.RANDOM.nextInt(1000) + 1000*/;
+		interpolater = new FourierPointGenerator(new Vector3D(screenParameters.WIDTH / 2, screenParameters.HEIGHT / 2, 0), new Vector3D(),
+				iterations);
+		for (int i = 0; i < MathUtils.RANDOM.nextInt(30) + 2; i++) {
+			interpolater.addCircle(new FourierCircle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
 		}
 
 		while (interpolater.hasNext()) {
@@ -93,70 +99,30 @@ public class Bezier extends JPanel implements MouseListener, ActionListener {
 
 	}
 
-	private Point makeRandomPoint() {
-		return new Point(RANDOM.nextInt(screenParameters.RENDER_MAX_RAND_X),
-				screenParameters.RENDER_STARTY + RANDOM.nextInt(screenParameters.RENDER_MAX_RAND_Y));
-	}
-
 	private void draw(Graphics graphics) {
 
-		graphics.setColor(Color.RED);
+		Vector3D previousPoint = null;
 
 		graphics.drawString("iterations=" + iterations, 10, 10);
 
-		for (Point point : points) {
-			graphics.drawLine(point.x, point.y, point.x, point.y);
+		for (Vector3D point : points) {
+
+			if (previousPoint != null) {
+				graphics.setColor(Color.RED);
+				graphics.drawLine((int) previousPoint.x(), (int) previousPoint.y(), (int) point.x(), (int) point.y());
+			} else {
+				graphics.setColor(Color.GREEN.darker());
+				graphics.fillOval((int) point.x(), (int) point.y(), 10, 10);
+			}
+
+			previousPoint = point;
 		}
-		//
-		// final Point p1 = points.get(0);
-		// final Point p2 = points.get(points.size() - 1);
-		// p1.y -= 10;
-		// p2.y -= 10;
-		// final APointInterpolater2D controlInterpolater = new
-		// LinearPointInterpolater2D(p1, p2, false);
-		// while (controlInterpolater.hasNext()) {
-		// final IterationUnit2D next = controlInterpolater.next();
-		// final Point point = next.getPoint();
-		// graphics.drawLine(point.x, point.y, point.x, point.y);
-		// }
 
-		if (SHOW_CONTROLPOINTS) {
+		graphics.setColor(Color.BLUE);
+		graphics.fillOval((int) previousPoint.x(), (int) previousPoint.y(), 10, 10);
 
-			graphics.setColor(Color.GREEN);
-			final List<Point> controlPoints = interpolater.getControlPoints();
-			for (int i = 0; i < controlPoints.size() - 1; i++) {
-
-				final Point s = controlPoints.get(i);
-				final Point e = controlPoints.get(i + 1);
-				graphics.drawLine(s.x, s.y, e.x, e.y);
-			}
-
-			int i = 1;
-			for (Point point : controlPoints) {
-				graphics.drawString("c" + i++, point.x, point.y);
-			}
-
-			Point point;
-			graphics.setColor(Color.BLUE);
-
-			point = interpolater.getStart();
-			graphics.drawString("s", point.x, point.y);
-
-			point = interpolater.getEnd();
-			graphics.drawString("e", point.x, point.y);
-
-			if (!controlPoints.isEmpty()) {
-
-				Point s = interpolater.getStart();
-				Point e = controlPoints.get(0);
-				graphics.drawLine(s.x, s.y, e.x, e.y);
-
-				s = controlPoints.get(controlPoints.size() - 1);
-				e = interpolater.getEnd();
-				graphics.drawLine(s.x, s.y, e.x, e.y);
-
-			}
-		}
+		final Collection<FourierCircle> circles = interpolater.getCircles();
+		System.out.println("circles: " + circles.size() + ": " + circles);
 
 	}
 

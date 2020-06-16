@@ -105,7 +105,6 @@ public class BezierPointInterpolater extends APointInterpolater2D {
 			}
 
 			maxIterations = getMaxLength() + 1;
-			iteration++;
 
 			while (iteration <= maxIterations) {
 
