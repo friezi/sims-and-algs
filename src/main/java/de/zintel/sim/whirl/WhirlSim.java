@@ -19,6 +19,7 @@ import de.zintel.animation.IAnimator;
 import de.zintel.animation.MultiAnimator;
 import de.zintel.camera.BezierCameraAnimator;
 import de.zintel.camera.ICamera3D;
+import de.zintel.camera.PathCameraAnimator;
 import de.zintel.camera.PlaneCamera3D;
 import de.zintel.camera.SphereCamera3D;
 import de.zintel.camera.XInputCameraAnimator;
@@ -68,7 +69,7 @@ public class WhirlSim extends SimulationScreen {
 
 	private ICamera3D camera;
 
-	private BezierCameraAnimator bezierCameraAnimator;
+	private PathCameraAnimator pathCameraAnimator;
 
 	private XInputCameraAnimator xInputCameraAnimator;
 
@@ -591,12 +592,12 @@ public class WhirlSim extends SimulationScreen {
 
 		if (isXInputcamera) {
 			cameraAnimator = xInputCameraAnimator;
-			bezierCameraAnimator = null;
+			pathCameraAnimator = null;
 		} else {
-			if (bezierCameraAnimator == null) {
-				bezierCameraAnimator = new BezierCameraAnimator(camera, rotcenter, getGraphicsSubsystem().getDimension());
+			if (pathCameraAnimator == null) {
+				pathCameraAnimator = new BezierCameraAnimator(camera, rotcenter, getGraphicsSubsystem().getDimension());
 			}
-			cameraAnimator = bezierCameraAnimator;
+			cameraAnimator = pathCameraAnimator;
 		}
 
 		if (doAnimation) {
