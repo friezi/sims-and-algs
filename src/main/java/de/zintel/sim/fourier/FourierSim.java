@@ -1,10 +1,11 @@
 /**
  * 
  */
-package de.zintel.sim;
+package de.zintel.sim.fourier;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +13,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
+import de.zintel.control.IKeyAction;
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.g3d.FourierPointGenerator;
@@ -20,6 +22,7 @@ import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector3D;
 import de.zintel.physics.particles.Particle;
+import de.zintel.sim.SimulationScreen;
 
 /**
  * @author friedo
@@ -27,7 +30,7 @@ import de.zintel.physics.particles.Particle;
  */
 public class FourierSim extends SimulationScreen {
 
-	private final int SPEED = 20;
+	private int speed = 200;
 
 	private final static ScreenParameters SCREENPARAMETERS = new ScreenParameters();
 
@@ -40,6 +43,8 @@ public class FourierSim extends SimulationScreen {
 	private Collection<Particle<Color>> particles = Collections.synchronizedCollection(new LinkedList<>());
 
 	private volatile boolean init = true;
+
+	private volatile boolean showCircles = false;
 
 	private int iterations = 0;
 
@@ -73,32 +78,87 @@ public class FourierSim extends SimulationScreen {
 
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		graphicsSubsystem.setColorMixture(colorMixture);
+
+		initKeyActions();
 	}
 
 	private void initFourier() {
 
 		particles.clear();
-		final int numCircles = MathUtils.RANDOM.nextInt(4) + 2;
-		iterations = 17000 * numCircles;
 		iteration = 0;
+
+		final IFParameterSet parameterSet = getParameterSetUnperiodical();
+		iterations = parameterSet.getIterations();
+
 		interpolater = new FourierPointGenerator(new Vector3D(SCREENPARAMETERS.WIDTH / 2, SCREENPARAMETERS.HEIGHT / 2, 0), new Vector3D(),
 				iterations);
-		final double angle=0.1;
-//		interpolater.addCircle(new FourierCircle(20.424979, 1*angle));
-//		interpolater.addCircle(new FourierCircle(143.1092607, -1*angle));
-//		interpolater.addCircle(new FourierCircle(50.73151486, 2*angle));
-//		interpolater.addCircle(new FourierCircle(85.27594854, -2*angle));
-//		interpolater.addCircle(new FourierCircle(new Vector3D(-12.64, 20.90, 0), 1*angle));
-//		interpolater.addCircle(new FourierCircle(new Vector3D(-135.66, -45.57, 0), -1*angle));
-//		interpolater.addCircle(new FourierCircle(new Vector3D(-44.85, -23.71, 0), 2*angle));
-//		interpolater.addCircle(new FourierCircle(new Vector3D(66.75, -53.07, 0), -2*angle));
-	
-		for (int i = 0; i < numCircles; i++) {
-					interpolater.addCircle(new FourierCircle(new Vector3D(MathUtils.RANDOM.nextDouble()*400-200, MathUtils.RANDOM.nextDouble()*400-200, 0), (i+1)*angle));
-					interpolater.addCircle(new FourierCircle(new Vector3D(MathUtils.RANDOM.nextDouble()*400-200, MathUtils.RANDOM.nextDouble()*400-200, 0), -(i+1)*angle));
-//			interpolater.addCircle(new FourierCircle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
-//			interpolater.addCircle(new FourierCircle(10 + MathUtils.RANDOM.nextDouble() * 200, (MathUtils.RANDOM.nextBoolean()?1:-1)*MathUtils.RANDOM.nextInt(30) +1));
+		for (final FourierCircle circle : parameterSet.getCircles()) {
+			interpolater.addCircle(circle);
 		}
+		speed = parameterSet.getSpeed();
+	}
+
+	private IFParameterSet getParameterSetObjects() {
+		return new IFParameterSet() {
+
+			@Override
+			public int getSpeed() {
+				return 20;
+			}
+
+			@Override
+			public Collection<FourierCircle> getCircles() {
+
+				final double angle = 0.1;
+				return new LinkedList<FourierCircle>() {
+					{
+
+						add(new FourierCircle(new Vector3D(-12.64, 20.90, 0), 1 * angle));
+						add(new FourierCircle(new Vector3D(-135.66, -45.57, 0), -1 * angle));
+						add(new FourierCircle(new Vector3D(-44.85, -23.71, 0), 2 * angle));
+						add(new FourierCircle(new Vector3D(66.75, -53.07, 0), -2 * angle));
+
+					}
+				};
+			}
+
+			@Override
+			public int getIterations() {
+				return 10000;
+			}
+		};
+	}
+
+	private IFParameterSet getParameterSetUnperiodical() {
+		return new IFParameterSet() {
+
+			final int numCircles = MathUtils.RANDOM.nextInt(4) + 2;
+			int iterations = 17000 * numCircles;
+
+			@Override
+			public int getSpeed() {
+				return 100;
+			}
+
+			@Override
+			public Collection<FourierCircle> getCircles() {
+
+				return new LinkedList<FourierCircle>() {
+					{
+						for (int i = 0; i < numCircles; i++) {
+							interpolater
+									.addCircle(new FourierCircle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
+						}
+
+					}
+				};
+			}
+
+			@Override
+			public int getIterations() {
+				return iterations;
+			}
+		};
 	}
 
 	/*
@@ -124,19 +184,16 @@ public class FourierSim extends SimulationScreen {
 
 			previousPoint = point;
 		}
-		
-//		graphicsSubsystem.drawFilledCircle((int)interpolater.getStart().x()+100, (int)interpolater.getStart().y()-100, 10, ()->Color.CYAN);
-//		graphicsSubsystem.drawFilledCircle((int)interpolater.getStart().x()+100, (int)interpolater.getStart().y()+100, 10, ()->Color.GREEN);
-//		graphicsSubsystem.drawFilledCircle((int)interpolater.getStart().x()-100, (int)interpolater.getStart().y()+100, 10, ()->Color.BLUE);
-//		graphicsSubsystem.drawFilledCircle((int)interpolater.getStart().x()-100, (int)interpolater.getStart().y()-100, 10, ()->Color.MAGENTA);
-		
+
 		// draw circles
-		Vector3D prev=interpolater.getStart();
-		final Color cyan =new Color( Color.CYAN.getRed(),Color.CYAN.getGreen(),Color.CYAN.getBlue(),150);
-		for (final FourierCircle circle:interpolater.getCircles()) {
-			Vector3D current=Vector3D.add(prev, circle.vector);
-			graphicsSubsystem.drawLine((int)prev.x(), (int)prev.y(), (int)current.x(), (int)current.y(), cyan, cyan);
-			prev=current;
+		if (showCircles) {
+			Vector3D prev = interpolater.getStart();
+			final Color cyan = new Color(Color.CYAN.getRed(), Color.CYAN.getGreen(), Color.CYAN.getBlue(), 150);
+			for (final FourierCircle circle : interpolater.getCircles()) {
+				Vector3D current = Vector3D.add(prev, circle.vector);
+				graphicsSubsystem.drawLine((int) prev.x(), (int) prev.y(), (int) current.x(), (int) current.y(), cyan, cyan);
+				prev = current;
+			}
 		}
 
 	}
@@ -156,7 +213,7 @@ public class FourierSim extends SimulationScreen {
 
 		}
 
-		final int effectiveSpeed = SPEED < 1 ? 1 : SPEED;
+		final int effectiveSpeed = speed < 1 ? 1 : speed;
 		for (int i = 0; i < effectiveSpeed; i++) {
 			if (interpolater.hasNext()) {
 
@@ -191,4 +248,43 @@ public class FourierSim extends SimulationScreen {
 		init = true;
 	}
 
+	private void initKeyActions() {
+		addKeyAction(KeyEvent.VK_C, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "SHC";
+			}
+
+			@Override
+			public String text() {
+				return "show circles";
+			}
+
+			@Override
+			public void plus() {
+				showCircles = true;
+			}
+
+			@Override
+			public void minus() {
+				showCircles = false;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(showCircles);
+			}
+		});
+	}
 }
