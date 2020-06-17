@@ -1,25 +1,48 @@
 package de.zintel.gfx.g3d;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import de.zintel.math.MathUtils;
+import de.zintel.math.PolarND;
 import de.zintel.math.Vector3D;
 
 public class FourierPointGenerator extends APointInterpolater3D {
 
 	public static class FourierCircle {
 
+		private final PolarND<Vector3D> start;
+
 		private final double radius;
 
 		private final double angularVelocity;
 
-		double angle = 0;
+		public double angle = 0;
 
+		public Vector3D vector;
+
+		/**
+		 * @param radius
+		 * @param angularVelocity
+		 *            in degree!
+		 */
 		public FourierCircle(double radius, double angularVelocity) {
 			this.radius = radius;
+			this.angularVelocity = angularVelocity;
+			this.start = new PolarND<>(radius, Arrays.asList(0D));
+		}
+
+		/**
+		 * @param start
+		 * @param angularVelocity
+		 *            in degree!
+		 */
+		public FourierCircle(Vector3D start, double angularVelocity) {
+			this.start = start.toPolar();
+			this.radius = this.start.getRadius();
 			this.angularVelocity = angularVelocity;
 		}
 
@@ -55,11 +78,12 @@ public class FourierPointGenerator extends APointInterpolater3D {
 
 		for (final FourierCircle circle : circles) {
 
-			if (step > 0) {
-				circle.angle = circle.angle + (circle.angularVelocity < 0 ? 360 + circle.angularVelocity : circle.angularVelocity);
-			}
+			circle.angle = step * (circle.angularVelocity < 0 ? 360 + circle.angularVelocity : circle.angularVelocity);
 
-			point.add(new Vector3D(circle.radius * Math.cos(theta(circle.angle)), circle.radius * Math.sin(theta(circle.angle)), 0));
+			final Double initAngle = circle.start.getAngles().iterator().next();
+			circle.vector = new Vector3D(circle.radius * Math.cos(MathUtils.radian(circle.angle) + initAngle),
+					-circle.radius * Math.sin(MathUtils.radian(circle.angle) + initAngle), 0);
+			point.add(circle.vector);
 		}
 
 		step++;
@@ -70,16 +94,6 @@ public class FourierPointGenerator extends APointInterpolater3D {
 	public FourierPointGenerator addCircle(final FourierCircle circle) {
 		circles.add(circle);
 		return this;
-	}
-
-	/**
-	 * degree -> radian
-	 * 
-	 * @param degree
-	 * @return
-	 */
-	private double theta(final double degree) {
-		return MathUtils.morphRange(0, 360, 0, 2 * Math.PI, ((int) degree) % 360);
 	}
 
 	public Collection<FourierCircle> getCircles() {

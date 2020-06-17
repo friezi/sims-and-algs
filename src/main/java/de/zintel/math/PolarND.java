@@ -58,4 +58,9 @@ public class PolarND<T extends AVectorND<T>> {
 
 	}
 
+	@Override
+	public String toString() {
+		return "PolarND [radius=" + radius + ", angles=" + angles + "]";
+	}
+
 }

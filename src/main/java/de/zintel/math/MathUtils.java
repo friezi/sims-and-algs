@@ -291,4 +291,14 @@ public final class MathUtils {
 		return morphRange(-1, 1, 0, 1, Math.tanh(x));
 	}
 
+	/**
+	 * degree -> radian
+	 * 
+	 * @param degree
+	 * @return
+	 */
+	public static double radian(final double degree) {
+		return morphRange(0, 360, 0, 2 * Math.PI, ((int) degree) % 360);
+	}
+
 }
