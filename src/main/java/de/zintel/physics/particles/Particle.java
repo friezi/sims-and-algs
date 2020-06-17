@@ -9,14 +9,14 @@ import de.zintel.math.Vector3D;
  * @author friedo
  * 
  * @param <T>
- *            additional properties-type assignable from oustide the class
+ *            additional atribute-type assignable from oustide the class
  *
  */
 public class Particle<T> {
 
 	private Vector3D position;
 
-	private T attributes;
+	private T attribute;
 
 	public Particle(Vector3D position) {
 		this.position = position;
@@ -30,12 +30,12 @@ public class Particle<T> {
 		this.position = position;
 	}
 
-	public T getAttributes() {
-		return attributes;
+	public T getAttribute() {
+		return attribute;
 	}
 
-	public void setAttributes(T attributes) {
-		this.attributes = attributes;
+	public void setAttribute(T attribute) {
+		this.attribute = attribute;
 	}
 
 }

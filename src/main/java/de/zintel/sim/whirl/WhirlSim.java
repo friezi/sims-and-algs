@@ -139,37 +139,8 @@ public class WhirlSim extends SimulationScreen {
 		initWhirlParticleSystem(graphicsSubsystem);
 		initCamera(graphicsSubsystem);
 		initAnimators(graphicsSubsystem);
-		//
-		// makeBezier(graphicsSubsystem);
 
 	}
-	//
-	// private void makeBezier(IGraphicsSubsystem graphicsSubsystem) {
-	//
-	// final BezierPointInterpolater3D bezierPointInterpolater3D = new
-	// BezierPointInterpolater3D(makeRandomPoint(graphicsSubsystem),
-	// makeRandomPoint(graphicsSubsystem));
-	//
-	// for (int i = 0; i < 10; i++) {
-	// bezierPointInterpolater3D.addControlPoint(makeRandomPoint(graphicsSubsystem));
-	// }
-	// for (StepUnit3D unit : bezierPointInterpolater3D) {
-	// bpoints.add(unit.getPoint());
-	// }
-	// }
-	//
-	// private Vector3D makeRandomPoint(IGraphicsSubsystem graphicsSubsystem) {
-	// return new
-	// Vector3D(makeRangeValue(graphicsSubsystem.getDimension().width),
-	// makeRangeValue(graphicsSubsystem.getDimension().height),
-	// makeRangeValue(graphicsSubsystem.getDimension().height));
-	// }
-	//
-	// private double makeRangeValue(int dim) {
-	//
-	// int fac = 7;
-	// return MathUtils.RANDOM.nextInt(fac * dim) - (fac / 2) * dim;
-	// }
 
 	private void initWhirlParticleSystem(IGraphicsSubsystem graphicsSubsystem) {
 
@@ -390,8 +361,8 @@ public class WhirlSim extends SimulationScreen {
 			if (camera.inRange(ppoint)) {
 				graphicsSubsystem.drawFilledCircle((int) px, (int) py, pradius,
 						() -> CUtils.transparent(
-								adjustColor(CUtils.morphColor(particle.getAttributes().color, Color.YELLOW, colortrans, point.x()), point),
-								(int) MathUtils.morph(v -> (double) particle.getAttributes().color.getAlpha(), v -> 0D, alphatrans, point.x())));
+								adjustColor(CUtils.morphColor(particle.getAttribute().color, Color.YELLOW, colortrans, point.x()), point),
+								(int) MathUtils.morph(v -> (double) particle.getAttribute().color.getAlpha(), v -> 0D, alphatrans, point.x())));
 			}
 		}
 		//
@@ -524,7 +495,7 @@ public class WhirlSim extends SimulationScreen {
 		if (prc == null) {
 			return 0;
 		}
-		return MathUtils.morph(v -> particle.getAttributes().radius, v -> finalBubbleRadius,
+		return MathUtils.morph(v -> particle.getAttribute().radius, v -> finalBubbleRadius,
 				v -> MathUtils.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, point.x())), prc.x());
 
 	}

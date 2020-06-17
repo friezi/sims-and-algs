@@ -5,12 +5,10 @@ package de.zintel.sim;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +19,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import de.zintel.gfx.ScreenParameters;
-import de.zintel.gfx.g2d.BezierPointInterpolater;
 import de.zintel.gfx.g3d.FourierPointGenerator;
 import de.zintel.gfx.g3d.FourierPointGenerator.FourierCircle;
 import de.zintel.math.MathUtils;

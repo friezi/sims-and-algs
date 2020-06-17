@@ -29,7 +29,7 @@ public abstract class ParticleSystem<P extends Particle<A>, A> {
 	}
 
 	protected void initParticle(final P particle) {
-		particle.setAttributes(attributeInitializer.apply(particle));
+		particle.setAttribute(attributeInitializer.apply(particle));
 	}
 
 	public abstract void calculate(Dimension dimension);
