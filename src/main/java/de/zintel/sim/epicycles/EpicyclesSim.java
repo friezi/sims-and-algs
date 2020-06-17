@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.zintel.sim.fourier;
+package de.zintel.sim.epicycles;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,19 +19,20 @@ import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.color.EColorMixture;
-import de.zintel.gfx.g3d.FourierPointGenerator;
-import de.zintel.gfx.g3d.FourierPointGenerator.FourierCircle;
+import de.zintel.gfx.g3d.EpicyclesPointGenerator;
+import de.zintel.gfx.g3d.EpicyclesPointGenerator.Epicycle;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector3D;
 import de.zintel.physics.particles.Particle;
 import de.zintel.sim.SimulationScreen;
+import de.zintel.utils.Pair;
 
 /**
  * @author friedo
  *
  */
-public class FourierSim extends SimulationScreen {
+public class EpicyclesSim extends SimulationScreen {
 
 	private int speed = 200;
 
@@ -40,7 +42,7 @@ public class FourierSim extends SimulationScreen {
 
 	private static final Color COLOR_BACKGROUND = new Color(0, 0, 50);
 
-	private FourierPointGenerator interpolater;
+	private EpicyclesPointGenerator interpolater;
 
 	private Collection<Particle<Color>> particles = Collections.synchronizedCollection(new LinkedList<>());
 
@@ -60,13 +62,13 @@ public class FourierSim extends SimulationScreen {
 	 * @param recordFilename
 	 * @param recordingRate
 	 */
-	public FourierSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
+	public EpicyclesSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
 			int recordingRate) {
 		super(title, gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 	}
 
 	public static void main(String args[]) throws Exception {
-		new FourierSim("Fourier", GFX_SSYSTEM, SCREENPARAMETERS, false, "", 0).start();
+		new EpicyclesSim("Fourier", GFX_SSYSTEM, SCREENPARAMETERS, false, "", 0).start();
 	}
 
 	/*
@@ -92,9 +94,9 @@ public class FourierSim extends SimulationScreen {
 		final IFParameterSet parameterSet = getParameterSetUnperiodical();
 		iterations = parameterSet.getIterations();
 
-		interpolater = new FourierPointGenerator(new Vector3D(SCREENPARAMETERS.WIDTH / 2, SCREENPARAMETERS.HEIGHT / 2, 0), new Vector3D(),
+		interpolater = new EpicyclesPointGenerator(new Vector3D(SCREENPARAMETERS.WIDTH / 2, SCREENPARAMETERS.HEIGHT / 2, 0), new Vector3D(),
 				iterations);
-		for (final FourierCircle circle : parameterSet.getCircles()) {
+		for (final Epicycle circle : parameterSet.getCircles()) {
 			interpolater.addCircle(circle);
 		}
 		speed = parameterSet.getSpeed();
@@ -109,17 +111,56 @@ public class FourierSim extends SimulationScreen {
 			}
 
 			@Override
-			public Collection<FourierCircle> getCircles() {
+			public Collection<Epicycle> getCircles() {
 
 				final double angle = 0.1;
-				return new LinkedList<FourierCircle>() {
+				return new LinkedList<Epicycle>() {
 					{
 
-						add(new FourierCircle(new Vector3D(-12.64, 20.90, 0), 1 * angle));
-						add(new FourierCircle(new Vector3D(-135.66, -45.57, 0), -1 * angle));
-						add(new FourierCircle(new Vector3D(-44.85, -23.71, 0), 2 * angle));
-						add(new FourierCircle(new Vector3D(66.75, -53.07, 0), -2 * angle));
+						add(new Epicycle(new Vector3D(-12.64, 20.90, 0), 1 * angle));
+						add(new Epicycle(new Vector3D(-135.66, -45.57, 0), -1 * angle));
+						add(new Epicycle(new Vector3D(-44.85, -23.71, 0), 2 * angle));
+						add(new Epicycle(new Vector3D(66.75, -53.07, 0), -2 * angle));
 
+					}
+				};
+			}
+
+			@Override
+			public int getIterations() {
+				return 10000;
+			}
+		};
+	}
+
+	private IFParameterSet getParameterSetPI() {
+		return new IFParameterSet() {
+
+			@Override
+			public int getSpeed() {
+				return 20;
+			}
+
+			@Override
+			public Collection<Epicycle> getCircles() {
+
+				final double angle = 0.1;
+				return new LinkedList<Epicycle>() {
+					{
+
+						int i = 0;
+						boolean negative = false;
+						final PICoordinates piCoordinates = new PICoordinates();
+						for (final Pair<Double, Double> ccor : piCoordinates) {
+
+							add(new Epicycle(new Vector3D(ccor.getFirst(), ccor.getSecond(), 0), (negative ? -1 : 1) * i * angle));
+							if (negative) {
+								i++;
+							}
+
+							negative = !negative;
+
+						}
 					}
 				};
 			}
@@ -143,13 +184,12 @@ public class FourierSim extends SimulationScreen {
 			}
 
 			@Override
-			public Collection<FourierCircle> getCircles() {
+			public Collection<Epicycle> getCircles() {
 
-				return new LinkedList<FourierCircle>() {
+				return new LinkedList<Epicycle>() {
 					{
 						for (int i = 0; i < numCircles; i++) {
-							interpolater
-									.addCircle(new FourierCircle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
+							interpolater.addCircle(new Epicycle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
 						}
 
 					}
@@ -191,7 +231,7 @@ public class FourierSim extends SimulationScreen {
 		if (showCircles) {
 			Vector3D prev = interpolater.getStart();
 			final Color cyan = new Color(Color.CYAN.getRed(), Color.CYAN.getGreen(), Color.CYAN.getBlue(), 150);
-			for (final FourierCircle circle : interpolater.getCircles()) {
+			for (final Epicycle circle : interpolater.getCircles()) {
 				Vector3D current = Vector3D.add(prev, circle.vector);
 				graphicsSubsystem.drawLine((int) prev.x(), (int) prev.y(), (int) current.x(), (int) current.y(), cyan, cyan);
 				prev = current;
@@ -227,15 +267,23 @@ public class FourierSim extends SimulationScreen {
 				iteration++;
 
 				if (!interpolater.hasNext()) {
-					final Collection<FourierCircle> circles = interpolater.getCircles();
+					final Collection<Epicycle> circles = interpolater.getCircles();
 					System.out.println("circles: " + circles.size() + ": " + circles);
-					new Timer().schedule(new TimerTask() {
-
-						@Override
-						public void run() {
-							init = true;
-						}
-					}, 15 * 1000);
+					// new Timer().schedule(new TimerTask() {
+					//
+					// @Override
+					// public void run() {
+					// init = true;
+					// }
+					// }, 15 * 1000);
+				}
+			} else {
+				final Iterator<Particle<Color>> iterator = particles.iterator();
+				if (iterator.hasNext()) {
+					iterator.next();
+					iterator.remove();
+				} else {
+					init = true;
 				}
 			}
 		}

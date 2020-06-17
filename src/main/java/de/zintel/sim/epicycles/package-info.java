@@ -5,4 +5,4 @@
  * @author friedo
  *
  */
-package de.zintel.sim.fourier;
+package de.zintel.sim.epicycles;

@@ -10,9 +10,9 @@ import de.zintel.math.MathUtils;
 import de.zintel.math.PolarND;
 import de.zintel.math.Vector3D;
 
-public class FourierPointGenerator extends APointInterpolater3D {
+public class EpicyclesPointGenerator extends APointInterpolater3D {
 
-	public static class FourierCircle {
+	public static class Epicycle {
 
 		private final PolarND<Vector3D> start;
 
@@ -29,7 +29,7 @@ public class FourierPointGenerator extends APointInterpolater3D {
 		 * @param angularVelocity
 		 *            in degree!
 		 */
-		public FourierCircle(double radius, double angularVelocity) {
+		public Epicycle(double radius, double angularVelocity) {
 			this.radius = radius;
 			this.angularVelocity = angularVelocity;
 			this.start = new PolarND<>(radius, Arrays.asList(0D));
@@ -40,7 +40,7 @@ public class FourierPointGenerator extends APointInterpolater3D {
 		 * @param angularVelocity
 		 *            in degree!
 		 */
-		public FourierCircle(Vector3D start, double angularVelocity) {
+		public Epicycle(Vector3D start, double angularVelocity) {
 			this.start = start.toPolar();
 			this.radius = this.start.getRadius();
 			this.angularVelocity = angularVelocity;
@@ -48,20 +48,18 @@ public class FourierPointGenerator extends APointInterpolater3D {
 
 		@Override
 		public String toString() {
-			return "FourierCircle [radius=" + radius + ", angularVelocity=" + angularVelocity + "]";
+			return "Epicycle [radius=" + radius + ", angularVelocity=" + angularVelocity + "]";
 		}
 
 	}
 
 	private final int maxIterations;
 
-	private final List<FourierCircle> circles = new LinkedList<>();
-
-	private final List<Vector3D> points = new LinkedList<>();
+	private final List<Epicycle> circles = new LinkedList<>();
 
 	private int step = 0;
 
-	public FourierPointGenerator(Vector3D start, Vector3D end, int maxIterations) {
+	public EpicyclesPointGenerator(Vector3D start, Vector3D end, int maxIterations) {
 		super(start, end);
 		this.maxIterations = maxIterations;
 	}
@@ -76,7 +74,7 @@ public class FourierPointGenerator extends APointInterpolater3D {
 
 		final Vector3D point = new Vector3D();
 
-		for (final FourierCircle circle : circles) {
+		for (final Epicycle circle : circles) {
 
 			circle.angle = step * (circle.angularVelocity < 0 ? 360 + circle.angularVelocity : circle.angularVelocity);
 
@@ -91,12 +89,12 @@ public class FourierPointGenerator extends APointInterpolater3D {
 		return new StepUnit3D(Vector3D.add(getStart(), point), step, maxIterations);
 	}
 
-	public FourierPointGenerator addCircle(final FourierCircle circle) {
+	public EpicyclesPointGenerator addCircle(final Epicycle circle) {
 		circles.add(circle);
 		return this;
 	}
 
-	public Collection<FourierCircle> getCircles() {
+	public Collection<Epicycle> getCircles() {
 		return new ArrayList<>(circles);
 	}
 

@@ -1,11 +1,11 @@
 /**
  * 
  */
-package de.zintel.sim.fourier;
+package de.zintel.sim.epicycles;
 
 import java.util.Collection;
 
-import de.zintel.gfx.g3d.FourierPointGenerator.FourierCircle;
+import de.zintel.gfx.g3d.EpicyclesPointGenerator.Epicycle;
 
 /**
  * @author friedo
@@ -15,7 +15,7 @@ public interface IFParameterSet {
 
 	int getSpeed();
 
-	Collection<FourierCircle> getCircles();
+	Collection<Epicycle> getCircles();
 
 	int getIterations();
 

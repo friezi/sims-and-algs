@@ -19,8 +19,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import de.zintel.gfx.ScreenParameters;
-import de.zintel.gfx.g3d.FourierPointGenerator;
-import de.zintel.gfx.g3d.FourierPointGenerator.FourierCircle;
+import de.zintel.gfx.g3d.EpicyclesPointGenerator;
+import de.zintel.gfx.g3d.EpicyclesPointGenerator.Epicycle;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector3D;
 
@@ -43,7 +43,7 @@ public class Fourier extends JPanel implements MouseListener, ActionListener {
 
 	private JFrame mainFrame;
 
-	private FourierPointGenerator interpolater;
+	private EpicyclesPointGenerator interpolater;
 
 	private List<Vector3D> points = new LinkedList<>();
 
@@ -84,10 +84,10 @@ public class Fourier extends JPanel implements MouseListener, ActionListener {
 
 		points.clear();
 		iterations = 10000/*MathUtils.RANDOM.nextInt(1000) + 1000*/;
-		interpolater = new FourierPointGenerator(new Vector3D(screenParameters.WIDTH / 2, screenParameters.HEIGHT / 2, 0), new Vector3D(),
+		interpolater = new EpicyclesPointGenerator(new Vector3D(screenParameters.WIDTH / 2, screenParameters.HEIGHT / 2, 0), new Vector3D(),
 				iterations);
 		for (int i = 0; i < MathUtils.RANDOM.nextInt(30) + 2; i++) {
-			interpolater.addCircle(new FourierCircle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
+			interpolater.addCircle(new Epicycle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
 		}
 
 		while (interpolater.hasNext()) {
@@ -118,7 +118,7 @@ public class Fourier extends JPanel implements MouseListener, ActionListener {
 		graphics.setColor(Color.BLUE);
 		graphics.fillOval((int) previousPoint.x(), (int) previousPoint.y(), 10, 10);
 
-		final Collection<FourierCircle> circles = interpolater.getCircles();
+		final Collection<Epicycle> circles = interpolater.getCircles();
 		System.out.println("circles: " + circles.size() + ": " + circles);
 
 	}
