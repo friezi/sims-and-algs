@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.control.IKeyAction;
@@ -227,6 +229,13 @@ public class FourierSim extends SimulationScreen {
 				if (!interpolater.hasNext()) {
 					final Collection<FourierCircle> circles = interpolater.getCircles();
 					System.out.println("circles: " + circles.size() + ": " + circles);
+					new Timer().schedule(new TimerTask() {
+
+						@Override
+						public void run() {
+							init = true;
+						}
+					}, 15 * 1000);
 				}
 			}
 		}
