@@ -54,6 +54,8 @@ public class EpicyclesSim extends SimulationScreen {
 
 	private int iteration = 0;
 
+	private int iterationReduction;
+
 	/**
 	 * @param title
 	 * @param gfxSsystem
@@ -86,13 +88,13 @@ public class EpicyclesSim extends SimulationScreen {
 		initKeyActions();
 	}
 
-	private void initFourier() {
+	private void initEpicycles() {
 
 		particles.clear();
 		iteration = 0;
 
 		final IFParameterSet parameterSet = getParameterSetUnperiodical();
-		iterations = parameterSet.getIterations();
+		iterations = Math.max(parameterSet.getIterations() - iterationReduction, 1);
 
 		interpolater = new EpicyclesPointGenerator(new Vector3D(SCREENPARAMETERS.WIDTH / 2, SCREENPARAMETERS.HEIGHT / 2, 0), new Vector3D(),
 				iterations);
@@ -176,11 +178,11 @@ public class EpicyclesSim extends SimulationScreen {
 		return new IFParameterSet() {
 
 			final int numCircles = MathUtils.RANDOM.nextInt(4) + 2;
-			int iterations = 17000 * numCircles;
+			int iterations = (MathUtils.RANDOM.nextInt(15000) + 2000) * numCircles;
 
 			@Override
 			public int getSpeed() {
-				return 100;
+				return MathUtils.RANDOM.nextInt(300) + 30;
 			}
 
 			@Override
@@ -251,11 +253,11 @@ public class EpicyclesSim extends SimulationScreen {
 		if (init) {
 
 			init = false;
-			initFourier();
+			initEpicycles();
 
 		}
 
-		final int effectiveSpeed = speed < 1 ? 1 : speed;
+		final int effectiveSpeed = Math.max(interpolater.hasNext() ? speed : speed / 4, 1);
 		for (int i = 0; i < effectiveSpeed; i++) {
 			if (interpolater.hasNext()) {
 
@@ -341,6 +343,44 @@ public class EpicyclesSim extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return String.valueOf(showCircles);
+			}
+		});
+		addKeyAction(KeyEvent.VK_R, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "IRE";
+			}
+
+			@Override
+			public String text() {
+				return "iteration reduction";
+			}
+
+			@Override
+			public void plus() {
+				iterationReduction += 100;
+				;
+			}
+
+			@Override
+			public void minus() {
+				iterationReduction -= 100;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(iterationReduction);
 			}
 		});
 	}
