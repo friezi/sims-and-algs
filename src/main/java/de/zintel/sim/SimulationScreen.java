@@ -96,8 +96,8 @@ public abstract class SimulationScreen
 
 	private final Collection<XInputController> xInputControllers = new LinkedList<>();
 
-	public SimulationScreen(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord,
-			String recordFilename, int recordingRate) {
+	public SimulationScreen(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
+			int recordingRate) {
 		this.screenParameters = screenParameters;
 		this.doRecord = doRecord;
 		this.recordFilename = recordFilename;
@@ -284,8 +284,8 @@ public abstract class SimulationScreen
 				}
 
 				keyAction.plus();
-				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
-						TEXT_TIMEOUT, keyAction.toggleComponent());
+				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW, TEXT_TIMEOUT,
+						keyAction.toggleComponent());
 
 			}
 
@@ -299,8 +299,8 @@ public abstract class SimulationScreen
 				}
 
 				keyAction.minus();
-				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
-						TEXT_TIMEOUT, keyAction.toggleComponent());
+				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW, TEXT_TIMEOUT,
+						keyAction.toggleComponent());
 
 			}
 		} else if (pressedKeyCode == KeyEvent.VK_SHIFT) {
@@ -383,8 +383,8 @@ public abstract class SimulationScreen
 
 			@Override
 			public String getValue() {
-				return keyActions.entrySet().stream().filter(entry -> entry.getValue() != this).map(
-						entry -> KeyEvent.getKeyText(entry.getKey()) + ": " + entry.getValue().text() + ": " + entry.getValue().getValue())
+				return keyActions.entrySet().stream().filter(entry -> entry.getValue() != this)
+						.map(entry -> KeyEvent.getKeyText(entry.getKey()) + ": " + entry.getValue().text() + ": " + entry.getValue().getValue())
 						.collect(Collectors.joining("\n"));
 			}
 
@@ -409,12 +409,12 @@ public abstract class SimulationScreen
 	}
 
 	/**
-	 * calculations per millisecond.
+	 * millisecond.per calculation
 	 * 
 	 * @param calculationRate
 	 */
 	public void setCalculationRate(int calculationRate) {
-		this.calculationRate = calculationRate;
+		this.calculationRate = Math.max(calculationRate, 1);
 	}
 
 	public long getMaxFrames() {

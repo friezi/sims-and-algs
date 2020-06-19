@@ -13,19 +13,21 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.function.Supplier;
 
-import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
+import de.zintel.camera.PlaneCamera3D;
 import de.zintel.control.IKeyAction;
+import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
+import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.g3d.EpicyclesPointGenerator;
 import de.zintel.gfx.g3d.EpicyclesPointGenerator.Epicycle;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
+import de.zintel.math.Axis3D;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector3D;
+import de.zintel.math.transform.CoordinateTransformation3D;
 import de.zintel.physics.particles.Particle;
 import de.zintel.sim.SimulationScreen;
 import de.zintel.utils.Pair;
@@ -56,10 +58,20 @@ public class EpicyclesSim extends SimulationScreen {
 
 	private int iteration = 0;
 
-	private int iterationReduction;
-	
-//	 private Supplier<IECArgumentSet> argumentSetSupplier = () ->
-//	 getParameterSetUnperiodical();
+	private int iterationDecay;
+
+	private int speedDecay;
+
+	private int opacity = 0;
+
+	private PlaneCamera3D camera;
+
+	private double angularVelocityRotation = 0;
+
+	private Vector3D center;
+
+	// private Supplier<IECArgumentSet> argumentSetSupplier = () ->
+	// getParameterSetUnperiodical();
 
 	private Supplier<IECArgumentSet> argumentSetSupplier = getParameterSupplierFile("coords/epicycles.txt");
 
@@ -71,8 +83,8 @@ public class EpicyclesSim extends SimulationScreen {
 	 * @param recordFilename
 	 * @param recordingRate
 	 */
-	public EpicyclesSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord,
-			String recordFilename, int recordingRate) {
+	public EpicyclesSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
+			int recordingRate) {
 		super(title, gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 	}
 
@@ -89,6 +101,12 @@ public class EpicyclesSim extends SimulationScreen {
 	@Override
 	protected void init(IGraphicsSubsystem graphicsSubsystem) {
 
+		center = new Vector3D(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2, 0);
+		camera = new PlaneCamera3D(
+				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
+				new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
+		camera.setShowBehindCamera(true);
+
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		graphicsSubsystem.setColorMixture(colorMixture);
 
@@ -97,14 +115,15 @@ public class EpicyclesSim extends SimulationScreen {
 
 	private void initEpicycles() {
 
+		opacity = MathUtils.RANDOM.nextInt(60) + 40;
+
 		particles.clear();
 		iteration = 0;
 
 		final IECArgumentSet argumentSet = argumentSetSupplier.get();
-		iterations = Math.max(argumentSet.getIterations() - iterationReduction, 1);
+		iterations = Math.max(argumentSet.getIterations() - iterationDecay, 1);
 
-		interpolater = new EpicyclesPointGenerator(new Vector3D(SCREENPARAMETERS.WIDTH / 2, SCREENPARAMETERS.HEIGHT / 2, 0), new Vector3D(),
-				iterations);
+		interpolater = new EpicyclesPointGenerator(center, new Vector3D(), iterations);
 		for (final Epicycle circle : argumentSet.getCycles()) {
 			interpolater.addCircle(circle);
 		}
@@ -239,8 +258,7 @@ public class EpicyclesSim extends SimulationScreen {
 				return new LinkedList<Epicycle>() {
 					{
 						for (int i = 0; i < numCircles; i++) {
-							interpolater.addCircle(
-									new Epicycle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
+							interpolater.addCircle(new Epicycle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
 						}
 
 					}
@@ -268,11 +286,22 @@ public class EpicyclesSim extends SimulationScreen {
 
 		Particle<Color> previousPoint = null;
 		for (Particle<Color> point : rPoints) {
-			final Color color = point.getAttribute();
 
 			if (previousPoint != null) {
-				graphicsSubsystem.drawLine((int) previousPoint.getPosition().x(), (int) previousPoint.getPosition().y(),
-						(int) point.getPosition().x(), (int) point.getPosition().y(), color, color);
+
+				final Vector3D ppos = previousPoint.getPosition();
+				final Vector3D pposT = camera.project(ppos);
+				final Vector3D cpos = point.getPosition();
+				final Vector3D cposT = camera.project(cpos);
+
+				final Vector3D hsbVec = CUtils.getHSBVec(point.getAttribute());
+				final Color ppColor = Color.getHSBColor((float) hsbVec.x(), (float) hsbVec.y(),
+						(float) (ppos.z() - center.z() > 0 ? hsbVec.z() / Math.pow(3, ppos.z() - center.z()) : hsbVec.z()));
+				final Color cpColor = Color.getHSBColor((float) hsbVec.x(), (float) hsbVec.y(),
+						(float) (cpos.z() - center.z() > 0 ? hsbVec.z() / Math.pow(3, cpos.z() - center.z()) : hsbVec.z()));
+				if (pposT != null && cposT != null) {
+					graphicsSubsystem.drawLine((int) pposT.x(), (int) pposT.y(), (int) cposT.x(), (int) cposT.y(), ppColor, cpColor);
+				}
 			}
 
 			previousPoint = point;
@@ -280,12 +309,16 @@ public class EpicyclesSim extends SimulationScreen {
 
 		// draw circles
 		if (showCircles) {
-			Vector3D prev = interpolater.getStart();
+			Vector3D previous = interpolater.getStart();
 			final Color cyan = new Color(Color.CYAN.getRed(), Color.CYAN.getGreen(), Color.CYAN.getBlue(), 150);
 			for (final Epicycle circle : interpolater.getCircles()) {
-				Vector3D current = Vector3D.add(prev, circle.vector);
-				graphicsSubsystem.drawLine((int) prev.x(), (int) prev.y(), (int) current.x(), (int) current.y(), cyan, cyan);
-				prev = current;
+				Vector3D current = Vector3D.add(previous, circle.vector);
+
+				final Vector3D prevT = camera.project(previous);
+				final Vector3D currT = camera.project(current);
+
+				graphicsSubsystem.drawLine((int) prevT.x(), (int) prevT.y(), (int) currT.x(), (int) currT.y(), cyan, cyan);
+				previous = current;
 			}
 		}
 
@@ -306,14 +339,17 @@ public class EpicyclesSim extends SimulationScreen {
 
 		}
 
-		final int effectiveSpeed = Math.max(interpolater.hasNext() ? speed : speed / 4, 1);
+		camera.rotate(new Axis3D(center, Vector3D.add(center, new Vector3D(0, -10, 0))), angularVelocityRotation);
+
+		final int effectiveSpeed = Math.max(interpolater.hasNext() ? (speed - speedDecay) : (speed - speedDecay) / 4, 1);
 		for (int i = 0; i < effectiveSpeed; i++) {
 			if (interpolater.hasNext()) {
 
 				final Vector3D point = interpolater.next().getPoint();
 				final Particle<Color> particle = new Particle<>(point);
 				final int restvalue = (int) MathUtils.morphRange(0, iterations, 0, 100, iteration);
-				particle.setAttribute(new Color(255, restvalue, 0, 100));
+				final Color color = new Color(255, restvalue, 0, opacity);
+				particle.setAttribute(color);
 				particles.add(particle);
 				iteration++;
 
@@ -394,6 +430,80 @@ public class EpicyclesSim extends SimulationScreen {
 				return String.valueOf(showCircles);
 			}
 		});
+		addKeyAction(KeyEvent.VK_I, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "IDEC";
+			}
+
+			@Override
+			public String text() {
+				return "iterationdecay";
+			}
+
+			@Override
+			public void plus() {
+				iterationDecay += 100;
+			}
+
+			@Override
+			public void minus() {
+				iterationDecay -= 100;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(iterationDecay);
+			}
+		});
+		addKeyAction(KeyEvent.VK_S, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "SDEC";
+			}
+
+			@Override
+			public String text() {
+				return "speeddecay";
+			}
+
+			@Override
+			public void plus() {
+				speedDecay += 1;
+			}
+
+			@Override
+			public void minus() {
+				speedDecay -= 1;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(speedDecay);
+			}
+		});
 		addKeyAction(KeyEvent.VK_R, new IKeyAction() {
 
 			@Override
@@ -408,28 +518,64 @@ public class EpicyclesSim extends SimulationScreen {
 
 			@Override
 			public String textID() {
-				return "IRE";
+				return "ROT";
 			}
 
 			@Override
 			public String text() {
-				return "iteration reduction";
+				return "rotation";
 			}
 
 			@Override
 			public void plus() {
-				iterationReduction += 100;
-				;
+				angularVelocityRotation += 0.01;
 			}
 
 			@Override
 			public void minus() {
-				iterationReduction -= 100;
+				angularVelocityRotation -= 0.01;
 			}
 
 			@Override
 			public String getValue() {
-				return String.valueOf(iterationReduction);
+				return String.valueOf(angularVelocityRotation);
+			}
+		});
+		addKeyAction(KeyEvent.VK_D, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "CALC";
+			}
+
+			@Override
+			public String text() {
+				return "calculatiiondecay";
+			}
+
+			@Override
+			public void plus() {
+				setCalculationRate(getCalculationRate() + 1);
+			}
+
+			@Override
+			public void minus() {
+				setCalculationRate(getCalculationRate() - 1);
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(getCalculationRate());
 			}
 		});
 	}

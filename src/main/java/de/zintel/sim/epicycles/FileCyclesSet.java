@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.zintel.gfx.g3d.EpicyclesPointGenerator.Epicycle;
+import de.zintel.math.MathUtils;
 
 /**
  * @author friedemann.zintel
@@ -23,7 +24,7 @@ public class FileCyclesSet implements IECArgumentSet {
 
 	private static final Pattern PATTERN_LINE = Pattern.compile("circles: \\d+: \\[(.*)\\]");
 	private static final Pattern PATTERN_CIRCLES = Pattern
-			.compile("(?:FourierCircle \\[radius=((?:\\d|-|\\.)+), angularVelocity=((?:\\d|-|\\.)+)\\],?)+?");
+			.compile("(?:Epicycle \\[radius=((?:\\d|-|\\.)+), angularVelocity=((?:\\d|-|\\.)+)\\],?)+?");
 
 	private final InputStream istream;
 

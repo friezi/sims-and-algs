@@ -66,6 +66,12 @@ public class Transformer3D {
 		return this;
 	}
 
+	/**
+	 * @param axis
+	 * @param angle
+	 *            radian
+	 * @return
+	 */
 	public Transformer3D addRotation(final Axis3D axis, final double angle) {
 
 		final Vector3D axisVector = Vector3D.substract(axis.getP2(), axis.getP1());

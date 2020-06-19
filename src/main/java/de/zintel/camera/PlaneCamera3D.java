@@ -34,6 +34,8 @@ public class PlaneCamera3D implements ICamera3D {
 
 	private final double maxDistance;
 
+	private boolean showBehindCamera = false;
+
 	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToCamera, double curvature, Dimension screenDimension) {
 		this.viewpoint = viewpoint;
 		this.transformationToCamera = transformationToCamera;
@@ -73,7 +75,7 @@ public class PlaneCamera3D implements ICamera3D {
 
 		final Vector3D t_point = transformationToCamera.transformPoint(point);
 		// liegt bei z<0 hinter der Linse
-		Vector3D i_point = t_point.z() < 0 ? null : Utils3D.intersect(t_point, viewpoint, plane);
+		Vector3D i_point = (!showBehindCamera && t_point.z() < 0) ? null : Utils3D.intersect(t_point, viewpoint, plane);
 		if (i_point != null && curvature > 0) {
 			i_point = curve(i_point, curvature);
 		}
@@ -124,6 +126,14 @@ public class PlaneCamera3D implements ICamera3D {
 	@Override
 	public void reset() {
 		transformationToCamera.reset();
+	}
+
+	public boolean isShowBehindCamera() {
+		return showBehindCamera;
+	}
+
+	public void setShowBehindCamera(boolean showBehindCamera) {
+		this.showBehindCamera = showBehindCamera;
 	}
 
 }

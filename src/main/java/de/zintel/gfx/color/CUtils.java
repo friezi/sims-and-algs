@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import de.zintel.math.MathUtils;
+import de.zintel.math.Vector3D;
 
 /**
  * @author Friedemann
@@ -74,9 +75,13 @@ public final class CUtils {
 		return Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
 	}
 
+	public static Vector3D getHSBVec(final Color color) {
+		float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
+		return new Vector3D(hsb[0], hsb[1], hsb[2]);
+	}
+
 	public static boolean equal(final Color c1, final Color c2) {
-		return (c1.getRed() == c2.getRed() && c1.getGreen() == c2.getGreen() && c1.getBlue() == c2.getBlue()
-				&& c1.getAlpha() == c2.getAlpha());
+		return (c1.getRed() == c2.getRed() && c1.getGreen() == c2.getGreen() && c1.getBlue() == c2.getBlue() && c1.getAlpha() == c2.getAlpha());
 	}
 
 	public static int brighten(final int cValue, double colorBrigthnessFactor) {
