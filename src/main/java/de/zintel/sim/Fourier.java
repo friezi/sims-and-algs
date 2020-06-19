@@ -23,6 +23,7 @@ import de.zintel.gfx.g3d.EpicyclesPointGenerator;
 import de.zintel.gfx.g3d.EpicyclesPointGenerator.Epicycle;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector3D;
+import de.zintel.sim.epicycles.FileCyclesSet;
 
 /**
  * @author Friedemann
@@ -51,6 +52,8 @@ public class Fourier extends JPanel implements MouseListener, ActionListener {
 
 	private ScreenParameters screenParameters = new ScreenParameters();
 
+	private FileCyclesSet cycleSet;
+
 	/**
 	 * @param args
 	 * @throws Exception
@@ -63,6 +66,8 @@ public class Fourier extends JPanel implements MouseListener, ActionListener {
 	}
 
 	public void start() throws Exception {
+
+		cycleSet = new FileCyclesSet(getClass().getClassLoader().getResourceAsStream("coords/epicycles.txt"));
 
 		init();
 
@@ -83,12 +88,16 @@ public class Fourier extends JPanel implements MouseListener, ActionListener {
 	private void init() {
 
 		points.clear();
-		iterations = 10000/*MathUtils.RANDOM.nextInt(1000) + 1000*/;
+		iterations = 10000/* MathUtils.RANDOM.nextInt(1000) + 1000 */;
 		interpolater = new EpicyclesPointGenerator(new Vector3D(screenParameters.WIDTH / 2, screenParameters.HEIGHT / 2, 0), new Vector3D(),
 				iterations);
-		for (int i = 0; i < MathUtils.RANDOM.nextInt(30) + 2; i++) {
-			interpolater.addCircle(new Epicycle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
-		}
+//		for (int i = 0; i < MathUtils.RANDOM.nextInt(30) + 2; i++) {
+//			interpolater.addCircle(new Epicycle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
+//		}
+
+		 for (final Epicycle cycle : cycleSet.getCycles()) {
+		 interpolater.addCircle(cycle);
+		 }
 
 		while (interpolater.hasNext()) {
 			points.add(interpolater.next().getPoint());

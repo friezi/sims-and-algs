@@ -11,11 +11,11 @@ import de.zintel.gfx.g3d.EpicyclesPointGenerator.Epicycle;
  * @author friedo
  *
  */
-public interface IFParameterSet {
+public interface IECArgumentSet {
 
 	int getSpeed();
 
-	Collection<Epicycle> getCircles();
+	Collection<Epicycle> getCycles();
 
 	int getIterations();
 

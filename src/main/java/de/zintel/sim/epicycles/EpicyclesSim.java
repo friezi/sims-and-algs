@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,6 +15,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Supplier;
 
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.control.IKeyAction;
@@ -55,6 +57,11 @@ public class EpicyclesSim extends SimulationScreen {
 	private int iteration = 0;
 
 	private int iterationReduction;
+	
+//	 private Supplier<IECArgumentSet> argumentSetSupplier = () ->
+//	 getParameterSetUnperiodical();
+
+	private Supplier<IECArgumentSet> argumentSetSupplier = getParameterSupplierFile("coords/epicycles.txt");
 
 	/**
 	 * @param title
@@ -64,8 +71,8 @@ public class EpicyclesSim extends SimulationScreen {
 	 * @param recordFilename
 	 * @param recordingRate
 	 */
-	public EpicyclesSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
-			int recordingRate) {
+	public EpicyclesSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord,
+			String recordFilename, int recordingRate) {
 		super(title, gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 	}
 
@@ -93,27 +100,28 @@ public class EpicyclesSim extends SimulationScreen {
 		particles.clear();
 		iteration = 0;
 
-		final IFParameterSet parameterSet = getParameterSetUnperiodical();
-		iterations = Math.max(parameterSet.getIterations() - iterationReduction, 1);
+		final IECArgumentSet argumentSet = argumentSetSupplier.get();
+		iterations = Math.max(argumentSet.getIterations() - iterationReduction, 1);
 
 		interpolater = new EpicyclesPointGenerator(new Vector3D(SCREENPARAMETERS.WIDTH / 2, SCREENPARAMETERS.HEIGHT / 2, 0), new Vector3D(),
 				iterations);
-		for (final Epicycle circle : parameterSet.getCircles()) {
+		for (final Epicycle circle : argumentSet.getCycles()) {
 			interpolater.addCircle(circle);
 		}
-		speed = parameterSet.getSpeed();
+		speed = argumentSet.getSpeed();
 	}
 
-	private IFParameterSet getParameterSetObjects() {
-		return new IFParameterSet() {
+	private IECArgumentSet getParameterSetObjects() {
+		return new IECArgumentSet() {
 
 			@Override
 			public int getSpeed() {
 				return 20;
 			}
 
+			@SuppressWarnings("serial")
 			@Override
-			public Collection<Epicycle> getCircles() {
+			public Collection<Epicycle> getCycles() {
 
 				final double angle = 0.1;
 				return new LinkedList<Epicycle>() {
@@ -135,8 +143,8 @@ public class EpicyclesSim extends SimulationScreen {
 		};
 	}
 
-	private IFParameterSet getParameterSetPI() {
-		return new IFParameterSet() {
+	private IECArgumentSet getParameterSetPI() {
+		return new IECArgumentSet() {
 
 			@Override
 			public int getSpeed() {
@@ -144,7 +152,7 @@ public class EpicyclesSim extends SimulationScreen {
 			}
 
 			@Override
-			public Collection<Epicycle> getCircles() {
+			public Collection<Epicycle> getCycles() {
 
 				final double angle = 0.1;
 				return new LinkedList<Epicycle>() {
@@ -174,11 +182,51 @@ public class EpicyclesSim extends SimulationScreen {
 		};
 	}
 
-	private IFParameterSet getParameterSetUnperiodical() {
-		return new IFParameterSet() {
+	private Supplier<IECArgumentSet> getParameterSupplierFile(final String filename) {
+
+		return new Supplier<IECArgumentSet>() {
+
+			private final IECArgumentSet argumentSet = newSet();
+
+			@Override
+			public IECArgumentSet get() {
+				return argumentSet;
+			}
+
+			private IECArgumentSet newSet() {
+				try {
+					return new FileCyclesSet(getClass().getClassLoader().getResourceAsStream(filename));
+				} catch (IOException e) {
+
+					System.out.println("error on reading '" + filename + "'");
+
+					return new IECArgumentSet() {
+
+						@Override
+						public int getSpeed() {
+							return 1;
+						}
+
+						@Override
+						public int getIterations() {
+							return 1;
+						}
+
+						@Override
+						public Collection<Epicycle> getCycles() {
+							return Collections.emptyList();
+						}
+					};
+				}
+			}
+		};
+	}
+
+	private IECArgumentSet getParameterSetUnperiodical() {
+		return new IECArgumentSet() {
 
 			final int numCircles = MathUtils.RANDOM.nextInt(4) + 2;
-			int iterations = (MathUtils.RANDOM.nextInt(15000) + 2000) * numCircles;
+			int iterations = (MathUtils.RANDOM.nextInt(10000) + 2000) * numCircles;
 
 			@Override
 			public int getSpeed() {
@@ -186,12 +234,13 @@ public class EpicyclesSim extends SimulationScreen {
 			}
 
 			@Override
-			public Collection<Epicycle> getCircles() {
+			public Collection<Epicycle> getCycles() {
 
 				return new LinkedList<Epicycle>() {
 					{
 						for (int i = 0; i < numCircles; i++) {
-							interpolater.addCircle(new Epicycle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
+							interpolater.addCircle(
+									new Epicycle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
 						}
 
 					}
@@ -264,7 +313,7 @@ public class EpicyclesSim extends SimulationScreen {
 				final Vector3D point = interpolater.next().getPoint();
 				final Particle<Color> particle = new Particle<>(point);
 				final int restvalue = (int) MathUtils.morphRange(0, iterations, 0, 100, iteration);
-				particle.setAttribute(new Color(255, restvalue, 0, 10));
+				particle.setAttribute(new Color(255, restvalue, 0, 100));
 				particles.add(particle);
 				iteration++;
 
