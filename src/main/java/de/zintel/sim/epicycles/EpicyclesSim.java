@@ -103,7 +103,7 @@ public class EpicyclesSim extends SimulationScreen {
 
 		center = new Vector3D(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2, 0);
 		camera = new PlaneCamera3D(
-				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
+				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -800.0),
 				new CoordinateTransformation3D(), 15, graphicsSubsystem.getDimension());
 		camera.setShowBehindCamera(true);
 
@@ -296,16 +296,18 @@ public class EpicyclesSim extends SimulationScreen {
 				final Vector3D cposC = camera.project(cpos);
 				if (pposC != null && cposC != null) {
 
-					final double cdecay = 20;
+					final double cdecay = 2;
 
 					final Vector3D pposT = camera.getTransformationToCamera().transformPoint(ppos);
 					final Vector3D cposT = camera.getTransformationToCamera().transformPoint(cpos);
 
 					final Vector3D hsbVec = CUtils.getHSBVec(point.getAttribute());
 					final Color ppColor = Color.getHSBColor((float) hsbVec.x(), (float) hsbVec.y(),
-							(float) (pposT.z() - center.z() > 0 ? hsbVec.z() / ((pposT.z() - center.z()) / cdecay + 1) : hsbVec.z()));
+							(float) (pposT.z() - center.z() > 0 ? adjustColComp(hsbVec.z(), pposT.z() - center.z(), 0, cdecay)
+									: center.z() - pposT.z() > 0 ? adjustColComp(-(1 - hsbVec.z()), center.z() - pposT.z(), 1, cdecay) : hsbVec.z()));
 					final Color cpColor = Color.getHSBColor((float) hsbVec.x(), (float) hsbVec.y(),
-							(float) (cposT.z() - center.z() > 0 ? hsbVec.z() / ((cposT.z() - center.z()) / cdecay + 1) : hsbVec.z()));
+							(float) (cposT.z() - center.z() > 0 ? adjustColComp(hsbVec.z(), cposT.z() - center.z(), 0, cdecay)
+									: center.z() - cposT.z() > 0 ? adjustColComp(-(1 - hsbVec.z()), center.z() - cposT.z(), 1, cdecay) : hsbVec.z()));
 					graphicsSubsystem.drawLine((int) pposC.x(), (int) pposC.y(), (int) cposC.x(), (int) cposC.y(), ppColor, cpColor);
 				}
 			}
@@ -328,6 +330,10 @@ public class EpicyclesSim extends SimulationScreen {
 			}
 		}
 
+	}
+
+	private double adjustColComp(final double value, final double delta, final double anchor, final double decay) {
+		return anchor + value / (Math.log(delta + 1) / decay + 1);
 	}
 
 	/*
