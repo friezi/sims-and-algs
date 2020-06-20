@@ -85,7 +85,7 @@ public class PlaneCamera3D implements ICamera3D {
 
 	@Override
 	public boolean inRange(final Vector3D point) {
-		return point.x() >= 0 && point.x() < screenDimension.getWidth() && point.y() >= 0 && point.y() < screenDimension.getHeight();
+		return point != null && point.x() >= 0 && point.x() < screenDimension.getWidth() && point.y() >= 0 && point.y() < screenDimension.getHeight();
 	}
 
 	private Vector3D curve(final Vector3D point, final double curvature) {

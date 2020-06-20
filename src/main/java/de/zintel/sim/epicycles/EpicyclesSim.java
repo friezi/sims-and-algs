@@ -104,7 +104,7 @@ public class EpicyclesSim extends SimulationScreen {
 		center = new Vector3D(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2, 0);
 		camera = new PlaneCamera3D(
 				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
-				new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
+				new CoordinateTransformation3D(), 15, graphicsSubsystem.getDimension());
 		camera.setShowBehindCamera(true);
 
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
@@ -290,17 +290,23 @@ public class EpicyclesSim extends SimulationScreen {
 			if (previousPoint != null) {
 
 				final Vector3D ppos = previousPoint.getPosition();
-				final Vector3D pposT = camera.project(ppos);
 				final Vector3D cpos = point.getPosition();
-				final Vector3D cposT = camera.project(cpos);
 
-				final Vector3D hsbVec = CUtils.getHSBVec(point.getAttribute());
-				final Color ppColor = Color.getHSBColor((float) hsbVec.x(), (float) hsbVec.y(),
-						(float) (ppos.z() - center.z() > 0 ? hsbVec.z() / Math.pow(3, ppos.z() - center.z()) : hsbVec.z()));
-				final Color cpColor = Color.getHSBColor((float) hsbVec.x(), (float) hsbVec.y(),
-						(float) (cpos.z() - center.z() > 0 ? hsbVec.z() / Math.pow(3, cpos.z() - center.z()) : hsbVec.z()));
-				if (pposT != null && cposT != null) {
-					graphicsSubsystem.drawLine((int) pposT.x(), (int) pposT.y(), (int) cposT.x(), (int) cposT.y(), ppColor, cpColor);
+				final Vector3D pposC = camera.project(ppos);
+				final Vector3D cposC = camera.project(cpos);
+				if (pposC != null && cposC != null) {
+
+					final double cdecay = 20;
+
+					final Vector3D pposT = camera.getTransformationToCamera().transformPoint(ppos);
+					final Vector3D cposT = camera.getTransformationToCamera().transformPoint(cpos);
+
+					final Vector3D hsbVec = CUtils.getHSBVec(point.getAttribute());
+					final Color ppColor = Color.getHSBColor((float) hsbVec.x(), (float) hsbVec.y(),
+							(float) (pposT.z() - center.z() > 0 ? hsbVec.z() / ((pposT.z() - center.z()) / cdecay + 1) : hsbVec.z()));
+					final Color cpColor = Color.getHSBColor((float) hsbVec.x(), (float) hsbVec.y(),
+							(float) (cposT.z() - center.z() > 0 ? hsbVec.z() / ((cposT.z() - center.z()) / cdecay + 1) : hsbVec.z()));
+					graphicsSubsystem.drawLine((int) pposC.x(), (int) pposC.y(), (int) cposC.x(), (int) cposC.y(), ppColor, cpColor);
 				}
 			}
 
