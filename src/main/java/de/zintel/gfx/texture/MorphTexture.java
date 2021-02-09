@@ -81,8 +81,8 @@ public class MorphTexture implements ITexture {
 		return MathUtils
 				.morph(xy -> textureZero.getValue(xy), xy -> textureOne.getValue(xy),
 						xy -> morphFactor.apply(new Vector2D(Arrays.asList(
-								MathUtils.morphRange(0, textureZero.getWidth() - 1, factorXRange.get(0), factorXRange.get(1), xy.get(0)),
-								MathUtils.morphRange(0, textureZero.getHeight() - 1, factorYRange.get(0), factorYRange.get(1), xy.get(1))))),
+								MathUtils.scalel(0, textureZero.getWidth() - 1, factorXRange.get(0), factorXRange.get(1), xy.get(0)),
+								MathUtils.scalel(0, textureZero.getHeight() - 1, factorYRange.get(0), factorYRange.get(1), xy.get(1))))),
 						xy -> 1.0, coords);
 	}
 

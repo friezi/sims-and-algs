@@ -229,7 +229,7 @@ public final class GLUtils {
 	}
 
 	public static double projectHomogenous(int value, int max) {
-		return MathUtils.morphRange(0, max, -1, 1, value);
+		return MathUtils.scalel(0, max, -1, 1, value);
 	}
 
 }

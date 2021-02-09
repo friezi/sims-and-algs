@@ -92,7 +92,7 @@ public class PlaneCamera3D implements ICamera3D {
 
 		final Vector3D direction = Vector3D.substract(point, middle);
 		final double distance = direction.length();
-		final double weight = Math.pow(Math.sin(MathUtils.morphRange(0, maxDistance, 0, Math.PI / 2, distance)), 2);
+		final double weight = Math.pow(Math.sin(MathUtils.scalel(0, maxDistance, 0, Math.PI / 2, distance)), 2);
 
 		return Vector3D.add(point, Vector3D.mult((weight * curvature * distance) / maxDistance, direction));
 

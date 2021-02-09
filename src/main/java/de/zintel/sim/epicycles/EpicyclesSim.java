@@ -359,7 +359,7 @@ public class EpicyclesSim extends SimulationScreen {
 
 				final Vector3D point = interpolater.next().getPoint();
 				final Particle<Color> particle = new Particle<>(point);
-				final int restvalue = (int) MathUtils.morphRange(0, iterations, 0, 100, iteration);
+				final int restvalue = (int) MathUtils.scalel(0, iterations, 0, 100, iteration);
 				final Color color = new Color(255, restvalue, 0, opacity);
 				particle.setAttribute(color);
 				particles.add(particle);

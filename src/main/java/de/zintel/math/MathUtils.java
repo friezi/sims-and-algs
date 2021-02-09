@@ -167,7 +167,7 @@ public final class MathUtils {
 	}
 
 	/**
-	 * transformation of ranges
+	 * scale linear: a value in range [smin,smax] will be scaled to [tmin,tmax]
 	 * 
 	 * @param smin
 	 *            source-range minimum
@@ -181,8 +181,38 @@ public final class MathUtils {
 	 *            value (MUST BE WITHIN [smin,smax], NO CHECK!!!
 	 * @return
 	 */
-	public static double morphRange(final double smin, final double smax, final double tmin, final double tmax, final double x) {
-		return smax == smin ? tmin : morph(t -> tmin, t -> tmax, t -> (t - smin), t -> (smax - smin), x);
+	public static double scalel(final double smin, final double smax, final double tmin, final double tmax, final double x) {
+		return scalea(smin, smax, tmin, tmax, t -> (t - smin), t -> (smax - smin), x);
+	}
+
+	/**
+	 * scale arbitrary: a value in range [smin,smax] will be scaled to
+	 * [tmin,tmax] with scaling transformation function
+	 * (ftransNumerator(x)/ftransDenominator(x))
+	 * 
+	 * @param smin
+	 *            source-range minimum
+	 * @param smax
+	 *            source-range maximum
+	 * @param tmin
+	 *            target-range minimum
+	 * @param tmax
+	 *            target-range maximum
+	 * @param ftransNumerator
+	 *            MUST provide values in range [0,1], SHOULD provide
+	 *            (ftransNumerator(smin)/ftransDenominator(smin))==0,
+	 *            (ftransNumerator(smax)/ftransDenominator(smax))==1
+	 * @param ftransDenominator
+	 *            MUST provide values in range [0,1], SHOULD provide
+	 *            (ftransNumerator(smin)/ftransDenominator(smin))==0,
+	 *            (ftransNumerator(smax)/ftransDenominator(smax))==1
+	 * @param x
+	 *            value (MUST BE WITHIN [smin,smax], NO CHECK!!!
+	 * @return
+	 */
+	public static double scalea(final double smin, final double smax, final double tmin, final double tmax,
+			final Function<Double, Double> ftransNumerator, final Function<Double, Double> ftransDenominator, final double x) {
+		return smax == smin ? tmin : morph(t -> tmin, t -> tmax, ftransNumerator, ftransDenominator, x);
 	}
 
 	public static Optional<Double> max(final Collection<Double> collection) {
@@ -202,7 +232,7 @@ public final class MathUtils {
 	}
 
 	public static int makeRandom(int min, int max) {
-		return (int) morphRange(0, max - min, min, max, RANDOM.nextInt(max - min + 1));
+		return (int) scalel(0, max - min, min, max, RANDOM.nextInt(max - min + 1));
 	}
 
 	/**
@@ -288,7 +318,7 @@ public final class MathUtils {
 	}
 
 	public static double sigmoid(double x) {
-		return morphRange(-1, 1, 0, 1, Math.tanh(x));
+		return scalel(-1, 1, 0, 1, Math.tanh(x));
 	}
 
 	/**
@@ -298,7 +328,7 @@ public final class MathUtils {
 	 * @return
 	 */
 	public static double radian(final double degree) {
-		return morphRange(0, 360, 0, 2 * Math.PI, ((int) degree) % 360);
+		return scalel(0, 360, 0, 2 * Math.PI, ((int) degree) % 360);
 	}
 
 }

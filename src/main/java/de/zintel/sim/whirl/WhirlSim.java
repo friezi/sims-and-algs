@@ -196,7 +196,7 @@ public class WhirlSim extends SimulationScreen {
 			public void step() {
 				if (!finished()) {
 					step += deltastep;
-					whirlParticleSystem.getRotcenter().setY(MathUtils.morphRange(0, maxSteps(), start, end, step));
+					whirlParticleSystem.getRotcenter().setY(MathUtils.scalel(0, maxSteps(), start, end, step));
 				}
 
 			}
@@ -237,7 +237,7 @@ public class WhirlSim extends SimulationScreen {
 
 				if (!finished()) {
 					step += deltastep;
-					whirlParticleSystem.setParticlesminy(((int) MathUtils.morphRange(0, maxSteps(), start, end, step)));
+					whirlParticleSystem.setParticlesminy(((int) MathUtils.scalel(0, maxSteps(), start, end, step)));
 				}
 
 			}
@@ -278,7 +278,7 @@ public class WhirlSim extends SimulationScreen {
 
 				if (!finished()) {
 					step += deltastep;
-					whirlParticleSystem.setRotationTransitionLeft(((int) MathUtils.morphRange(0, maxSteps(), start, end, step)));
+					whirlParticleSystem.setRotationTransitionLeft(((int) MathUtils.scalel(0, maxSteps(), start, end, step)));
 				}
 
 			}
@@ -354,9 +354,9 @@ public class WhirlSim extends SimulationScreen {
 			}
 
 			final Function<Double, Double> colortrans = v -> MathUtils
-					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -7, 1.4, point.x()));
+					.sigmoid(MathUtils.scalel(deltaxmin, dimension.getWidth() + deltaxmax, -7, 1.4, point.x()));
 			final Function<Double, Double> alphatrans = v -> MathUtils
-					.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -18, 1.4, point.x()));
+					.sigmoid(MathUtils.scalel(deltaxmin, dimension.getWidth() + deltaxmax, -18, 1.4, point.x()));
 
 			if (camera.inRange(ppoint)) {
 				graphicsSubsystem.drawFilledCircle((int) px, (int) py, pradius,
@@ -496,7 +496,7 @@ public class WhirlSim extends SimulationScreen {
 			return 0;
 		}
 		return MathUtils.morph(v -> particle.getAttribute().radius, v -> finalBubbleRadius,
-				v -> MathUtils.sigmoid(MathUtils.morphRange(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, point.x())), prc.x());
+				v -> MathUtils.sigmoid(MathUtils.scalel(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, point.x())), prc.x());
 
 	}
 

@@ -119,8 +119,8 @@ public class SphereCamera3D implements ICamera3D {
 		final double alphax = angle(s_point.x());
 		final double alphay = angle(s_point.y());
 
-		final double x = MathUtils.morphRange(-d_anglex, d_anglex, 0, screenDimension.getWidth() - 1, alphax);
-		final double y = MathUtils.morphRange(-d_angley, d_angley, screenDimension.getHeight() - 1, 0, alphay);
+		final double x = MathUtils.scalel(-d_anglex, d_anglex, 0, screenDimension.getWidth() - 1, alphax);
+		final double y = MathUtils.scalel(-d_angley, d_angley, screenDimension.getHeight() - 1, 0, alphay);
 
 		return new Vector3D(x, y, 0);
 	}

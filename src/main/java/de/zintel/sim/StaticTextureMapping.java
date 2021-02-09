@@ -256,8 +256,8 @@ public class StaticTextureMapping extends JPanel implements MouseListener, Actio
 
 				// Gauss'sche Normalverteilung:
 				new MorphFunctionSpec(
-						xy -> MathUtils.morphRange(0, 0.1, 0, 1.0, 1 / (2 * Math.PI) * Math.pow(Math.E, -0.5 * Math.pow(xy.get(0), 2)))
-								* MathUtils.morphRange(0, 0.1, 0, 1.0, 1 / (2 * Math.PI) * Math.pow(Math.E, -0.5 * Math.pow(xy.get(1), 2))),
+						xy -> MathUtils.scalel(0, 0.1, 0, 1.0, 1 / (2 * Math.PI) * Math.pow(Math.E, -0.5 * Math.pow(xy.get(0), 2)))
+								* MathUtils.scalel(0, 0.1, 0, 1.0, 1 / (2 * Math.PI) * Math.pow(Math.E, -0.5 * Math.pow(xy.get(1), 2))),
 						-4, 4, -4, 4),
 				new MorphFunctionSpec(xy -> (double) rnd.nextInt(2), 0.0, (double) texture_interpolated.getWidth(), 0.0,
 						(double) texture_interpolated.getHeight()));

@@ -62,7 +62,7 @@ public class WhirlParticleSystem<A> extends ParticleSystem<WhirlParticle<A>, A> 
 			final Vector3D point = particle.getPosition();
 
 			final Function<Double, Double> rottrans = x -> MathUtils
-					.sigmoid(MathUtils.morphRange(0, width, rotationTransitionLeft, rotationTransitionRight, point.x()));
+					.sigmoid(MathUtils.scalel(0, width, rotationTransitionLeft, rotationTransitionRight, point.x()));
 
 			// particles velocity in x direction should increase by progressing in x direction
 			point.setX(point.x() + MathUtils.morph(v -> particle.velocity, v -> particle.velocity + 10, rottrans, point.x()));
@@ -104,7 +104,7 @@ public class WhirlParticleSystem<A> extends ParticleSystem<WhirlParticle<A>, A> 
 	 * @return
 	 */
 	private double theta(final double degree) {
-		return MathUtils.morphRange(0, 360, 0, 2 * Math.PI, ((int) degree) % 360);
+		return MathUtils.scalel(0, 360, 0, 2 * Math.PI, ((int) degree) % 360);
 	}
 
 	private boolean validByFrequency(final int frequency) {
