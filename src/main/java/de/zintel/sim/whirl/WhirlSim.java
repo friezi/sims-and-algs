@@ -17,7 +17,6 @@ import com.github.strikerx3.jxinput.enums.XInputButton;
 
 import de.zintel.animation.IAnimator;
 import de.zintel.animation.MultiAnimator;
-import de.zintel.camera.BezierCameraAnimator;
 import de.zintel.camera.ICamera3D;
 import de.zintel.camera.PathCameraAnimator;
 import de.zintel.camera.PlaneCamera3D;
@@ -28,6 +27,7 @@ import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
+import de.zintel.gfx.g3d.BezierInterpolaterFactory;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.AVectorND;
 import de.zintel.math.MathUtils;
@@ -147,7 +147,8 @@ public class WhirlSim extends SimulationScreen {
 		whirlParticleSystem = new WhirlParticleSystem<>(
 				particle -> new WhirlParticleAttributes(CUtils.transparent(CUtils.makeRandomColor(), 200),
 						MathUtils.makeRandom(minParticleRadius, maxParticleRadius)),
-				Collections.emptySet(), rotcenter, deltaxmin, deltaxmax, 1, getGraphicsSubsystem().getDimension().getHeight(), finalCircleRadius);
+				Collections.emptySet(), rotcenter, deltaxmin, deltaxmax, 1, getGraphicsSubsystem().getDimension().getHeight(),
+				finalCircleRadius);
 
 	}
 
@@ -158,9 +159,9 @@ public class WhirlSim extends SimulationScreen {
 		// camera = new SphereCamera3D(new Vector3D(950.0, 140.0, -1000.0), new
 		// CoordinateTransformation3D(), 5000000,
 		// graphicsSubsystem.getDimension());
-		camera = new PlaneCamera3D(
-				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
-				new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
+		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
+				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0), new CoordinateTransformation3D(), 0,
+				graphicsSubsystem.getDimension());
 
 	}
 
@@ -359,10 +360,9 @@ public class WhirlSim extends SimulationScreen {
 					.sigmoid(MathUtils.scalel(deltaxmin, dimension.getWidth() + deltaxmax, -18, 1.4, point.x()));
 
 			if (camera.inRange(ppoint)) {
-				graphicsSubsystem.drawFilledCircle((int) px, (int) py, pradius,
-						() -> CUtils.transparent(
-								adjustColor(CUtils.morphColor(particle.getAttribute().color, Color.YELLOW, colortrans, point.x()), point),
-								(int) MathUtils.morph(v -> (double) particle.getAttribute().color.getAlpha(), v -> 0D, alphatrans, point.x())));
+				graphicsSubsystem.drawFilledCircle((int) px, (int) py, pradius, () -> CUtils.transparent(
+						adjustColor(CUtils.morphColor(particle.getAttribute().color, Color.YELLOW, colortrans, point.x()), point),
+						(int) MathUtils.morph(v -> (double) particle.getAttribute().color.getAlpha(), v -> 0D, alphatrans, point.x())));
 			}
 		}
 		//
@@ -446,7 +446,8 @@ public class WhirlSim extends SimulationScreen {
 					if (ppoint != null) {
 
 						if (camera.inRange(ppoint)) {
-							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius, () -> adjustColor(Color.GREEN, point));
+							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius,
+									() -> adjustColor(Color.GREEN, point));
 						}
 
 						if (xnppoint != null) {
@@ -566,7 +567,7 @@ public class WhirlSim extends SimulationScreen {
 			pathCameraAnimator = null;
 		} else {
 			if (pathCameraAnimator == null) {
-				pathCameraAnimator = new BezierCameraAnimator(camera, rotcenter, getGraphicsSubsystem().getDimension());
+				pathCameraAnimator = new PathCameraAnimator(camera, rotcenter, dimension, new BezierInterpolaterFactory(dimension));
 			}
 			cameraAnimator = pathCameraAnimator;
 		}
@@ -1139,8 +1140,8 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public String getValue() {
-				return String
-						.valueOf(camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
+				return String.valueOf(
+						camera instanceof SphereCamera3D ? ((SphereCamera3D) camera).getRadius() : ((PlaneCamera3D) camera).getCurvature());
 			}
 		});
 		addKeyAction(KeyEvent.VK_E, new IKeyAction() {

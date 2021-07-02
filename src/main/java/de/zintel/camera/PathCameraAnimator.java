@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.function.BiFunction;
 
 import de.zintel.animation.IAnimator;
 import de.zintel.gfx.g3d.APointInterpolater3D;
@@ -21,13 +22,15 @@ import de.zintel.math.transform.CoordinateTransformation3D;
  * @author friedo
  *
  */
-public abstract class PathCameraAnimator implements IAnimator {
+public class PathCameraAnimator implements IAnimator {
 
 	private final ICamera3D camera;
 
 	private final Vector3D center;
 
 	private final Dimension dimension;
+
+	private final BiFunction<Vector3D, Vector3D, APointInterpolater3D> pointInterpolaterFactory;
 
 	private final Vector3D mid;
 
@@ -48,10 +51,12 @@ public abstract class PathCameraAnimator implements IAnimator {
 
 	private int mergeWithCenterSteps = 120;
 
-	public PathCameraAnimator(ICamera3D camera, Vector3D center, Dimension dimension) {
+	public PathCameraAnimator(ICamera3D camera, Vector3D center, Dimension dimension,
+			BiFunction<Vector3D, Vector3D, APointInterpolater3D> pointInterpolaterFactory) {
 		this.camera = camera;
 		this.center = center;
 		this.dimension = dimension;
+		this.pointInterpolaterFactory = pointInterpolaterFactory;
 		this.mid = new Vector3D(dimension.getWidth() / 2, dimension.getHeight() / 2, 0);
 		this.previousPoint = camera.getTransformationToCamera().inverseTransformPoint(camera.getViewpoint());
 	}
@@ -133,7 +138,7 @@ public abstract class PathCameraAnimator implements IAnimator {
 
 	private void makePath() {
 
-		pointInterpolater3D = newPointInterpolater(previousPoint == null ? makeRandomPoint() : previousPoint, makeRandomPoint());
+		pointInterpolater3D = pointInterpolaterFactory.apply(previousPoint == null ? makeRandomPoint() : previousPoint, makeRandomPoint());
 
 		final LinkedList<Vector3D> list = new LinkedList<>();
 		for (final StepUnit3D unit : pointInterpolater3D) {
@@ -144,8 +149,6 @@ public abstract class PathCameraAnimator implements IAnimator {
 
 		counter = 0;
 	}
-
-	protected abstract APointInterpolater3D newPointInterpolater(final Vector3D start, final Vector3D end);
 
 	protected Vector3D makeRandomPoint() {
 		return new Vector3D(makeRangeValue(dimension.width), makeRangeValue(dimension.height), makeRangeValue(dimension.height));
