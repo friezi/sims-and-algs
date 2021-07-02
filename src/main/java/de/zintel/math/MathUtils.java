@@ -331,4 +331,8 @@ public final class MathUtils {
 		return scalel(0, 360, 0, 2 * Math.PI, ((int) degree) % 360);
 	}
 
+	public static boolean inEpsilonRange(final double value) {
+		return Math.abs(value) > 0.0000000001;
+	}
+
 }

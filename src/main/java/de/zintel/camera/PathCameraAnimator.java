@@ -110,7 +110,9 @@ public abstract class PathCameraAnimator implements IAnimator {
 			final double effectiveAngle = MathUtils.interpolateReal(0, angle, mergeWithCenterStep, mergeWithCenterSteps,
 					(x, max) -> x * Math.sin((Math.PI * x) / (2 * max)));
 
-			camera.rotate(new Axis3D(vpoint, Vector3D.add(vpoint, rotnorm)), -effectiveAngle);
+			if (MathUtils.inEpsilonRange(effectiveAngle)) {
+				camera.rotate(new Axis3D(vpoint, Vector3D.add(vpoint, rotnorm)), -effectiveAngle);
+			}
 
 			if (mergeWithCenterStep < mergeWithCenterSteps) {
 				mergeWithCenterStep++;
