@@ -60,7 +60,7 @@ public class PathCameraAnimator implements IAnimator {
 		this.dimension = dimension;
 		this.pointInterpolaterFactory = pointInterpolaterFactory;
 		this.mid = new Vector3D(dimension.getWidth() / 2, dimension.getHeight() / 2, 0);
-		this.previousPoint = camera.getTransformationToCamera().inverseTransformPoint(camera.getViewpoint());
+		this.previousPoint = camera.getTransformationToCamera().inverseTransformPoint(new Vector3D());
 	}
 
 	/*
