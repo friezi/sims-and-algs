@@ -90,7 +90,7 @@ public abstract class AVectorND<T extends AVectorND<T>> implements IVectorFactor
 	public double length() {
 
 		if (length == -1) {
-			length = Math.sqrt(mult((T) this, (T) this));
+			length = Math.sqrt(dotProduct((T) this, (T) this));
 		}
 
 		return length;
@@ -212,7 +212,7 @@ public abstract class AVectorND<T extends AVectorND<T>> implements IVectorFactor
 	 * @param b
 	 * @return
 	 */
-	public static <T extends AVectorND<T>> double mult(T a, T b) {
+	public static <T extends AVectorND<T>> double dotProduct(T a, T b) {
 
 		assertProp(a.getDim() == b.getDim());
 

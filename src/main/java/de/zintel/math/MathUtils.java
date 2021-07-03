@@ -90,8 +90,8 @@ public final class MathUtils {
 	 *            value x
 	 * @return morphed value
 	 */
-	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend, final Function<Double, Double> ftrans,
-			final double x) {
+	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend,
+			final Function<Double, Double> ftrans, final double x) {
 		return morph(fstart, fend, ftrans, d -> 1.0, x);
 	}
 
@@ -115,12 +115,12 @@ public final class MathUtils {
 	 */
 	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend,
 			final Function<Double, Double> ftransNumerator, final Function<Double, Double> ftransDenominator, final double x) {
-		
+
 		final Double start = fstart.apply(x);
 		final Double end = fend.apply(x);
 		final Double numerator = ftransNumerator.apply(x);
 		final Double denominator = ftransDenominator.apply(x);
-		
+
 		return start + (numerator * (end - start)) / denominator;
 	}
 
@@ -333,6 +333,23 @@ public final class MathUtils {
 
 	public static boolean inEpsilonRange(final double value) {
 		return Math.abs(value) > 0.0000000001;
+	}
+
+	/**
+	 * calculates the
+	 * 
+	 * @param sine
+	 * @param cosine
+	 * @return
+	 */
+	public static double angle(final double sine, final double cosine) {
+
+		final double sigsine = Math.signum(sine);
+		final double sigcosine = Math.signum(cosine);
+		final double asine = Math.asin(sine);
+
+		return sigcosine > 0 ? asine : sigsine * Math.PI - asine;
+
 	}
 
 }

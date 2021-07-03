@@ -29,7 +29,7 @@ public class Plane3D {
 	 * @return
 	 */
 	public double calculatePn(Vector3D normal, Vector3D positionvector) {
-		return AVectorND.mult(positionvector, normal);
+		return AVectorND.dotProduct(positionvector, normal);
 	}
 
 	public Vector3D getNormal() {

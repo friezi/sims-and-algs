@@ -15,8 +15,10 @@ import de.zintel.gfx.g3d.APointInterpolater3D;
 import de.zintel.gfx.g3d.StepUnit3D;
 import de.zintel.math.Axis3D;
 import de.zintel.math.MathUtils;
+import de.zintel.math.Utils3D;
 import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
+import de.zintel.utils.Pair;
 
 /**
  * @author friedo
@@ -101,22 +103,23 @@ public class PathCameraAnimator implements IAnimator {
 			previousPoint = next;
 
 			// rotation to center
-			final Vector3D vpoint = camera.getViewpoint();
-			final Vector3D cnorm = Vector3D.substract(pcenter, vpoint);
-			final double cnlen = cnorm.length();
-			if (cnlen == 0) {
-				// camera has reached center, no adjustment possible
+			final Vector3D viewpoint = camera.getViewpoint();
+			final Vector3D distancevector = Vector3D.substract(pcenter, viewpoint);
+
+			final Vector3D cameradirection = new Vector3D(0, 0, 1);
+			final Pair<Double, Vector3D> angleAxis = Utils3D.angleAxis(cameradirection, distancevector);
+			final Double angle = angleAxis.getFirst();
+			final Vector3D axis = angleAxis.getSecond();
+
+			if (Double.isNaN(angle)) {
 				return;
 			}
 
-			final Vector3D snorm = new Vector3D(0, 0, 1);
-			final Vector3D rotnorm = Vector3D.crossProduct(cnorm, snorm);
-			final double angle = Math.asin(rotnorm.length() / (Math.abs(cnlen) * Math.abs(snorm.length())));
 			final double effectiveAngle = MathUtils.interpolateReal(0, angle, mergeWithCenterStep, mergeWithCenterSteps,
 					(x, max) -> x * Math.sin((Math.PI * x) / (2 * max)));
 
 			if (MathUtils.inEpsilonRange(effectiveAngle)) {
-				camera.rotate(new Axis3D(vpoint, Vector3D.add(vpoint, rotnorm)), -effectiveAngle);
+				camera.rotate(new Axis3D(viewpoint, Vector3D.add(viewpoint, axis)), -effectiveAngle);
 			}
 
 			if (mergeWithCenterStep < mergeWithCenterSteps) {

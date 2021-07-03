@@ -8,7 +8,9 @@ import com.github.strikerx3.jxinput.enums.XInputButton;
 import de.zintel.animation.IAnimator;
 import de.zintel.math.Axis3D;
 import de.zintel.math.MathUtils;
+import de.zintel.math.Utils3D;
 import de.zintel.math.Vector3D;
+import de.zintel.utils.Pair;
 import de.zintel.xinput.IXInputCombinedHandler;
 
 /**
@@ -63,38 +65,23 @@ public class XInputCameraAnimator implements IXInputCombinedHandler, IAnimator {
 
 			try {
 
-				double angle = 1;
-				// because asin only works on [-pi/2,pi/2] we need to iterate
-				// the rotation, until the center has been reached (angle > 90
-				// degrees will result in smaller angle changes)
-				while (MathUtils.inEpsilonRange(angle)) {
+				final Vector3D pcenter = camera.getTransformationToCamera().transformPoint(center);
 
-					final Vector3D pcenter = camera.getTransformationToCamera().transformPoint(center);
+				// rotation to center
+				final Vector3D viewpoint = camera.getViewpoint();
+				final Vector3D distancevector = Vector3D.substract(pcenter, viewpoint);
 
-					// rotation to center
-					final Vector3D viewpoint = camera.getViewpoint();
-					final Vector3D distancevector = Vector3D.substract(pcenter, viewpoint);
-					final double dlen = distancevector.length();
-					if (dlen == 0) {
-						// camera has reached center, no adjustment possible
-						return;
-					}
+				final Vector3D cameradirection = new Vector3D(0, 0, 1);
 
-					final Vector3D snorm = new Vector3D(0, 0, 1);
-					final Vector3D dnormOppDirection = Vector3D.normalize(distancevector).negate();
-					final Vector3D rotnorm = Vector3D.crossProduct(distancevector, snorm);
+				final Pair<Double, Vector3D> angleAxis = Utils3D.angleAxis(cameradirection, distancevector);
+				final Double angle = angleAxis.getFirst();
+				final Vector3D axis = angleAxis.getSecond();
+				if (Double.isNaN(angle)) {
+					return;
+				}
 
-					if (Vector3D.substract(snorm, dnormOppDirection).isNullVector()) {
-						// camera points in opposite direction of center, would
-						// result in 0 degrees, thus set it to 180 degrees
-						angle = Math.PI;
-					} else {
-						angle = Math.asin(rotnorm.length() / (Math.abs(dlen) * Math.abs(snorm.length())));
-					}
-
-					if (MathUtils.inEpsilonRange(angle)) {
-						camera.rotate(new Axis3D(viewpoint, Vector3D.add(viewpoint, rotnorm)), -angle);
-					}
+				if (MathUtils.inEpsilonRange(angle)) {
+					camera.rotate(new Axis3D(viewpoint, Vector3D.add(viewpoint, axis)), -angle);
 				}
 
 			} finally {

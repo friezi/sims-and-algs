@@ -135,8 +135,8 @@ public class SphereCamera3D implements ICamera3D {
 		}
 
 		final Vector3D l = AVectorND.mult(1.0 / vpLength, vp);
-		final double lpc = AVectorND.mult(l, AVectorND.substract(point, sphereCenter));
-		final double root = Math.sqrt(Math.pow(lpc, 2) + 2 * Vector3D.mult(point, sphereCenter) + Math.pow(radius, 2) - Math.pow(point.length(), 2)
+		final double lpc = AVectorND.dotProduct(l, AVectorND.substract(point, sphereCenter));
+		final double root = Math.sqrt(Math.pow(lpc, 2) + 2 * Vector3D.dotProduct(point, sphereCenter) + Math.pow(radius, 2) - Math.pow(point.length(), 2)
 				- Math.pow(sphereCenter.length(), 2));
 
 		final double lambda1 = -lpc + root;
