@@ -27,7 +27,7 @@ import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
-import de.zintel.gfx.g3d.BezierInterpolaterFactory;
+import de.zintel.gfx.g3d.LinearPointInterpolater3D;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.AVectorND;
 import de.zintel.math.MathUtils;
@@ -567,7 +567,11 @@ public class WhirlSim extends SimulationScreen {
 			pathCameraAnimator = null;
 		} else {
 			if (pathCameraAnimator == null) {
-				pathCameraAnimator = new PathCameraAnimator(camera, rotcenter, dimension, new BezierInterpolaterFactory(dimension));
+				// pathCameraAnimator = new PathCameraAnimator(camera,
+				// rotcenter, dimension, new
+				// BezierInterpolaterFactory(dimension));
+				pathCameraAnimator = new PathCameraAnimator(camera, rotcenter, dimension,
+						(start, end) -> new LinearPointInterpolater3D(start, end, false));
 			}
 			cameraAnimator = pathCameraAnimator;
 		}

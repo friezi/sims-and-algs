@@ -81,8 +81,12 @@ public class Utils3D {
 		final double divisor = Math.abs(blen) * Math.abs(alen);
 		final double sine = axis.length() / divisor;
 		final double cosine = dotproduct / divisor;
+		final double angle = MathUtils.angle(sine, cosine);
+		//
+		// System.out.println("angle: " + (angle * 360) / (2 * Math.PI) + " b: "
+		// + b + " blen: " + blen);
 
-		return new Pair<>(MathUtils.angle(sine, cosine), axis);
+		return new Pair<>(angle, axis);
 
 	}
 

@@ -107,12 +107,12 @@ public class Tetragon3D implements IObject3D {
 		}
 
 		// Startrand interpolieren
-		new Processor<StepUnit3Dold>(new LinearPointInterpolater3D(sP1.add(point), sP2.add(point), true), new Consumer<StepUnit3Dold>() {
+		new Processor<StepUnit3Dold>(new LinearPointInterpolater3Dold(sP1.add(point), sP2.add(point), true), new Consumer<StepUnit3Dold>() {
 
 			Collection<Point3D> ePoints = new ArrayList<>(2);
 
 			// Endrand interpolieren
-			Processor<StepUnit3Dold> eITP = new Processor<StepUnit3Dold>(new LinearPointInterpolater3D(eP1.add(point), eP2.add(point), true),
+			Processor<StepUnit3Dold> eITP = new Processor<StepUnit3Dold>(new LinearPointInterpolater3Dold(eP1.add(point), eP2.add(point), true),
 					stepUnit -> {
 						ePoints.add(stepUnit.getPoint());
 					}) {
@@ -142,7 +142,7 @@ public class Tetragon3D implements IObject3D {
 
 				// Linie interpolieren
 				for (Point3D ePoint : ePoints) {
-					new Processor<StepUnit3Dold>(new LinearPointInterpolater3D(sPoint, ePoint, true), new Consumer<StepUnit3Dold>() {
+					new Processor<StepUnit3Dold>(new LinearPointInterpolater3Dold(sPoint, ePoint, true), new Consumer<StepUnit3Dold>() {
 
 						private Point lastpoint = null;
 						private int lastTx;
