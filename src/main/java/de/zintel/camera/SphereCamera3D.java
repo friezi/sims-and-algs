@@ -39,6 +39,8 @@ public class SphereCamera3D implements ICamera3D {
 
 	private CoordinateTransformation3D screenToLens;
 
+	private String id = "";
+
 	public SphereCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToScreen, double radius, Dimension screenDimension) {
 
 		this.transformationToScreen = transformationToScreen;
@@ -197,9 +199,13 @@ public class SphereCamera3D implements ICamera3D {
 	}
 
 	@Override
-	public boolean behindScreen(Vector3D camerapoint) {
-		// FIXME not sure, if that is completely correct due to curved surface
-		return camerapoint.z() < 0;
+	public String getId() {
+		return id;
+	}
+
+	public SphereCamera3D setId(String id) {
+		this.id = id;
+		return this;
 	}
 
 }

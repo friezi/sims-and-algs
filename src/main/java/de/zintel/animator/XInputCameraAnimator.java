@@ -1,11 +1,11 @@
 /**
  * 
  */
-package de.zintel.camera;
+package de.zintel.animator;
 
 import com.github.strikerx3.jxinput.enums.XInputButton;
 
-import de.zintel.animation.IAnimator;
+import de.zintel.camera.ICamera3D;
 import de.zintel.math.Axis3D;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Utils3D;

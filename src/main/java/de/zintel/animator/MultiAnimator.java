@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.zintel.animation;
+package de.zintel.animator;
 
 import java.util.Collection;
 

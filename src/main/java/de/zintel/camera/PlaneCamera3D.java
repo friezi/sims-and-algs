@@ -36,6 +36,8 @@ public class PlaneCamera3D implements ICamera3D {
 
 	private boolean showBehindCamera = false;
 
+	private String id = "";
+
 	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToCamera, double curvature,
 			Dimension screenDimension) {
 		this.viewpoint = viewpoint;
@@ -145,9 +147,18 @@ public class PlaneCamera3D implements ICamera3D {
 		return screenDimension;
 	}
 
-	@Override
-	public boolean behindScreen(Vector3D camerapoint) {
+	private boolean behindScreen(Vector3D camerapoint) {
 		return camerapoint.z() < 0;
+	}
+
+	@Override
+	public String getId() {
+		return id;
+	}
+
+	public PlaneCamera3D setId(String id) {
+		this.id = id;
+		return this;
 	}
 
 }

@@ -27,11 +27,11 @@ public interface ICamera3D {
 
 	boolean inScreenRange(final Vector3D projectedpoint);
 
-	boolean behindScreen(final Vector3D camerapoint);
-
 	void reset();
 
 	void setCurvature(double value);
 
 	double getCurvature();
+
+	String getId();
 }

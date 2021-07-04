@@ -5,4 +5,4 @@
  * @author friedo
  *
  */
-package de.zintel.animation;
+package de.zintel.animator;

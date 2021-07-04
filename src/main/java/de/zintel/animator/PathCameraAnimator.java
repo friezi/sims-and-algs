@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.zintel.camera;
+package de.zintel.animator;
 
 import java.awt.Dimension;
 import java.util.Collection;
@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.BiFunction;
 
-import de.zintel.animation.IAnimator;
+import de.zintel.camera.ICamera3D;
 import de.zintel.gfx.g3d.APointInterpolater3D;
 import de.zintel.gfx.g3d.StepUnit3D;
 import de.zintel.math.Axis3D;
@@ -58,13 +58,10 @@ public class PathCameraAnimator implements IAnimator {
 	public PathCameraAnimator(ICamera3D camera, Vector3D center, Dimension dimension,
 			BiFunction<Vector3D, Vector3D, APointInterpolater3D> pointInterpolaterFactory) {
 		this.camera = camera;
-		this.center = center;
+		this.center = new Vector3D(center);
 		this.dimension = dimension;
 		this.pointInterpolaterFactory = pointInterpolaterFactory;
 		this.mid = new Vector3D(dimension.getWidth() / 2, dimension.getHeight() / 2, 0);
-		// this.previousPoint =
-		// camera.getTransformationToCamera().inverseTransformPoint(new
-		// Vector3D());
 		this.previousPoint = makeRandomPoint();
 	}
 
@@ -99,7 +96,7 @@ public class PathCameraAnimator implements IAnimator {
 			}
 
 			final CoordinateTransformation3D toCamera = camera.getTransformationToCamera();
-			final Vector3D ppoint = toCamera.transformPoint(next);
+			final Vector3D ppoint = Vector3D.substract(toCamera.transformPoint(next), camera.getViewpoint());
 
 			final Vector3D pcenter = toCamera.transformPoint(center);
 
@@ -149,11 +146,6 @@ public class PathCameraAnimator implements IAnimator {
 	private void makePath() {
 
 		pointInterpolater3D = pointInterpolaterFactory.apply(previousPoint == null ? makeRandomPoint() : previousPoint, makeRandomPoint());
-		// FIXME
-		// pointInterpolater3D = pointInterpolaterFactory.apply(
-		// previousPoint == null ? new Vector3D(center.x(), center.y(),
-		// center.z() - 300) : previousPoint,
-		// new Vector3D(center.x(), center.y(), center.z() + 300));
 
 		final LinkedList<Vector3D> list = new LinkedList<>();
 		for (final StepUnit3D unit : pointInterpolater3D) {
@@ -193,6 +185,10 @@ public class PathCameraAnimator implements IAnimator {
 
 	public ICamera3D getCamera() {
 		return camera;
+	}
+
+	public Vector3D getCenter() {
+		return center;
 	}
 
 }

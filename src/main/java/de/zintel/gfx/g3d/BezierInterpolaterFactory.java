@@ -17,8 +17,11 @@ public class BezierInterpolaterFactory implements BiFunction<Vector3D, Vector3D,
 
 	private final Dimension dimension;
 
-	public BezierInterpolaterFactory(Dimension dimension) {
+	private final int maxControllPoints;
+
+	public BezierInterpolaterFactory(Dimension dimension, int maxControllPoints) {
 		this.dimension = dimension;
+		this.maxControllPoints = maxControllPoints;
 	}
 
 	@Override
@@ -26,15 +29,15 @@ public class BezierInterpolaterFactory implements BiFunction<Vector3D, Vector3D,
 
 		BezierPointInterpolater3D bezierPointInterpolater3D = new BezierPointInterpolater3D(start, end);
 
-		int maxControllPoints = MathUtils.RANDOM.nextInt(8) + 1;
-		for (int i = 0; i < maxControllPoints; i++) {
+		int controllPoints = MathUtils.RANDOM.nextInt(16) + 1;
+		for (int i = 0; i < controllPoints; i++) {
 			bezierPointInterpolater3D.addControlPoint(makeRandomPoint());
 		}
 
 		return bezierPointInterpolater3D;
 	}
 
-	protected Vector3D makeRandomPoint() {
+	private Vector3D makeRandomPoint() {
 		return new Vector3D(makeRangeValue(dimension.width), makeRangeValue(dimension.height), makeRangeValue(dimension.height));
 	}
 

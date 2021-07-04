@@ -13,19 +13,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 
-import de.zintel.animation.IAnimator;
-import de.zintel.animation.MultiAnimator;
+import de.zintel.animator.IAnimator;
+import de.zintel.animator.MultiAnimator;
+import de.zintel.animator.PathCameraAnimator;
+import de.zintel.animator.XInputCameraAnimator;
 import de.zintel.camera.ICamera3D;
-import de.zintel.camera.PathCameraAnimator;
 import de.zintel.camera.PlaneCamera3D;
 import de.zintel.camera.SphereCamera3D;
-import de.zintel.camera.XInputCameraAnimator;
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
 import de.zintel.gfx.g3d.BezierInterpolaterFactory;
+import de.zintel.gfx.g3d.LinearPointInterpolater3D;
+import de.zintel.gfx.g3d.RandomPointInterpolaterFactory;
 import de.zintel.gfx.g3d.renderer.IRenderer;
 import de.zintel.gfx.g3d.renderer.PlaneCamera3DRenderer;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
@@ -73,18 +75,34 @@ public class WhirlSim extends SimulationScreen {
 		@Override
 		public void render(IGraphicsSubsystem graphicsSubsystem, ICamera3D camera) {
 
-			final Axis3D axis = animator.getLastAxis();
-			if (axis == null) {
-				return;
+			// fixpoint for view
+			final Vector3D pcenter = camera.projectWorld(animator.getCenter());
+			if (camera.inScreenRange(pcenter)) {
+				graphicsSubsystem.drawFilledCircle((int) pcenter.x(), (int) pcenter.y(), 5, () -> Color.GREEN);
 			}
 
-			final Vector3D v = Vector3D.normalize(Vector3D.substract(axis.getP2(), axis.getP1())).mult(250);
-			final Vector3D p1 = Vector3D.substract(axis.getP1(), v);
-			final Vector3D p2 = Vector3D.add(axis.getP1(), v);
+			// rotation axis
+			final Axis3D axis = animator.getLastAxis();
+			if (axis != null) {
 
-			final CoordinateTransformation3D rtf = animator.getCamera().getTransformationToCamera();
-			drawLine(graphicsSubsystem, new Pair<>(camera.projectWorld(rtf.inverseTransformPoint(p1)), Color.YELLOW),
-					new Pair<>(camera.projectWorld(rtf.inverseTransformPoint(p2)), Color.YELLOW));
+				final Vector3D v = Vector3D.normalize(Vector3D.substract(axis.getP2(), axis.getP1())).mult(250);
+				final Vector3D p1 = Vector3D.substract(axis.getP1(), v);
+				final Vector3D p2 = Vector3D.add(axis.getP1(), v);
+
+				final CoordinateTransformation3D rtf = animator.getCamera().getTransformationToCamera();
+				drawLine(graphicsSubsystem, new Pair<>(camera.projectWorld(rtf.inverseTransformPoint(p1)), Color.YELLOW),
+						new Pair<>(camera.projectWorld(rtf.inverseTransformPoint(p2)), Color.YELLOW));
+			}
+
+			// path
+			for (Vector3D bpointWorld : animator.getPathpoints()) {
+				final Vector3D bpoint = camera.projectWorld(bpointWorld);
+				if (bpoint == null) {
+					continue;
+				}
+				final Color color = new Color(0, 0, 80, 20);
+				graphicsSubsystem.drawFilledCircle((int) bpoint.x(), (int) bpoint.y(), 4, () -> color);
+			}
 
 		}
 
@@ -205,7 +223,7 @@ public class WhirlSim extends SimulationScreen {
 			final PlaneCamera3D currCamera = new PlaneCamera3D(
 					new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
 							(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
-					new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
+					new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension()).setId("plane: manual");
 			XInputCameraAnimator animator = new XInputCameraAnimator(currCamera, 50);
 			addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(animator));
 			cameraAnimators.add(animator);
@@ -218,14 +236,10 @@ public class WhirlSim extends SimulationScreen {
 			final PlaneCamera3D currCamera = new PlaneCamera3D(
 					new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
 							(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
-					new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension());
-			// final PathCameraAnimator animator = new
-			// PathCameraAnimator(currCamera, rotcenter,
-			// graphicsSubsystem.getDimension(),
-			// (start, end) -> new LinearPointInterpolater3D(start, end,
-			// false));
+					new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension()).setId("plane: auto");
 			final PathCameraAnimator animator = new PathCameraAnimator(currCamera, rotcenter, graphicsSubsystem.getDimension(),
-					new BezierInterpolaterFactory(graphicsSubsystem.getDimension()));
+					new RandomPointInterpolaterFactory(new BezierInterpolaterFactory(graphicsSubsystem.getDimension(), 122),
+							(start, end) -> new LinearPointInterpolater3D(start, end, false)));
 			cameraAnimators.add(animator);
 			cameraRenderers.add(new PathCameraAnimatorRenderer(animator));
 			cameraRenderers.add(new PlaneCamera3DRenderer(currCamera, Color.GREEN));
@@ -432,28 +446,9 @@ public class WhirlSim extends SimulationScreen {
 						adjustColor(CUtils.morphColor(particle.getAttribute().color, Color.YELLOW, colortrans, point.x()), point),
 						(int) MathUtils.morph(v -> (double) particle.getAttribute().color.getAlpha(), v -> 0D, alphatrans, point.x())));
 			}
-
-			// FIXME
-			final Vector3D pcenter = project(rotcenter);
-			if (camera.inScreenRange(pcenter)) {
-				graphicsSubsystem.drawFilledCircle((int) pcenter.x(), (int) pcenter.y(), 5, () -> Color.GREEN);
-			}
-
 		}
 
 		cameraRenderers.forEach(renderer -> renderer.render(graphicsSubsystem, camera));
-		//
-		// for (Vector3D bpointWorld : bezierCameraAnimator.getPathpoints()) {
-		// final Vector3D bpoint = project(bpointWorld);
-		// if (bpoint == null) {
-		// continue;
-		// }
-		// if (camera.inRange(bpoint)) {
-		// final Color color = new Color(0, 0, 80, 20);
-		// graphicsSubsystem.drawFilledCircle((int) bpoint.x(), (int)
-		// bpoint.y(), 4, () -> color);
-		// }
-		// }
 	}
 
 	private void drawSimpleGrid(IGraphicsSubsystem graphicsSubsystem) {
@@ -1322,7 +1317,7 @@ public class WhirlSim extends SimulationScreen {
 
 			@Override
 			public String getValue() {
-				return "camera";
+				return camera.getId();
 			}
 		});
 	}
