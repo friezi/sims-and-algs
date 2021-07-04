@@ -21,10 +21,14 @@ public interface ICamera3D {
 
 	void translate(Vector3D vector);
 
-	Vector3D project(Vector3D point);
+	Vector3D projectWorld(Vector3D worldpoint);
 
-	boolean inRange(final Vector3D point);
-	
+	Vector3D projectCamera(Vector3D camerapoint);
+
+	boolean inScreenRange(final Vector3D projectedpoint);
+
+	boolean behindScreen(final Vector3D camerapoint);
+
 	void reset();
 
 	void setCurvature(double value);

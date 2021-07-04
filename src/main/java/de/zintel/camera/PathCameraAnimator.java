@@ -53,6 +53,8 @@ public class PathCameraAnimator implements IAnimator {
 
 	private int mergeWithCenterSteps = 120;
 
+	private Axis3D lastAxis = null;
+
 	public PathCameraAnimator(ICamera3D camera, Vector3D center, Dimension dimension,
 			BiFunction<Vector3D, Vector3D, APointInterpolater3D> pointInterpolaterFactory) {
 		this.camera = camera;
@@ -60,7 +62,10 @@ public class PathCameraAnimator implements IAnimator {
 		this.dimension = dimension;
 		this.pointInterpolaterFactory = pointInterpolaterFactory;
 		this.mid = new Vector3D(dimension.getWidth() / 2, dimension.getHeight() / 2, 0);
-		this.previousPoint = camera.getTransformationToCamera().inverseTransformPoint(new Vector3D());
+		// this.previousPoint =
+		// camera.getTransformationToCamera().inverseTransformPoint(new
+		// Vector3D());
+		this.previousPoint = makeRandomPoint();
 	}
 
 	/*
@@ -106,20 +111,22 @@ public class PathCameraAnimator implements IAnimator {
 			final Vector3D viewpoint = camera.getViewpoint();
 			final Vector3D distancevector = Vector3D.substract(pcenter, viewpoint);
 
-			final Vector3D cameradirection = new Vector3D(0, 0, 1);
+			final Vector3D cameradirection = new Vector3D(0, 0, 100);
 			final Pair<Double, Vector3D> angleAxis = Utils3D.angleAxis(cameradirection, distancevector);
 			final Double angle = angleAxis.getFirst();
-			final Vector3D axis = angleAxis.getSecond();
-
 			if (Double.isNaN(angle)) {
 				return;
 			}
 
-			final double effectiveAngle = MathUtils.interpolateReal(0, angle, mergeWithCenterStep, mergeWithCenterSteps,
-					(x, max) -> x * Math.sin((Math.PI * x) / (2 * max)));
+			final Vector3D axisv = Vector3D.normalize(angleAxis.getSecond());
+
+			final double effectiveAngle = (mergeWithCenterStep == mergeWithCenterSteps) ? angle
+					: MathUtils.interpolateReal(0, angle, mergeWithCenterStep, mergeWithCenterSteps,
+							(x, max) -> x * Math.sin((Math.PI * x) / (2 * max)));
 
 			if (MathUtils.inEpsilonRange(effectiveAngle)) {
-				camera.rotate(new Axis3D(viewpoint, Vector3D.add(viewpoint, axis)), -effectiveAngle);
+				lastAxis = new Axis3D(viewpoint, Vector3D.add(viewpoint, axisv));
+				camera.rotate(lastAxis, -effectiveAngle);
 			}
 
 			if (mergeWithCenterStep < mergeWithCenterSteps) {
@@ -142,6 +149,11 @@ public class PathCameraAnimator implements IAnimator {
 	private void makePath() {
 
 		pointInterpolater3D = pointInterpolaterFactory.apply(previousPoint == null ? makeRandomPoint() : previousPoint, makeRandomPoint());
+		// FIXME
+		// pointInterpolater3D = pointInterpolaterFactory.apply(
+		// previousPoint == null ? new Vector3D(center.x(), center.y(),
+		// center.z() - 300) : previousPoint,
+		// new Vector3D(center.x(), center.y(), center.z() + 300));
 
 		final LinkedList<Vector3D> list = new LinkedList<>();
 		for (final StepUnit3D unit : pointInterpolater3D) {
@@ -173,6 +185,14 @@ public class PathCameraAnimator implements IAnimator {
 
 	public void setLogging(boolean logging) {
 		this.logging = logging;
+	}
+
+	public Axis3D getLastAxis() {
+		return lastAxis;
+	}
+
+	public ICamera3D getCamera() {
+		return camera;
 	}
 
 }

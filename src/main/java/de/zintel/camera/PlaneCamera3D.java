@@ -36,7 +36,8 @@ public class PlaneCamera3D implements ICamera3D {
 
 	private boolean showBehindCamera = false;
 
-	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToCamera, double curvature, Dimension screenDimension) {
+	public PlaneCamera3D(Vector3D viewpoint, CoordinateTransformation3D transformationToCamera, double curvature,
+			Dimension screenDimension) {
 		this.viewpoint = viewpoint;
 		this.transformationToCamera = transformationToCamera;
 		this.curvature = curvature;
@@ -71,21 +72,25 @@ public class PlaneCamera3D implements ICamera3D {
 	 * @see de.zintel.math.ICamera3D#project(de.zintel.math.Vector3D)
 	 */
 	@Override
-	public Vector3D project(final Vector3D point) {
-
-		final Vector3D t_point = transformationToCamera.transformPoint(point);
-		// liegt bei z<0 hinter der Linse
-		Vector3D i_point = (!showBehindCamera && t_point.z() < 0) ? null : Utils3D.intersect(t_point, viewpoint, plane);
-		if (i_point != null && curvature > 0) {
-			i_point = curve(i_point, curvature);
-		}
-		return i_point;
-
+	public Vector3D projectWorld(final Vector3D worldpoint) {
+		return projectCamera(transformationToCamera.transformPoint(worldpoint));
 	}
 
 	@Override
-	public boolean inRange(final Vector3D point) {
-		return point != null && point.x() >= 0 && point.x() < screenDimension.getWidth() && point.y() >= 0 && point.y() < screenDimension.getHeight();
+	public Vector3D projectCamera(Vector3D camerapoint) {
+
+		// liegt bei z<0 hinter der Linse
+		Vector3D screenpoint = (!showBehindCamera && behindScreen(camerapoint)) ? null : Utils3D.intersect(camerapoint, viewpoint, plane);
+		if (screenpoint != null && curvature > 0) {
+			screenpoint = curve(screenpoint, curvature);
+		}
+		return screenpoint;
+	}
+
+	@Override
+	public boolean inScreenRange(final Vector3D point) {
+		return point != null && point.x() >= 0 && point.x() < screenDimension.getWidth() && point.y() >= 0
+				&& point.y() < screenDimension.getHeight();
 	}
 
 	private Vector3D curve(final Vector3D point, final double curvature) {
@@ -134,6 +139,15 @@ public class PlaneCamera3D implements ICamera3D {
 
 	public void setShowBehindCamera(boolean showBehindCamera) {
 		this.showBehindCamera = showBehindCamera;
+	}
+
+	public Dimension getScreenDimension() {
+		return screenDimension;
+	}
+
+	@Override
+	public boolean behindScreen(Vector3D camerapoint) {
+		return camerapoint.z() < 0;
 	}
 
 }

@@ -292,8 +292,8 @@ public class EpicyclesSim extends SimulationScreen {
 				final Vector3D ppos = previousPoint.getPosition();
 				final Vector3D cpos = point.getPosition();
 
-				final Vector3D pposC = camera.project(ppos);
-				final Vector3D cposC = camera.project(cpos);
+				final Vector3D pposC = camera.projectWorld(ppos);
+				final Vector3D cposC = camera.projectWorld(cpos);
 				if (pposC != null && cposC != null) {
 
 					final double cdecay = 2;
@@ -322,8 +322,8 @@ public class EpicyclesSim extends SimulationScreen {
 			for (final Epicycle circle : interpolater.getCircles()) {
 				Vector3D current = Vector3D.add(previous, circle.vector);
 
-				final Vector3D prevT = camera.project(previous);
-				final Vector3D currT = camera.project(current);
+				final Vector3D prevT = camera.projectWorld(previous);
+				final Vector3D currT = camera.projectWorld(current);
 
 				graphicsSubsystem.drawLine((int) prevT.x(), (int) prevT.y(), (int) currT.x(), (int) currT.y(), cyan, cyan);
 				previous = current;

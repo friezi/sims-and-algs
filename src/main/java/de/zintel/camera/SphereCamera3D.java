@@ -99,13 +99,24 @@ public class SphereCamera3D implements ICamera3D {
 	 * @see de.zintel.math.ICamera3D#project(de.zintel.math.Vector3D)
 	 */
 	@Override
-	public Vector3D project(Vector3D point) {
+	public Vector3D projectWorld(Vector3D worldpoint) {
 
 		if (radius == 0) {
 			return null;
 		}
 
-		final Vector3D t_point = screenToLens.transformPoint(transformationToScreen.transformPoint(point));
+		final Vector3D camerapoint = transformationToScreen.transformPoint(worldpoint);
+		return projectCamera(camerapoint);
+	}
+
+	@Override
+	public Vector3D projectCamera(Vector3D camerapoint) {
+
+		if (radius == 0) {
+			return null;
+		}
+
+		final Vector3D t_point = screenToLens.transformPoint(camerapoint);
 
 		if (t_point.z() >= 0 && t_point.length() > radius) {
 			return null;
@@ -136,8 +147,8 @@ public class SphereCamera3D implements ICamera3D {
 
 		final Vector3D l = AVectorND.mult(1.0 / vpLength, vp);
 		final double lpc = AVectorND.dotProduct(l, AVectorND.substract(point, sphereCenter));
-		final double root = Math.sqrt(Math.pow(lpc, 2) + 2 * Vector3D.dotProduct(point, sphereCenter) + Math.pow(radius, 2) - Math.pow(point.length(), 2)
-				- Math.pow(sphereCenter.length(), 2));
+		final double root = Math.sqrt(Math.pow(lpc, 2) + 2 * Vector3D.dotProduct(point, sphereCenter) + Math.pow(radius, 2)
+				- Math.pow(point.length(), 2) - Math.pow(sphereCenter.length(), 2));
 
 		final double lambda1 = -lpc + root;
 		final double lambda2 = -lpc - root;
@@ -166,7 +177,7 @@ public class SphereCamera3D implements ICamera3D {
 	}
 
 	@Override
-	public boolean inRange(final Vector3D point) {
+	public boolean inScreenRange(final Vector3D point) {
 		return point.x() >= 0 && point.x() < screenDimension.getWidth() && point.y() >= 0 && point.y() < screenDimension.getHeight();
 	}
 
@@ -183,6 +194,12 @@ public class SphereCamera3D implements ICamera3D {
 	@Override
 	public void reset() {
 		transformationToScreen.reset();
+	}
+
+	@Override
+	public boolean behindScreen(Vector3D camerapoint) {
+		// FIXME not sure, if that is completely correct due to curved surface
+		return camerapoint.z() < 0;
 	}
 
 }

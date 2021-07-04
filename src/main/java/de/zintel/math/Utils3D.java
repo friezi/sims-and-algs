@@ -73,6 +73,7 @@ public class Utils3D {
 		final double alen = a.length();
 		final double blen = b.length();
 		if (!MathUtils.inEpsilonRange(alen) || !MathUtils.inEpsilonRange(blen)) {
+			System.out.println("not in epsilon: alen:" + alen + " blen: " + blen);
 			return new Pair<>(Double.NaN, new Vector3D());
 		}
 
