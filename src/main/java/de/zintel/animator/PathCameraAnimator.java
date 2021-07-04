@@ -90,7 +90,7 @@ public class PathCameraAnimator implements IAnimator {
 			final Vector3D next = pathiterator.next();
 
 			counter++;
-			if (counter % 5 != 0) {
+			if (counter % 10 != 0) {
 				step();
 				return;
 			}
