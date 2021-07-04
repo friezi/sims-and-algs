@@ -75,7 +75,7 @@ public class WhirlSim extends SimulationScreen {
 		@Override
 		public void render(IGraphicsSubsystem graphicsSubsystem, ICamera3D camera) {
 
-			// fixpoint for view
+			// fixpoint for centering
 			final Vector3D pcenter = camera.projectWorld(animator.getCenter());
 			if (camera.inScreenRange(pcenter)) {
 				graphicsSubsystem.drawFilledCircle((int) pcenter.x(), (int) pcenter.y(), 5, () -> Color.GREEN);
@@ -109,7 +109,6 @@ public class WhirlSim extends SimulationScreen {
 		private void drawLine(final IGraphicsSubsystem graphicsSubsystem, final Pair<Vector3D, Color> p1, final Pair<Vector3D, Color> p2) {
 
 			if (p1.getFirst() != null & p2.getFirst() != null) {
-				System.out.println("p1: " + p1.getFirst() + " p2: " + p2.getFirst());
 				graphicsSubsystem.drawLine((int) p1.getFirst().x(), (int) p1.getFirst().y(), (int) p2.getFirst().x(),
 						(int) p2.getFirst().y(), p1.getSecond(), p2.getSecond());
 			}
@@ -166,6 +165,8 @@ public class WhirlSim extends SimulationScreen {
 
 	private volatile boolean doAnimation = true;
 
+	private volatile boolean showCameras = false;
+
 	/**
 	 * @param title
 	 * @param gfxSsystem
@@ -215,11 +216,11 @@ public class WhirlSim extends SimulationScreen {
 	 * @param graphicsSubsystem
 	 */
 	private void initCameras(IGraphicsSubsystem graphicsSubsystem) {
-		// camera = new SphereCamera3D(new Vector3D(950.0, 140.0, -1000.0), new
-		// CoordinateTransformation3D(), 5000000,
-		// graphicsSubsystem.getDimension());
 
 		{
+			// camera = new SphereCamera3D(new Vector3D(950.0, 140.0, -1000.0),
+			// new CoordinateTransformation3D(), 5000000,
+			// graphicsSubsystem.getDimension());
 			final PlaneCamera3D currCamera = new PlaneCamera3D(
 					new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
 							(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
@@ -227,7 +228,7 @@ public class WhirlSim extends SimulationScreen {
 			XInputCameraAnimator animator = new XInputCameraAnimator(currCamera, 50);
 			addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(animator));
 			cameraAnimators.add(animator);
-			cameraRenderers.add(new PlaneCamera3DRenderer(currCamera, Color.RED));
+			cameraRenderers.add(new PlaneCamera3DRenderer(currCamera, Color.YELLOW));
 
 			cameras.add(currCamera);
 		}
@@ -238,7 +239,7 @@ public class WhirlSim extends SimulationScreen {
 							(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
 					new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension()).setId("plane: auto");
 			final PathCameraAnimator animator = new PathCameraAnimator(currCamera, rotcenter, graphicsSubsystem.getDimension(),
-					new RandomPointInterpolaterFactory(new BezierInterpolaterFactory(graphicsSubsystem.getDimension(), 122),
+					new RandomPointInterpolaterFactory(new BezierInterpolaterFactory(graphicsSubsystem.getDimension(), 80),
 							(start, end) -> new LinearPointInterpolater3D(start, end, false)));
 			cameraAnimators.add(animator);
 			cameraRenderers.add(new PathCameraAnimatorRenderer(animator));
@@ -448,7 +449,9 @@ public class WhirlSim extends SimulationScreen {
 			}
 		}
 
-		cameraRenderers.forEach(renderer -> renderer.render(graphicsSubsystem, camera));
+		if (showCameras) {
+			cameraRenderers.forEach(renderer -> renderer.render(graphicsSubsystem, camera));
+		}
 	}
 
 	private void drawSimpleGrid(IGraphicsSubsystem graphicsSubsystem) {
@@ -1318,6 +1321,43 @@ public class WhirlSim extends SimulationScreen {
 			@Override
 			public String getValue() {
 				return camera.getId();
+			}
+		});
+		addKeyAction(KeyEvent.VK_J, new IKeyAction() {
+
+			@Override
+			public boolean withAction() {
+				return true;
+			}
+
+			@Override
+			public boolean toggleComponent() {
+				return false;
+			}
+
+			@Override
+			public String textID() {
+				return "SHOWCAMERAS";
+			}
+
+			@Override
+			public String text() {
+				return "show cameras";
+			}
+
+			@Override
+			public void plus() {
+				showCameras = !showCameras;
+			}
+
+			@Override
+			public void minus() {
+				showCameras = !showCameras;
+			}
+
+			@Override
+			public String getValue() {
+				return String.valueOf(showCameras);
 			}
 		});
 	}
