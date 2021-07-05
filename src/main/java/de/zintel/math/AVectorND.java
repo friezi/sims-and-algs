@@ -16,7 +16,7 @@ import de.zintel.math.matrix.DMatrix;
 /**
  * 
  * Attention! To not produce ClasscCastExceptions, the type T must always be
- * equal to the extended lass type. Define only classes in the way 'T extends
+ * equal to the extended class type. Define only classes in the way 'T extends
  * AVectorND<T>'. I. e. omit something like this: 'S extends AVectorND<S> ... T
  * extends AVectorND<S>'. Due to a lack of the typesystem, the required equality
  * is not specifyable.

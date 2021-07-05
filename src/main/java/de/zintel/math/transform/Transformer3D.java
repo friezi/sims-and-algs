@@ -4,6 +4,7 @@
 package de.zintel.math.transform;
 
 import de.zintel.math.Axis3D;
+import de.zintel.math.MathUtils;
 import de.zintel.math.Vector3D;
 import de.zintel.math.matrix.DMatrix;
 
@@ -77,13 +78,14 @@ public class Transformer3D {
 		final Vector3D axisVector = Vector3D.substract(axis.getP2(), axis.getP1());
 		final double avLengthXZ = new Vector3D(axisVector.x(), 0, axisVector.z()).length();
 
-		final DMatrix<Vector3D> rotY = avLengthXZ == 0 ? Utils3D.IDENTITY_MATRIX
+		final DMatrix<Vector3D> rotY = !MathUtils.inEpsilonRange(avLengthXZ) ? Utils3D.IDENTITY_MATRIX
 				: RotationMatrix3DProvider.getRmY(new TrigonomFnProviderDirect(axisVector.x() / avLengthXZ, axisVector.z() / avLengthXZ));
 		final DMatrix<Vector3D> rotX = RotationMatrix3DProvider
 				.getRmX(new TrigonomFnProviderDirect(axisVector.y() / axisVector.length(), avLengthXZ / axisVector.length()));
 		final DMatrix<Vector3D> rotZ = RotationMatrix3DProvider.getRmZ(new TrigonomFnProviderAngle(angle));
 
-		final DMatrix<Vector3D> rg = DMatrix.mmult(rotY.transpose(), DMatrix.mmult(rotX.transpose(), DMatrix.mmult(rotZ, DMatrix.mmult(rotX, rotY))));
+		final DMatrix<Vector3D> rg = DMatrix.mmult(rotY.transpose(),
+				DMatrix.mmult(rotX.transpose(), DMatrix.mmult(rotZ, DMatrix.mmult(rotX, rotY))));
 
 		// V'=R_A*R*V+R_A(T-T_A)+T_A --> R_A: combined rotation by axis T_A:
 		// translation of axis
@@ -93,10 +95,35 @@ public class Transformer3D {
 		return this;
 	}
 
+	/**
+	 * copies the Transformer. The initial state is the current snapshot.
+	 * 
+	 * @return
+	 */
+	public Transformer3D snapshot() {
+		return new Transformer3D(rotationMatrix, translationVector);
+	}
+
+	/**
+	 * inverse snapshot of the current state.
+	 * 
+	 * @return
+	 */
 	public Transformer3D inverse() {
 		final DMatrix<Vector3D> rmT = rotationMatrix.transpose();
 		// V=RT*V'-RT*T
 		return new Transformer3D(rmT, Vector3D.mult(-1, Vector3D.mmult(rmT, translationVector)));
+	}
+
+	/**
+	 * constructs this X tf
+	 * 
+	 * @param tf
+	 * @return
+	 */
+	public Transformer3D cat(Transformer3D tf) {
+		return new Transformer3D(DMatrix.<Double, DMatrix<Vector3D>> mmult(rotationMatrix, tf.rotationMatrix),
+				Vector3D.add(Vector3D.mmult(rotationMatrix, tf.translationVector), translationVector));
 	}
 
 }

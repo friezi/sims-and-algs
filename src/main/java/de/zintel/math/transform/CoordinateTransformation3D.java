@@ -26,10 +26,15 @@ public class CoordinateTransformation3D {
 	 * 
 	 */
 	public CoordinateTransformation3D() {
+		this(new Transformer3D(), null);
+	}
 
-		transformer = new Transformer3D();
-		inverseTransformer = transformer.inverse();
+	private CoordinateTransformation3D(Transformer3D transformer, Scaler3D scaler) {
 
+		this.transformer = transformer;
+		this.inverseTransformer = transformer.inverse();
+		this.scaler = scaler;
+		this.inverseScaler = (scaler != null ? scaler.inverse() : null);
 	}
 
 	public Vector3D transformPoint(final Vector3D vector) {
@@ -49,8 +54,8 @@ public class CoordinateTransformation3D {
 	}
 
 	public CoordinateTransformation3D setScaling(Vector3D diagvector) {
-		this.scaler = new Scaler3D(new Vector3D(1 / diagvector.x(), 1 / diagvector.y(), 1 / diagvector.z()));
-		this.inverseScaler = new Scaler3D(diagvector);
+		inverseScaler = new Scaler3D(diagvector);
+		scaler = inverseScaler.inverse();
 		return this;
 	}
 
@@ -100,6 +105,21 @@ public class CoordinateTransformation3D {
 		inverseTransformer = transformer.inverse();
 
 		return this;
+	}
+
+	public CoordinateTransformation3D snapshot() {
+		return new CoordinateTransformation3D(transformer.snapshot(), scaler == null ? null : scaler.snapshot());
+	}
+
+	public CoordinateTransformation3D inverse() {
+		return new CoordinateTransformation3D(transformer.inverse(), scaler == null ? null : scaler.inverse());
+	}
+
+	public CoordinateTransformation3D cat(CoordinateTransformation3D ct) {
+		final Transformer3D tf = transformer.cat(ct.transformer);
+		final Scaler3D sc = (scaler == null && ct.scaler == null ? null
+				: scaler == null ? ct.scaler.snapshot() : ct.scaler == null ? scaler.snapshot() : scaler.cat(ct.scaler));
+		return new CoordinateTransformation3D(tf, sc);
 	}
 
 }

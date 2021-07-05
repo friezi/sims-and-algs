@@ -39,16 +39,15 @@ public class PlaneCamera3DRenderer implements IRenderer {
 
 		final CoordinateTransformation3D ctf = camera.getTransformationToCamera();
 		final CoordinateTransformation3D rtf = renderedCamera.getTransformationToCamera();
+
+		final CoordinateTransformation3D cattf = ctf.cat(rtf.inverse());
 		final Dimension rsd = renderedCamera.getScreenDimension();
 
-		final Pair<Vector3D, Color> bl = new Pair<>(ctf.transformPoint(rtf.inverseTransformPoint(new Vector3D())), color);
-		final Pair<Vector3D, Color> tl = new Pair<>(ctf.transformPoint(rtf.inverseTransformPoint(new Vector3D(0, rsd.getHeight() - 1, 0))),
-				color);
-		final Pair<Vector3D, Color> br = new Pair<>(ctf.transformPoint(rtf.inverseTransformPoint(new Vector3D(rsd.getWidth() - 1, 0, 0))),
-				color);
-		final Pair<Vector3D, Color> tr = new Pair<>(
-				ctf.transformPoint(rtf.inverseTransformPoint(new Vector3D(rsd.getWidth() - 1, rsd.getHeight(), 0))), color);
-		final Pair<Vector3D, Color> vp = new Pair<>(ctf.transformPoint(rtf.inverseTransformPoint(renderedCamera.getViewpoint())), color);
+		final Pair<Vector3D, Color> bl = new Pair<>(cattf.transformPoint(new Vector3D()), color);
+		final Pair<Vector3D, Color> tl = new Pair<>(cattf.transformPoint(new Vector3D(0, rsd.getHeight() - 1, 0)), color);
+		final Pair<Vector3D, Color> br = new Pair<>(cattf.transformPoint(new Vector3D(rsd.getWidth() - 1, 0, 0)), color);
+		final Pair<Vector3D, Color> tr = new Pair<>(cattf.transformPoint(new Vector3D(rsd.getWidth() - 1, rsd.getHeight(), 0)), color);
+		final Pair<Vector3D, Color> vp = new Pair<>(cattf.transformPoint(renderedCamera.getViewpoint()), color);
 
 		// sort points according to z-value
 		final SortedSet<Pair<Vector3D, Color>> coll = new TreeSet<>((o1, o2) -> o1.getFirst().z() >= o2.getFirst().z() ? 1 : -1);

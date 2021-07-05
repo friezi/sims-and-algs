@@ -64,7 +64,8 @@ public class WhirlParticleSystem<A> extends ParticleSystem<WhirlParticle<A>, A> 
 			final Function<Double, Double> rottrans = x -> MathUtils
 					.sigmoid(MathUtils.scalel(0, width, rotationTransitionLeft, rotationTransitionRight, point.x()));
 
-			// particles velocity in x direction should increase by progressing in x direction
+			// particles velocity in x direction should increase by progressing
+			// in x direction
 			point.setX(point.x() + MathUtils.morph(v -> particle.velocity, v -> particle.velocity + 10, rottrans, point.x()));
 
 			if (point.x() > width) {
@@ -75,15 +76,16 @@ public class WhirlParticleSystem<A> extends ParticleSystem<WhirlParticle<A>, A> 
 			}
 
 			// the radius should decrease by progressing in x direction
-			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius, rottrans,
-					point.x());
+			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
+					rottrans, point.x());
 
-			// the angular velocity should increase by progressing in x direction
+			// the angular velocity should increase by progressing in x
+			// direction
 			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, point.x());
 
 			// rotation on x axis
-			point.setZ(Math.sin(theta(particle.angle)) * cradius + rotcenter.z());
-			point.setY(rotcenter.y() + (particle.initialPosition.y() < rotcenter.y() ? -1 : 1) * Math.cos(theta(particle.angle)) * cradius);
+			point.setZ(Math.sin(MathUtils.radian(particle.angle)) * cradius + rotcenter.z());
+			point.setY(rotcenter.y() + (particle.initialPosition.y() < rotcenter.y() ? -1 : 1) * Math.cos(MathUtils.radian(particle.angle)) * cradius);
 
 		}
 
@@ -97,14 +99,6 @@ public class WhirlParticleSystem<A> extends ParticleSystem<WhirlParticle<A>, A> 
 		}
 
 		setParticles(newparticles);
-	}
-
-	/** degree -> radian
-	 * @param degree
-	 * @return
-	 */
-	private double theta(final double degree) {
-		return MathUtils.scalel(0, 360, 0, 2 * Math.PI, ((int) degree) % 360);
 	}
 
 	private boolean validByFrequency(final int frequency) {
