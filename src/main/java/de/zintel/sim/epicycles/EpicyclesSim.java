@@ -83,8 +83,8 @@ public class EpicyclesSim extends SimulationScreen {
 	 * @param recordFilename
 	 * @param recordingRate
 	 */
-	public EpicyclesSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
-			int recordingRate) {
+	public EpicyclesSim(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord,
+			String recordFilename, int recordingRate) {
 		super(title, gfxSsystem, screenParameters, doRecord, recordFilename, recordingRate);
 	}
 
@@ -102,9 +102,9 @@ public class EpicyclesSim extends SimulationScreen {
 	protected void init(IGraphicsSubsystem graphicsSubsystem) {
 
 		center = new Vector3D(graphicsSubsystem.getDimension().getWidth() / 2, graphicsSubsystem.getDimension().getHeight() / 2, 0);
-		camera = new PlaneCamera3D(
-				new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2, (graphicsSubsystem.getDimension().getHeight() - 1) / 2, -800.0),
-				new CoordinateTransformation3D(), 15, graphicsSubsystem.getDimension());
+		camera = new PlaneCamera3D(new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
+				(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -800.0), new CoordinateTransformation3D(), 15,
+				graphicsSubsystem.getDimension());
 		camera.setShowBehindCamera(true);
 
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
@@ -170,6 +170,7 @@ public class EpicyclesSim extends SimulationScreen {
 				return 20;
 			}
 
+			@SuppressWarnings("serial")
 			@Override
 			public Collection<Epicycle> getCycles() {
 
@@ -252,13 +253,15 @@ public class EpicyclesSim extends SimulationScreen {
 				return MathUtils.RANDOM.nextInt(300) + 30;
 			}
 
+			@SuppressWarnings("serial")
 			@Override
 			public Collection<Epicycle> getCycles() {
 
 				return new LinkedList<Epicycle>() {
 					{
 						for (int i = 0; i < numCircles; i++) {
-							interpolater.addCircle(new Epicycle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
+							interpolater.addCircle(
+									new Epicycle(10 + MathUtils.RANDOM.nextDouble() * 200, MathUtils.RANDOM.nextDouble() * 60 - 30));
 						}
 
 					}
@@ -304,10 +307,12 @@ public class EpicyclesSim extends SimulationScreen {
 					final Vector3D hsbVec = CUtils.getHSBVec(point.getAttribute());
 					final Color ppColor = Color.getHSBColor((float) hsbVec.x(), (float) hsbVec.y(),
 							(float) (pposT.z() - center.z() > 0 ? adjustColComp(hsbVec.z(), pposT.z() - center.z(), 0, cdecay)
-									: center.z() - pposT.z() > 0 ? adjustColComp(-(1 - hsbVec.z()), center.z() - pposT.z(), 1, cdecay) : hsbVec.z()));
+									: center.z() - pposT.z() > 0 ? adjustColComp(-(1 - hsbVec.z()), center.z() - pposT.z(), 1, cdecay)
+											: hsbVec.z()));
 					final Color cpColor = Color.getHSBColor((float) hsbVec.x(), (float) hsbVec.y(),
 							(float) (cposT.z() - center.z() > 0 ? adjustColComp(hsbVec.z(), cposT.z() - center.z(), 0, cdecay)
-									: center.z() - cposT.z() > 0 ? adjustColComp(-(1 - hsbVec.z()), center.z() - cposT.z(), 1, cdecay) : hsbVec.z()));
+									: center.z() - cposT.z() > 0 ? adjustColComp(-(1 - hsbVec.z()), center.z() - cposT.z(), 1, cdecay)
+											: hsbVec.z()));
 					graphicsSubsystem.drawLine((int) pposC.x(), (int) pposC.y(), (int) cposC.x(), (int) cposC.y(), ppColor, cpColor);
 				}
 			}
@@ -357,7 +362,7 @@ public class EpicyclesSim extends SimulationScreen {
 		for (int i = 0; i < effectiveSpeed; i++) {
 			if (interpolater.hasNext()) {
 
-				final Vector3D point = interpolater.next().getPoint();
+				final Vector3D point = interpolater.next().getElement();
 				final Particle<Color> particle = new Particle<>(point);
 				final int restvalue = (int) MathUtils.scalel(0, iterations, 0, 100, iteration);
 				final Color color = new Color(255, restvalue, 0, opacity);

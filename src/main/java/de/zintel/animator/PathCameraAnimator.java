@@ -12,13 +12,13 @@ import java.util.function.BiFunction;
 
 import de.zintel.camera.ICamera3D;
 import de.zintel.gfx.g3d.APointInterpolater3D;
-import de.zintel.gfx.g3d.StepUnit3D;
 import de.zintel.math.Axis3D;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Utils3D;
 import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
 import de.zintel.utils.Pair;
+import de.zintel.utils.StepUnit;
 
 /**
  * @author friedo
@@ -40,11 +40,13 @@ public class PathCameraAnimator implements IAnimator {
 
 	private Vector3D previousPoint;
 
+	private StepUnit<Vector3D> currentUnit = null;
+
 	private int counter = 0;
 
-	private Collection<Vector3D> pathpoints = Collections.emptyList();
+	private Collection<StepUnit<Vector3D>> pathpoints = Collections.emptyList();
 
-	private Iterator<Vector3D> pathiterator = null;
+	private Iterator<StepUnit<Vector3D>> pathiterator = null;
 
 	private boolean logging = false;
 
@@ -87,7 +89,8 @@ public class PathCameraAnimator implements IAnimator {
 			makePath();
 		} else {
 
-			final Vector3D next = pathiterator.next();
+			currentUnit = pathiterator.next();
+			final Vector3D point = currentUnit.getElement();
 
 			counter++;
 			if (counter % 10 != 0) {
@@ -96,13 +99,13 @@ public class PathCameraAnimator implements IAnimator {
 			}
 
 			final CoordinateTransformation3D toCamera = camera.getTransformationToCamera();
-			final Vector3D ppoint = Vector3D.substract(toCamera.transformPoint(next), camera.getViewpoint());
+			final Vector3D ppoint = Vector3D.substract(toCamera.transformPoint(point), camera.getViewpoint());
 
 			final Vector3D pcenter = toCamera.transformPoint(center);
 
 			// translation
 			camera.translate(ppoint);
-			previousPoint = next;
+			previousPoint = point;
 
 			// rotation to center
 			final Vector3D viewpoint = camera.getViewpoint();
@@ -147,9 +150,9 @@ public class PathCameraAnimator implements IAnimator {
 
 		pointInterpolater3D = pointInterpolaterFactory.apply(previousPoint == null ? makeRandomPoint() : previousPoint, makeRandomPoint());
 
-		final LinkedList<Vector3D> list = new LinkedList<>();
-		for (final StepUnit3D unit : pointInterpolater3D) {
-			list.add(unit.getPoint());
+		final LinkedList<StepUnit<Vector3D>> list = new LinkedList<>();
+		for (final StepUnit<Vector3D> unit : pointInterpolater3D) {
+			list.add(unit);
 		}
 		pathpoints = list;
 		pathiterator = pathpoints.iterator();
@@ -167,7 +170,7 @@ public class PathCameraAnimator implements IAnimator {
 		return MathUtils.RANDOM.nextInt(fac * dim) - (fac / 2) * dim;
 	}
 
-	public Collection<Vector3D> getPathpoints() {
+	public Collection<StepUnit<Vector3D>> getPathpoints() {
 		return pathpoints;
 	}
 
@@ -189,6 +192,15 @@ public class PathCameraAnimator implements IAnimator {
 
 	public Vector3D getCenter() {
 		return center;
+	}
+
+	/**
+	 * maybe null
+	 * 
+	 * @return
+	 */
+	public StepUnit<Vector3D> getCurrentUnit() {
+		return currentUnit;
 	}
 
 }

@@ -6,12 +6,13 @@ package de.zintel.gfx.g3d;
 import java.util.Iterator;
 
 import de.zintel.math.Vector3D;
+import de.zintel.utils.StepUnit;
 
 /**
  * @author Friedemann
  *
  */
-public abstract class APointInterpolater3D implements Iterator<StepUnit3D>, Iterable<StepUnit3D> {
+public abstract class APointInterpolater3D implements Iterator<StepUnit<Vector3D>>, Iterable<StepUnit<Vector3D>> {
 
 	private final Vector3D start;
 
@@ -31,7 +32,7 @@ public abstract class APointInterpolater3D implements Iterator<StepUnit3D>, Iter
 	}
 
 	@Override
-	public Iterator<StepUnit3D> iterator() {
+	public Iterator<StepUnit<Vector3D>> iterator() {
 		return this;
 	}
 

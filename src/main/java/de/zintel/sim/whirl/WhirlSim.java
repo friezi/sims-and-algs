@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 
+import com.github.strikerx3.jxinput.enums.XInputButton;
+
 import de.zintel.animator.IAnimator;
 import de.zintel.animator.MultiAnimator;
 import de.zintel.animator.PathCameraAnimator;
@@ -29,16 +31,15 @@ import de.zintel.gfx.g3d.BezierInterpolaterFactory;
 import de.zintel.gfx.g3d.LinearPointInterpolater3D;
 import de.zintel.gfx.g3d.RandomPointInterpolaterFactory;
 import de.zintel.gfx.g3d.renderer.IRenderer;
+import de.zintel.gfx.g3d.renderer.PathCameraAnimatorRenderer;
 import de.zintel.gfx.g3d.renderer.PlaneCamera3DRenderer;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.AVectorND;
-import de.zintel.math.Axis3D;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
 import de.zintel.sim.SimulationScreen;
 import de.zintel.utils.CyclingIterator;
-import de.zintel.utils.Pair;
 import de.zintel.xinput.XInputHandle;
 
 /**
@@ -60,59 +61,6 @@ public class WhirlSim extends SimulationScreen {
 		public WhirlParticleAttributes(Color color, double radius) {
 			this.color = color;
 			this.radius = radius;
-		}
-
-	}
-
-	private static class PathCameraAnimatorRenderer implements IRenderer {
-
-		private final PathCameraAnimator animator;
-
-		public PathCameraAnimatorRenderer(PathCameraAnimator animator) {
-			this.animator = animator;
-		}
-
-		@Override
-		public void render(IGraphicsSubsystem graphicsSubsystem, ICamera3D camera) {
-
-			// fixpoint for centering
-			final Vector3D pcenter = camera.projectWorld(animator.getCenter());
-			if (camera.inScreenRange(pcenter)) {
-				graphicsSubsystem.drawFilledCircle((int) pcenter.x(), (int) pcenter.y(), 5, () -> Color.GREEN);
-			}
-
-			// rotation axis
-			final Axis3D axis = animator.getLastAxis();
-			if (axis != null) {
-
-				final Vector3D v = Vector3D.normalize(Vector3D.substract(axis.getP2(), axis.getP1())).mult(250);
-				final Vector3D p1 = Vector3D.substract(axis.getP1(), v);
-				final Vector3D p2 = Vector3D.add(axis.getP1(), v);
-
-				final CoordinateTransformation3D rtf = animator.getCamera().getTransformationToCamera();
-				drawLine(graphicsSubsystem, new Pair<>(camera.projectWorld(rtf.inverseTransformPoint(p1)), Color.YELLOW),
-						new Pair<>(camera.projectWorld(rtf.inverseTransformPoint(p2)), Color.YELLOW));
-			}
-
-			// path
-			for (Vector3D bpointWorld : animator.getPathpoints()) {
-				final Vector3D bpoint = camera.projectWorld(bpointWorld);
-				if (bpoint == null) {
-					continue;
-				}
-				final Color color = new Color(0, 0, 80, 20);
-				graphicsSubsystem.drawFilledCircle((int) bpoint.x(), (int) bpoint.y(), 4, () -> color);
-			}
-
-		}
-
-		private void drawLine(final IGraphicsSubsystem graphicsSubsystem, final Pair<Vector3D, Color> p1, final Pair<Vector3D, Color> p2) {
-
-			if (p1.getFirst() != null & p2.getFirst() != null) {
-				graphicsSubsystem.drawLine((int) p1.getFirst().x(), (int) p1.getFirst().y(), (int) p2.getFirst().x(),
-						(int) p2.getFirst().y(), p1.getSecond(), p2.getSecond());
-			}
-
 		}
 
 	}
@@ -192,7 +140,7 @@ public class WhirlSim extends SimulationScreen {
 	 */
 	@Override
 	protected void init(IGraphicsSubsystem graphicsSubsystem) {
-
+		setPrintButtons(true);
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		graphicsSubsystem.setColorMixture(colorMixture);
 		initKeyActions();
@@ -215,6 +163,7 @@ public class WhirlSim extends SimulationScreen {
 	/**
 	 * @param graphicsSubsystem
 	 */
+	@SuppressWarnings("unchecked")
 	private void initCameras(IGraphicsSubsystem graphicsSubsystem) {
 
 		{
@@ -443,9 +392,12 @@ public class WhirlSim extends SimulationScreen {
 					.sigmoid(MathUtils.scalel(deltaxmin, dimension.getWidth() + deltaxmax, -18, 1.4, point.x()));
 
 			if (camera.inScreenRange(ppoint)) {
-				graphicsSubsystem.drawFilledCircle((int) px, (int) py, pradius, () -> CUtils.transparent(
-						adjustColor(CUtils.morphColor(particle.getAttribute().color, Color.YELLOW, colortrans, point.x()), point),
-						(int) MathUtils.morph(v -> (double) particle.getAttribute().color.getAlpha(), v -> 0D, alphatrans, point.x())));
+				graphicsSubsystem.drawFilledCircle((int) px, (int) py, pradius, () -> {
+					final Color pcolor = particle.getAttribute().color;
+					return CUtils.transparent(adjustColor(
+							CUtils.morphColor(pcolor, CUtils.transparent(Color.YELLOW, pcolor.getAlpha()), colortrans, point.x()), point),
+							(int) MathUtils.morph(v -> (double) pcolor.getAlpha(), v -> 0D, alphatrans, point.x()));
+				});
 			}
 		}
 
@@ -1369,6 +1321,20 @@ public class WhirlSim extends SimulationScreen {
 	 */
 	@Override
 	protected void shutdown() throws Exception {
+
+	}
+
+	@Override
+	public void buttonChanged(XInputButton button, boolean pressed) {
+		super.buttonChanged(button, pressed);
+
+		if (button == XInputButton.DPAD_RIGHT && pressed) {
+			camera = cameraIterator.next();
+		} else if (button == XInputButton.BACK && pressed) {
+			stop();
+		} else if (button == XInputButton.START && pressed) {
+			setPaused(!isPaused());
+		}
 
 	}
 }

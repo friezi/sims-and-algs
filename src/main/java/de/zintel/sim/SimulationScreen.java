@@ -36,8 +36,8 @@ import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystemFactory;
 import de.zintel.gfx.graphicsubsystem.IRendererListener;
 import de.zintel.xinput.IXInputCombinedHandler;
-import de.zintel.xinput.XInputHandle;
 import de.zintel.xinput.XInputController;
+import de.zintel.xinput.XInputHandle;
 
 /**
  * @author friedemann.zintel
@@ -96,8 +96,8 @@ public abstract class SimulationScreen
 
 	private final Collection<XInputController> xInputControllers = new LinkedList<>();
 
-	public SimulationScreen(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord, String recordFilename,
-			int recordingRate) {
+	public SimulationScreen(String title, EGraphicsSubsystem gfxSsystem, ScreenParameters screenParameters, boolean doRecord,
+			String recordFilename, int recordingRate) {
 		this.screenParameters = screenParameters;
 		this.doRecord = doRecord;
 		this.recordFilename = recordFilename;
@@ -284,8 +284,8 @@ public abstract class SimulationScreen
 				}
 
 				keyAction.plus();
-				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW, TEXT_TIMEOUT,
-						keyAction.toggleComponent());
+				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
+						TEXT_TIMEOUT, keyAction.toggleComponent());
 
 			}
 
@@ -299,8 +299,8 @@ public abstract class SimulationScreen
 				}
 
 				keyAction.minus();
-				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW, TEXT_TIMEOUT,
-						keyAction.toggleComponent());
+				updateFadingText(keyAction.textID(), keyAction.text() + ": " + keyAction.getValue(), TEXT_POSITION, Color.YELLOW,
+						TEXT_TIMEOUT, keyAction.toggleComponent());
 
 			}
 		} else if (pressedKeyCode == KeyEvent.VK_SHIFT) {
@@ -315,7 +315,7 @@ public abstract class SimulationScreen
 		if (ke.getExtendedKeyCode() == KeyEvent.VK_ESCAPE) {
 			stopped = true;
 		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_SPACE) {
-			paused ^= true;
+			paused = !paused;
 		} else if (ke.getExtendedKeyCode() == KeyEvent.VK_SHIFT) {
 			shift = false;
 		}
@@ -383,8 +383,8 @@ public abstract class SimulationScreen
 
 			@Override
 			public String getValue() {
-				return keyActions.entrySet().stream().filter(entry -> entry.getValue() != this)
-						.map(entry -> KeyEvent.getKeyText(entry.getKey()) + ": " + entry.getValue().text() + ": " + entry.getValue().getValue())
+				return keyActions.entrySet().stream().filter(entry -> entry.getValue() != this).map(
+						entry -> KeyEvent.getKeyText(entry.getKey()) + ": " + entry.getValue().text() + ": " + entry.getValue().getValue())
 						.collect(Collectors.joining("\n"));
 			}
 
@@ -547,6 +547,26 @@ public abstract class SimulationScreen
 		if (printButtons) {
 			System.out.println("XBox-C: disconnected");
 		}
+	}
+
+	public boolean isPrintButtons() {
+		return printButtons;
+	}
+
+	public void setPrintButtons(boolean printButtons) {
+		this.printButtons = printButtons;
+	}
+
+	public void stop() {
+		stopped = true;
+	}
+
+	public boolean isPaused() {
+		return paused;
+	}
+
+	public void setPaused(boolean paused) {
+		this.paused = paused;
 	}
 
 }

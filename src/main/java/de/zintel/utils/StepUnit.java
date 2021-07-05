@@ -1,18 +1,16 @@
-package de.zintel.gfx.g3d;
+package de.zintel.utils;
 
-import de.zintel.math.Vector3D;
+public class StepUnit<T> {
 
-public class StepUnit3D {
-
-	private final Vector3D point;
+	private final T element;
 
 	private final int step;
 
 	private final int stepMax;
 
-	public StepUnit3D(Vector3D point, int step, int stepMax) {
+	public StepUnit(T element, int step, int stepMax) {
 		super();
-		this.point = point;
+		this.element = element;
 		this.step = step;
 		this.stepMax = stepMax;
 	}
@@ -30,8 +28,8 @@ public class StepUnit3D {
 		return stepMax;
 	}
 
-	public Vector3D getPoint() {
-		return point;
+	public T getElement() {
+		return element;
 	}
 
 }

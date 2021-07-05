@@ -9,6 +9,7 @@ import java.util.List;
 import de.zintel.math.MathUtils;
 import de.zintel.math.PolarND;
 import de.zintel.math.Vector3D;
+import de.zintel.utils.StepUnit;
 
 public class EpicyclesPointGenerator extends APointInterpolater3D {
 
@@ -70,7 +71,7 @@ public class EpicyclesPointGenerator extends APointInterpolater3D {
 	}
 
 	@Override
-	public StepUnit3D next() {
+	public StepUnit<Vector3D> next() {
 
 		final Vector3D point = new Vector3D();
 
@@ -86,7 +87,7 @@ public class EpicyclesPointGenerator extends APointInterpolater3D {
 
 		step++;
 
-		return new StepUnit3D(Vector3D.add(getStart(), point), step, maxIterations);
+		return new StepUnit<Vector3D>(Vector3D.add(getStart(), point), step, maxIterations);
 	}
 
 	public EpicyclesPointGenerator addCircle(final Epicycle circle) {

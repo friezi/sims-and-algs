@@ -100,7 +100,7 @@ public class Fourier extends JPanel implements MouseListener, ActionListener {
 		 }
 
 		while (interpolater.hasNext()) {
-			points.add(interpolater.next().getPoint());
+			points.add(interpolater.next().getElement());
 		}
 
 	}

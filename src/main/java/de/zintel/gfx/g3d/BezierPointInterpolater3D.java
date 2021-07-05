@@ -8,6 +8,7 @@ import java.util.List;
 
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector3D;
+import de.zintel.utils.StepUnit;
 
 /**
  * @author Friedemann
@@ -80,7 +81,7 @@ public class BezierPointInterpolater3D extends APointInterpolater3D {
 	 * @see java.util.Iterator#next()
 	 */
 	@Override
-	public StepUnit3D next() {
+	public StepUnit next() {
 
 		if (iteration == 0) {
 
@@ -115,7 +116,7 @@ public class BezierPointInterpolater3D extends APointInterpolater3D {
 
 		final Vector3D curvePoint = curvePoints.get(pointIndex++);
 
-		return new StepUnit3D(curvePoint, pointIndex, curvePoints.size());
+		return new StepUnit(curvePoint, pointIndex, curvePoints.size());
 
 	}
 

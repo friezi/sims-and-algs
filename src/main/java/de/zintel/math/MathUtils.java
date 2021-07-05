@@ -85,7 +85,7 @@ public final class MathUtils {
 	 * @param ftrans
 	 *            transition-function: if ftrans:double->[0;1] in such way, that
 	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a morph from
-	 *            fstart to fend well take place
+	 *            fstart to fend will take place
 	 * @param x
 	 *            value x
 	 * @return morphed value

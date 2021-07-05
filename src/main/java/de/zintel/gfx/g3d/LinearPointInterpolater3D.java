@@ -8,6 +8,7 @@ import java.util.Queue;
 import java.util.Random;
 
 import de.zintel.math.Vector3D;
+import de.zintel.utils.StepUnit;
 
 /**
  * @author Friedemann
@@ -17,7 +18,7 @@ public class LinearPointInterpolater3D extends APointInterpolater3D {
 
 	private final boolean avoidEmptyMoiree;
 
-	private final Queue<StepUnit3D> queue = new ArrayDeque<>(2);
+	private final Queue<StepUnit<Vector3D>> queue = new ArrayDeque<>(2);
 
 	double diffX;
 	double diffY;
@@ -78,7 +79,7 @@ public class LinearPointInterpolater3D extends APointInterpolater3D {
 	 * 
 	 */
 	@Override
-	public StepUnit3D next() {
+	public StepUnit<Vector3D> next() {
 
 		final Vector3D p1 = getStart();
 
@@ -116,13 +117,13 @@ public class LinearPointInterpolater3D extends APointInterpolater3D {
 						if ((diffX != diff && x != oldX) || (diffY != diff && y != oldY) || (diffZ != diff && z != oldZ)) {
 							int rndpos = rand.nextInt(3);
 
-							StepUnit3D fillUnit;
+							StepUnit<Vector3D> fillUnit;
 							if (rndpos == 1) {
-								fillUnit = new StepUnit3D(new Vector3D(oldX, y, z), delta - rndpos, (int) diff);
+								fillUnit = new StepUnit<Vector3D>(new Vector3D(oldX, y, z), delta - rndpos, (int) diff);
 							} else if (rndpos == 2) {
-								fillUnit = new StepUnit3D(new Vector3D(x, oldY, z), delta - rndpos, (int) diff);
+								fillUnit = new StepUnit<Vector3D>(new Vector3D(x, oldY, z), delta - rndpos, (int) diff);
 							} else {
-								fillUnit = new StepUnit3D(new Vector3D(x, y, oldZ), delta - rndpos, (int) diff);
+								fillUnit = new StepUnit<Vector3D>(new Vector3D(x, y, oldZ), delta - rndpos, (int) diff);
 							}
 							queue.add(fillUnit);
 						}
@@ -136,7 +137,7 @@ public class LinearPointInterpolater3D extends APointInterpolater3D {
 				}
 			}
 
-			queue.add(new StepUnit3D(new Vector3D(x, y, z), delta++, (int) diff));
+			queue.add(new StepUnit<Vector3D>(new Vector3D(x, y, z), delta++, (int) diff));
 
 		}
 

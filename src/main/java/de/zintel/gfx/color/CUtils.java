@@ -81,7 +81,8 @@ public final class CUtils {
 	}
 
 	public static boolean equal(final Color c1, final Color c2) {
-		return (c1.getRed() == c2.getRed() && c1.getGreen() == c2.getGreen() && c1.getBlue() == c2.getBlue() && c1.getAlpha() == c2.getAlpha());
+		return (c1.getRed() == c2.getRed() && c1.getGreen() == c2.getGreen() && c1.getBlue() == c2.getBlue()
+				&& c1.getAlpha() == c2.getAlpha());
 	}
 
 	public static int brighten(final int cValue, double colorBrigthnessFactor) {
@@ -125,9 +126,12 @@ public final class CUtils {
 	}
 
 	public static Color morphColor(final Color scolor, final Color tcolor, final Function<Double, Double> ftrans, final double value) {
-		return new Color((int) MathUtils.morph(x -> (double) scolor.getRed(), x -> (double) tcolor.getRed(), ftrans, value),
-				(int) MathUtils.morph(x -> (double) scolor.getGreen(), x -> (double) tcolor.getGreen(), ftrans, value),
-				(int) MathUtils.morph(x -> (double) scolor.getBlue(), x -> (double) tcolor.getBlue(), ftrans, value), scolor.getAlpha());
+
+		final int red = (int) MathUtils.morph(x -> (double) scolor.getRed(), x -> (double) tcolor.getRed(), ftrans, value);
+		final int green = (int) MathUtils.morph(x -> (double) scolor.getGreen(), x -> (double) tcolor.getGreen(), ftrans, value);
+		final int blue = (int) MathUtils.morph(x -> (double) scolor.getBlue(), x -> (double) tcolor.getBlue(), ftrans, value);
+		final int alpha = (int) MathUtils.morph(x -> (double) scolor.getAlpha(), x -> (double) tcolor.getAlpha(), ftrans, value);
+		return new Color(red, green, blue, alpha);
 	}
 
 }
