@@ -17,9 +17,13 @@ public class XInputHandle {
 
 	private IXInputCombinedHandler xInputCombinedHandler = null;
 
-	private float deadzoneStick = DEADZONE_STICK_DFLT;
+	private float leftStickDeadzone = DEADZONE_STICK_DFLT;
 
-	private float deadzoneLRT = DEADZONE_LRT_DFLT;
+	private float rightStickDeadzone = DEADZONE_STICK_DFLT;
+
+	private float rtDeadzone = DEADZONE_LRT_DFLT;
+
+	private float ltDeadzone = DEADZONE_LRT_DFLT;
 
 	public XInputHandle(int playerNmb) {
 		this.playerNmb = playerNmb;
@@ -38,20 +42,36 @@ public class XInputHandle {
 		return playerNmb;
 	}
 
-	public float getDeadzoneStick() {
-		return deadzoneStick;
+	public float getLeftStickDeadzone() {
+		return leftStickDeadzone;
 	}
 
-	public void setDeadzoneStick(float deadzoneStick) {
-		this.deadzoneStick = deadzoneStick;
+	public void setLeftStickDeadzone(float deadzoneStick) {
+		this.leftStickDeadzone = deadzoneStick;
 	}
 
-	public float getDeadzoneLRT() {
-		return deadzoneLRT;
+	public float getRightStickDeadzone() {
+		return rightStickDeadzone;
 	}
 
-	public void setDeadzoneLRT(float deadzoneLRT) {
-		this.deadzoneLRT = deadzoneLRT;
+	public void setRightStickDeadzone(float rightStickDeadzone) {
+		this.rightStickDeadzone = rightStickDeadzone;
+	}
+
+	public float getRTDeadzone() {
+		return rtDeadzone;
+	}
+
+	public void setRTDeadzone(float deadzoneLRT) {
+		this.rtDeadzone = deadzoneLRT;
+	}
+
+	public float getLTDeadzone() {
+		return ltDeadzone;
+	}
+
+	public void setLTDeadzone(float ltDeadzone) {
+		this.ltDeadzone = ltDeadzone;
 	}
 
 }

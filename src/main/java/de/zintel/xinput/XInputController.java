@@ -7,6 +7,8 @@ import com.github.strikerx3.jxinput.XInputAxes;
 import com.github.strikerx3.jxinput.XInputComponents;
 import com.github.strikerx3.jxinput.XInputDevice;
 
+import de.zintel.math.MathUtils;
+
 /**
  * @author friedemann.zintel
  *
@@ -42,19 +44,20 @@ public class XInputController {
 					XInputComponents components = xInputDevice.getComponents();
 					final XInputAxes axes = components.getAxes();
 
-					combinedHandler.handleXInputLeftStick(adjustToDeadZone(axes.lx, xInputHandle.getDeadzoneStick()),
-							adjustToDeadZone(axes.ly, xInputHandle.getDeadzoneStick()));
-					combinedHandler.handleXInputRightStick(adjustToDeadZone(axes.rx, xInputHandle.getDeadzoneStick()),
-							adjustToDeadZone(axes.ry, xInputHandle.getDeadzoneStick()));
-					combinedHandler.handleXInputLT(adjustToDeadZone(axes.lt, xInputHandle.getDeadzoneLRT()));
-					combinedHandler.handleXInputRT(adjustToDeadZone(axes.rt, xInputHandle.getDeadzoneLRT()));
+					combinedHandler.handleXInputLeftStick(adjustToDeadzone(axes.lx, xInputHandle.getLeftStickDeadzone()),
+							adjustToDeadzone(axes.ly, xInputHandle.getLeftStickDeadzone()));
+					combinedHandler.handleXInputRightStick(adjustToDeadzone(axes.rx, xInputHandle.getRightStickDeadzone()),
+							adjustToDeadzone(axes.ry, xInputHandle.getRightStickDeadzone()));
+					combinedHandler.handleXInputLT(adjustToDeadzone(axes.lt, xInputHandle.getLTDeadzone()));
+					combinedHandler.handleXInputRT(adjustToDeadzone(axes.rt, xInputHandle.getRTDeadzone()));
 				}
 			}
 		}
 	}
 
-	private float adjustToDeadZone(float value, final float deadzone) {
-		return Math.abs(value) < deadzone ? 0 : (value - Math.signum(value) * deadzone) / (1 - deadzone);
+	private float adjustToDeadzone(float value, final float deadzone) {
+		final float sgn = Math.signum(value);
+		return Math.abs(value) < deadzone ? 0 : (float) MathUtils.scalel(sgn * deadzone, sgn, 0, sgn, value);
 	}
 
 }
