@@ -81,7 +81,7 @@ public class BezierPointInterpolater3D extends APointInterpolater3D {
 	 * @see java.util.Iterator#next()
 	 */
 	@Override
-	public StepUnit next() {
+	public StepUnit<Vector3D> next() {
 
 		if (iteration == 0) {
 
@@ -116,7 +116,7 @@ public class BezierPointInterpolater3D extends APointInterpolater3D {
 
 		final Vector3D curvePoint = curvePoints.get(pointIndex++);
 
-		return new StepUnit(curvePoint, pointIndex, curvePoints.size());
+		return new StepUnit<Vector3D>(curvePoint, pointIndex, curvePoints.size());
 
 	}
 

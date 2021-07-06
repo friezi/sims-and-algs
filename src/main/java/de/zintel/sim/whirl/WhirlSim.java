@@ -175,7 +175,7 @@ public class WhirlSim extends SimulationScreen {
 							(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
 					new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension()).setId("plane: manual");
 			XInputCameraAnimator animator = new XInputCameraAnimator(currCamera, 50);
-			addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(animator));
+			addXInputHandle(new XInputHandle(0, animator));
 			cameraAnimators.add(animator);
 			cameraRenderers.add(new PlaneCamera3DRenderer(currCamera, Color.YELLOW));
 

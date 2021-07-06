@@ -15,7 +15,7 @@ public class XInputHandle {
 
 	private final int playerNmb;
 
-	private IXInputCombinedHandler xInputCombinedHandler = null;
+	private final IXInputCombinedHandler xInputCombinedHandler;
 
 	private float leftStickDeadzone = DEADZONE_STICK_DFLT;
 
@@ -25,17 +25,13 @@ public class XInputHandle {
 
 	private float ltDeadzone = DEADZONE_LRT_DFLT;
 
-	public XInputHandle(int playerNmb) {
+	public XInputHandle(int playerNmb, IXInputCombinedHandler xInputCombinedHandler) {
 		this.playerNmb = playerNmb;
+		this.xInputCombinedHandler = xInputCombinedHandler;
 	}
 
 	public IXInputCombinedHandler getXInputCombinedHandler() {
 		return xInputCombinedHandler;
-	}
-
-	public XInputHandle setXInputCombinedHandler(IXInputCombinedHandler xInputCombinedHandler) {
-		this.xInputCombinedHandler = xInputCombinedHandler;
-		return this;
 	}
 
 	public int getPlayerNmb() {

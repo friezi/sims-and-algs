@@ -145,7 +145,7 @@ public abstract class SimulationScreen
 	 * 
 	 */
 	private void initXInput() {
-		addXInputHandle(new XInputHandle(0).setXInputCombinedHandler(this));
+		addXInputHandle(new XInputHandle(0, this));
 	}
 
 	/**
