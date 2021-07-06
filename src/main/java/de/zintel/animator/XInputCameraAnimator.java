@@ -166,7 +166,7 @@ public class XInputCameraAnimator implements IXInputCombinedHandler, IAnimator {
 		} else {
 
 			hrotationspeed = -maxspeed * x;
-			vrotationspeed = maxspeed * y;
+			vrotationspeed = -maxspeed * y;
 			zrotationspeed = 0;
 
 		}

@@ -60,31 +60,30 @@ public class PlaneCamera3DRenderer implements IRenderer {
 		// front-points should be brighter, back-points darker.
 		Color currColor = color;
 		for (Pair<Vector3D, Color> el : coll) {
-
-			el.setFirst(camera.projectCamera(el.getFirst()));
 			el.setSecond(currColor);
 			currColor = currColor.darker();
 		}
 
-		drawLine(graphicsSubsystem, bl, tl);
-		drawLine(graphicsSubsystem, bl, br);
-		drawLine(graphicsSubsystem, tr, tl);
-		drawLine(graphicsSubsystem, tr, br);
+		drawLine(graphicsSubsystem, bl, tl, camera);
+		drawLine(graphicsSubsystem, bl, br, camera);
+		drawLine(graphicsSubsystem, tr, tl, camera);
+		drawLine(graphicsSubsystem, tr, br, camera);
 
-		drawLine(graphicsSubsystem, bl, vp);
-		drawLine(graphicsSubsystem, tl, vp);
-		drawLine(graphicsSubsystem, br, vp);
-		drawLine(graphicsSubsystem, tr, vp);
+		drawLine(graphicsSubsystem, bl, vp, camera);
+		drawLine(graphicsSubsystem, tl, vp, camera);
+		drawLine(graphicsSubsystem, br, vp, camera);
+		drawLine(graphicsSubsystem, tr, vp, camera);
 
 	}
 
-	private void drawLine(final IGraphicsSubsystem graphicsSubsystem, final Pair<Vector3D, Color> p1, final Pair<Vector3D, Color> p2) {
+	private void drawLine(final IGraphicsSubsystem graphicsSubsystem, final Pair<Vector3D, Color> p1, final Pair<Vector3D, Color> p2,
+			ICamera3D camera) {
 
-		if (p1.getFirst() != null & p2.getFirst() != null) {
-			graphicsSubsystem.drawLine((int) p1.getFirst().x(), (int) p1.getFirst().y(), (int) p2.getFirst().x(), (int) p2.getFirst().y(),
-					p1.getSecond(), p2.getSecond());
+		final Pair<Vector3D, Vector3D> line = camera.cameraLineToScreen(p1.getFirst(), p2.getFirst());
+		if (line != null) {
+			graphicsSubsystem.drawLine((int) line.getFirst().x(), (int) line.getFirst().y(), (int) line.getSecond().x(),
+					(int) line.getSecond().y(), p1.getSecond(), p2.getSecond());
 		}
-
 	}
 
 }

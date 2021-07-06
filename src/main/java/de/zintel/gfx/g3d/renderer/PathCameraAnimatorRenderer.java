@@ -9,7 +9,6 @@ import de.zintel.gfx.graphicsubsystem.IGraphicsSubsystem;
 import de.zintel.math.Axis3D;
 import de.zintel.math.MathUtils;
 import de.zintel.math.Vector3D;
-import de.zintel.math.transform.CoordinateTransformation3D;
 import de.zintel.utils.Pair;
 import de.zintel.utils.StepUnit;
 
@@ -38,9 +37,9 @@ public class PathCameraAnimatorRenderer implements IRenderer {
 			final Vector3D p1 = Vector3D.substract(axis.getP1(), v);
 			final Vector3D p2 = Vector3D.add(axis.getP1(), v);
 
-			final CoordinateTransformation3D rtf = animator.getCamera().getTransformationToCamera();
-			drawLine(graphicsSubsystem, new Pair<>(camera.projectWorld(rtf.inverseTransformPoint(p1)), Color.YELLOW),
-					new Pair<>(camera.projectWorld(rtf.inverseTransformPoint(p2)), Color.YELLOW));
+			final ICamera3D acamera = animator.getCamera();
+			drawLine(graphicsSubsystem, new Pair<>(camera.projectWorld(acamera.toWorld(p1)), Color.YELLOW),
+					new Pair<>(camera.projectWorld(acamera.toWorld(p2)), Color.YELLOW));
 		}
 
 		// path

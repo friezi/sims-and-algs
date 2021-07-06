@@ -40,6 +40,7 @@ import de.zintel.math.Vector3D;
 import de.zintel.math.transform.CoordinateTransformation3D;
 import de.zintel.sim.SimulationScreen;
 import de.zintel.utils.CyclingIterator;
+import de.zintel.utils.Pair;
 import de.zintel.xinput.XInputHandle;
 
 /**
@@ -140,7 +141,7 @@ public class WhirlSim extends SimulationScreen {
 	 */
 	@Override
 	protected void init(IGraphicsSubsystem graphicsSubsystem) {
-		setPrintButtons(true);
+
 		graphicsSubsystem.setBackground(COLOR_BACKGROUND);
 		graphicsSubsystem.setColorMixture(colorMixture);
 		initKeyActions();
@@ -414,34 +415,40 @@ public class WhirlSim extends SimulationScreen {
 		final double gridy = dimension.getHeight();
 		for (int i = 0 + (int) deltaxmin; i < dimension.getWidth() + deltaxmax; i += 50) {
 
-			final Vector3D topStart = new Vector3D(i, 0, 0);
-			final Vector3D p_topStart = project(topStart);
-			final Vector3D topEnd = new Vector3D(i, 0, gridz);
-			final Vector3D p_topEnd = project(topEnd);
-			if (p_topStart != null && p_topEnd != null) {
-				graphicsSubsystem.drawLine((int) p_topStart.x(), (int) p_topStart.y(), (int) p_topEnd.x(), (int) p_topEnd.y(),
-						adjustColor(gridcolor, topStart), adjustColor(gridcolor, topEnd));
+			{
+				final Vector3D topStart = new Vector3D(i, 0, 0);
+				final Vector3D topEnd = new Vector3D(i, 0, gridz);
+				final Pair<Vector3D, Vector3D> line = camera.worldLineToScreen(topStart, topEnd);
+				if (line != null) {
+					final Vector3D p_topStart = line.getFirst();
+					final Vector3D p_topEnd = line.getSecond();
+					graphicsSubsystem.drawLine((int) p_topStart.x(), (int) p_topStart.y(), (int) p_topEnd.x(), (int) p_topEnd.y(),
+							adjustColor(gridcolor, topStart), adjustColor(gridcolor, topEnd));
+				}
 			}
-
-			final Vector3D bottomStart = new Vector3D(i, gridy, 0);
-			final Vector3D p_bottomStart = project(bottomStart);
-			final Vector3D bottomEnd = new Vector3D(i, gridy, gridz);
-			final Vector3D p_bottomEnd = project(bottomEnd);
-			if (p_bottomStart != null && p_bottomEnd != null) {
-				graphicsSubsystem.drawLine((int) p_bottomStart.x(), (int) p_bottomStart.y(), (int) p_bottomEnd.x(), (int) p_bottomEnd.y(),
-						adjustColor(gridcolor, bottomStart), adjustColor(gridcolor, bottomEnd));
+			{
+				final Vector3D bottomStart = new Vector3D(i, gridy, 0);
+				final Vector3D bottomEnd = new Vector3D(i, gridy, gridz);
+				final Pair<Vector3D, Vector3D> line = camera.worldLineToScreen(bottomStart, bottomEnd);
+				if (line != null) {
+					final Vector3D p_bottomStart = line.getFirst();
+					final Vector3D p_bottomEnd = line.getSecond();
+					graphicsSubsystem.drawLine((int) p_bottomStart.x(), (int) p_bottomStart.y(), (int) p_bottomEnd.x(),
+							(int) p_bottomEnd.y(), adjustColor(gridcolor, bottomStart), adjustColor(gridcolor, bottomEnd));
+				}
 			}
-
-			final Vector3D backStart = new Vector3D(i, 0, gridz);
-			final Vector3D p_backStart = project(backStart);
-			final Vector3D backEnd = new Vector3D(i, gridy, gridz);
-			final Vector3D p_backEnd = project(backEnd);
-			if (p_backStart != null && p_backEnd != null) {
-				graphicsSubsystem.drawLine((int) p_backStart.x(), (int) p_backStart.y(), (int) p_backEnd.x(), (int) p_backEnd.y(),
-						adjustColor(gridcolor, backStart), adjustColor(gridcolor, backEnd));
+			{
+				final Vector3D backStart = new Vector3D(i, 0, gridz);
+				final Vector3D backEnd = new Vector3D(i, gridy, gridz);
+				final Pair<Vector3D, Vector3D> line = camera.worldLineToScreen(backStart, backEnd);
+				if (line != null) {
+					final Vector3D p_backStart = line.getFirst();
+					final Vector3D p_backEnd = line.getSecond();
+					graphicsSubsystem.drawLine((int) p_backStart.x(), (int) p_backStart.y(), (int) p_backEnd.x(), (int) p_backEnd.y(),
+							adjustColor(gridcolor, backStart), adjustColor(gridcolor, backEnd));
+				}
 			}
 		}
-
 	}
 
 	private void drawComplexGrid(IGraphicsSubsystem graphicsSubsystem) {
@@ -457,41 +464,47 @@ public class WhirlSim extends SimulationScreen {
 					final Vector3D znpoint = new Vector3D(point.x(), point.y(), point.z() - step);
 					final Vector3D xnpoint = new Vector3D(point.x() + step, point.y(), point.z());
 					final Vector3D ynpoint = new Vector3D(point.x(), point.y() + step, point.z());
-					final Vector3D ppoint = project(point);
-					final Vector3D znppoint = project(znpoint);
-					final Vector3D xnppoint = project(xnpoint);
-					final Vector3D ynppoint = project(ynpoint);
-					if (ppoint == null) {
-						continue;
-					}
+					{
+						final Vector3D ppoint = project(point);
+						if (ppoint != null) {
 
-					final int radius = (int) projectRadius(point, ppoint, finalBubbleRadius * 2.5);
-					if (radius == 0) {
-						continue;
-					}
-
-					if (ppoint != null) {
-
-						if (camera.inScreenRange(ppoint)) {
-							graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius,
-									() -> adjustColor(Color.GREEN, point));
+							final int radius = (int) projectRadius(point, ppoint, finalBubbleRadius * 2.5);
+							if (radius == 0) {
+								continue;
+							}
+							if (camera.inScreenRange(ppoint)) {
+								graphicsSubsystem.drawFilledCircle((int) ppoint.x(), (int) ppoint.y(), radius,
+										() -> adjustColor(Color.GREEN, point));
+							}
 						}
-
-						if (xnppoint != null) {
+					}
+					{
+						final Pair<Vector3D, Vector3D> line = camera.worldLineToScreen(point, xnpoint);
+						if (line != null) {
+							final Vector3D ppoint = line.getFirst();
+							final Vector3D xnppoint = line.getSecond();
 							if (x < dimension.getWidth()) {
 								graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) xnppoint.x(), (int) xnppoint.y(),
 										adjustColor(gridcolor, ppoint), adjustColor(gridcolor, xnppoint));
 							}
 						}
-
-						if (ynppoint != null) {
+					}
+					{
+						final Pair<Vector3D, Vector3D> line = camera.worldLineToScreen(point, ynpoint);
+						if (line != null) {
+							final Vector3D ppoint = line.getFirst();
+							final Vector3D ynppoint = line.getSecond();
 							if (y < dimension.getHeight()) {
 								graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) ynppoint.x(), (int) ynppoint.y(),
 										adjustColor(gridcolor, ppoint), adjustColor(gridcolor, ynppoint));
 							}
 						}
-
-						if (znppoint != null) {
+					}
+					{
+						final Pair<Vector3D, Vector3D> line = camera.worldLineToScreen(point, znpoint);
+						if (line != null) {
+							final Vector3D ppoint = line.getFirst();
+							final Vector3D znppoint = line.getSecond();
 							if (z > 0) {
 								graphicsSubsystem.drawLine((int) ppoint.x(), (int) ppoint.y(), (int) znppoint.x(), (int) znppoint.y(),
 										adjustColor(gridcolor, ppoint), adjustColor(gridcolor, znppoint));

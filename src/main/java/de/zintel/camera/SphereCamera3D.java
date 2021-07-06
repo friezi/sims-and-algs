@@ -107,8 +107,7 @@ public class SphereCamera3D implements ICamera3D {
 			return null;
 		}
 
-		final Vector3D camerapoint = transformationToScreen.transformPoint(worldpoint);
-		return projectCamera(camerapoint);
+		return projectCamera(toCamera(worldpoint));
 	}
 
 	@Override
@@ -124,7 +123,7 @@ public class SphereCamera3D implements ICamera3D {
 			return null;
 		}
 
-		final Vector3D s_point = intersectWithSphere(t_point);
+		final Vector3D s_point = intersectWithSphere(t_point, viewpoint);
 		if (s_point == null) {
 			return null;
 		}
@@ -138,9 +137,9 @@ public class SphereCamera3D implements ICamera3D {
 		return new Vector3D(x, y, 0);
 	}
 
-	private final Vector3D intersectWithSphere(final Vector3D point) {
+	private final Vector3D intersectWithSphere(final Vector3D point1, final Vector3D point2) {
 
-		final Vector3D vp = AVectorND.substract(viewpoint, point);
+		final Vector3D vp = AVectorND.substract(point2, point1);
 		final double vpLength = vp.length();
 
 		if (vpLength == 0) {
@@ -148,15 +147,15 @@ public class SphereCamera3D implements ICamera3D {
 		}
 
 		final Vector3D l = AVectorND.mult(1.0 / vpLength, vp);
-		final double lpc = AVectorND.dotProduct(l, AVectorND.substract(point, sphereCenter));
-		final double root = Math.sqrt(Math.pow(lpc, 2) + 2 * Vector3D.dotProduct(point, sphereCenter) + Math.pow(radius, 2)
-				- Math.pow(point.length(), 2) - Math.pow(sphereCenter.length(), 2));
+		final double lpc = AVectorND.dotProduct(l, AVectorND.substract(point1, sphereCenter));
+		final double root = Math.sqrt(Math.pow(lpc, 2) + 2 * Vector3D.dotProduct(point1, sphereCenter) + Math.pow(radius, 2)
+				- Math.pow(point1.length(), 2) - Math.pow(sphereCenter.length(), 2));
 
 		final double lambda1 = -lpc + root;
 		final double lambda2 = -lpc - root;
 
-		final Vector3D p1 = Vector3D.add(point, Vector3D.mult(lambda1 / vpLength, vp));
-		final Vector3D p2 = Vector3D.add(point, Vector3D.mult(lambda2 / vpLength, vp));
+		final Vector3D p1 = Vector3D.add(point1, Vector3D.mult(lambda1 / vpLength, vp));
+		final Vector3D p2 = Vector3D.add(point1, Vector3D.mult(lambda2 / vpLength, vp));
 
 		return nearest(p1, p2);
 
@@ -206,6 +205,33 @@ public class SphereCamera3D implements ICamera3D {
 	public SphereCamera3D setId(String id) {
 		this.id = id;
 		return this;
+	}
+
+	@Override
+	public Vector3D toCamera(Vector3D worldpoint) {
+		return transformationToScreen.transformPoint(worldpoint);
+	}
+
+	@Override
+	public Vector3D toWorld(Vector3D camerapoint) {
+		return transformationToScreen.inverseTransformPoint(camerapoint);
+	}
+
+	@Override
+	public boolean behindScreen(Vector3D camerapoint) {
+		// FIXME This is not correct; curvature needs to be taken into account
+		return camerapoint.z() < 0;
+	}
+
+	@Override
+	public Vector3D intersect(Vector3D camerap1, Vector3D camerap2) {
+		return intersectWithSphere(camerap1, camerap2);
+	}
+
+	@Override
+	public Vector3D projectCamera(Vector3D camerapoint, boolean showbehind) {
+		// FIXME hmmm...
+		return projectCamera(camerapoint);
 	}
 
 }

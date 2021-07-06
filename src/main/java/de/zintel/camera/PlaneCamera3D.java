@@ -75,14 +75,19 @@ public class PlaneCamera3D implements ICamera3D {
 	 */
 	@Override
 	public Vector3D projectWorld(final Vector3D worldpoint) {
-		return projectCamera(transformationToCamera.transformPoint(worldpoint));
+		return projectCamera(toCamera(worldpoint));
 	}
 
 	@Override
 	public Vector3D projectCamera(Vector3D camerapoint) {
+		return projectCamera(camerapoint, showBehindCamera);
+	}
+
+	@Override
+	public Vector3D projectCamera(Vector3D camerapoint, boolean showbehind) {
 
 		// liegt bei z<0 hinter der Linse
-		Vector3D screenpoint = (!showBehindCamera && behindScreen(camerapoint)) ? null : Utils3D.intersect(camerapoint, viewpoint, plane);
+		Vector3D screenpoint = (!showbehind && behindScreen(camerapoint)) ? null : intersect(camerapoint, viewpoint);
 		if (screenpoint != null && curvature > 0) {
 			screenpoint = curve(screenpoint, curvature);
 		}
@@ -147,7 +152,8 @@ public class PlaneCamera3D implements ICamera3D {
 		return screenDimension;
 	}
 
-	private boolean behindScreen(Vector3D camerapoint) {
+	@Override
+	public boolean behindScreen(Vector3D camerapoint) {
 		return camerapoint.z() < 0;
 	}
 
@@ -159,6 +165,21 @@ public class PlaneCamera3D implements ICamera3D {
 	public PlaneCamera3D setId(String id) {
 		this.id = id;
 		return this;
+	}
+
+	@Override
+	public Vector3D toCamera(Vector3D worldpoint) {
+		return transformationToCamera.transformPoint(worldpoint);
+	}
+
+	@Override
+	public Vector3D toWorld(Vector3D camerapoint) {
+		return transformationToCamera.inverseTransformPoint(camerapoint);
+	}
+
+	@Override
+	public Vector3D intersect(Vector3D camerap1, Vector3D camerap2) {
+		return Utils3D.intersect(camerap1, camerap2, plane);
 	}
 
 }
