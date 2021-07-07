@@ -120,9 +120,9 @@ public interface ICamera3D {
 		} else if (!hp1 && !hp2) {
 			line = new Pair<>(projectCamera(cp1, true), projectCamera(cp2, true));
 		} else if (hp1) {
-			line = new Pair<>(projectCamera(intersect(cp1, cp2), true), projectCamera(cp2, true));
+			line = new Pair<>(intersect(cp1, cp2), projectCamera(cp2, true));
 		} else if (hp2) {
-			line = new Pair<>(projectCamera(cp1, true), projectCamera(intersect(cp1, cp2), true));
+			line = new Pair<>(projectCamera(cp1, true), intersect(cp1, cp2));
 		}
 
 		return line;
