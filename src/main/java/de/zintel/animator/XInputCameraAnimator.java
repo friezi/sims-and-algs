@@ -21,7 +21,7 @@ public class XInputCameraAnimator implements IXInputCombinedHandler, IAnimator {
 
 	private final Vector3D center = new Vector3D(0.0, 540.0, 200.0);
 
-	private static final double CURVATURE_MAX = 20;
+	private static final double CURVATURE_MAX = 100;
 
 	private final ICamera3D camera;
 

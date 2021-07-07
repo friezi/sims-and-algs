@@ -116,6 +116,8 @@ public class WhirlSim extends SimulationScreen {
 
 	private volatile boolean showCameras = false;
 
+	private final double initialCurvature = 100;
+
 	/**
 	 * @param title
 	 * @param gfxSsystem
@@ -175,6 +177,7 @@ public class WhirlSim extends SimulationScreen {
 					new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
 							(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
 					new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension()).setId("plane: manual");
+			currCamera.setCurvature(initialCurvature);
 			XInputCameraAnimator animator = new XInputCameraAnimator(currCamera, 50);
 			addXInputHandle(new XInputHandle(0, animator));
 			cameraAnimators.add(animator);
@@ -188,6 +191,7 @@ public class WhirlSim extends SimulationScreen {
 					new Vector3D((graphicsSubsystem.getDimension().getWidth() - 1) / 2,
 							(graphicsSubsystem.getDimension().getHeight() - 1) / 2, -1000.0),
 					new CoordinateTransformation3D(), 0, graphicsSubsystem.getDimension()).setId("plane: auto");
+			currCamera.setCurvature(initialCurvature);
 			final PathCameraAnimator animator = new PathCameraAnimator(currCamera, rotcenter, graphicsSubsystem.getDimension(),
 					new RandomPointInterpolaterFactory(new BezierInterpolaterFactory(graphicsSubsystem.getDimension(), 80),
 							(start, end) -> new LinearPointInterpolater3D(start, end, false)));
