@@ -89,7 +89,7 @@ public class PlaneCamera3D implements ICamera3D<PlaneCamera3D> {
 		// liegt bei z<0 hinter der Linse
 		Vector3D screenpoint = (!showbehind && behindScreen(camerapoint)) ? null : intersect(camerapoint, viewpoint);
 		if (screenpoint != null && curvature > 0) {
-			screenpoint = curve(screenpoint, curvature);
+			screenpoint = curve(screenpoint, camerapoint.z(), curvature);
 		}
 		return screenpoint;
 	}
@@ -100,16 +100,16 @@ public class PlaneCamera3D implements ICamera3D<PlaneCamera3D> {
 				&& point.y() < screenDimension.getHeight();
 	}
 
-	private Vector3D curve(final Vector3D point, final double curvature) {
+	private Vector3D curve(final Vector3D point, double z, final double curvature) {
 
 		final Vector3D direction = Vector3D.substract(point, middle);
 		final double distance = direction.length();
 		final double weight = Math.pow(Math.sin(MathUtils.scalel(0, maxDistance, 0, Math.PI / 2, distance)), 2);
-		// sin: the smaller is the distance towards the edges the bigger should
+		// sin: the smaller the distance towards the edges the bigger should
 		// be the distortion
-		// log: the bigger is the distance to camera the less should be the
+		// log: the bigger the distance to camera the less should be the
 		// increase of distortion
-		return Vector3D.add(point, Vector3D.mult((weight * curvature * Math.log1p(distance)) / maxDistance, direction));
+		return Vector3D.add(point, Vector3D.mult((weight * curvature * Math.log(1 + distance) * Math.log(1 + z)) / maxDistance, direction));
 
 	}
 

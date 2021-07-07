@@ -47,7 +47,12 @@ public class PathCameraAnimatorRenderer implements IRenderer {
 		final Color mincolor = new Color(0, 0, 40, 5);
 		final Color maxcolor = new Color(10, 10, 255, 100);
 		final int rng = 500;
+		final int filter = 3;
 		for (StepUnit<Vector3D> currUnit : animator.getPathpoints()) {
+
+			if (currUnit.getStep() % filter != 0) {
+				continue;
+			}
 
 			final Color color = unit == null ? mincolor
 					: currUnit.getStep() >= unit.getStep() - rng && currUnit.getStep() <= unit.getStep() + rng ? CUtils.morphColor(mincolor,
