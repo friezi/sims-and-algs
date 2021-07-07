@@ -74,11 +74,11 @@ public class WhirlSim extends SimulationScreen {
 
 	private static final double VP_STEP = 10;
 
-	private ICamera3D camera;
+	private ICamera3D<?> camera;
 
-	private final Collection<ICamera3D> cameras = new LinkedList<>();
+	private final Collection<ICamera3D<?>> cameras = new LinkedList<>();
 
-	private CyclingIterator<ICamera3D> cameraIterator;
+	private CyclingIterator<ICamera3D<?>> cameraIterator;
 
 	private Collection<IAnimator> cameraAnimators = new LinkedList<>();
 

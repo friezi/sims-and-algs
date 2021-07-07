@@ -12,7 +12,7 @@ import de.zintel.utils.Pair;
  * @author friedemann.zintel
  *
  */
-public interface ICamera3D {
+public interface ICamera3D<T extends ICamera3D<T>> {
 
 	Vector3D getViewpoint();
 
@@ -68,7 +68,7 @@ public interface ICamera3D {
 
 	void reset();
 
-	void setCurvature(double value);
+	T setCurvature(double value);
 
 	double getCurvature();
 

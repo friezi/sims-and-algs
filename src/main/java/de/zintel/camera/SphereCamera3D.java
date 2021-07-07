@@ -21,7 +21,7 @@ import de.zintel.math.transform.CoordinateTransformation3D;
  * @author friedemann.zintel
  *
  */
-public class SphereCamera3D implements ICamera3D {
+public class SphereCamera3D implements ICamera3D<SphereCamera3D> {
 
 	private final Vector3D viewpoint;
 
@@ -183,8 +183,8 @@ public class SphereCamera3D implements ICamera3D {
 	}
 
 	@Override
-	public void setCurvature(double value) {
-
+	public SphereCamera3D setCurvature(double value) {
+		return this;
 	}
 
 	@Override

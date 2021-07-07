@@ -19,7 +19,7 @@ import de.zintel.math.transform.CoordinateTransformation3D;
  * @author friedemann.zintel
  *
  */
-public class PlaneCamera3D implements ICamera3D {
+public class PlaneCamera3D implements ICamera3D<PlaneCamera3D> {
 
 	private final Vector3D viewpoint;
 
@@ -119,8 +119,9 @@ public class PlaneCamera3D implements ICamera3D {
 	}
 
 	@Override
-	public void setCurvature(double curvature) {
+	public PlaneCamera3D setCurvature(double curvature) {
 		this.curvature = curvature;
+		return this;
 	}
 
 	/*

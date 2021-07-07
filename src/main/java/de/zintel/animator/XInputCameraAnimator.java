@@ -23,7 +23,7 @@ public class XInputCameraAnimator implements IXInputCombinedHandler, IAnimator {
 
 	private static final double CURVATURE_MAX = 100;
 
-	private final ICamera3D camera;
+	private final ICamera3D<?> camera;
 
 	private final double maxspeed;
 
@@ -47,7 +47,7 @@ public class XInputCameraAnimator implements IXInputCombinedHandler, IAnimator {
 
 	private boolean doCenter = false;
 
-	public XInputCameraAnimator(ICamera3D camera, double maxspeed) {
+	public XInputCameraAnimator(ICamera3D<?> camera, double maxspeed) {
 		this.camera = camera;
 		this.maxspeed = maxspeed;
 	}

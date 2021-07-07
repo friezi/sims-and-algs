@@ -21,7 +21,7 @@ public class PathCameraAnimatorRenderer implements IRenderer {
 	}
 
 	@Override
-	public void render(IGraphicsSubsystem graphicsSubsystem, ICamera3D camera) {
+	public void render(IGraphicsSubsystem graphicsSubsystem, ICamera3D<?> camera) {
 
 		// fixpoint for centering
 		final Vector3D pcenter = camera.projectWorld(animator.getCenter());
@@ -37,7 +37,7 @@ public class PathCameraAnimatorRenderer implements IRenderer {
 			final Vector3D p1 = Vector3D.substract(axis.getP1(), v);
 			final Vector3D p2 = Vector3D.add(axis.getP1(), v);
 
-			final ICamera3D acamera = animator.getCamera();
+			final ICamera3D<?> acamera = animator.getCamera();
 			drawLine(graphicsSubsystem, new Pair<>(camera.projectWorld(acamera.toWorld(p1)), Color.YELLOW),
 					new Pair<>(camera.projectWorld(acamera.toWorld(p2)), Color.YELLOW));
 		}

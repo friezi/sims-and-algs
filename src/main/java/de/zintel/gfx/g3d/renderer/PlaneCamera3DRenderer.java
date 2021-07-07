@@ -31,7 +31,7 @@ public class PlaneCamera3DRenderer implements IRenderer {
 	}
 
 	@Override
-	public void render(IGraphicsSubsystem graphicsSubsystem, ICamera3D camera) {
+	public void render(IGraphicsSubsystem graphicsSubsystem, ICamera3D<?> camera) {
 
 		if (camera == renderedCamera) {
 			return;
@@ -77,7 +77,7 @@ public class PlaneCamera3DRenderer implements IRenderer {
 	}
 
 	private void drawLine(final IGraphicsSubsystem graphicsSubsystem, final Pair<Vector3D, Color> p1, final Pair<Vector3D, Color> p2,
-			ICamera3D camera) {
+			ICamera3D<?> camera) {
 
 		final Pair<Vector3D, Vector3D> line = camera.cameraLineToScreen(p1.getFirst(), p2.getFirst());
 		if (line != null) {

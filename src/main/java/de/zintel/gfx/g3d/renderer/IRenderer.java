@@ -18,6 +18,6 @@ public interface IRenderer {
 	 * @param graphicsSubsystem
 	 * @param camera
 	 */
-	void render(IGraphicsSubsystem graphicsSubsystem, ICamera3D camera);
+	void render(IGraphicsSubsystem graphicsSubsystem, ICamera3D<?> camera);
 
 }

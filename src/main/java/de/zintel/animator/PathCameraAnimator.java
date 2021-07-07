@@ -26,7 +26,7 @@ import de.zintel.utils.StepUnit;
  */
 public class PathCameraAnimator implements IAnimator {
 
-	private final ICamera3D camera;
+	private final ICamera3D<?> camera;
 
 	private final Vector3D center;
 
@@ -57,7 +57,7 @@ public class PathCameraAnimator implements IAnimator {
 
 	private Axis3D lastAxis = null;
 
-	public PathCameraAnimator(ICamera3D camera, Vector3D center, Dimension dimension,
+	public PathCameraAnimator(ICamera3D<?> camera, Vector3D center, Dimension dimension,
 			BiFunction<Vector3D, Vector3D, APointInterpolater3D> pointInterpolaterFactory) {
 		this.camera = camera;
 		this.center = new Vector3D(center);
@@ -186,7 +186,7 @@ public class PathCameraAnimator implements IAnimator {
 		return lastAxis;
 	}
 
-	public ICamera3D getCamera() {
+	public ICamera3D<?> getCamera() {
 		return camera;
 	}
 
