@@ -29,6 +29,14 @@ public interface IVectorField<N extends AVectorND<N>, M extends AVectorND<M>> {
 
 	List<M> asList();
 
+	/**
+	 * 
+	 * ATTENTION!! works only upto dim=number-of-bits-of-long
+	 * 
+	 * @param coordinatevector
+	 * @param factory
+	 * @return
+	 */
 	default M interpolateLinear(N coordinatevector, IVectorFactory<M> factory) {
 
 		final List<Integer> fieldDimensions = getDimensions();

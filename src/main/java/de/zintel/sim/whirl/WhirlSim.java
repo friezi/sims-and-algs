@@ -116,7 +116,7 @@ public class WhirlSim extends SimulationScreen {
 
 	private volatile boolean showCameras = false;
 
-	private final double initialCurvature = 100;
+	private final double initialCurvature = 50;
 
 	/**
 	 * @param title
