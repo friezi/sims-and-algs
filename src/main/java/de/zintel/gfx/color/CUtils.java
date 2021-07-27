@@ -127,10 +127,10 @@ public final class CUtils {
 
 	public static Color morphColor(final Color scolor, final Color tcolor, final Function<Double, Double> ftrans, final double value) {
 
-		final int red = (int) MathUtils.morph(x -> (double) scolor.getRed(), x -> (double) tcolor.getRed(), ftrans, value);
-		final int green = (int) MathUtils.morph(x -> (double) scolor.getGreen(), x -> (double) tcolor.getGreen(), ftrans, value);
-		final int blue = (int) MathUtils.morph(x -> (double) scolor.getBlue(), x -> (double) tcolor.getBlue(), ftrans, value);
-		final int alpha = (int) MathUtils.morph(x -> (double) scolor.getAlpha(), x -> (double) tcolor.getAlpha(), ftrans, value);
+		final int red = (int) MathUtils.transform(x -> (double) scolor.getRed(), x -> (double) tcolor.getRed(), ftrans, value);
+		final int green = (int) MathUtils.transform(x -> (double) scolor.getGreen(), x -> (double) tcolor.getGreen(), ftrans, value);
+		final int blue = (int) MathUtils.transform(x -> (double) scolor.getBlue(), x -> (double) tcolor.getBlue(), ftrans, value);
+		final int alpha = (int) MathUtils.transform(x -> (double) scolor.getAlpha(), x -> (double) tcolor.getAlpha(), ftrans, value);
 		return new Color(red, green, blue, alpha);
 	}
 

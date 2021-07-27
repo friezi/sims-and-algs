@@ -79,7 +79,7 @@ public class MorphTexture implements ITexture {
 
 	private VectorND morphColorValue(Vector2D coords) {
 		return MathUtils
-				.morph(xy -> textureZero.getValue(xy), xy -> textureOne.getValue(xy),
+				.transform(xy -> textureZero.getValue(xy), xy -> textureOne.getValue(xy),
 						xy -> morphFactor.apply(new Vector2D(Arrays.asList(
 								MathUtils.scalel(0, textureZero.getWidth() - 1, factorXRange.get(0), factorXRange.get(1), xy.get(0)),
 								MathUtils.scalel(0, textureZero.getHeight() - 1, factorYRange.get(0), factorYRange.get(1), xy.get(1))))),

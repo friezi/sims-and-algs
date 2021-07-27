@@ -24,6 +24,7 @@ import de.zintel.camera.PlaneCamera3D;
 import de.zintel.camera.SphereCamera3D;
 import de.zintel.control.IKeyAction;
 import de.zintel.gfx.GfxUtils.EGraphicsSubsystem;
+import de.zintel.gfx.GfxUtils;
 import de.zintel.gfx.ScreenParameters;
 import de.zintel.gfx.color.CUtils;
 import de.zintel.gfx.color.EColorMixture;
@@ -132,7 +133,7 @@ public class WhirlSim extends SimulationScreen {
 	}
 
 	public static void main(String args[]) throws Exception {
-		new WhirlSim("Testing", GFX_SSYSTEM, SCREENPARAMETERS, false, "", 0).start();
+		new WhirlSim("Testing", GfxUtils.EGraphicsSubsystem.SWING, SCREENPARAMETERS, false, "", 0).start();
 	}
 
 	/*
@@ -401,7 +402,7 @@ public class WhirlSim extends SimulationScreen {
 					final Color pcolor = particle.getAttribute().color;
 					return CUtils.transparent(adjustColor(
 							CUtils.morphColor(pcolor, CUtils.transparent(Color.YELLOW, pcolor.getAlpha()), colortrans, point.x()), point),
-							(int) MathUtils.morph(v -> (double) pcolor.getAlpha(), v -> 0D, alphatrans, point.x()));
+							(int) MathUtils.transform(v -> (double) pcolor.getAlpha(), v -> 0D, alphatrans, point.x()));
 				});
 			}
 		}
@@ -540,7 +541,7 @@ public class WhirlSim extends SimulationScreen {
 		if (prc == null) {
 			return 0;
 		}
-		return MathUtils.morph(v -> particle.getAttribute().radius, v -> finalBubbleRadius,
+		return MathUtils.transform(v -> particle.getAttribute().radius, v -> finalBubbleRadius,
 				v -> MathUtils.sigmoid(MathUtils.scalel(deltaxmin, dimension.getWidth() + deltaxmax, -3, 4, point.x())), prc.x());
 
 	}

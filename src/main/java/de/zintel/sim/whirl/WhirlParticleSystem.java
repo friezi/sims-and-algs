@@ -66,7 +66,7 @@ public class WhirlParticleSystem<A> extends ParticleSystem<WhirlParticle<A>, A> 
 
 			// particles velocity in x direction should increase by progressing
 			// in x direction
-			point.setX(point.x() + MathUtils.morph(v -> particle.velocity, v -> particle.velocity + 10, rottrans, point.x()));
+			point.setX(point.x() + MathUtils.transform(v -> particle.velocity, v -> particle.velocity + 10, rottrans, point.x()));
 
 			if (point.x() > width) {
 
@@ -76,12 +76,12 @@ public class WhirlParticleSystem<A> extends ParticleSystem<WhirlParticle<A>, A> 
 			}
 
 			// the radius should decrease by progressing in x direction
-			final double cradius = MathUtils.morph(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
+			final double cradius = MathUtils.transform(x -> Math.abs(rotcenter.y() - particle.initialPosition.y()), x -> finalCircleRadius,
 					rottrans, point.x());
 
 			// the angular velocity should increase by progressing in x
 			// direction
-			particle.angle += MathUtils.morph(x -> 0.000005, x -> 40D, rottrans, point.x());
+			particle.angle += MathUtils.transform(x -> 0.000005, x -> 40D, rottrans, point.x());
 
 			// rotation on x axis
 			point.setZ(Math.sin(MathUtils.radian(particle.angle)) * cradius + rotcenter.z());

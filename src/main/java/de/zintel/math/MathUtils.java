@@ -74,7 +74,7 @@ public final class MathUtils {
 		// would require additional casts int-> double and double -> int
 		double projectedStep = Math.abs(p.project(step, maxSteps)) % (maxSteps + 1);
 
-		return maxSteps <= 0 ? start : morph(x -> start, x -> end, x -> x, x -> (double) maxSteps, projectedStep);
+		return maxSteps <= 0 ? start : transform(x -> start, x -> end, x -> x, x -> (double) maxSteps, projectedStep);
 	}
 
 	/**
@@ -82,7 +82,7 @@ public final class MathUtils {
 	 *            start-function
 	 * @param fend
 	 *            end-function
-	 * @param ftrans
+	 * @param transfer
 	 *            transition-function: if ftrans:double->[0;1] in such way, that
 	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a morph from
 	 *            fstart to fend will take place
@@ -90,9 +90,9 @@ public final class MathUtils {
 	 *            value x
 	 * @return morphed value
 	 */
-	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend,
-			final Function<Double, Double> ftrans, final double x) {
-		return morph(fstart, fend, ftrans, d -> 1.0, x);
+	public static double transform(final Function<Double, Double> fstart, final Function<Double, Double> fend,
+			final Function<Double, Double> transfer, final double x) {
+		return transform(fstart, fend, transfer, d -> 1.0, x);
 	}
 
 	/**
@@ -100,11 +100,11 @@ public final class MathUtils {
 	 *            start-function
 	 * @param fend
 	 *            end-function
-	 * @param ftransNumerator
+	 * @param transferNumerator
 	 *            transition-function: if ftrans:double->[0;1] in such way, that
 	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a morph from
 	 *            fstart to fend well take place
-	 * @param ftransDenominator
+	 * @param transferDenominator
 	 *            for precision-reasons it's possible to split up the
 	 *            ftrans-function into two functions, so that the calculation
 	 *            will be
@@ -113,13 +113,13 @@ public final class MathUtils {
 	 *            value x
 	 * @return morphed value
 	 */
-	public static double morph(final Function<Double, Double> fstart, final Function<Double, Double> fend,
-			final Function<Double, Double> ftransNumerator, final Function<Double, Double> ftransDenominator, final double x) {
+	public static double transform(final Function<Double, Double> fstart, final Function<Double, Double> fend,
+			final Function<Double, Double> transferNumerator, final Function<Double, Double> transferDenominator, final double x) {
 
 		final Double start = fstart.apply(x);
 		final Double end = fend.apply(x);
-		final Double numerator = ftransNumerator.apply(x);
-		final Double denominator = ftransDenominator.apply(x);
+		final Double numerator = transferNumerator.apply(x);
+		final Double denominator = transferDenominator.apply(x);
 
 		return start + (numerator * (end - start)) / denominator;
 	}
@@ -129,11 +129,11 @@ public final class MathUtils {
 	 *            start-function
 	 * @param fend
 	 *            end-function
-	 * @param ftransDividend
+	 * @param transferNumerator
 	 *            transition-function: if ftrans:double->[0;1] in such way, that
 	 *            ftrans(rangestart)=0 and ftrans(rangeend)=1 then a morph from
 	 *            fstart to fend well take place
-	 * @param ftransDivisor
+	 * @param transferDenominator
 	 *            for precision-reasons it's possible to split up the
 	 *            ftrans-function into two functions, so that the calculation
 	 *            will be
@@ -142,10 +142,10 @@ public final class MathUtils {
 	 *            value x
 	 * @return morphed value
 	 */
-	public static <N extends AVectorND<N>, M extends AVectorND<M>> M morph(final Function<N, M> fstart, final Function<N, M> fend,
-			final Function<N, Double> ftransDividend, final Function<N, Double> ftransDivisor, final N x) {
+	public static <N extends AVectorND<N>, M extends AVectorND<M>> M transform(final Function<N, M> fstart, final Function<N, M> fend,
+			final Function<N, Double> transferNumerator, final Function<N, Double> transferDenominator, final N x) {
 		final M start = fstart.apply(x);
-		return fend.apply(x).substract(start).mult(ftransDividend.apply(x)).div(ftransDivisor.apply(x)).add(start);
+		return fend.apply(x).substract(start).mult(transferNumerator.apply(x)).div(transferDenominator.apply(x)).add(start);
 	}
 
 	public static int interpolateMoreScattering(int start, int end, int iteration, int maxIterations, StepProjection p) {
@@ -212,7 +212,7 @@ public final class MathUtils {
 	 */
 	public static double scalea(final double smin, final double smax, final double tmin, final double tmax,
 			final Function<Double, Double> ftransNumerator, final Function<Double, Double> ftransDenominator, final double x) {
-		return smax == smin ? tmin : morph(t -> tmin, t -> tmax, ftransNumerator, ftransDenominator, x);
+		return smax == smin ? tmin : transform(t -> tmin, t -> tmax, ftransNumerator, ftransDenominator, x);
 	}
 
 	public static Optional<Double> max(final Collection<Double> collection) {
