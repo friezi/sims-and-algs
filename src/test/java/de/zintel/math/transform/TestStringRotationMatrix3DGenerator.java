@@ -17,6 +17,7 @@ public class TestStringRotationMatrix3DGenerator {
 	public TestStringRotationMatrix3DGenerator() {
 	}
 
+	@Test
 	public void test() throws Exception {
 		System.out.println(new StringRotationMatrix3DGenerator().generate());
 	}

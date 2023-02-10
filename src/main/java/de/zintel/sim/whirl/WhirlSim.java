@@ -213,8 +213,8 @@ public class WhirlSim extends SimulationScreen {
 		animators.clear();
 
 		animators.add(createCenterAnimator());
-		animators.add(creatTopAnimator());
-		animators.add(creatRotationTransitionLeftAnimator());
+		animators.add(createTopAnimator());
+		animators.add(createRotationTransitionLeftAnimator());
 
 		multiAnimator = new MultiAnimator(Collections.emptyList());
 
@@ -260,7 +260,7 @@ public class WhirlSim extends SimulationScreen {
 		};
 	}
 
-	private IAnimator creatTopAnimator() {
+	private IAnimator createTopAnimator() {
 		return new IAnimator() {
 
 			private int start = 0;
@@ -301,7 +301,7 @@ public class WhirlSim extends SimulationScreen {
 		};
 	}
 
-	private IAnimator creatRotationTransitionLeftAnimator() {
+	private IAnimator createRotationTransitionLeftAnimator() {
 		return new IAnimator() {
 
 			private int start = 0;
